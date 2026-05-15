@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>SyTech Solutions — Solutions</title>
+<meta name="description" content="SyTech's Organize, Unify, Scale framework: digitization, electronic forms, workflow automation, and AI readiness — all built on the cloud you already own."/>
+<style>
+:root { --navy: #25426B; --deep-navy: #1a2c42; --gold: #E5A630; --amber: #f1b14c; --light: #F5F5F5; --white: #FFFFFF; --soft-white: #C5CDD8; --text-body: #3d4f5f; }
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body { font-family: Tahoma, 'Segoe UI', Arial, Helvetica, sans-serif; color: var(--navy); background: var(--white); line-height: 1.65; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; overflow-x: clip; }
+.container { max-width: 1160px; margin: 0 auto; padding: 0 2rem; }
+a { color: inherit; text-decoration: none; }
+.skip-link { position: absolute; top: -100px; left: 1rem; z-index: 999; background: var(--gold); color: var(--deep-navy); padding: 0.75rem 1.5rem; font-weight: 700; font-size: 0.875rem; border-radius: 0 0 8px 8px; text-decoration: none; transition: top 0.3s; }
+.skip-link:focus { top: 0; }
+
+.nav { position: fixed; top: 0; left: 0; width: 100%; z-index: 100; background: none; }
+.nav-shape { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; }
+.nav-shape svg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: block; }
+.nav-inner { max-width: 1140px; margin: 0 auto; padding: 0 2rem; padding-top: 9px; padding-bottom: 20px; display: flex; align-items: center; justify-content: space-between; height: 62px; position: relative; z-index: 2; }
+.nav-inner > a { display: inline-flex; align-items: center; flex-shrink: 0; }
+.nav-links { display: flex; gap: 2rem; align-items: center; margin: 0; padding: 0; list-style: none; }
+.nav-links a { font-size: 0.875rem; font-weight: 700; color: var(--navy); text-decoration: none; letter-spacing: 0.02em; position: relative; transition: color 0.2s ease; }
+.nav-links a:hover { color: var(--gold); }
+.nav-links a::after { content: ''; position: absolute; bottom: -4px; left: 0; width: 0; height: 2px; background: var(--gold); transition: width 0.3s ease; }
+.nav-links a:hover::after { width: 100%; }
+.nav-links a[aria-current="page"] { color: var(--gold); }
+.nav-links a[aria-current="page"]::after { width: 100%; }
+.nav-cta { display: inline-block; padding: 0.625rem 1.5rem; background: var(--navy); color: var(--white); font-size: 0.875rem; font-weight: 700; border-radius: 6px; text-decoration: none; transition: all 0.3s ease; border: none; cursor: pointer; letter-spacing: 0.02em; white-space: nowrap; }
+.nav-cta:hover { background: var(--deep-navy); transform: translateY(-1px); box-shadow: 0 4px 16px rgba(37, 66, 107, 0.30); }
+.nav-hamburger { display: none; background: none; border: none; cursor: pointer; width: 32px; height: 24px; position: relative; z-index: 101; padding: 0; flex-shrink: 0; }
+.nav-hamburger span { display: block; position: absolute; left: 0; width: 100%; height: 2.5px; background: var(--navy); border-radius: 2px; transition: all 0.3s ease; }
+.nav-hamburger span:nth-child(1) { top: 2px; } .nav-hamburger span:nth-child(2) { top: 10px; } .nav-hamburger span:nth-child(3) { top: 18px; }
+.nav-hamburger.open span:nth-child(1) { top: 10px; transform: rotate(45deg); } .nav-hamburger.open span:nth-child(2) { opacity: 0; } .nav-hamburger.open span:nth-child(3) { top: 10px; transform: rotate(-45deg); }
+@media (max-width: 1024px) {
+  .nav { background: var(--white); border-bottom: 1px solid #E3E9EF; } .nav-shape { display: none; }
+  .nav-inner { height: 64px; padding-top: 0; padding-bottom: 0; }
+  .nav-hamburger { display: block; } .nav-cta { display: none; }
+  .nav-links { display: none; flex-direction: column; gap: 0; position: absolute; top: 100%; left: 0; right: 0; background: var(--white); border-top: 1px solid #E3E9EF; border-bottom: 1px solid #E3E9EF; box-shadow: 0 8px 24px rgba(37, 66, 107, 0.10); padding: 0.5rem 0; }
+  .nav-links.open { display: flex; } .nav-links li { width: 100%; }
+  .nav-links a { display: block; padding: 0.875rem 2rem; font-size: 1rem; border-bottom: 1px solid #E3E9EF; }
+  .nav-links li:last-child a { border-bottom: none; } .nav-links a::after { display: none; }
+}
+
+.page-hero { padding: 11rem 0 5rem; background: linear-gradient(175deg, var(--deep-navy) 0%, var(--navy) 60%, #2d5080 100%); position: relative; overflow: hidden; color: var(--white); }
+.page-hero::after { content: ''; position: absolute; inset: 0; background-image: radial-gradient(rgba(255,255,255,0.04) 1px, transparent 1px); background-size: 24px 24px; pointer-events: none; }
+.page-hero .eyebrow { display: inline-block; font-size: 0.7rem; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; color: var(--gold); margin-bottom: 1rem; }
+.page-hero h1 { font-size: clamp(2rem, 4.5vw, 3.2rem); font-weight: 700; line-height: 1.15; margin-bottom: 1.25rem; letter-spacing: -0.01em; }
+.page-hero h1 span { color: var(--gold); }
+.page-hero p.lead { font-size: 1.15rem; line-height: 1.7; color: rgba(255,255,255,0.82); max-width: 720px; }
+
+.phase { padding: 5rem 0; border-bottom: 1px solid rgba(37,66,107,0.08); }
+.phase.alt { background: var(--light); }
+.phase-grid { display: grid; grid-template-columns: 1fr 1.5fr; gap: 4rem; align-items: start; }
+.phase-num { font-size: clamp(4rem, 8vw, 6.5rem); font-weight: 700; color: var(--gold); line-height: 1; opacity: 0.85; letter-spacing: -0.02em; }
+.phase-label { display: inline-block; padding: 0.4rem 0.9rem; background: var(--gold-soft, rgba(229,166,48,0.15)); color: var(--gold); font-size: 0.7rem; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; border-radius: 4px; margin-bottom: 1rem; }
+.phase h2 { font-size: clamp(1.6rem, 2.6vw, 2rem); font-weight: 700; line-height: 1.2; margin-bottom: 1rem; letter-spacing: -0.01em; color: var(--navy); }
+.phase p { font-size: 1.05rem; line-height: 1.8; color: var(--text-body); margin-bottom: 1.25rem; }
+.phase ul { list-style: none; margin-top: 1.5rem; padding: 0; }
+.phase ul li { position: relative; padding-left: 1.75rem; padding-bottom: 0.75rem; font-size: 0.97rem; color: var(--text-body); }
+.phase ul li::before { content: ''; position: absolute; left: 0; top: 0.6rem; width: 8px; height: 8px; background: var(--gold); border-radius: 50%; }
+.phase .pull { font-size: 0.95rem; color: var(--navy); font-weight: 700; margin-top: 1.25rem; padding-top: 1.25rem; border-top: 2px solid var(--gold); display: inline-block; }
+
+.cap-section { padding: 5rem 0; background: var(--deep-navy); color: var(--white); }
+.cap-section h2 { color: var(--white); font-size: clamp(1.6rem, 2.6vw, 2.2rem); margin-bottom: 1rem; }
+.cap-section .section-eyebrow { display: inline-block; font-size: 0.7rem; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; color: var(--gold); margin-bottom: 0.75rem; }
+.cap-section p.lead { color: rgba(255,255,255,0.75); max-width: 720px; margin-bottom: 2.5rem; font-size: 1.05rem; line-height: 1.7; }
+.cap-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1.5rem; }
+.cap-card { background: rgba(255,255,255,0.04); padding: 1.75rem; border-radius: 10px; border: 1px solid rgba(255,255,255,0.08); }
+.cap-card h3 { color: var(--gold); font-size: 1rem; font-weight: 700; margin-bottom: 0.6rem; letter-spacing: 0.02em; }
+.cap-card p { color: rgba(255,255,255,0.75); font-size: 0.92rem; line-height: 1.65; margin: 0; }
+
+.cta-strip { background: var(--navy); padding: 4rem 0; color: var(--white); text-align: center; }
+.cta-strip h2 { color: var(--white); font-size: clamp(1.5rem, 2.4vw, 2rem); margin-bottom: 1rem; }
+.cta-strip p { color: rgba(255,255,255,0.78); max-width: 600px; margin: 0 auto 1.75rem; }
+.btn-primary { display: inline-block; padding: 0.85rem 2rem; background: var(--gold); color: var(--deep-navy); font-size: 0.95rem; font-weight: 700; border-radius: 6px; text-decoration: none; transition: all 0.3s; border: none; cursor: pointer; }
+.btn-primary:hover { background: #d4952a; transform: translateY(-2px); box-shadow: 0 6px 20px rgba(229,166,48,0.35); }
+
+.site-footer { background: var(--deep-navy); padding: 3rem 0 2rem; border-top: 3px solid var(--gold); }
+.footer-grid { display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 3rem; margin-bottom: 2.5rem; }
+.footer-brand .footer-logo { font-size: 1.2rem; font-weight: 700; color: var(--white); margin-bottom: 0.75rem; }
+.footer-brand .footer-logo span { color: var(--gold); }
+.footer-brand p { font-size: 0.85rem; color: rgba(255,255,255,0.5); line-height: 1.7; max-width: 320px; }
+.footer-col h4 { font-size: 0.7rem; font-weight: 700; letter-spacing: 0.15em; text-transform: uppercase; color: var(--gold); margin-bottom: 1rem; }
+.footer-col ul { list-style: none; }
+.footer-col ul li { margin-bottom: 0.5rem; }
+.footer-col ul a { font-size: 0.85rem; color: rgba(255,255,255,0.6); text-decoration: none; transition: color 0.2s; }
+.footer-col ul a:hover { color: var(--gold); }
+.footer-bottom { border-top: 1px solid rgba(255,255,255,0.08); padding-top: 1.5rem; text-align: center; font-size: 0.75rem; color: rgba(255,255,255,0.35); }
+
+@media (max-width: 900px) {
+  .footer-grid { grid-template-columns: 1fr; gap: 2rem; }
+  .page-hero { padding: 9rem 0 4rem; }
+  .phase-grid { grid-template-columns: 1fr; gap: 1rem; }
+  .phase, .cap-section { padding: 3.5rem 0; }
+}
+</style>
+</head>
+<body>
+
+<a class="skip-link" href="#main">Skip to main content</a>
+
+<nav class="nav" id="nav" role="navigation" aria-label="Primary navigation">
+  <div class="nav-shape" aria-hidden="true">
+    <svg viewBox="0 0 2992.02 169.16" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg"><path d="M0,0v169.16h2570.83c37.25,0,72.48-14.09,96.67-38.65l28.26-28.69c19.39-19.69,47.95-31.06,78.31-31.19l218.01-.62V0H0Z" fill="#FFFFFF"/></svg>
+    <svg viewBox="0 0 2992.02 169.16" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg"><path d="M2570.83,169.16H0v-25h2570.83c30.6,0,59.34-11.37,78.86-31.19l28.26-28.69c24.03-24.4,59.04-38.49,96.04-38.64l218.01-.62v25l-217.94.62c-30.36.13-58.91,11.5-78.31,31.19l-28.26,28.69c-24.19,24.56-59.42,38.65-96.67,38.65Z" fill="#E5A630"/></svg>
+  </div>
+  <div class="nav-inner">
+    <a href="index.html" aria-label="SyTech Solutions home">
+      <div style="display:flex;align-items:baseline;gap:0;font-family:Tahoma,sans-serif;">
+        <span style="color:var(--navy);font-weight:700;font-size:1.6rem;letter-spacing:-0.01em;">Sy<span style="color:var(--gold);">T</span>ech</span>
+        <span style="color:var(--navy);font-size:0.55rem;font-weight:700;letter-spacing:0.18em;margin-left:6px;align-self:center;">SOLUTIONS</span>
+      </div>
+    </a>
+    <ul class="nav-links" id="navLinks">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="about.html">About</a></li>
+      <li><a href="why-sytech.html">Why SyTech</a></li>
+      <li><a href="solutions.html" aria-current="page">Solutions</a></li>
+      <li><a href="who-we-serve.html">Who We Serve</a></li>
+      <li><a href="contact.html">Contact</a></li>
+    </ul>
+    <button class="nav-hamburger" id="navHamburger" aria-label="Toggle menu" aria-expanded="false"><span></span><span></span><span></span></button>
+    <a href="contact.html" class="nav-cta">Request a Free Assessment</a>
+  </div>
+</nav>
+
+<main id="main">
+
+<section class="page-hero">
+  <div class="container">
+    <span class="eyebrow">Our Solutions</span>
+    <h1>Organize. Unify. <span>Scale.</span></h1>
+    <p class="lead">A three-phase framework for moving public agencies from records chaos to lasting clarity. We meet you where you are — paper, legacy software, or somewhere in between — and map a path forward using the cloud you already own.</p>
+  </div>
+</section>
+
+<section class="phase">
+  <div class="container">
+    <div class="phase-grid">
+      <div class="phase-num">01</div>
+      <div>
+        <span class="phase-label">Phase 1 — Project-Based</span>
+        <h2>Organize: See What You Actually Have.</h2>
+        <p>We scan, structure, and extract your legacy records — paper and digital — so nothing stays buried and everything becomes visible. AI-assisted ingestion and metadata extraction transform legacy clutter into indexed, compliant records ready for the next phase.</p>
+        <ul>
+          <li>Scanning and digitization at any scale</li>
+          <li>Taxonomy and metadata setup for searchability</li>
+          <li>Legacy migration from paper, file shares, and outdated systems</li>
+          <li>Compliance setup aligned to your retention requirements</li>
+        </ul>
+        <span class="pull">When you organize your data, you gain visibility.</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="phase alt">
+  <div class="container">
+    <div class="phase-grid">
+      <div class="phase-num">02</div>
+      <div>
+        <span class="phase-label">Phases 2–3 — Monthly Partnership</span>
+        <h2>Unify: One Ecosystem. One Login.</h2>
+        <p>Your organized records move into the cloud platform you already own. Forms, workflows, and data connect in a single place — eliminating silos and the cost of maintaining multiple disconnected systems. No new software required.</p>
+        <ul>
+          <li>Electronic forms and connective tools built inside Microsoft 365 or Google Workspace</li>
+          <li>Workflow automation that replaces paper-based approvals</li>
+          <li>Records lifecycle alignment from creation to retention</li>
+          <li>Governance support and ongoing platform configuration</li>
+        </ul>
+        <span class="pull">Your data stays in your cloud — always.</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="phase">
+  <div class="container">
+    <div class="phase-grid">
+      <div class="phase-num">03</div>
+      <div>
+        <span class="phase-label">Phases 2–3 — Monthly Partnership</span>
+        <h2>Scale: Activate What You Already Fund.</h2>
+        <p>We turn on advanced automation, analytics, and AI using the licenses your agency already pays for — Microsoft Copilot, Power Automate, Power BI, Azure AI. Your infrastructure grows with you, and you future-proof for the cloud-and-AI era without adding new systems.</p>
+        <ul>
+          <li>Public Records Act dashboards and self-service portals</li>
+          <li>Retention logic and automated lifecycle management</li>
+          <li>Native AI integration through Microsoft Copilot</li>
+          <li>Ongoing optimization, reporting, and advanced integrations</li>
+        </ul>
+        <span class="pull">A future-proof path as AI and automation become mission critical.</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="cap-section">
+  <div class="container">
+    <span class="section-eyebrow">Capabilities</span>
+    <h2>The Tools Behind the Framework.</h2>
+    <p class="lead">SyTech engagements are powered by purpose-built capabilities for ingestion, e-forms, integration, and document storage — all designed to live inside the cloud platforms you already own.</p>
+    <div class="cap-grid">
+      <div class="cap-card">
+        <h3>OneForm</h3>
+        <p>Our electronic forms engine for internal and public-facing workflows, approvals, and automation. Lives inside your Microsoft 365 or Google environment — never a standalone SaaS app.</p>
+      </div>
+      <div class="cap-card">
+        <h3>AI-Powered Ingestion</h3>
+        <p>Documatic, our AI ingestion and metadata extraction tool, accelerates legacy records migration and compliance setup during the Organize phase.</p>
+      </div>
+      <div class="cap-card">
+        <h3>Connective Tools</h3>
+        <p>Integration capabilities that link Power Automate, SharePoint libraries, Power BI dashboards, and other Microsoft services into a single records ecosystem.</p>
+      </div>
+      <div class="cap-card">
+        <h3>Cloud-Native Storage</h3>
+        <p>Structured, cloud-based document and records storage — standalone or fully SharePoint-ready, governed by your tenant's security policies.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="cta-strip">
+  <div class="container">
+    <h2>Not Sure Where Your Agency Should Start?</h2>
+    <p>Every engagement begins with an assessment. We learn where you are, what is working, and what is not — then map a clear path forward through Organize, Unify, and Scale.</p>
+    <a href="contact.html" class="btn-primary">Request a Free Assessment</a>
+  </div>
+</section>
+
+</main>
+
+<footer class="site-footer" role="contentinfo">
+  <div class="container">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <div class="footer-logo"><span>Sy</span>Tech Solutions</div>
+        <p>Public sector records management services. From complexity to clarity.</p>
+      </div>
+      <div class="footer-col">
+        <h4>Navigation</h4>
+        <ul>
+          <li><a href="index.html">Home</a></li>
+          <li><a href="about.html">About</a></li>
+          <li><a href="why-sytech.html">Why SyTech</a></li>
+          <li><a href="solutions.html">Solutions</a></li>
+          <li><a href="who-we-serve.html">Who We Serve</a></li>
+          <li><a href="contact.html">Contact</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Connect</h4>
+        <ul>
+          <li><a href="contact.html">Request a Free Assessment</a></li>
+          <li><a href="mailto:info@sytechsolutions.com">info@sytechsolutions.com</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">&copy; 2026 SyTech Solutions. All rights reserved.</div>
+  </div>
+</footer>
+
+<script>
+(function() {
+  'use strict';
+  var navHamburger = document.getElementById('navHamburger');
+  var navLinks = document.getElementById('navLinks');
+  if (navHamburger && navLinks) {
+    navHamburger.addEventListener('click', function() {
+      var isOpen = navHamburger.classList.toggle('open');
+      navLinks.classList.toggle('open');
+      navHamburger.setAttribute('aria-expanded', isOpen);
+    });
+  }
+})();
+</script>
+
+</body>
+</html>

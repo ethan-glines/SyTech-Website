@@ -1,0 +1,1733 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>SharePoint ERMS — SyTech Solutions</title>
+<meta name="description" content="Configure SharePoint as your records system — inside the Microsoft 365 tenant you already own. No second platform. No second invoice."/>
+<link rel="stylesheet" href="assets/css/sytech-shared.css">
+<link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.0.3/src/regular/style.css">
+<style>
+/* ==========================================================================
+   services-sharepoint-erms.html — Batch 2a Subpage 2 of 3
+   Inherits the scanning subpage recipe (.section-header, .cross-link,
+   .archive-quote, .cta-strip, .breadcrumb, two-column hero).
+   New on this page only: the replacement-cycle hero animation (vendor box →
+   tenant-housed capabilities) and the hub-and-spoke schematic (radial on
+   desktop, 4x2 grid on mobile).
+   ========================================================================== */
+
+
+/* ---- Page Hero — same scaffold as scanning subpage ---- */
+.page-hero { padding: 11rem 0 5rem; background: linear-gradient(175deg, var(--deep-navy) 0%, var(--navy) 60%, #2d5080 100%); position: relative; overflow: hidden; color: var(--white); }
+.page-hero::after { content: ''; position: absolute; inset: 0; background-image: radial-gradient(rgba(255,255,255,0.04) 1px, transparent 1px); background-size: 24px 24px; pointer-events: none; }
+.page-hero .container { position: relative; z-index: 1; }
+.page-hero-grid { display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr); gap: 3.5rem; align-items: center; }
+.page-hero-copy { min-width: 0; }
+.page-hero .eyebrow { display: inline-block; font-size: 0.7rem; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; color: var(--gold); margin-bottom: 1rem; }
+.page-hero h1 { font-size: clamp(2rem, 4.5vw, 3.2rem); font-weight: 700; line-height: 1.15; margin-bottom: 1.25rem; letter-spacing: -0.01em; }
+.page-hero h1 span { color: var(--gold); }
+.page-hero p.lead { font-size: 1.1rem; line-height: 1.7; color: rgba(255,255,255,0.82); }
+
+/* Breadcrumb — inherited verbatim from scanning */
+.breadcrumb { margin-bottom: 1.25rem; }
+.breadcrumb ol { list-style: none; padding: 0; margin: 0; display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: center; font-size: 0.8rem; }
+.breadcrumb li { display: inline-flex; align-items: center; gap: 0.5rem; color: rgba(255,255,255,0.65); }
+.breadcrumb li + li::before { content: '\203A'; color: var(--gold); font-size: 0.95rem; line-height: 1; padding-right: 0.25rem; }
+.breadcrumb a { color: rgba(255,255,255,0.65); transition: color 0.2s ease; }
+.breadcrumb a:hover { color: var(--gold); }
+.breadcrumb [aria-current="page"] { color: rgba(255,255,255,0.95); font-weight: 700; }
+.breadcrumb [aria-current="step"] { color: rgba(255,255,255,0.85); }
+
+
+/* ==========================================================================
+   Hero Animation — v3: 50/50 Split With Shrink-Grow Storytelling
+   12-second cycle. Canvas is split vertically. LEFT panel (proprietary
+   system, broken) shrinks while RIGHT panel (SharePoint, working) grows.
+   The size transition IS the rhetoric — focus literally migrates from
+   broken to working.
+
+   Choreography map (split X position in viewBox coords, 0..600):
+     0.00s : splitX = 420   (LEFT 70%, RIGHT 30%)  LEFT dominant
+     5.00s : splitX = 300   (balanced 50/50)
+     8.00s : splitX = 180   (LEFT 30%, RIGHT 70%)  RIGHT dominant
+     8.00s — 11.50s : hold at splitX = 180
+     11.50s — 12.00s : ease back to splitX = 420 for next loop
+
+   LEFT panel contents:
+     - Faux portal frame (frame + title bar dots, no clutter labels)
+     - Toast 1: "Server Maintenance — Records Unavailable."  (0.5s — 1.8s)
+     - Toast 2: "License Renewal Required."                  (2.5s — 3.8s)
+     - Cost ticker: continuously climbing, never lands       (0.6s — ~5.0s)
+     - Paywall lock: appears at 3.8s, lingers as panel shrinks
+
+   RIGHT panel contents:
+     - SharePoint logo, centered, scales with panel width
+     - 8 capability icons in radial around the logo (revealed as panel grows)
+     - 8 gold connector lines (BEHIND the logo — SVG source order)
+     - "Included in Microsoft 365." pill badge (sized to fit text — no overflow)
+   ========================================================================== */
+.hero-story { position: relative; width: 100%; max-width: 560px; margin-left: auto; opacity: 0; transform: translateY(10px); transition: opacity 700ms cubic-bezier(0.4,0,0.2,1), transform 700ms cubic-bezier(0.4,0,0.2,1); }
+.hero-story.is-visible { opacity: 1; transform: translateY(0); }
+.hero-story-frame {
+  position: relative;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.10);
+  border-radius: 14px;
+  padding: 1.25rem 1rem 1rem;
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+}
+.hero-story-frame::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0; height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(229,166,48,0.5), transparent);
+}
+.hero-story-stage {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 600 / 360;
+}
+.hero-story-svg { width: 100%; height: 100%; display: block; position: absolute; inset: 0; }
+.hero-caption { margin-top: 1.1rem; font-size: 0.82rem; line-height: 1.55; color: rgba(255,255,255,0.62); font-style: italic; }
+
+/* ---- Static HTML headers (sit ABOVE the SVG canvas, never resize, never move) ----
+   Cole spec: pinned above the animation as fixed-size eyebrow labels. Two 50% columns,
+   wrap to two lines via explicit <br>, no JS positioning, no container queries — stable.
+   ------------------------------------------------------------------------------------ */
+.hero-story-headers {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  padding: 0 0 0.85rem;
+  align-items: end;          /* both headers anchor at bottom so the row sits flush above the SVG */
+}
+.hero-story-header {
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--gold);
+  text-align: center;
+  line-height: 1.4;          /* readable rhythm for 2-line wrapped headers */
+}
+/* LEFT header — muted gray to match the desaturated broken-portal palette;
+   only the RIGHT (SharePoint/resolution) side earns the gold brand accent.  */
+.hero-story-header--left { color: #7C8896; }
+.hero-story-header--right { color: var(--gold); }
+
+@media (max-width: 600px) {
+  .hero-story-header {
+    font-size: 0.6rem;
+    letter-spacing: 0.12em;
+  }
+}
+
+/* ---- Hero red tokens — brighter alert red for contrast against dark navy hero.
+   v3.5: swapped from #DC3545 → #FF4757 (≈20% higher perceived luminance).
+   Still unambiguously red — not pink, not orange. Slight coral warmth softens
+   pure-red harshness. Fallback option: #FF5252 if #FF4757 reads too aggressive. */
+:root {
+  --hr-red: #FF4757;
+  --hr-red-wash: rgba(255, 71, 87, 0.18);
+  --hr-red-wash-soft: rgba(255, 71, 87, 0.14);
+}
+
+/* ---- Shared text + element styling ---- */
+.hr-text { font-family: Tahoma, 'Segoe UI', sans-serif; }
+
+/* Vertical divider between the two panels — gold hairline */
+.hr-divider { stroke: var(--gold); stroke-width: 1; stroke-dasharray: 4 4; opacity: 0.6; }
+
+/* Panel background washes (very subtle — establishes the split visually) */
+.hr-panel-left-bg  { fill: rgba(124,136,150,0.05); }
+.hr-panel-right-bg { fill: rgba(229,166,48,0.04); }
+
+/* ---- LEFT panel — Proprietary system (broken software register) ---- */
+.hr-window-frame    { fill: rgba(255,255,255,0.06); stroke: rgba(197,205,216,0.50); stroke-width: 1; }
+.hr-window-titlebar { fill: rgba(124,136,150,0.22); stroke: rgba(197,205,216,0.35); stroke-width: 1; }
+.hr-window-dot      { fill: rgba(197,205,216,0.45); }
+.hr-window-row      { fill: rgba(197,205,216,0.22); }
+
+/* Toast — RED error semantic (functional status color, not a brand accent).
+   Background = navy with subtle red wash so it still reads against the panel;
+   border + icon = clean web-standard error red. Text stays white for legibility. */
+.hr-toast-bg   { fill: var(--hr-red-wash); stroke: var(--hr-red); stroke-width: 1.25; }
+.hr-toast-text { fill: rgba(255,255,255,0.95); font-weight: 700; letter-spacing: 0.4px; text-anchor: start; }
+.hr-toast-icon { fill: var(--hr-red); }
+
+/* Cost ticker — large, climbing, RED (matches the toast/lock error semantic).
+   v3.4: the entire cost block joins the pain story. The expense IS the error.
+   Gold is reserved for the SharePoint/resolution side.
+   v3.5: small-caps letter-spacing bumped to ~0.14em equivalent for legibility. */
+.hr-cost-label    { fill: var(--hr-red); font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; text-anchor: middle; }
+.hr-cost-sublabel { fill: var(--hr-red); font-weight: 700; letter-spacing: 1.1px; text-transform: uppercase; text-anchor: middle; }
+.hr-cost-number   { fill: var(--hr-red); font-weight: 700; letter-spacing: 0.2px; text-anchor: middle; font-variant-numeric: tabular-nums; }
+
+/* Lock — paywall warning state on the broken-portal side. Matches the toast's
+   red error semantic for consistency (this is the same "something is broken" signal).
+   v3.5: lock label letter-spacing bumped to ~0.14em equivalent for legibility. */
+.hr-lock      { stroke: var(--hr-red); stroke-width: 1.5; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+.hr-lock-fill { fill: var(--hr-red-wash-soft); stroke: var(--hr-red); stroke-width: 1.5; }
+.hr-lock-label { fill: var(--hr-red); font-weight: 700; letter-spacing: 1.3px; text-anchor: middle; }
+
+/* ---- RIGHT panel — SharePoint system ---- */
+.hr-sp-logo { opacity: 0; }
+
+.hr-cap      { opacity: 0; }
+.hr-cap-bg   { fill: rgba(255,255,255,0.10); stroke: rgba(229,166,48,0.55); stroke-width: 1; }
+.hr-cap-icon { fill: none; stroke: rgba(255,255,255,0.95); stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
+
+.hr-connector { stroke: var(--gold); stroke-width: 1; fill: none; stroke-linecap: round; opacity: 0; }
+
+/* Badge below SharePoint logo — pill sized to text via JS getBBox + padding */
+.hr-badge { opacity: 0; }
+.hr-badge-bg   { fill: var(--deep-navy); stroke: var(--gold); stroke-width: 1; }
+.hr-badge-text { fill: var(--gold); font-weight: 700; letter-spacing: 1.2px; text-transform: uppercase; text-anchor: middle; font-family: Tahoma, 'Segoe UI', sans-serif; }
+
+/* Smooth opacity transitions for transient elements */
+#hrToast1, #hrToast2, #hrLockGroup,
+.hr-cap, .hr-connector, #hrBadge, #hrSpLogo, #hrCostGroup, #hrWindowGroup {
+  transition: opacity 400ms cubic-bezier(0.4,0,0.2,1);
+}
+
+/* Reduced motion: hide live stage, show static composite. Headers are static
+   HTML above the canvas now, so they remain visible without any extra rule. */
+@media (prefers-reduced-motion: reduce) {
+  .hr-live-stage { display: none; }
+  .hr-static-scene { display: block !important; }
+}
+.hr-static-scene { display: none; }
+
+
+/* ---- Generic section scaffolding (inherited from scanning subpage) ---- */
+.section { padding: 5rem 0; border-bottom: 1px solid rgba(37,66,107,0.08); }
+.section.alt { background: var(--light); }
+.section.breathe { padding: 7rem 0; }
+.section-header { text-align: center; max-width: 760px; margin: 0 auto 2.5rem; }
+.section .section-eyebrow { display: block; font-size: 0.7rem; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; color: var(--gold); margin-bottom: 0.75rem; }
+.section h2 { font-size: clamp(1.6rem, 2.6vw, 2rem); font-weight: 700; line-height: 1.2; margin-bottom: 1rem; letter-spacing: -0.01em; color: var(--navy); }
+.section-header h2 { max-width: 760px; margin-left: auto; margin-right: auto; }
+.section-intro { font-size: 1.05rem; line-height: 1.75; color: var(--text-body); margin: 0 auto 0; max-width: 640px; }
+
+
+/* ==========================================================================
+   SECTION 1 — Comparison Split (Standalone ERMS vs. SharePoint-Based ERMS)
+   Cole's Section 5.2 spec: left desaturated, right full-color, gold divider.
+   ========================================================================== */
+.compare-split { display: grid; grid-template-columns: 1fr auto 1fr; gap: 0; max-width: 980px; margin: 2.5rem auto 0; align-items: stretch; }
+.compare-col { display: flex; flex-direction: column; gap: 1rem; padding: 2.25rem 2rem; border-radius: 10px; opacity: 0; transform: translateY(8px); transition: opacity 500ms cubic-bezier(0.4,0,0.2,1), transform 500ms cubic-bezier(0.4,0,0.2,1); }
+.compare-col.is-left { background: #F5F5F5; }
+.compare-col.is-right { background: var(--white); border: 1px solid rgba(37,66,107,0.10); box-shadow: 0 2px 8px rgba(37,66,107,0.04); }
+.compare-split.is-visible .compare-col { opacity: 1; transform: translateY(0); }
+.compare-col .compare-icon { display: inline-flex; align-items: center; justify-content: center; width: 48px; height: 48px; border-radius: 8px; margin-bottom: 0.25rem; }
+.compare-col.is-left .compare-icon { background: rgba(124,136,150,0.12); }
+.compare-col.is-left .compare-icon i { font-size: 28px; color: #7c8896; line-height: 1; }
+.compare-col.is-right .compare-icon { background: rgba(229,166,48,0.12); }
+.compare-col.is-right .compare-icon i { font-size: 28px; color: var(--navy); line-height: 1; }
+.compare-col h3 { font-size: clamp(1.05rem, 1.6vw, 1.25rem); font-weight: 700; line-height: 1.25; letter-spacing: -0.005em; }
+.compare-col.is-left h3 { color: #7c8896; }
+.compare-col.is-right h3 { color: var(--navy); }
+.compare-col p { font-size: 0.98rem; line-height: 1.65; margin: 0; }
+.compare-col.is-left p { color: #7c8896; }
+.compare-col.is-right p { color: var(--text-body); }
+.compare-divider { width: 1px; background: linear-gradient(to bottom, transparent, var(--gold) 20%, var(--gold) 80%, transparent); margin: 0 1rem; min-height: 100%; }
+
+.compare-closer { max-width: 720px; margin: 2.5rem auto 0; text-align: center; padding: 1.25rem 1.5rem; border-top: 2px solid var(--gold); }
+.compare-closer p { font-size: 1.1rem; line-height: 1.5; color: var(--navy); font-weight: 700; letter-spacing: -0.005em; margin: 0; }
+
+
+/* ==========================================================================
+   SECTION 2 — Hub-and-Spoke Schematic (Desktop) → 4x2 Grid (Mobile)
+   Desktop: 8 orbital nodes at 45° intervals around a SharePoint center node.
+   SVG layer draws 8 gold connector lines from center to orbital.
+   Mobile (≤768px): radial collapses to CSS Grid — 4 cols × 2 rows on tablet,
+   2 cols × 4 rows on phone. Same 8 capability cards, different geometry.
+   ========================================================================== */
+
+/* --- Desktop radial container --- */
+.hub-wrap { position: relative; max-width: 720px; margin: 3rem auto 0; padding: 4rem 0; }
+
+/* Radial scene — square container; nodes positioned absolutely; SVG draws connectors */
+.hub-radial {
+  position: relative;
+  width: 640px;
+  max-width: 100%;
+  aspect-ratio: 1 / 1;
+  margin: 0 auto;
+}
+
+/* SVG connector layer */
+.hub-connectors { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+.hub-connector { stroke: var(--gold); stroke-width: 1.5; fill: none; stroke-linecap: round; opacity: 0; transition: opacity 600ms ease-out; }
+.hub-radial.is-visible .hub-connector { opacity: 0.7; }
+.hub-radial.is-visible .hub-connector:nth-child(1) { transition-delay: 240ms; }
+.hub-radial.is-visible .hub-connector:nth-child(2) { transition-delay: 320ms; }
+.hub-radial.is-visible .hub-connector:nth-child(3) { transition-delay: 400ms; }
+.hub-radial.is-visible .hub-connector:nth-child(4) { transition-delay: 480ms; }
+.hub-radial.is-visible .hub-connector:nth-child(5) { transition-delay: 560ms; }
+.hub-radial.is-visible .hub-connector:nth-child(6) { transition-delay: 640ms; }
+.hub-radial.is-visible .hub-connector:nth-child(7) { transition-delay: 720ms; }
+.hub-radial.is-visible .hub-connector:nth-child(8) { transition-delay: 800ms; }
+
+/* Center SharePoint node — anchored at 50%/50%, larger size, gold ring */
+.hub-center {
+  position: absolute; top: 50%; left: 50%;
+  width: 156px; height: 156px;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 0.5rem;
+  background: var(--white);
+  border: 1.5px solid var(--navy);
+  border-radius: 50%;
+  box-shadow: 0 4px 16px rgba(37,66,107,0.10);
+  z-index: 2;
+  opacity: 0;
+  transform: translate(-50%, -50%) scale(0.92);
+  transition: opacity 500ms cubic-bezier(0.4,0,0.2,1), transform 500ms cubic-bezier(0.4,0,0.2,1);
+}
+.hub-radial.is-visible .hub-center { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+.hub-center i { font-size: 64px; color: var(--gold); line-height: 1; }
+.hub-center-label { font-size: 0.7rem; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--navy); text-align: center; line-height: 1.2; }
+
+/* Orbital nodes — placed via inline CSS custom properties (--x, --y in percent of container) */
+.hub-orbital {
+  position: absolute;
+  left: var(--x); top: var(--y);
+  transform: translate(-50%, -50%);
+  width: 124px; height: 124px;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 0.45rem;
+  background: var(--white);
+  border: 1px solid rgba(37,66,107,0.15);
+  border-radius: 50%;
+  box-shadow: 0 2px 8px rgba(37,66,107,0.04);
+  z-index: 3;
+  opacity: 0;
+  transition: opacity 400ms cubic-bezier(0.4,0,0.2,1), border-color 200ms ease, box-shadow 200ms ease;
+}
+.hub-radial.is-visible .hub-orbital { opacity: 1; }
+.hub-orbital:hover { border-color: rgba(229,166,48,0.55); box-shadow: 0 4px 14px rgba(37,66,107,0.08); }
+.hub-orbital i { font-size: 38px; color: var(--navy); line-height: 1; }
+.hub-orbital-label { font-size: 0.68rem; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--navy); text-align: center; line-height: 1.2; }
+
+/* Staggered reveal of orbital nodes — 80ms apart, after connectors begin */
+.hub-radial.is-visible .hub-orbital:nth-child(2) { transition-delay: 200ms; }
+.hub-radial.is-visible .hub-orbital:nth-child(3) { transition-delay: 280ms; }
+.hub-radial.is-visible .hub-orbital:nth-child(4) { transition-delay: 360ms; }
+.hub-radial.is-visible .hub-orbital:nth-child(5) { transition-delay: 440ms; }
+.hub-radial.is-visible .hub-orbital:nth-child(6) { transition-delay: 520ms; }
+.hub-radial.is-visible .hub-orbital:nth-child(7) { transition-delay: 600ms; }
+.hub-radial.is-visible .hub-orbital:nth-child(8) { transition-delay: 680ms; }
+.hub-radial.is-visible .hub-orbital:nth-child(9) { transition-delay: 760ms; }
+
+/* --- Mobile 4x2 grid (≤768px) --- */
+.hub-grid { display: none; max-width: 720px; margin: 2rem auto 0; }
+.hub-grid-header { text-align: center; margin-bottom: 1.5rem; }
+.hub-grid-header i { font-size: 48px; color: var(--gold); display: block; margin: 0 auto 0.5rem; line-height: 1; }
+.hub-grid-header-label { display: block; font-size: 0.75rem; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; color: var(--navy); }
+
+/* SharePoint logo (PNG with alpha, 1280x1251 — preserve true aspect ratio with height:auto) */
+.sharepoint-logo { display: block; height: auto; }
+.compare-col .compare-icon .sharepoint-logo { width: 28px; }
+.hub-center .sharepoint-logo { width: 64px; margin: 0 auto; }
+.hub-grid-header .sharepoint-logo { width: 48px; margin: 0 auto 0.5rem; }
+.hub-grid-tiles { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.75rem; }
+.hub-grid-tile {
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 0.5rem;
+  padding: 1.25rem 0.5rem;
+  background: var(--white);
+  border: 1px solid rgba(37,66,107,0.15);
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(37,66,107,0.04);
+  min-height: 110px;
+  opacity: 0;
+  transition: opacity 400ms cubic-bezier(0.4,0,0.2,1);
+}
+.hub-grid.is-visible .hub-grid-tile { opacity: 1; }
+.hub-grid.is-visible .hub-grid-tile:nth-child(1) { transition-delay: 0ms; }
+.hub-grid.is-visible .hub-grid-tile:nth-child(2) { transition-delay: 80ms; }
+.hub-grid.is-visible .hub-grid-tile:nth-child(3) { transition-delay: 160ms; }
+.hub-grid.is-visible .hub-grid-tile:nth-child(4) { transition-delay: 240ms; }
+.hub-grid.is-visible .hub-grid-tile:nth-child(5) { transition-delay: 320ms; }
+.hub-grid.is-visible .hub-grid-tile:nth-child(6) { transition-delay: 400ms; }
+.hub-grid.is-visible .hub-grid-tile:nth-child(7) { transition-delay: 480ms; }
+.hub-grid.is-visible .hub-grid-tile:nth-child(8) { transition-delay: 560ms; }
+.hub-grid-tile i { font-size: 30px; color: var(--navy); line-height: 1; }
+.hub-grid-tile-label { font-size: 0.64rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--navy); text-align: center; line-height: 1.2; }
+
+.hub-caption { font-size: 0.95rem; line-height: 1.65; color: var(--text-body); text-align: center; margin: 2.5rem auto 0; max-width: 640px; }
+
+
+/* ==========================================================================
+   SECTION 3 — Stat Reveal (inherited from scanning)
+   ========================================================================== */
+.stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 3rem; margin: 2rem auto 0; max-width: 880px; }
+.stat-block { padding: 2rem 1rem; text-align: center; }
+.stat-number { display: block; font-size: clamp(3rem, 6vw, 5rem); font-weight: 700; color: var(--gold); line-height: 1; letter-spacing: -0.02em; margin-bottom: 0.75rem; font-variant-numeric: tabular-nums; }
+.stat-label { display: block; font-size: 0.78rem; font-weight: 700; color: var(--navy); letter-spacing: 0.16em; text-transform: uppercase; }
+.stat-support { font-size: 0.95rem; line-height: 1.65; color: var(--text-body); text-align: center; margin: 2.5rem auto 0; max-width: 640px; }
+
+
+/* ==========================================================================
+   SECTION 4 — Editorial Pull-Quote (inherited from scanning verbatim)
+   ========================================================================== */
+.archive-quote { max-width: 760px; margin: 0 auto; padding: 2rem 2.25rem; background: rgba(229,166,48,0.08); border-left: 4px solid var(--gold); border-radius: 4px; opacity: 0; transform: translateY(8px); transition: opacity 600ms cubic-bezier(0.4,0,0.2,1), transform 600ms cubic-bezier(0.4,0,0.2,1); }
+.archive-quote.is-visible { opacity: 1; transform: translateY(0); }
+.archive-quote p { font-size: 1.25rem; line-height: 1.5; color: var(--navy); font-weight: 700; margin: 0; letter-spacing: -0.005em; }
+
+
+/* ==========================================================================
+   SECTION 5 — CTA Strip (inherited)
+   ========================================================================== */
+.cta-strip { background: var(--navy); padding: 4rem 0; color: var(--white); text-align: center; }
+.cta-strip h2 { color: var(--white); font-size: clamp(1.5rem, 2.4vw, 2rem); margin-bottom: 1rem; max-width: 720px; margin-left: auto; margin-right: auto; }
+.cta-strip p { color: rgba(255,255,255,0.78); max-width: 640px; margin: 0 auto 1.75rem; line-height: 1.7; }
+.btn-primary { display: inline-block; padding: 0.85rem 2rem; background: var(--gold); color: var(--deep-navy); font-size: 0.95rem; font-weight: 700; border-radius: 6px; text-decoration: none; transition: all 0.3s; border: none; cursor: pointer; }
+.btn-primary:hover { background: #d4952a; transform: translateY(-2px); box-shadow: 0 6px 20px rgba(229,166,48,0.35); }
+.btn-primary:focus-visible { outline: 3px solid var(--white); outline-offset: 3px; }
+
+
+/* ==========================================================================
+   SECTION 6 — Cross-Link (inherited verbatim)
+   ========================================================================== */
+.cross-link { padding: 5rem 0; background: var(--light); text-align: center; }
+.cross-link .section-eyebrow { display: block; font-size: 0.7rem; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; color: var(--gold); margin-bottom: 0.75rem; }
+.cross-link h2 { font-size: clamp(1.6rem, 2.6vw, 2rem); font-weight: 700; line-height: 1.2; margin-bottom: 2.5rem; letter-spacing: -0.01em; color: var(--navy); }
+.cross-link-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; max-width: 880px; margin: 0 auto 2rem; text-align: left; }
+
+/* Batch 3 (2026-05-21): Single-card variant — TEMPORARY while Batch 2b is paused.
+   Workflow Automation card removed; only the OneForm sibling remains. Collapses the
+   grid to a single centered column at the SAME card width as a 2-up grid's individual
+   card (428px), centered inside the 880px wrapper. Pattern mirrors the AI Ingestion
+   subpage's Cloud Storage cross-link. REMOVE .is-single from the markup AND this rule
+   stays in place (it's harmless when no .is-single element exists) once Workflow
+   Automation subpage ships and the second card is restored. */
+.cross-link-grid.is-single { grid-template-columns: 428px; justify-content: center; max-width: 880px; }
+
+.cross-link-card { display: flex; flex-direction: column; gap: 0.75rem; padding: 1.75rem 1.75rem 1.5rem; background: var(--white); border-left: 4px solid var(--gold); border-radius: 4px; box-shadow: 0 2px 8px rgba(37,66,107,0.04); transition: transform 300ms ease, box-shadow 300ms ease; text-decoration: none; }
+.cross-link-card:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(37,66,107,0.10); }
+.cross-link-card:focus-visible { outline: 3px solid var(--gold); outline-offset: 3px; }
+.cross-link-card .card-eyebrow { font-size: 0.65rem; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; color: var(--gold); }
+.cross-link-card h3 { font-size: clamp(1.15rem, 1.8vw, 1.35rem); font-weight: 700; color: var(--navy); line-height: 1.25; letter-spacing: -0.005em; position: relative; display: inline-block; }
+.cross-link-card h3::after { content: ''; position: absolute; bottom: -2px; left: 0; width: 0; height: 2px; background: var(--gold); transition: width 300ms ease; }
+.cross-link-card:hover h3::after { width: 100%; }
+.cross-link-card p { font-size: 0.95rem; line-height: 1.65; color: var(--text-body); margin: 0; }
+.cross-link-card .card-arrow { margin-top: auto; display: inline-flex; align-items: center; gap: 0.4rem; font-size: 0.82rem; font-weight: 700; color: var(--navy); letter-spacing: 0.02em; padding-top: 0.5rem; }
+.cross-link-card .card-arrow i { font-size: 18px; transition: transform 300ms ease; }
+.cross-link-card:hover .card-arrow i { transform: translateX(4px); color: var(--gold); }
+.cross-link-framework { display: inline-flex; align-items: center; gap: 0.4rem; font-size: 0.9rem; font-weight: 700; color: var(--navy); letter-spacing: 0.02em; position: relative; }
+.cross-link-framework::after { content: ''; position: absolute; bottom: -3px; left: 0; width: 100%; height: 2px; background: var(--gold); transform: scaleX(0); transform-origin: left; transition: transform 300ms ease; }
+.cross-link-framework:hover { color: var(--gold); }
+.cross-link-framework:hover::after { transform: scaleX(1); }
+
+
+/* ---- Generic reveal helper ---- */
+@media (prefers-reduced-motion: no-preference) {
+  .reveal { opacity: 0; transform: translateY(8px); transition: opacity 600ms cubic-bezier(0.4,0,0.2,1), transform 600ms cubic-bezier(0.4,0,0.2,1); }
+  .reveal.is-visible { opacity: 1; transform: translateY(0); }
+}
+
+
+/* ==========================================================================
+   Responsive
+   ========================================================================== */
+@media (max-width: 960px) {
+  .page-hero-grid { grid-template-columns: 1fr; gap: 2.25rem; }
+  .hero-story { margin-left: 0; max-width: 560px; }
+}
+@media (max-width: 900px) {
+  .page-hero { padding: 9rem 0 4rem; }
+  .section { padding: 3.5rem 0; }
+  .section.breathe { padding: 5rem 0; }
+  .cross-link { padding: 3.5rem 0; }
+
+  /* Comparison Split — stack columns vertically, swap divider to horizontal */
+  .compare-split { grid-template-columns: 1fr; gap: 1rem; }
+  .compare-divider { display: none; }
+  .compare-closer { margin-top: 1.75rem; }
+
+  /* Stat grid */
+  .stat-grid { grid-template-columns: 1fr; gap: 1.5rem; }
+
+  /* Cross-Link grid — standard mobile stack, AND single-card variant collapses cleanly. */
+  .cross-link-grid { grid-template-columns: 1fr; }
+  .cross-link-grid.is-single { grid-template-columns: 1fr; max-width: 480px; }
+}
+
+/* Hub-and-spoke responsive transformation — radial → 4x2 grid at 768px */
+@media (max-width: 768px) {
+  .hub-radial { display: none; }
+  .hub-wrap { padding: 1rem 0; }
+  .hub-grid { display: block; }
+}
+@media (max-width: 540px) {
+  .hub-grid-tiles { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 600px) {
+  .page-hero h1 { font-size: clamp(1.65rem, 7vw, 2.2rem); }
+  .archive-quote { padding: 1.5rem 1.5rem; }
+  .archive-quote p { font-size: 1.1rem; }
+  .compare-closer p { font-size: 1rem; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .compare-col, .hub-orbital, .hub-center, .hub-grid-tile, .hub-connector,
+  .archive-quote, .hero-story, .reveal { opacity: 1 !important; transform: none !important; }
+  .hub-center { transform: translate(-50%, -50%) !important; }
+  .hub-orbital { transform: translate(-50%, -50%) !important; }
+}
+</style>
+</head>
+<body>
+
+<a class="skip-link" href="#main">Skip to main content</a>
+
+<nav class="nav" id="nav" role="navigation" aria-label="Primary navigation">
+  <div class="nav-shape" aria-hidden="true">
+    <svg viewBox="0 0 2992.02 169.16" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg"><path d="M0,0v169.16h2570.83c37.25,0,72.48-14.09,96.67-38.65l28.26-28.69c19.39-19.69,47.95-31.06,78.31-31.19l218.01-.62V0H0Z" fill="#FFFFFF"/></svg>
+    <svg viewBox="0 0 2992.02 169.16" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg"><path d="M2570.83,169.16H0v-25h2570.83c30.6,0,59.34-11.37,78.86-31.19l28.26-28.69c24.03-24.4,59.04-38.49,96.04-38.64l218.01-.62v25l-217.94.62c-30.36.13-58.91,11.5-78.31,31.19l-28.26,28.69c-24.19,24.56-59.42,38.65-96.67,38.65Z" fill="#E5A630"/></svg>
+  </div>
+  <div class="nav-inner">
+    <a href="index.html" aria-label="SyTech Solutions home">
+      <!-- Inlined SyTech logo (all-navy variant — wordmark + orbital ring unified to --navy) -->
+      <svg class="nav-logo" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1546 647" aria-hidden="true">
+        <g fill="#25426B">
+          <path d="M122.1,171.5c46.9-3.3,94,5.3,138.2,20.6l0,53.5c-18-5.7-35.8-12-54.2-16.3c-19.6-4.8-39.7-8.4-60-8c-12.7,0.6-25.9,1.9-37.1,8.2c-5,2.9-10,7.8-9.8,14.1c-0.3,4.7,2.5,8.8,5.8,11.9c4.5,4.3,10.2,6.9,15.8,9.3c19.3,7.8,39.5,12.7,59.3,19.1c14.3,4.6,28.5,9.4,42.2,15.4c14.7,6.6,28.2,16,38.9,28.1c10.5,11.7,15.2,27.7,14.6,43.3c0.2,17-7,33.9-19.1,45.8c-15.9,15.8-37.1,25-58.5,30.3c-21.6,5.1-44,6.6-66.2,5.8c-39.5-1.1-78.5-10.5-114.7-26.2l0.1-59.4c17.6,9.5,35.8,18,54.6,24.6c18.6,6.6,38.2,10.2,58,10.7c11.8,0.2,23.7,0,35.1-2.9c6.1-1.6,12.3-4.2,16.7-8.9c4.2-4.5,5.9-11.2,4.5-17.2c-1.8-5.8-6.4-10.2-11.3-13.5c-6.4-4-13.6-6.6-20.6-9.2c-17.5-6.2-35.6-10.5-53.2-16.2c-11.7-3.7-23.3-7.7-34.6-12.3c-15.6-6.3-30-16.1-41.3-28.6c-9.5-10.5-14.5-24.6-15.1-38.7c-1.1-14,2.5-28.5,11-39.9c8.3-11.5,20.2-19.9,32.8-26.3C75,177.7,98.6,173.1,122.1,171.5L122.1,171.5z"/>
+          <polygon points="728.5,228.5 728.5,452.6 641.8,452.5 641.8,228.4 516.3,228.5 516.2,178.6 854.3,178.6 854.3,228.4"/>
+          <path d="M1300.5,451.9l0-274.7l73.8,0l0.1,116.6c5.3-4.3,10.1-9.2,15.8-13c19.2-13.8,43.3-19.8,66.8-18.1c21.2,0.7,42.8,7.7,58.7,22.1c13.2,11.6,20,29.3,19.9,46.7l0,120.3l-73.9,0l-0.1-110.7c-0.5-9.9-3.4-20.5-11-27.2c-7.9-7.2-19.3-8.9-29.7-8.4c-16.8,1.2-31.3,11.6-42.5,23.5c-1.6,2-4.5,3.6-4.1,6.5v116.4L1300.5,451.9L1300.5,451.9z"/>
+          <path d="M1093.8,279.7c23.6-13.8,51.1-19.5,78.2-20.2c28.9-0.8,57.7,4,85.4,12.1l-0.1,43.4c-21-8.4-43.7-13.2-66.4-12.2c-14.3,0.7-28.8,3.6-41.2,10.9c-10.3,6-19.2,15.1-22.9,26.6c-4,12.7-3.2,27.1,3,39c6.1,11.6,17,19.9,28.9,24.9c16.5,6.8,34.9,7.5,52.5,5.2c16.8-2.4,33.4-6.7,49.6-11.5l0.1,42c-23.7,6.8-48.1,11.5-72.8,12.3c-22.7,0.5-45.7-1.4-67.5-8c-16.6-5-32.4-12.9-45.6-24.1c-13.2-11-23.1-26-27-42.8c-3.9-16.7-3.2-34.7,3-50.7C1058.6,306.3,1075.3,290.6,1093.8,279.7L1093.8,279.7z"/>
+          <polygon points="458.6,259.8 405.9,355.2 356,260 277.9,259.9 369.3,415.2 300.8,534.5 379.1,534.5 536.1,259.9"/>
+          <path d="M1023.7,365.5c1.4-19.4-2.8-39.5-13.3-56c-7-11.1-16.6-20.3-27.4-27.7c-15.2-10.5-32.8-17-51-20.1c-17.2-2.9-34.8-3.1-52.1-1.1c-19.3,2.3-38.3,8-55,18.2c-14.2,8.7-26.9,20.3-35.2,34.8c-9.1,15.7-12.3,34.3-10.4,52.3c1.2,15.2,7.2,30,16.8,41.9c11.5,14.1,27,24.4,43.6,31.4c28.4,11.8,59.8,14.1,90.2,12.8c31.1-1.5,62.4-8.4,89.6-23.9l0-37c-27.3,16.1-58.5,27.4-90.6,26.5c-19.3-0.4-39.6-4.2-55.1-16.5c-11.1-8.4-17.5-21.9-18.6-35.7L1023.7,365.5z M857,334.7c1.1-12.2,6.8-24.6,17.2-31.7c10.1-7,22.8-8.8,34.8-8.7c12.2,0.1,25.2,2.7,34.8,10.8c8.8,7.3,13.2,18.5,14.9,29.5C924.8,334.8,890.9,334.7,857,334.7z"/>
+          <path d="M695,533c11.2-3,22.9-0.5,33.4,3.9l0,13.5c-7.9-3.4-16.4-7-25.2-5.8c-2.7,0.5-6.4,2-6.1,5.4c-0.2,2.7,2.4,4.2,4.6,5.3c8.4,4.1,18.5,5.7,25.1,13c5,5.2,5.8,13.3,3.5,20c-2.6,6.8-9.3,11.1-16.2,12.6c-11.3,2.3-23.2-0.1-33.2-5.7l0-14.2c3.6,1.7,6.1,3.4,9.3,4.8c5.8,2.8,12.6,4.3,18.9,2.8c2.6-0.5,5.2-2.7,4.9-5.6c0.2-3.3-3.1-5.2-5.7-6.4c-8.2-3.8-18-5.5-24.3-12.6c-4.4-4.7-5.4-11.8-3.8-17.9C682,539.3,688.4,534.8,695,533L695,533z"/>
+          <path d="M1506,531.9c9.3-1,18.7,1.5,27.3,5l0,13.5c-7.9-3.4-16.5-7.1-25.3-5.8c-3,0.4-5.8,2.3-6.5,5.4c0.8,1.6,1.6,3.5,3.3,4.3c8.5,4.9,19.3,6.1,26.4,13.5c5.4,5.1,6.4,13.6,3.9,20.4c-2.5,6.8-9.3,11.1-16.1,12.6c-11.3,2.3-23.3,0-33.3-5.6l0-14.8c6.9,4.7,14.7,8.9,23.3,8.9c3.2-0.1,7-0.4,9-3.2c1.7-2.6,0.6-6.4-2.2-7.9c-5.4-3.3-11.8-4.7-17.5-7.4c-6.3-2.6-12.3-7.7-13.6-14.6c-0.9-5-0.5-10.5,2.5-14.7C1491.5,535.3,1498.9,532.6,1506,531.9L1506,531.9z"/>
+          <polygon points="892.8,532.7 909.8,532.6 909.8,588.2 944.7,588.2 944.7,600.7 892.8,600.6 892.8,532.7"/>
+          <path d="M985.2,532.6l17,0l0,40.4c-0.1,6.4,4.9,12.2,11,13.7c6.3,1.6,13.8,0.8,18.6-4c3.1-3,4.3-7.5,4.4-11.8l0.1-38.5l16.9,0.1V572c-0.2,7.7-2.2,15.9-8,21.2c-7.4,7.2-18.3,8.8-28.2,8.4c-9.9-0.1-20.7-3.4-26.7-11.8c-4.4-6-5.3-13.6-5.1-20.8L985.2,532.6L985.2,532.6z"/>
+          <polygon points="1079.6,532.6 1145.8,532.7 1145.7,545.3 1121.3,545.2 1121.3,600.6 1104.3,600.6 1104.3,545.4 1079.6,545.2 1079.6,532.6"/>
+          <polygon points="1188.4,600.7 1188.4,532.6 1205.3,532.6 1205.4,600.7 1188.4,600.7"/>
+          <polygon points="1371.5,600.7 1371.5,532.6 1387,532.7 1423.3,574.1 1423.4,532.7 1440.3,532.6 1440.3,600.6 1425.9,600.7 1388.5,557.3 1388.4,600.7 1371.5,600.7"/>
+          <path d="M848.3,560.1c-2.5-12.5-12.6-22.8-24.7-26.4c-7.8-2.3-16.1-2.5-24-0.8c-11,2.3-20.8,10-25.5,20.2c-4.5,10-3.8,22.3,2.2,31.5c4.7,7.1,11.7,12.7,19.9,15.1c7.1,2.2,14.6,2.3,21.9,1.4c11.8-1.7,22.6-9.5,27.8-20.2C849,574.5,849.5,567,848.3,560.1z M828.7,577.9c-7.5,12.6-28.5,13-36.6,0.8c-6.8-10.1-3.4-26.3,8.5-30.9c7.9-2.9,17.9-2.5,24.4,3.3C832.3,557.6,833.4,569.5,828.7,577.9z"/>
+          <path d="M1326.1,556.9c-2.2-7.2-7.2-13.4-13.1-17.9c-8.3-6.2-19.2-8-29.3-7.1c-13,0.8-25.2,9-30.9,20.7c-5.1,10.6-3.9,24,3.1,33.4c5.8,8.2,15.1,13.6,25,15c7.6,0.9,15.4,0.7,22.7-1.8c7.9-2.8,14.8-8.4,19.2-15.5C1327.8,575.9,1328.9,565.8,1326.1,556.9z M1301.1,584.2c-5.6,3.5-12.7,4-19,2.6c-7.3-1.7-13.2-7.9-14.5-15.3c-0.7-4.8-0.6-9.9,1.6-14.3c2.4-5.2,7.3-9,12.8-10.4c6.7-1.3,14.4-1.1,20,3.2C1313,557.7,1312.7,577,1301.1,584.2z"/>
+        </g>
+        <path fill="#25426B" d="M300.1,12.2c9.4-3.5,19.8-1,28.5,3.1c15.9,7.5,29.2,19.2,41.7,31.3c22.9,22.8,42.6,48.5,61.1,75c30.4,44,56.7,90.6,80.6,138.3c3.7,7.6,7.3,15.2,11.1,22.8c5.6,11.9,10.7,24,16.5,35.8c15.3-4.5,32.2-2.6,46.3,4.7c14.5,7.3,26,20.4,31.4,35.7c3.8,10.2,4.4,21.4,2.9,32.2c-3.2,20.6-17.1,38.9-35.8,47.9c12.6,41.7,23.4,84.4,25.8,128.1c0.4,14.1,0,28.5-4,42.2c-2.4,7.6-6.1,15.4-13,20c-7.3,4.5-16.4,6.6-24.9,4.2c-15.4-3.8-28.3-13.7-40.2-23.6c-26-22.8-47.6-50.2-67.8-78.2c-15.1-21.1-28.9-43.1-42.3-65.2c1.4-2.6,2.9-5.1,4.4-7.7c25.5,43.3,53,85.7,86.6,123.2c12.9,13.8,26.4,27.5,42.7,37.3c8.3,4.8,18,9.1,27.8,7.3c5.9-1.8,9.9-7.1,12.5-12.4c4.4-9.4,5.7-19.9,6.2-30.1c0.6-16.7-1.2-33.5-3.8-50c-5-30.7-12.9-60.9-22.3-90.6c-12.9,3-26.7,2.3-39-2.6c-16-6.2-29.3-19.1-36-34.9c-7.1-16.6-6.8-36.3,1-52.6c5.9-12.8,16.3-23.3,28.7-30c-4.1-8.5-13-28.8-13.6-30.3c-5.3-11.1-10.6-22.1-16.1-33.1c-18.5-37-38.6-73.1-60.8-108c-15.9-24.8-32.7-48.9-51.5-71.6c-12.1-14.5-24.9-28.5-39.5-40.4c-8.9-7.1-18.4-13.9-29.4-17.3c-5-1.4-10.7-2.2-15.7-0.3c-7.2,3.5-11,11.1-13.4,18.3c-4.5,14.7-3.9,30.3-3.2,45.4c3.1,39,13,77.1,24.3,114.4c6.1,20.1,13.3,39.8,20.2,59.6c-2.7,0.1-5.4,0.2-8,0.1c-13.2-35.9-24.8-72.4-33.3-109.7c-6.2-27.3-10.8-55.2-10.9-83.3c0.5-13,1.4-26.4,6.9-38.4C286,21.2,291.9,14.3,300.1,12.2L300.1,12.2z"/>
+      </svg>
+    </a>
+    <ul class="nav-links" id="navLinks">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="about.html">About</a></li>
+      <li><a href="why-sytech.html">Why SyTech</a></li>
+      <li class="nav-has-mega">
+        <a href="services.html" class="nav-mega-trigger" aria-current="true" aria-haspopup="true" aria-expanded="false">
+          Services
+          <svg class="nav-mega-chevron" width="10" height="10" aria-hidden="true" viewBox="0 0 10 10">
+            <path d="M1 3.5L5 7.5L9 3.5" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </a>
+        <div class="mega" role="region" aria-label="Services by journey phase">
+          <div class="mega-inner">
+            <p class="mega-eyebrow">Services organized by journey phase</p>
+            <div class="mega-cols">
+              <div class="mega-col">
+                <h3 class="mega-col-title"><span class="mega-col-num">01</span><span class="mega-col-name">Organize</span></h3>
+                <p class="mega-col-desc">See what you actually have.</p>
+                <ul class="mega-col-list" role="list">
+                  <li><a href="services-scanning.html">Archive Scanning</a></li>
+                  <li><a href="services-data-migration.html">Data Migration</a></li>
+                  <li><a href="services-compliance-setup.html">Records Management &amp; Compliance Setup</a></li>
+                </ul>
+              </div>
+              <div class="mega-col">
+                <h3 class="mega-col-title"><span class="mega-col-num">02</span><span class="mega-col-name">Unify</span></h3>
+                <p class="mega-col-desc">One ecosystem. One login.</p>
+                <ul class="mega-col-list" role="list">
+                  <li><a href="services-oneform.html">OneForm</a></li>
+                  <li><a href="services-sharepoint-erms.html" aria-current="page">SharePoint ERMS</a></li>
+                  <li><a href="services-1docstop.html">1DocStop</a></li>
+                </ul>
+              </div>
+              <div class="mega-col">
+                <h3 class="mega-col-title"><span class="mega-col-num">03</span><span class="mega-col-name">Scale</span></h3>
+                <p class="mega-col-desc">Activate what you already fund.</p>
+                <ul class="mega-col-list" role="list">
+                  <li><a href="services-ai-ingestion.html">AI-Powered Ingestion</a></li>
+                </ul>
+              </div>
+            </div>
+            <a href="services.html" class="mega-overview-link">
+              See the full framework
+              <span class="arrow" aria-hidden="true">&nbsp;&rarr;</span>
+            </a>
+          </div>
+        </div>
+      </li>
+      <li><a href="who-we-serve.html">Who We Serve</a></li>
+      <li><a href="contact.html">Contact</a></li>
+    </ul>
+    <button class="nav-hamburger" id="navHamburger" aria-label="Toggle menu" aria-expanded="false"><span></span><span></span><span></span></button>
+    <a href="contact.html" class="nav-cta">Request a Free Assessment</a>
+  </div>
+</nav>
+
+<main id="main">
+
+<!-- ============================================================
+     PAGE HERO — two-column with replacement-cycle animation
+     ============================================================ -->
+<section class="page-hero">
+  <div class="container">
+    <div class="page-hero-grid">
+      <div class="page-hero-copy">
+        <span class="eyebrow">Unify</span>
+        <nav class="breadcrumb" aria-label="Breadcrumb">
+          <ol>
+            <li><a href="services.html">Services</a></li>
+            <li><span aria-current="step">Unify</span></li>
+            <li><span aria-current="page">SharePoint ERMS</span></li>
+          </ol>
+        </nav>
+        <h1>SharePoint Already Does the <span>Job.</span></h1>
+        <p class="lead">Most public agencies are paying twice for records management &mdash; once for their Microsoft 365 license, and again for a standalone ERMS platform that duplicates what SharePoint Online already does. We configure SharePoint as your records system &mdash; inside the tenant you already own. No second platform. No second invoice.</p>
+      </div>
+
+      <div class="hero-story" id="heroStory" role="img" aria-label="Animation: the canvas is split into two panels — a left panel showing a proprietary records system failing with error messages, a continuously climbing cost ticker, and a paywall lock — and a right panel showing the Microsoft 365 SharePoint system with eight capability icons, gold connector lines, and a badge reading Included in Microsoft 365. As the animation progresses, the left panel shrinks while the right panel grows, shifting focus from the broken system to the working one.">
+        <div class="hero-story-frame">
+
+          <!-- Static HTML headers — pinned above the SVG canvas. Fixed size, single line,
+               never resize and never move as the animation runs. Cole's Option A spec. -->
+          <div class="hero-story-headers" aria-hidden="true">
+            <div class="hero-story-header hero-story-header--left">Your Current<br>Proprietary System</div>
+            <div class="hero-story-header hero-story-header--right">Your Microsoft 365<br>SharePoint System</div>
+          </div>
+
+          <div class="hero-story-stage" id="heroStage">
+            <svg class="hero-story-svg" viewBox="0 0 600 360" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
+
+              <!-- ========== LIVE STAGE — JS animates everything below ========== -->
+              <g class="hr-live-stage" id="hrLiveStage">
+
+                <!-- Panel background washes — JS resizes width as splitX moves -->
+                <rect class="hr-panel-left-bg"  id="hrPanelLeftBg"  x="0"   y="0" width="420" height="360" rx="10"/>
+                <rect class="hr-panel-right-bg" id="hrPanelRightBg" x="420" y="0" width="180" height="360" rx="10"/>
+
+                <!-- Vertical divider — gold dashed hairline at splitX -->
+                <line class="hr-divider" id="hrDivider" x1="420" y1="30" x2="420" y2="330"/>
+
+                <!-- ========================================================
+                     LEFT PANEL — Proprietary system (broken)
+                     All children are inside a single group; JS sets transform
+                     to scale + position the contents within the shrinking panel.
+                     Internal layout assumes a fixed 420-unit-wide design space;
+                     the group is scaled by (currentLeftWidth / 420) so it
+                     contracts proportionally.
+                     ======================================================== -->
+                <g id="hrLeftGroup" transform="scale(1) translate(0,0)">
+
+                  <!-- Portal window frame — 420-wide design space, inset 30px each side -->
+                  <g id="hrWindowGroup" opacity="1">
+                    <rect class="hr-window-frame"    x="30" y="60" width="360" height="240" rx="6"/>
+                    <rect class="hr-window-titlebar" x="30" y="60" width="360" height="22" rx="6"/>
+                    <rect class="hr-window-titlebar" x="30" y="72" width="360" height="10"/>
+                    <circle class="hr-window-dot" cx="45" cy="71" r="3"/>
+                    <circle class="hr-window-dot" cx="57" cy="71" r="3"/>
+                    <circle class="hr-window-dot" cx="69" cy="71" r="3"/>
+
+                    <!-- Body record rows (cleaner than v2 — no RECORDS micro-label) -->
+                    <rect class="hr-window-row" x="50" y="110" width="270" height="6" rx="2"/>
+                    <rect class="hr-window-row" x="50" y="124" width="220" height="6" rx="2"/>
+                    <rect class="hr-window-row" x="50" y="138" width="300" height="6" rx="2"/>
+                    <rect class="hr-window-row" x="50" y="152" width="200" height="6" rx="2"/>
+                  </g>
+
+                  <!-- Toast 1: "Server Maintenance — Records Unavailable." (0.5s — 1.8s) -->
+                  <g id="hrToast1" opacity="0">
+                    <rect class="hr-toast-bg" x="46" y="98" width="328" height="24" rx="3"/>
+                    <path class="hr-toast-icon" d="M 60 116 L 65 105 L 70 116 Z"/>
+                    <path d="M 65 108 L 65 113 M 65 114.5 L 65 115" stroke="#1a2c42" stroke-width="1.2" stroke-linecap="round" fill="none"/>
+                    <text class="hr-toast-text hr-text" x="80" y="115" font-size="10">Server Maintenance — Records Unavailable.</text>
+                  </g>
+
+                  <!-- Toast 2: "License Renewal Required." (2.5s — 3.8s) -->
+                  <g id="hrToast2" opacity="0">
+                    <rect class="hr-toast-bg" x="46" y="98" width="328" height="24" rx="3"/>
+                    <path class="hr-toast-icon" d="M 60 116 L 65 105 L 70 116 Z"/>
+                    <path d="M 65 108 L 65 113 M 65 114.5 L 65 115" stroke="#1a2c42" stroke-width="1.2" stroke-linecap="round" fill="none"/>
+                    <text class="hr-toast-text hr-text" x="80" y="115" font-size="10">License Renewal Required.</text>
+                  </g>
+
+                  <!-- Cost ticker — continuously climbing, large gold display -->
+                  <g id="hrCostGroup" opacity="0">
+                    <text class="hr-cost-label hr-text" x="210" y="200" font-size="9">Annual License — Climbing</text>
+                    <text class="hr-cost-number hr-text" id="hrCostNumber" x="210" y="234" font-size="28">$0</text>
+                    <text class="hr-cost-sublabel hr-text" x="210" y="252" font-size="8">Year to Date</text>
+                  </g>
+
+                  <!-- Paywall lock — appears at 3.8s, lingers as panel shrinks.
+                       v3.4 reposition: lock now centered over the window BODY ROWS
+                       (y≈110-152) so it visually represents "your records are locked."
+                       Previous position (y=246-287) collided with the "YEAR TO DATE"
+                       caption in the cost block below. Lock body now at y=130-154,
+                       shackle extends up to y=113. Label sits below at y=170. -->
+                  <g id="hrLockGroup" opacity="0">
+                    <rect class="hr-lock-fill" x="195" y="130" width="30" height="24" rx="3"/>
+                    <path class="hr-lock" d="M 200 130 V 122 C 200 117 204 113 210 113 C 216 113 220 117 220 122 V 130"/>
+                    <circle cx="210" cy="141" r="2.2" fill="#FF4757"/>
+                    <line x1="210" y1="143.2" x2="210" y2="148" stroke="#FF4757" stroke-width="1.4" stroke-linecap="round"/>
+                    <text class="hr-lock-label hr-text" x="210" y="170" font-size="9">RECORDS UNAVAILABLE</text>
+                  </g>
+                </g>
+
+                <!-- ========================================================
+                     RIGHT PANEL — SharePoint system (resolution)
+                     Geometry computed in JS each frame:
+                       cx = (splitX + 600) / 2     center of right panel
+                       cy = 180                    vertical center
+                       r  = clamp(min((600 - splitX) * 0.32, 110), 36, 110)
+                                                   radius of cap radial,
+                                                   scales with panel width
+                       logoSize = clamp(min((600 - splitX) * 0.20, 64), 28, 64)
+                     ======================================================== -->
+                <g id="hrRightGroup">
+
+                  <!-- 8 gold connectors FIRST — so the logo image, which comes
+                       AFTER in source order, renders ON TOP of them. CRITICAL. -->
+                  <line class="hr-connector" id="hrConn1" x1="500" y1="180" x2="500" y2="180"/>
+                  <line class="hr-connector" id="hrConn2" x1="500" y1="180" x2="500" y2="180"/>
+                  <line class="hr-connector" id="hrConn3" x1="500" y1="180" x2="500" y2="180"/>
+                  <line class="hr-connector" id="hrConn4" x1="500" y1="180" x2="500" y2="180"/>
+                  <line class="hr-connector" id="hrConn5" x1="500" y1="180" x2="500" y2="180"/>
+                  <line class="hr-connector" id="hrConn6" x1="500" y1="180" x2="500" y2="180"/>
+                  <line class="hr-connector" id="hrConn7" x1="500" y1="180" x2="500" y2="180"/>
+                  <line class="hr-connector" id="hrConn8" x1="500" y1="180" x2="500" y2="180"/>
+
+                  <!-- 8 capability icons — positioned via JS per frame.
+                       Each cap is a 32x32 design; transform sets (x, y) of its
+                       top-left (offset by -16 from radial endpoint). -->
+                  <g class="hr-cap" id="cap1">
+                    <rect class="hr-cap-bg" x="0" y="0" width="32" height="32" rx="6"/>
+                    <ellipse class="hr-cap-icon" cx="16" cy="10" rx="8" ry="2.6"/>
+                    <path class="hr-cap-icon" d="M 8 10 V 16 C 8 17.4 11.6 18.6 16 18.6 C 20.4 18.6 24 17.4 24 16 V 10"/>
+                    <path class="hr-cap-icon" d="M 8 16 V 22 C 8 23.4 11.6 24.6 16 24.6 C 20.4 24.6 24 23.4 24 22 V 16"/>
+                  </g>
+                  <g class="hr-cap" id="cap2">
+                    <rect class="hr-cap-bg" x="0" y="0" width="32" height="32" rx="6"/>
+                    <circle class="hr-cap-icon" cx="9" cy="10" r="2.6"/>
+                    <circle class="hr-cap-icon" cx="23" cy="10" r="2.6"/>
+                    <circle class="hr-cap-icon" cx="16" cy="23" r="2.6"/>
+                    <line class="hr-cap-icon" x1="11" y1="11.8" x2="14.5" y2="20.5"/>
+                    <line class="hr-cap-icon" x1="21" y1="11.8" x2="17.5" y2="20.5"/>
+                    <line class="hr-cap-icon" x1="11.6" y1="10" x2="20.4" y2="10"/>
+                  </g>
+                  <g class="hr-cap" id="cap3">
+                    <rect class="hr-cap-bg" x="0" y="0" width="32" height="32" rx="6"/>
+                    <circle class="hr-cap-icon" cx="16" cy="17" r="7"/>
+                    <polyline class="hr-cap-icon" points="16,13 16,17 19,19"/>
+                    <polyline class="hr-cap-icon" points="9,10 9,6 13,6"/>
+                  </g>
+                  <g class="hr-cap" id="cap4">
+                    <rect class="hr-cap-bg" x="0" y="0" width="32" height="32" rx="6"/>
+                    <path class="hr-cap-icon" d="M 16 5 L 7 9 V 17 C 7 22 11 25.5 16 27 C 21 25.5 25 22 25 17 V 9 Z"/>
+                    <polyline class="hr-cap-icon" points="12,16 15,19 21,13"/>
+                  </g>
+                  <g class="hr-cap" id="cap5">
+                    <rect class="hr-cap-bg" x="0" y="0" width="32" height="32" rx="6"/>
+                    <rect class="hr-cap-icon" x="5" y="5" width="8" height="8" rx="1.5"/>
+                    <rect class="hr-cap-icon" x="19" y="19" width="8" height="8" rx="1.5"/>
+                    <polyline class="hr-cap-icon" points="13,9 19,9 19,23"/>
+                    <polyline class="hr-cap-icon" points="16,20 19,23 22,20"/>
+                  </g>
+                  <g class="hr-cap" id="cap6">
+                    <rect class="hr-cap-bg" x="0" y="0" width="32" height="32" rx="6"/>
+                    <circle class="hr-cap-icon" cx="9" cy="8" r="2.3"/>
+                    <circle class="hr-cap-icon" cx="9" cy="24" r="2.3"/>
+                    <circle class="hr-cap-icon" cx="22" cy="13" r="2.3"/>
+                    <line class="hr-cap-icon" x1="9" y1="10.3" x2="9" y2="21.7"/>
+                    <path class="hr-cap-icon" d="M 9 16 C 9 14, 13 13, 19.5 13"/>
+                  </g>
+                  <g class="hr-cap" id="cap7">
+                    <rect class="hr-cap-bg" x="0" y="0" width="32" height="32" rx="6"/>
+                    <line class="hr-cap-icon" x1="5" y1="9" x2="18" y2="9"/>
+                    <line class="hr-cap-icon" x1="5" y1="14" x2="16" y2="14"/>
+                    <line class="hr-cap-icon" x1="5" y1="19" x2="14" y2="19"/>
+                    <circle class="hr-cap-icon" cx="20" cy="22" r="3.5"/>
+                    <line class="hr-cap-icon" x1="22.5" y1="24.5" x2="26" y2="28"/>
+                  </g>
+                  <g class="hr-cap" id="cap8">
+                    <rect class="hr-cap-bg" x="0" y="0" width="32" height="32" rx="6"/>
+                    <line class="hr-cap-icon" x1="6" y1="25" x2="26" y2="25"/>
+                    <rect class="hr-cap-icon" x="8" y="17" width="4" height="7"/>
+                    <rect class="hr-cap-icon" x="14" y="11" width="4" height="13"/>
+                    <rect class="hr-cap-icon" x="20" y="19" width="4" height="5"/>
+                  </g>
+
+                  <!-- SharePoint logo — AFTER connectors in source order so it
+                       renders ON TOP. JS sets x/y/width/height each frame. -->
+                  <image id="hrSpLogo" class="hr-sp-logo"
+                         href="assets/sharepoint-logo.png"
+                         x="476" y="156" width="48" height="48"
+                         preserveAspectRatio="xMidYMid meet"/>
+
+                  <!-- Badge: "Included in Microsoft 365." — pill sized to text via JS getBBox.
+                       Initial width set generously so the text fits even if getBBox fails. -->
+                  <g id="hrBadge" opacity="0">
+                    <rect class="hr-badge-bg" id="hrBadgeRect" x="410" y="247" width="180" height="22" rx="11"/>
+                    <text class="hr-badge-text" id="hrBadgeText" x="500" y="262" font-size="9">Included in Microsoft 365.</text>
+                  </g>
+                </g>
+              </g>
+
+              <!-- ========== STATIC FALLBACK (reduced motion) ========== -->
+              <!-- 50/50 split, left at 40% opacity with frozen broken state,
+                   right at full opacity with SharePoint composition. -->
+              <g class="hr-static-scene" id="hrStaticScene">
+                <rect class="hr-panel-left-bg"  x="0"   y="0" width="300" height="360" rx="10"/>
+                <rect class="hr-panel-right-bg" x="300" y="0" width="300" height="360" rx="10"/>
+                <line class="hr-divider" x1="300" y1="30" x2="300" y2="330"/>
+
+                <!-- LEFT panel (40% opacity) — broken portal w/ static toast + cost + lock -->
+                <g opacity="0.4">
+                  <!-- Portal window -->
+                  <rect class="hr-window-frame"    x="30" y="68" width="240" height="220" rx="6"/>
+                  <rect class="hr-window-titlebar" x="30" y="68" width="240" height="20" rx="6"/>
+                  <rect class="hr-window-titlebar" x="30" y="78" width="240" height="10"/>
+                  <circle class="hr-window-dot" cx="42" cy="78" r="2.5"/>
+                  <circle class="hr-window-dot" cx="52" cy="78" r="2.5"/>
+                  <circle class="hr-window-dot" cx="62" cy="78" r="2.5"/>
+                  <!-- Body rows -->
+                  <rect class="hr-window-row" x="46" y="116" width="180" height="5" rx="2"/>
+                  <rect class="hr-window-row" x="46" y="128" width="160" height="5" rx="2"/>
+                  <rect class="hr-window-row" x="46" y="140" width="200" height="5" rx="2"/>
+                  <rect class="hr-window-row" x="46" y="152" width="140" height="5" rx="2"/>
+                  <!-- Frozen toast (License Renewal Required.) -->
+                  <rect class="hr-toast-bg" x="40" y="100" width="220" height="22" rx="3"/>
+                  <path class="hr-toast-icon" d="M 52 117 L 56 107 L 60 117 Z"/>
+                  <text class="hr-toast-text hr-text" x="70" y="115" font-size="8.5">License Renewal Required.</text>
+                  <!-- Lock — repositioned OVER body content rows (was over cost block) -->
+                  <rect class="hr-lock-fill" x="138" y="130" width="24" height="20" rx="2"/>
+                  <path class="hr-lock" d="M 142 130 V 124 C 142 120 145 117 150 117 C 155 117 158 120 158 124 V 130"/>
+                  <circle cx="150" cy="139" r="1.8" fill="#FF4757"/>
+                  <line x1="150" y1="140.8" x2="150" y2="145" stroke="#FF4757" stroke-width="1.3" stroke-linecap="round"/>
+                  <text class="hr-lock-label hr-text" x="150" y="162" font-size="8">RECORDS UNAVAILABLE</text>
+                  <!-- Cost (static representative freeze value, now all RED) -->
+                  <text class="hr-cost-label hr-text" x="150" y="200" font-size="8">Annual License — Climbing</text>
+                  <text class="hr-cost-number hr-text" x="150" y="226" font-size="22">$281,000</text>
+                  <text class="hr-cost-sublabel hr-text" x="150" y="240" font-size="7">Year to Date</text>
+                </g>
+
+                <!-- RIGHT panel — SharePoint comp (full opacity) -->
+                <!-- 8 connectors first; logo last; badge below. Right center: (450, 180), radius 90 -->
+                <line class="hr-connector" style="opacity:0.55" x1="450" y1="180" x2="450" y2="90"/>
+                <line class="hr-connector" style="opacity:0.55" x1="450" y1="180" x2="513.6" y2="116.4"/>
+                <line class="hr-connector" style="opacity:0.55" x1="450" y1="180" x2="540" y2="180"/>
+                <line class="hr-connector" style="opacity:0.55" x1="450" y1="180" x2="513.6" y2="243.6"/>
+                <line class="hr-connector" style="opacity:0.55" x1="450" y1="180" x2="450" y2="270"/>
+                <line class="hr-connector" style="opacity:0.55" x1="450" y1="180" x2="386.4" y2="243.6"/>
+                <line class="hr-connector" style="opacity:0.55" x1="450" y1="180" x2="360" y2="180"/>
+                <line class="hr-connector" style="opacity:0.55" x1="450" y1="180" x2="386.4" y2="116.4"/>
+
+                <!-- 8 caps at radius 90 from (450, 180) -->
+                <g transform="translate(434, 74)"><rect class="hr-cap-bg" width="32" height="32" rx="6"/><ellipse class="hr-cap-icon" cx="16" cy="10" rx="8" ry="2.6"/><path class="hr-cap-icon" d="M 8 10 V 16 C 8 17.4 11.6 18.6 16 18.6 C 20.4 18.6 24 17.4 24 16 V 10"/><path class="hr-cap-icon" d="M 8 16 V 22 C 8 23.4 11.6 24.6 16 24.6 C 20.4 24.6 24 23.4 24 22 V 16"/></g>
+                <g transform="translate(497.6, 100.4)"><rect class="hr-cap-bg" width="32" height="32" rx="6"/><circle class="hr-cap-icon" cx="9" cy="10" r="2.6"/><circle class="hr-cap-icon" cx="23" cy="10" r="2.6"/><circle class="hr-cap-icon" cx="16" cy="23" r="2.6"/><line class="hr-cap-icon" x1="11" y1="11.8" x2="14.5" y2="20.5"/><line class="hr-cap-icon" x1="21" y1="11.8" x2="17.5" y2="20.5"/><line class="hr-cap-icon" x1="11.6" y1="10" x2="20.4" y2="10"/></g>
+                <g transform="translate(524, 164)"><rect class="hr-cap-bg" width="32" height="32" rx="6"/><circle class="hr-cap-icon" cx="16" cy="17" r="7"/><polyline class="hr-cap-icon" points="16,13 16,17 19,19"/><polyline class="hr-cap-icon" points="9,10 9,6 13,6"/></g>
+                <g transform="translate(497.6, 227.6)"><rect class="hr-cap-bg" width="32" height="32" rx="6"/><path class="hr-cap-icon" d="M 16 5 L 7 9 V 17 C 7 22 11 25.5 16 27 C 21 25.5 25 22 25 17 V 9 Z"/><polyline class="hr-cap-icon" points="12,16 15,19 21,13"/></g>
+                <g transform="translate(434, 254)"><rect class="hr-cap-bg" width="32" height="32" rx="6"/><rect class="hr-cap-icon" x="5" y="5" width="8" height="8" rx="1.5"/><rect class="hr-cap-icon" x="19" y="19" width="8" height="8" rx="1.5"/><polyline class="hr-cap-icon" points="13,9 19,9 19,23"/><polyline class="hr-cap-icon" points="16,20 19,23 22,20"/></g>
+                <g transform="translate(370.4, 227.6)"><rect class="hr-cap-bg" width="32" height="32" rx="6"/><circle class="hr-cap-icon" cx="9" cy="8" r="2.3"/><circle class="hr-cap-icon" cx="9" cy="24" r="2.3"/><circle class="hr-cap-icon" cx="22" cy="13" r="2.3"/><line class="hr-cap-icon" x1="9" y1="10.3" x2="9" y2="21.7"/><path class="hr-cap-icon" d="M 9 16 C 9 14, 13 13, 19.5 13"/></g>
+                <g transform="translate(344, 164)"><rect class="hr-cap-bg" width="32" height="32" rx="6"/><line class="hr-cap-icon" x1="5" y1="9" x2="18" y2="9"/><line class="hr-cap-icon" x1="5" y1="14" x2="16" y2="14"/><line class="hr-cap-icon" x1="5" y1="19" x2="14" y2="19"/><circle class="hr-cap-icon" cx="20" cy="22" r="3.5"/><line class="hr-cap-icon" x1="22.5" y1="24.5" x2="26" y2="28"/></g>
+                <g transform="translate(370.4, 100.4)"><rect class="hr-cap-bg" width="32" height="32" rx="6"/><line class="hr-cap-icon" x1="6" y1="25" x2="26" y2="25"/><rect class="hr-cap-icon" x="8" y="17" width="4" height="7"/><rect class="hr-cap-icon" x="14" y="11" width="4" height="13"/><rect class="hr-cap-icon" x="20" y="19" width="4" height="5"/></g>
+
+                <!-- SharePoint logo on TOP of connectors -->
+                <image href="assets/sharepoint-logo.png" x="426" y="156" width="48" height="48" preserveAspectRatio="xMidYMid meet"/>
+
+                <!-- Badge — width sized for "Included in Microsoft 365." at 9px Tahoma -->
+                <rect class="hr-badge-bg" x="360" y="295" width="180" height="22" rx="11"/>
+                <text class="hr-badge-text" x="450" y="310" font-size="9">Included in Microsoft 365.</text>
+              </g>
+            </svg>
+          </div>
+        </div>
+        <p class="hero-caption">A standalone records system adds a second platform and a second invoice. SharePoint already does the job &mdash; inside the tenant you own.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ============================================================
+     SECTION 1 — COMPARISON SPLIT
+     Standalone ERMS Software vs. SharePoint-Based ERMS
+     ============================================================ -->
+<section class="section">
+  <div class="container">
+    <div class="section-header">
+      <span class="section-eyebrow">The Replacement</span>
+      <h2>Two Platforms, or One?</h2>
+      <p class="section-intro">Most agencies inherit a standalone ERMS platform alongside the Microsoft 365 license they already pay for. Here is what each path actually costs.</p>
+    </div>
+
+    <div class="compare-split" id="compareSplit" aria-label="Comparison of standalone ERMS software versus SharePoint-based ERMS">
+      <div class="compare-col is-left">
+        <span class="compare-icon" aria-hidden="true"><i class="ph ph-package"></i></span>
+        <h3>Standalone ERMS Software</h3>
+        <p>A separate platform. A separate login. A separate license your finance team renews every year. Records live on a vendor's servers under a vendor's rules.</p>
+      </div>
+      <div class="compare-divider" aria-hidden="true"></div>
+      <div class="compare-col is-right">
+        <span class="compare-icon" aria-hidden="true"><img src="assets/sharepoint-logo.png" alt="" class="sharepoint-logo"></span>
+        <h3>SharePoint-Based ERMS</h3>
+        <p>The same Microsoft 365 environment your staff already use. Records live in your tenant under your IT governance. No second invoice. No second platform to learn.</p>
+      </div>
+    </div>
+
+    <div class="compare-closer">
+      <p>Both paths manage records. Only one of them is already paid for.</p>
+    </div>
+  </div>
+</section>
+
+
+<!-- ============================================================
+     SECTION 2 — SCHEMATIC RELATIONSHIP DIAGRAM (Hub-and-Spoke)
+     Desktop: 8 orbital capability nodes at 45° intervals around
+     a SharePoint Online center node. Gold connectors, no arrowheads.
+     Mobile: 4x2 grid (or 2x4 at narrow widths) — same 8 capabilities.
+     8 icons MUST match the hero animation State B icons exactly.
+     ============================================================ -->
+<section class="section alt breathe">
+  <div class="container">
+    <div class="section-header">
+      <span class="section-eyebrow">What SharePoint Manages</span>
+      <h2>Eight Capabilities. One License.</h2>
+    </div>
+
+    <div class="hub-wrap" role="figure" aria-label="Eight ERMS capabilities orbiting SharePoint Online as the center node">
+
+      <!-- DESKTOP: Hub-and-Spoke Radial Composition -->
+      <div class="hub-radial" id="hubRadial" aria-hidden="false">
+        <!-- SVG connector layer: 8 lines from center (50%/50%) to each orbital position.
+             Container is 640x640 logical; we render via viewBox so SVG scales with element.
+             Orbital radius = 38% from center, so connector lines go from (320,320) to
+             (320 + r·cos(θ), 320 + r·sin(θ)) where r = 243.2 (38% × 640). -->
+        <svg class="hub-connectors" viewBox="0 0 640 640" preserveAspectRatio="none" aria-hidden="true">
+          <!-- 8 connectors at 0°,45°,90°,135°,180°,225°,270°,315° (starting at 12 o'clock = -90°) -->
+          <!-- We draw from the center node edge (radius ~78px = 12.2% of 640) to the orbital
+               node edge (radius from center 243.2px, orbital radius ~62px = 9.7%).
+               Effective line: from ~78 to ~181 along each radial. -->
+          <!-- θ = -90° (top) -->
+          <line class="hub-connector" x1="320" y1="242" x2="320" y2="139"/>
+          <!-- θ = -45° (top-right) -->
+          <line class="hub-connector" x1="375" y1="265" x2="448" y2="192"/>
+          <!-- θ = 0° (right) -->
+          <line class="hub-connector" x1="398" y1="320" x2="501" y2="320"/>
+          <!-- θ = 45° (bottom-right) -->
+          <line class="hub-connector" x1="375" y1="375" x2="448" y2="448"/>
+          <!-- θ = 90° (bottom) -->
+          <line class="hub-connector" x1="320" y1="398" x2="320" y2="501"/>
+          <!-- θ = 135° (bottom-left) -->
+          <line class="hub-connector" x1="265" y1="375" x2="192" y2="448"/>
+          <!-- θ = 180° (left) -->
+          <line class="hub-connector" x1="242" y1="320" x2="139" y2="320"/>
+          <!-- θ = 225° (top-left) -->
+          <line class="hub-connector" x1="265" y1="265" x2="192" y2="192"/>
+        </svg>
+
+        <!-- SharePoint Online — center node -->
+        <div class="hub-center">
+          <img src="assets/sharepoint-logo.png" alt="SharePoint" class="sharepoint-logo">
+          <span class="hub-center-label">SharePoint<br>Online</span>
+        </div>
+
+        <!-- 8 Orbital Nodes — positioned at 45° intervals around center.
+             Using polar→cartesian: x = 50% + r·cos(θ), y = 50% + r·sin(θ).
+             r = 38% of container. θ start = -90° (12 o'clock), increment 45° clockwise.
+             Computed positions (50% center, radius 38%):
+               θ=-90°:  x=50.0%, y=12.0%
+               θ=-45°:  x=76.87%, y=23.13%
+               θ=  0°:  x=88.0%, y=50.0%
+               θ= 45°:  x=76.87%, y=76.87%
+               θ= 90°:  x=50.0%, y=88.0%
+               θ=135°:  x=23.13%, y=76.87%
+               θ=180°:  x=12.0%, y=50.0%
+               θ=225°:  x=23.13%, y=23.13%
+        -->
+        <div class="hub-orbital" style="--x: 50%; --y: 12%;">
+          <i class="ph ph-database" aria-hidden="true"></i>
+          <span class="hub-orbital-label">Storage</span>
+        </div>
+        <div class="hub-orbital" style="--x: 76.87%; --y: 23.13%;">
+          <i class="ph ph-share-network" aria-hidden="true"></i>
+          <span class="hub-orbital-label">Sharing</span>
+        </div>
+        <div class="hub-orbital" style="--x: 88%; --y: 50%;">
+          <i class="ph ph-clock-counter-clockwise" aria-hidden="true"></i>
+          <span class="hub-orbital-label">Retention</span>
+        </div>
+        <div class="hub-orbital" style="--x: 76.87%; --y: 76.87%;">
+          <i class="ph ph-shield-check" aria-hidden="true"></i>
+          <span class="hub-orbital-label">Permissions</span>
+        </div>
+        <div class="hub-orbital" style="--x: 50%; --y: 88%;">
+          <i class="ph ph-flow-arrow" aria-hidden="true"></i>
+          <span class="hub-orbital-label">Workflows</span>
+        </div>
+        <div class="hub-orbital" style="--x: 23.13%; --y: 76.87%;">
+          <i class="ph ph-git-branch" aria-hidden="true"></i>
+          <span class="hub-orbital-label">Versioning</span>
+        </div>
+        <div class="hub-orbital" style="--x: 12%; --y: 50%;">
+          <i class="ph ph-list-magnifying-glass" aria-hidden="true"></i>
+          <span class="hub-orbital-label">Auditing</span>
+        </div>
+        <div class="hub-orbital" style="--x: 23.13%; --y: 23.13%;">
+          <i class="ph ph-chart-bar" aria-hidden="true"></i>
+          <span class="hub-orbital-label">Reporting</span>
+        </div>
+      </div>
+
+      <!-- MOBILE: 4x2 Grid Transformation -->
+      <div class="hub-grid" id="hubGrid" aria-hidden="true">
+        <div class="hub-grid-header">
+          <img src="assets/sharepoint-logo.png" alt="SharePoint" class="sharepoint-logo">
+          <span class="hub-grid-header-label">SharePoint Online</span>
+        </div>
+        <div class="hub-grid-tiles">
+          <div class="hub-grid-tile">
+            <i class="ph ph-database" aria-hidden="true"></i>
+            <span class="hub-grid-tile-label">Storage</span>
+          </div>
+          <div class="hub-grid-tile">
+            <i class="ph ph-share-network" aria-hidden="true"></i>
+            <span class="hub-grid-tile-label">Sharing</span>
+          </div>
+          <div class="hub-grid-tile">
+            <i class="ph ph-clock-counter-clockwise" aria-hidden="true"></i>
+            <span class="hub-grid-tile-label">Retention</span>
+          </div>
+          <div class="hub-grid-tile">
+            <i class="ph ph-shield-check" aria-hidden="true"></i>
+            <span class="hub-grid-tile-label">Permissions</span>
+          </div>
+          <div class="hub-grid-tile">
+            <i class="ph ph-flow-arrow" aria-hidden="true"></i>
+            <span class="hub-grid-tile-label">Workflows</span>
+          </div>
+          <div class="hub-grid-tile">
+            <i class="ph ph-git-branch" aria-hidden="true"></i>
+            <span class="hub-grid-tile-label">Versioning</span>
+          </div>
+          <div class="hub-grid-tile">
+            <i class="ph ph-list-magnifying-glass" aria-hidden="true"></i>
+            <span class="hub-grid-tile-label">Auditing</span>
+          </div>
+          <div class="hub-grid-tile">
+            <i class="ph ph-chart-bar" aria-hidden="true"></i>
+            <span class="hub-grid-tile-label">Reporting</span>
+          </div>
+        </div>
+      </div>
+
+      <p class="hub-caption">Configured inside the Microsoft 365 license your agency already owns &mdash; governed by your IT, not a vendor's.</p>
+    </div>
+  </div>
+</section>
+
+
+<!-- ============================================================
+     SECTION 3 — STAT REVEAL
+     ============================================================ -->
+<section class="section">
+  <div class="container">
+    <div class="section-header">
+      <span class="section-eyebrow">What We Have Done</span>
+      <h2>Records Live Here.</h2>
+    </div>
+
+    <div class="stat-grid" id="statGrid">
+      <div class="stat-block">
+        <span class="stat-number" data-target="10.7" data-format="million">0</span>
+        <span class="stat-label">Records Under SharePoint Governance</span>
+      </div>
+      <div class="stat-block">
+        <span class="stat-number" data-target="4" data-format="named">0 Named</span>
+        <span class="stat-label">Public-Sector Agencies on Record</span>
+      </div>
+    </div>
+
+    <p class="stat-support">CNRA, DCSS, Yolo County &mdash; public agencies running records on the SharePoint they already own.</p>
+  </div>
+</section>
+
+
+<!-- ============================================================
+     SECTION 4 — EDITORIAL PULL-QUOTE
+     ============================================================ -->
+<section class="section alt breathe">
+  <div class="container">
+    <blockquote class="archive-quote" id="archiveQuote">
+      <p>Records management without the records management software.</p>
+    </blockquote>
+  </div>
+</section>
+
+
+<!-- ============================================================
+     SECTION 5 — CTA STRIP
+     ============================================================ -->
+<section class="cta-strip">
+  <div class="container">
+    <h2>Already Paying for SharePoint?</h2>
+    <p>Every engagement begins with an assessment. We learn what you have, what you already pay for, and where SharePoint can replace what doesn't need replacing.</p>
+    <a href="contact.html" class="btn-primary">Request a Free Assessment</a>
+  </div>
+</section>
+
+
+<!-- ============================================================
+     SECTION 6 — CROSS-LINK SECTION
+     Phase B (2026-05-29): 2-card variant — OneForm + 1DocStop.
+     1DocStop added per locked plan; .is-single class removed so
+     the grid returns to its standard 2-card layout. Cross-link
+     copy is fit-routing — never comparative, no winners/losers.
+     ============================================================ -->
+<section class="cross-link" aria-labelledby="cross-link-heading">
+  <div class="container">
+    <div class="section-header">
+      <span class="section-eyebrow">More in Unify</span>
+      <h2 id="cross-link-heading">Other Ways We Unify.</h2>
+    </div>
+
+    <div class="cross-link-grid">
+      <a href="services-oneform.html" class="cross-link-card">
+        <span class="card-eyebrow">Unify</span>
+        <h3>OneForm</h3>
+        <p>Electronic forms built inside the Microsoft 365 environment your agency already owns.</p>
+        <span class="card-arrow">Explore <i class="ph ph-arrow-right" aria-hidden="true"></i></span>
+      </a>
+      <a href="services-1docstop.html" class="cross-link-card">
+        <span class="card-eyebrow">Unify</span>
+        <h3>1DocStop</h3>
+        <p>Want records management without configuring it yourself? See 1DocStop.</p>
+        <span class="card-arrow">Explore <i class="ph ph-arrow-right" aria-hidden="true"></i></span>
+      </a>
+    </div>
+
+    <a href="services.html" class="cross-link-framework">See the full framework <i class="ph ph-arrow-right" aria-hidden="true"></i></a>
+  </div>
+</section>
+
+</main>
+
+<footer class="site-footer" role="contentinfo">
+  <div class="container">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <div class="footer-logo"><span>Sy</span>Tech Solutions</div>
+        <p>Public sector records management services. From complexity to clarity.</p>
+      </div>
+      <div class="footer-col">
+        <h4>Navigation</h4>
+        <ul>
+          <li><a href="index.html">Home</a></li>
+          <li><a href="about.html">About</a></li>
+          <li><a href="why-sytech.html">Why SyTech</a></li>
+          <li><a href="services.html">Services</a></li>
+          <li><a href="who-we-serve.html">Who We Serve</a></li>
+          <li><a href="contact.html">Contact</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Connect</h4>
+        <ul>
+          <li><a href="contact.html">Request a Free Assessment</a></li>
+          <li><a href="mailto:support@sytechsolutions.com">support@sytechsolutions.com</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom"><a href="privacy-security.html">Privacy &amp; Security</a> &nbsp;&middot;&nbsp; &copy; 2026 SyTech Solutions. All rights reserved.</div>
+  </div>
+</footer>
+
+<script>
+(function() {
+  'use strict';
+
+  // ----- Mobile nav toggle -----
+  var navHamburger = document.getElementById('navHamburger');
+  var navLinks = document.getElementById('navLinks');
+  if (navHamburger && navLinks) {
+    navHamburger.addEventListener('click', function() {
+      var isOpen = navHamburger.classList.toggle('open');
+      navLinks.classList.toggle('open');
+      navHamburger.setAttribute('aria-expanded', isOpen);
+    });
+  }
+
+  /* -------------------------------------------------------
+     MEGA-MENU (Batch 4) — mobile tap toggle + aria sync.
+     Desktop reveal is pure CSS (:hover + :focus-within).
+     ------------------------------------------------------- */
+  (function() {
+    var trigger = document.querySelector('.nav-mega-trigger');
+    if (!trigger) return;
+    var megaLi = trigger.closest('.nav-has-mega');
+    var chevron = trigger.querySelector('.nav-mega-chevron');
+    var mqMobile = window.matchMedia('(max-width: 1024px)');
+
+    trigger.addEventListener('click', function(e) {
+      if (!mqMobile.matches) return;
+      var clickedChevron = chevron && (e.target === chevron || chevron.contains(e.target));
+      if (!clickedChevron) return;
+      e.preventDefault();
+      var isOpen = megaLi.classList.toggle('is-open');
+      trigger.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+    });
+
+    megaLi.addEventListener('mouseenter', function() {
+      if (mqMobile.matches) return;
+      trigger.setAttribute('aria-expanded', 'true');
+    });
+    megaLi.addEventListener('mouseleave', function() {
+      if (mqMobile.matches) return;
+      trigger.setAttribute('aria-expanded', 'false');
+    });
+    megaLi.addEventListener('focusin', function() {
+      if (mqMobile.matches) return;
+      trigger.setAttribute('aria-expanded', 'true');
+    });
+    megaLi.addEventListener('focusout', function(e) {
+      if (mqMobile.matches) return;
+      if (!megaLi.contains(e.relatedTarget)) {
+        trigger.setAttribute('aria-expanded', 'false');
+      }
+    });
+
+    mqMobile.addEventListener('change', function() {
+      megaLi.classList.remove('is-open');
+      trigger.setAttribute('aria-expanded', 'false');
+    });
+
+    document.addEventListener('keydown', function(e) {
+      if (e.key !== 'Escape') return;
+      if (megaLi.classList.contains('is-open') || trigger.getAttribute('aria-expanded') === 'true') {
+        megaLi.classList.remove('is-open');
+        trigger.setAttribute('aria-expanded', 'false');
+        trigger.focus();
+      }
+    });
+  })();
+
+  // ----- Reduced-motion detection -----
+  var prefersReducedMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  // ============================================================
+  // HERO ANIMATION — v3: 50/50 split with shrink-grow choreography
+  //
+  // 12-second cycle. The SVG canvas is split vertically by `splitX`.
+  // splitX moves across the cycle:
+  //   t = 0.0s : splitX = 420   (LEFT 70%, RIGHT 30%)
+  //   t = 5.0s : splitX = 300   (50/50)
+  //   t = 8.0s : splitX = 180   (LEFT 30%, RIGHT 70%) — and HOLD
+  //   t = 11.5s — 12.0s : ease back to splitX = 420 for next loop
+  //
+  // Element behavior tied to splitX:
+  //   - LEFT group: contents authored on a 420-unit-wide design canvas.
+  //     scaled by (leftWidth / 420) so the broken portal contracts as the
+  //     panel shrinks.
+  //   - RIGHT group: SharePoint logo, caps, connectors, badge — geometry
+  //     recomputed each frame against the right panel center + width.
+  //   - Header overlays (HTML): left/width track the panel widths.
+  //
+  // Cost ticker: continuously climbs throughout State A. Never lands.
+  // Disappears when LEFT panel shrinks below the threshold where the ticker
+  // group no longer fits.
+  // ============================================================
+  var heroStory   = document.getElementById('heroStory');
+  var stage       = document.getElementById('heroStage');
+  var staticScene = document.getElementById('hrStaticScene');
+
+  // Panels + divider
+  var elLeftBg    = document.getElementById('hrPanelLeftBg');
+  var elRightBg   = document.getElementById('hrPanelRightBg');
+  var elDivider   = document.getElementById('hrDivider');
+  var elLeftGroup = document.getElementById('hrLeftGroup');
+
+  // (Static HTML headers live ABOVE the SVG canvas now — no JS hooks needed.)
+
+  // LEFT panel elements (broken-system stage)
+  var elWindow    = document.getElementById('hrWindowGroup');
+  var elToast1    = document.getElementById('hrToast1');
+  var elToast2    = document.getElementById('hrToast2');
+  var elCost      = document.getElementById('hrCostGroup');
+  var elCostNum   = document.getElementById('hrCostNumber');
+  var elLock      = document.getElementById('hrLockGroup');
+
+  // RIGHT panel elements
+  var elSpLogo    = document.getElementById('hrSpLogo');
+  var elBadge     = document.getElementById('hrBadge');
+  var elBadgeRect = document.getElementById('hrBadgeRect');
+  var elBadgeText = document.getElementById('hrBadgeText');
+
+  // 8 caps + 8 connectors
+  var caps = [];
+  var conns = [];
+  for (var i = 1; i <= 8; i++) {
+    var c = document.getElementById('cap' + i);
+    var k = document.getElementById('hrConn' + i);
+    if (c) caps.push(c);
+    if (k) conns.push(k);
+  }
+
+  // Hero frame entrance (single-fire reveal)
+  if (heroStory) {
+    window.setTimeout(function() { heroStory.classList.add('is-visible'); }, 300);
+  }
+
+  // -------- Size the badge pill to fit its text + horizontal padding --------
+  // CRITICAL v2 bug fix: rect width = text bbox width + 2*pad. Re-runs on resize
+  // because getBBox depends on rendered geometry.
+  function fitBadgePill() {
+    if (!elBadgeText || !elBadgeRect) return;
+    try {
+      var pad = 14;          // horizontal padding inside the pill
+      var bbox = elBadgeText.getBBox();
+      var pillW = Math.ceil(bbox.width + 2 * pad);
+      var pillH = 22;
+      var cx = parseFloat(elBadgeText.getAttribute('x')) || 0;
+      elBadgeRect.setAttribute('width',  pillW);
+      elBadgeRect.setAttribute('height', pillH);
+      elBadgeRect.setAttribute('x', cx - pillW / 2);
+      elBadgeRect.setAttribute('rx', pillH / 2);
+    } catch (e) { /* no-op — getBBox fails in detached states */ }
+  }
+
+  if (prefersReducedMotion) {
+    if (staticScene) staticScene.style.display = 'block';
+  } else if (heroStory && stage && elLeftGroup && caps.length === 8 && conns.length === 8) {
+
+    // ---- Timing constants (seconds within 12s cycle) ----
+    var CYCLE_MS = 12000;
+
+    // splitX choreography keyframes (time s → splitX viewBox units)
+    // 0..5: 420 → 300 (smoothstep)
+    // 5..8: 300 → 180 (smoothstep)
+    // 8..11.5: hold at 180
+    // 11.5..12: 180 → 420 (smoothstep snap-back)
+    function smoothstep(a, b, t) {
+      var x = Math.max(0, Math.min(1, (t - a) / (b - a)));
+      return x * x * (3 - 2 * x);
+    }
+    function splitAt(t) {
+      if (t < 5)      return 420 - (420 - 300) * smoothstep(0, 5, t);
+      if (t < 8)      return 300 - (300 - 180) * smoothstep(5, 8, t);
+      if (t < 11.5)   return 180;
+      return 180 + (420 - 180) * smoothstep(11.5, 12, t);
+    }
+
+    // LEFT panel content event timings (seconds within cycle)
+    var T_TOAST1_IN  = 0.50, T_TOAST1_OUT = 1.80;
+    var T_COST_IN    = 0.60;          // ticker fades in
+    var T_TOAST2_IN  = 2.50, T_TOAST2_OUT = 3.80;
+    var T_LOCK_IN    = 3.80;          // lock lands and lingers
+    // Left-panel content fade-out tied to panel-shrink visibility:
+    // We fade window + lock when left panel shrinks past their geometric needs.
+    // (Done via leftWidth thresholds in render, not pure time.)
+
+    // Cost ticker — relentless/explosive climb (v3.4 retune)
+    // Previous formula (4500*t + 1100*t^1.4) topped out near $33K — too gentle.
+    // New formula: 30000*t + 10000*t^1.8 — each second adds more than the last.
+    // Projected at freeze point (t≈4.4s from T_COST_IN, then frozen at 5.0s):
+    //   t=1s →  $40K, t=2s →  $95K, t=3s → $162K, t=4s → $241K, t=4.4s → ~$281K.
+    // The exponential term dominates — visually accelerating, unbounded expense.
+    var COST_BASE  = 30000;
+    var COST_ACCEL = 10000;
+    var COST_EXP   = 1.8;
+
+    // ---- State trackers — avoid redundant DOM writes ----
+    var state = {
+      splitX: null,
+      window: null, toast1: null, toast2: null,
+      cost: null, costText: '',
+      lock: null,
+      caps: [null, null, null, null, null, null, null, null],
+      conns: [null, null, null, null, null, null, null, null],
+      capTransforms: ['', '', '', '', '', '', '', ''],
+      spLogo: null, spLogoBox: '',
+      badge: null,
+      leftGroupTransform: ''
+    };
+
+    function setOpacityIfChanged(el, key, value) {
+      if (state[key] === value) return;
+      state[key] = value;
+      el.style.opacity = value;
+    }
+    function setCapOpacity(idx, value) {
+      if (state.caps[idx] === value) return;
+      state.caps[idx] = value;
+      caps[idx].style.opacity = value;
+    }
+    function setConnOpacity(idx, value) {
+      if (state.conns[idx] === value) return;
+      state.conns[idx] = value;
+      conns[idx].style.opacity = value;
+    }
+    function setCostText(text) {
+      if (state.costText === text) return;
+      state.costText = text;
+      elCostNum.textContent = text;
+    }
+
+    // ---- Initial CSS transitions for smooth opacity changes ----
+    [elToast1, elToast2, elCost, elLock, elBadge, elSpLogo, elWindow].forEach(function(el) {
+      if (el) el.style.transition = 'opacity 350ms cubic-bezier(0.4,0,0.2,1)';
+    });
+    caps.forEach(function(c) { c.style.transition = 'opacity 400ms cubic-bezier(0.4,0,0.2,1)'; });
+    conns.forEach(function(k) { k.style.transition = 'opacity 500ms ease-out'; });
+
+    // Caps: 8 angles starting at 12 o'clock, clockwise every 45° in radians
+    // Order matches v2: 1=top, 2=1:30, 3=3, 4=4:30, 5=6, 6=7:30, 7=9, 8=10:30
+    var CAP_ANGLES = [-Math.PI / 2,                 // top
+                      -Math.PI / 2 + Math.PI / 4,   // 1:30
+                       0,                            // right
+                       Math.PI / 4,                  // 4:30
+                       Math.PI / 2,                  // bottom
+                       3 * Math.PI / 4,              // 7:30
+                       Math.PI,                      // left
+                       -Math.PI / 2 - Math.PI / 4];  // 10:30
+
+    // Cap reveal threshold by panel width:
+    // As right panel grows, caps appear in order. Each cap requires a minimum
+    // right-panel width before it can render legibly.
+    // Right panel min width at t=0 is 180 (start). We want NO caps at start.
+    // At 50/50 (panel width 300), we want ~4 caps visible.
+    // At final state (panel width 420), all 8 caps visible.
+    var CAP_THRESHOLDS = [205, 230, 255, 280, 305, 330, 355, 380];
+    // Map: cap[i] starts to fade in when right panel width crosses CAP_THRESHOLDS[i]
+
+    // Connector visibility threshold: appear once panel is wide enough to have
+    // most caps in (around the time cap 6 appears).
+    var CONN_THRESHOLD = 330;
+
+    // Badge appears once panel is wide enough that it doesn't overlap the
+    // bottom cap (cap 5 at 6 o'clock). Below that, badge would overlap.
+    var BADGE_THRESHOLD = 360;
+
+    function easeIn(x) { return x * x; }
+
+    function formatCost(value) {
+      if (value < 1) return '$0';
+      return '$' + Math.round(value).toLocaleString('en-US');
+    }
+
+    var startTime = null;
+    var rafId = null;
+    var paused = false;
+    var pausedAccum = 0;
+    var pauseStart = 0;
+
+    function tick(timestamp) {
+      if (paused) { rafId = null; return; }
+      if (startTime === null) startTime = timestamp;
+      var elapsed = (timestamp - startTime - pausedAccum) % CYCLE_MS;
+      var t = elapsed / 1000; // seconds within cycle (0..12)
+
+      // -------- Compute split position and panel dimensions --------
+      var splitX = splitAt(t);
+      var leftW = splitX;
+      var rightW = 600 - splitX;
+
+      // -------- Panels + divider --------
+      if (state.splitX !== splitX) {
+        state.splitX = splitX;
+
+        // Left bg width
+        elLeftBg.setAttribute('width', splitX);
+        // Right bg position + width
+        elRightBg.setAttribute('x', splitX);
+        elRightBg.setAttribute('width', rightW);
+        // Divider position
+        elDivider.setAttribute('x1', splitX);
+        elDivider.setAttribute('x2', splitX);
+
+        // Left group: scale uniformly by (leftW / 420), anchored so the
+        // composition stays centered horizontally in the shrinking left panel
+        // and vertically centered in the canvas.
+        // Design center of left content is (210, 180). Panel center is (leftW/2, 180).
+        // Final transform: translate to panel center, scale, translate back from design center.
+        var leftScale = leftW / 420;
+        var panelCx   = leftW / 2;
+        var panelCy   = 180;
+        var lgTransform = 'translate(' + panelCx.toFixed(2) + ' ' + panelCy + ') '
+                        + 'scale(' + leftScale.toFixed(4) + ') '
+                        + 'translate(-210 -180)';
+        if (state.leftGroupTransform !== lgTransform) {
+          state.leftGroupTransform = lgTransform;
+          elLeftGroup.setAttribute('transform', lgTransform);
+        }
+
+        // Headers are now static HTML rendered ABOVE the SVG canvas (Cole's
+        // Option A). They have fixed size and 50/50 widths — no per-frame work.
+      }
+
+      // -------- LEFT PANEL — broken software --------
+      // The whole left composition scales uniformly with the panel, so we
+      // gate visibility on TIME only (not panel width). Content remains
+      // proportionally legible even at minimum panel size.
+
+      // Window frame: visible from start through to just before the reset window
+      var winOn = t < 11.4;
+      setOpacityIfChanged(elWindow, 'window', winOn ? '1' : '0');
+
+      // Toast 1: 0.50s — 1.80s
+      var t1On = t >= T_TOAST1_IN && t < T_TOAST1_OUT;
+      setOpacityIfChanged(elToast1, 'toast1', t1On ? '1' : '0');
+
+      // Toast 2: 2.50s — 3.80s
+      var t2On = t >= T_TOAST2_IN && t < T_TOAST2_OUT;
+      setOpacityIfChanged(elToast2, 'toast2', t2On ? '1' : '0');
+
+      // Cost ticker — continuously climbing during State A
+      // Visible 0.60s — 5.00s. Fades over 5.00s — 5.50s. Never lands.
+      var costOp;
+      if (t < T_COST_IN)      costOp = 0;
+      else if (t < 5.0)       costOp = 1;
+      else if (t < 5.5)       costOp = 1 - smoothstep(5.0, 5.5, t);
+      else                    costOp = 0;
+      setOpacityIfChanged(elCost, 'cost', costOp.toFixed(2));
+      if (costOp > 0.01 && t >= T_COST_IN) {
+        // Value at this t — increments throughout, never winds down
+        // Freeze the displayed number after t=5.0s so it fades out at whatever
+        // it had reached, not continuing to climb during the fade.
+        var ttCalc = Math.min(t, 5.0) - T_COST_IN;
+        var currentCost = COST_BASE * ttCalc + COST_ACCEL * Math.pow(ttCalc, COST_EXP);
+        setCostText(formatCost(currentCost));
+      }
+
+      // Paywall lock: 3.80s — 5.00s, fades during transition 5.00s — 5.50s
+      var lockOp;
+      if (t < T_LOCK_IN)      lockOp = 0;
+      else if (t < 5.0)       lockOp = 1;
+      else if (t < 5.5)       lockOp = 1 - smoothstep(5.0, 5.5, t);
+      else                    lockOp = 0;
+      setOpacityIfChanged(elLock, 'lock', lockOp.toFixed(2));
+
+      // -------- RIGHT PANEL — SharePoint composition --------
+      // Compute center + radial radius from right panel geometry
+      var rcx = (splitX + 600) / 2;
+      var rcy = 180;
+      // Radius scales with panel width but is capped
+      var rRaw = Math.min(rightW * 0.32, 110);
+      var r = Math.max(36, rRaw);
+
+      // SharePoint logo size scales with panel width, capped
+      var logoSize = Math.max(28, Math.min(rightW * 0.20, 72));
+      var newLogoBox = rcx.toFixed(1) + ',' + logoSize.toFixed(1);
+      if (state.spLogoBox !== newLogoBox) {
+        state.spLogoBox = newLogoBox;
+        elSpLogo.setAttribute('x', rcx - logoSize / 2);
+        elSpLogo.setAttribute('y', rcy - logoSize / 2);
+        elSpLogo.setAttribute('width', logoSize);
+        elSpLogo.setAttribute('height', logoSize);
+      }
+      // Logo opacity — fades in as panel grows past 200 (always visible if rightW >= 180)
+      var logoOp = rightW < 160 ? (rightW - 120) / 40 : 1;
+      logoOp = Math.max(0, Math.min(1, logoOp));
+      setOpacityIfChanged(elSpLogo, 'spLogo', logoOp.toFixed(2));
+
+      // Caps — position + opacity each frame
+      for (var ci = 0; ci < 8; ci++) {
+        var ang = CAP_ANGLES[ci];
+        var ex = rcx + r * Math.cos(ang);
+        var ey = rcy + r * Math.sin(ang);
+        var tx = ex - 16;
+        var ty = ey - 16;
+        var ttf = 'translate(' + tx.toFixed(1) + ' ' + ty.toFixed(1) + ')';
+        if (state.capTransforms[ci] !== ttf) {
+          state.capTransforms[ci] = ttf;
+          caps[ci].setAttribute('transform', ttf);
+        }
+        // Reveal: fade in when right panel width crosses threshold,
+        // smooth over a 40-unit range
+        var threshold = CAP_THRESHOLDS[ci];
+        var capOp = (rightW - threshold) / 40;
+        capOp = Math.max(0, Math.min(1, capOp));
+        // During reset window (11.5..12), fade caps out
+        if (t > 11.5) capOp = capOp * (1 - smoothstep(11.5, 12, t));
+        setCapOpacity(ci, capOp.toFixed(2));
+      }
+
+      // Connectors — recompute endpoints + opacity
+      // Inner radius (start point on logo edge): logoSize/2 + a small gap.
+      // Outer radius (end point on cap edge): r - 16 (cap is 32x32, so edge is 16 from center).
+      var innerR = logoSize / 2 + 4;
+      var outerR = r - 16;
+      // Don't draw inverted connectors if innerR > outerR (caps too close to logo)
+      var connsViable = outerR > innerR + 4;
+      for (var ki = 0; ki < 8; ki++) {
+        var kang = CAP_ANGLES[ki];
+        var x1 = rcx + innerR * Math.cos(kang);
+        var y1 = rcy + innerR * Math.sin(kang);
+        var x2 = rcx + outerR * Math.cos(kang);
+        var y2 = rcy + outerR * Math.sin(kang);
+        conns[ki].setAttribute('x1', x1.toFixed(1));
+        conns[ki].setAttribute('y1', y1.toFixed(1));
+        conns[ki].setAttribute('x2', x2.toFixed(1));
+        conns[ki].setAttribute('y2', y2.toFixed(1));
+        // Connector visible only when its own cap is visible AND viable
+        var capOp2 = (rightW - CAP_THRESHOLDS[ki]) / 40;
+        capOp2 = Math.max(0, Math.min(1, capOp2));
+        var connOp = connsViable ? capOp2 * 0.55 : 0;
+        if (t > 11.5) connOp = connOp * (1 - smoothstep(11.5, 12, t));
+        setConnOpacity(ki, connOp.toFixed(2));
+      }
+
+      // Badge: appears below logo and BELOW the bottom cap (cap 5 at 6 o'clock).
+      // Cap 5 bottom edge is at rcy + r + 16. Badge baseline below that with a gap.
+      // Reposition badge X to right panel center each frame.
+      var badgeY = rcy + r + 38;
+      // Clamp badgeY so the pill stays within the canvas (rcy + 38 + ~11 = within 360)
+      if (badgeY > 348) badgeY = 348;
+      elBadgeText.setAttribute('x', rcx);
+      elBadgeText.setAttribute('y', badgeY);
+      // Re-fit the pill rect every frame (text x changed, so rect x needs update)
+      // Reuse stored width — only re-measure when font would have changed (it doesn't)
+      var bw = parseFloat(elBadgeRect.getAttribute('width')) || 120;
+      var bh = parseFloat(elBadgeRect.getAttribute('height')) || 22;
+      elBadgeRect.setAttribute('x', rcx - bw / 2);
+      // Vertically center the text in the pill. Font-size 9 → ascent ~7, descent ~2,
+      // visual midpoint ~ baseline - 2.5. Pill height bh; pill top = baseline - 2.5 - bh/2.
+      elBadgeRect.setAttribute('y', badgeY - 2.5 - bh / 2);
+      var badgeOp = (rightW - BADGE_THRESHOLD) / 40;
+      badgeOp = Math.max(0, Math.min(1, badgeOp));
+      if (t > 11.5) badgeOp = badgeOp * (1 - smoothstep(11.5, 12, t));
+      setOpacityIfChanged(elBadge, 'badge', badgeOp.toFixed(2));
+
+      rafId = window.requestAnimationFrame(tick);
+    }
+
+    function start() {
+      if (rafId !== null) return;
+      if (pauseStart) { pausedAccum += performance.now() - pauseStart; pauseStart = 0; }
+      paused = false;
+      rafId = window.requestAnimationFrame(tick);
+    }
+    function stop() {
+      if (rafId !== null) { window.cancelAnimationFrame(rafId); rafId = null; }
+      paused = true;
+      pauseStart = performance.now();
+    }
+
+    // Fit the badge pill once everything has rendered (need actual text bbox)
+    // Use rAF to ensure the SVG has laid out before measuring.
+    window.requestAnimationFrame(function() {
+      window.requestAnimationFrame(fitBadgePill);
+    });
+
+    // IntersectionObserver — pause when hero scrolls offscreen
+    if ('IntersectionObserver' in window) {
+      var heroIO = new IntersectionObserver(function(entries) {
+        entries.forEach(function(entry) {
+          if (entry.isIntersecting) start();
+          else stop();
+        });
+      }, { threshold: 0.05 });
+      heroIO.observe(heroStory);
+    } else {
+      start();
+    }
+
+    // visibilitychange — pause when tab is hidden
+    document.addEventListener('visibilitychange', function() {
+      if (document.hidden) {
+        stop();
+      } else {
+        var rect = heroStory.getBoundingClientRect();
+        if (rect.bottom > 0 && rect.top < window.innerHeight) start();
+      }
+    });
+  }
+
+  // ----- IntersectionObserver helper (single-fire) -----
+  function observe(el, onEnter, threshold) {
+    if (!el) return;
+    if (prefersReducedMotion || !('IntersectionObserver' in window)) {
+      onEnter(el);
+      return;
+    }
+    var io = new IntersectionObserver(function(entries) {
+      entries.forEach(function(entry) {
+        if (entry.isIntersecting) {
+          onEnter(entry.target);
+          io.unobserve(entry.target);
+        }
+      });
+    }, { threshold: threshold || 0.25, rootMargin: '0px 0px -50px 0px' });
+    io.observe(el);
+  }
+
+  // ----- Section 1: Comparison Split reveal -----
+  observe(document.getElementById('compareSplit'), function(el) {
+    el.classList.add('is-visible');
+  }, 0.2);
+
+  // ----- Section 2: Hub-and-Spoke reveal (radial + grid both observed; one is display:none at any breakpoint) -----
+  observe(document.getElementById('hubRadial'), function(el) {
+    el.classList.add('is-visible');
+  }, 0.25);
+  observe(document.getElementById('hubGrid'), function(el) {
+    el.classList.add('is-visible');
+  }, 0.25);
+
+  // ----- Section 4: Editorial Pull-Quote reveal -----
+  observe(document.getElementById('archiveQuote'), function(el) {
+    el.classList.add('is-visible');
+  }, 0.3);
+
+  // ----- Section 3: Counter-up for Stat Reveal -----
+  function easeOutCubic(t) { return 1 - Math.pow(1 - t, 3); }
+
+  function animateNumber(el, target, duration, formatter) {
+    var start = null;
+    function tick(ts) {
+      if (start === null) start = ts;
+      var elapsed = ts - start;
+      var progress = Math.min(elapsed / duration, 1);
+      var eased = easeOutCubic(progress);
+      var current = target * eased;
+      el.textContent = formatter(current);
+      if (progress < 1) {
+        window.requestAnimationFrame(tick);
+      } else {
+        el.textContent = formatter(target);
+      }
+    }
+    window.requestAnimationFrame(tick);
+  }
+
+  var statGrid = document.getElementById('statGrid');
+  observe(statGrid, function(el) {
+    var nums = el.querySelectorAll('.stat-number');
+    nums.forEach(function(n) {
+      var target = parseFloat(n.getAttribute('data-target'));
+      var format = n.getAttribute('data-format');
+      var formatter;
+      if (format === 'million') {
+        formatter = function(v) { return v.toFixed(1) + 'M'; };
+      } else if (format === 'named') {
+        formatter = function(v) { return Math.round(v) + ' Named'; };
+      } else {
+        formatter = function(v) { return Math.round(v).toLocaleString('en-US'); };
+      }
+      if (prefersReducedMotion) {
+        n.textContent = formatter(target);
+        return;
+      }
+      animateNumber(n, target, 1400, formatter);
+    });
+  }, 0.4);
+
+})();
+</script>
+
+</body>
+</html>

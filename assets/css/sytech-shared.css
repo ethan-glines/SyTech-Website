@@ -506,10 +506,20 @@ a { color: inherit; text-decoration: none; }
   gap: 3rem; margin-bottom: 2.5rem;
 }
 .footer-brand .footer-logo {
-  font-size: 1.2rem; font-weight: 700; color: var(--white);
-  margin-bottom: 0.75rem;
+  margin-bottom: 0.9rem;
 }
-.footer-brand .footer-logo span { color: var(--gold); }
+/* Footer wordmark now uses the inline SyTech orbital-ring logo (same mark as
+   .nav-logo), reversed to white for the dark navy footer. Explicit height keeps
+   it from collapsing to 0×0 (intrinsic SVG sizing on auto-width container).
+   Children are forced white via fill so the navy header fills don't carry over. */
+.footer-brand .footer-logo svg {
+  height: 38px; width: auto; display: block;
+}
+.footer-brand .footer-logo svg path,
+.footer-brand .footer-logo svg polygon {
+  fill: var(--white);
+}
+/* (Legacy .footer-logo span rule removed — footer wordmark is now the inline SVG mark.) */
 .footer-brand p {
   font-size: 0.85rem; color: rgba(255,255,255,0.5); line-height: 1.7;
   max-width: 320px;

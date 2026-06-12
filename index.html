@@ -938,6 +938,396 @@
     animation: none !important;
   }
 }
+
+
+/* ============================================================================
+   SERVICE TILE GRID — EXPERIMENTAL SECTION (v7 fork only)
+   ============================================================================
+   Ported VERBATIM from prototypes/service-tiles-prototype.html (flip / wiggle /
+   nudge mechanism originally from the live OneForm "Why OneForm" grid).
+
+   ISOLATION: every rule is scoped under .svc-tiles-section so the experiment
+   cannot leak into the rest of the homepage or the shared stylesheet. The
+   prototype's .tile-* / .pillar-* classes do NOT collide with any existing
+   homepage or sytech-shared.css class (verified) — they are scoped anyway for
+   a clean, fully reversible fork. Component tokens live on the section element,
+   NOT :root, for the same reason. Base palette tokens (--navy/--gold/etc.)
+   come from sytech-shared.css.
+
+   To remove this experiment entirely: delete (1) this CSS block, (2) the
+   <section class="svc-tiles-section"> markup below the social-proof section,
+   and (3) the matching <script> before </body>. Nothing else references it.
+   ============================================================================ */
+
+.svc-tiles-section {
+  /* Component tokens — scoped to the section, not :root */
+  --tile-size: 240px;     /* legacy token kept for reference / fallback */
+  --tile-cap: 360px;      /* WIDTH FIX (v7): upper bound a single tile may grow to */
+  /* SHAPE FIX (v7.2): tiles are now SHORT WIDE LANDSCAPE rectangles, not squares.
+     5 / 2 (2.5:1) at the 360px desktop cap resolves a ~144px tall card — roughly
+     40% of the old square's 360px height, cutting the section's vertical footprint
+     while keeping the lockup + back-face copy readable. Breakpoints can re-tune this
+     token (e.g. a slightly taller proportion when a single full-width card on a phone
+     would otherwise read too letterbox-thin). */
+  --tile-ratio: 5 / 2;
+  --tile-radius: 16px;
+  --tile-gap: 20px;
+  --tile-border: rgba(37, 66, 107, 0.12);
+  --gold-hairline: rgba(229, 166, 48, 0.35);
+
+  padding: 5rem 0 5.5rem;
+  background: var(--white);
+}
+
+/* --- Section intro (eyebrow + H2) — matches the page's other section headers.
+   PLACEHOLDER COPY: "OUR SERVICES" eyebrow + heading are stand-ins for
+   Reed/Ethan to refine. Structure/style are final; words are not. --- */
+.svc-tiles-intro {
+  text-align: center;
+  max-width: 640px;
+  margin: 0 auto 3rem;
+}
+.svc-tiles-eyebrow {
+  display: block;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: 0.9rem;
+}
+.svc-tiles-heading {
+  font-size: clamp(1.6rem, 3.4vw, 2.4rem);
+  font-weight: 700;
+  line-height: 1.18;
+  color: var(--navy);
+  margin: 0;
+}
+
+/* === Component wrapper (was .tile-grid in the prototype) ===
+   WIDTH FIX (v7 fork): drop the old 760px (3*tile + 2*gap) cap so the grid
+   fills the parent .container band edge-to-edge, lining its left/right edges
+   up with the stats strip's .proof-stats grid directly above. The tiles no
+   longer sit stranded-narrow inside a wider band. */
+.svc-tiles-section .tile-grid {
+  width: 100%;
+  margin: 0 auto;
+}
+
+/* === Pillar band === */
+.svc-tiles-section .pillar { margin-bottom: 3rem; }
+.svc-tiles-section .pillar:last-child { margin-bottom: 0; }
+
+.svc-tiles-section .pillar-header {
+  display: flex; align-items: baseline; gap: 0.7rem;
+  margin-bottom: 1.1rem;
+  padding-bottom: 0.7rem;
+  border-bottom: 1px solid var(--gold-hairline);
+}
+.svc-tiles-section .pillar-num {
+  color: var(--gold); font-size: 0.7rem; font-weight: 700;
+  letter-spacing: 0.18em; font-variant-numeric: tabular-nums;
+}
+.svc-tiles-section .pillar-name {
+  color: var(--gold); font-size: 0.7rem; font-weight: 700;
+  letter-spacing: 0.18em; text-transform: uppercase;
+}
+
+/* === Tile row (3-up desktop) ===
+   WIDTH FIX (v7 fork): columns are now fluid (1fr) instead of fixed
+   var(--tile-size), so the three tiles distribute across the FULL .container
+   band and their outer left/right edges line up with the stats strip above.
+   --tile-size now only acts as an upper cap (max-width on the tile) so tiles
+   grow within reason but never get oversized. The lone Scale tile (:only-child)
+   stays left-aligned at one column's natural width via the rule below. */
+.svc-tiles-section .pillar-tiles {
+  display: grid;
+  /* WIDTH/HEIGHT FIX (v7.1): cap each COLUMN track at --tile-cap (not just the
+     tile's max-width). Using minmax(0, var(--tile-cap)) means a column cell can
+     never grow wider than the cap, so the tile's --tile-ratio height resolves
+     from a width that equals the cap — never from a wider 1fr cell. This was the
+     root cause of the "stay large + pile up" bug: aspect-ratio followed the full
+     1fr cell width while max-width clamped the visible width, so the resolved
+     HEIGHT ran taller than the visible card and overflowed/overlapped at
+     mid-range and mobile widths. With the v7.2 landscape ratio the cards are now
+     short (~144px tall at the 360px cap) so the section takes far less vertical
+     space than the old square grid. */
+  grid-template-columns: repeat(3, minmax(0, var(--tile-cap)));
+  gap: var(--tile-gap);
+  justify-content: start;   /* pack capped columns to the left, lining up with stats */
+  justify-items: stretch;   /* tile fills its (already-capped) column cell */
+}
+
+/* ========================================================================
+   FLIP CARD MECHANISM — PORTED VERBATIM FROM ONEFORM
+   .tile-link / .tile-flip / .tile-front / .tile-back
+   ======================================================================== */
+.svc-tiles-section .tile-link {
+  perspective: 800px;
+  /* WIDTH/HEIGHT FIX (v7.1): the COLUMN track is now capped at --tile-cap, so the
+     tile simply fills its cell (width:100%) and the aspect-ratio resolves a height
+     from the already-capped width. The old max-width:var(--tile-cap) is no longer
+     load-bearing (the track caps width) but is kept as a defensive belt-and-
+     suspenders for the lone-tile case.
+     SHAPE (v7.2): aspect-ratio follows --tile-ratio (default 5/2, a short wide
+     landscape rectangle). The ratio is re-tuned per breakpoint (see below): a lone
+     full-width card on a phone reads better a touch taller, so mobile bumps the
+     proportion rather than going letterbox-thin. */
+  width: 100%;
+  max-width: var(--tile-cap);
+  aspect-ratio: var(--tile-ratio, 1 / 1);
+  cursor: pointer; position: relative;
+  display: block; text-decoration: none; color: inherit;
+  outline: none;
+}
+.svc-tiles-section .tile-link:focus-visible {
+  outline: 3px solid var(--gold); outline-offset: 4px; border-radius: 16px;
+}
+
+.svc-tiles-section .tile-flip {
+  position: relative; width: 100%; height: 100%;
+  transition: transform 0.6s cubic-bezier(0.25,0.46,0.45,0.94);
+  transform-style: preserve-3d;
+}
+.svc-tiles-section .tile-link:hover .tile-flip,
+.svc-tiles-section .tile-link.flipped .tile-flip { transform: rotateY(180deg); }
+
+.svc-tiles-section .tile-front,
+.svc-tiles-section .tile-back {
+  position: absolute; inset: 0; border-radius: var(--tile-radius);
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  display: flex; flex-direction: column; justify-content: center; align-items: center;
+}
+.svc-tiles-section .tile-front {
+  background: var(--white);
+  border: 1px solid var(--tile-border);
+  box-shadow: 0 2px 10px rgba(37, 66, 107, 0.05);
+  text-align: center;
+}
+.svc-tiles-section .tile-back {
+  /* SHAPE (v7.2): shorter card → tighter vertical padding; the extra WIDTH lets the
+     description run on fewer lines so desc + "Learn more →" fit cleanly. Generous
+     horizontal padding keeps line length readable on the now-wider stage. */
+  padding: 18px 36px;
+  background: linear-gradient(150deg, var(--deep-navy), var(--navy));
+  border: 1px solid rgba(229, 166, 48, 0.2);
+  transform: rotateY(180deg);
+  text-align: center;
+}
+
+/* === Front-face logo lockup (shared white "stage") ===
+   SHAPE (v7.2): the white stage is now SHORT + WIDE (~144px tall at the desktop
+   cap). The single-logo lockups (OneForm / SharePoint / 1DocStop) are horizontal
+   already and just center on the wider stage. The 4 COMPOSED lockups (icon + name)
+   previously STACKED column-wise, which needs vertical room the short card no
+   longer has — so .tile-logo--composed is switched to a HORIZONTAL row (icon left,
+   name right) below. */
+.svc-tiles-section .tile-logo {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  width: 100%;
+  height: 100%;
+  padding: 18px 24px;
+}
+.svc-tiles-section .tile-logo--product svg,
+.svc-tiles-section .tile-logo--mark svg {
+  width: 132px;
+  height: auto;
+  max-width: 132px;
+  max-height: 84px;     /* SHAPE (v7.2): trimmed from 96 so single-logo marks sit comfortably on the shorter stage */
+  object-fit: contain;
+  display: block;
+}
+.svc-tiles-section .tile-logo-icon { width: 64px; height: 64px; display: flex; flex: 0 0 64px; }
+.svc-tiles-section .tile-logo-icon svg { width: 100%; height: 100%; display: block; }
+.svc-tiles-section .tile-logo-name {
+  color: var(--navy); font-weight: 700; font-size: 1rem;
+  line-height: 1.2; text-align: center; max-width: 100%;
+}
+
+/* === COMPOSED lockup → HORIZONTAL (icon left, name right) for the short wide card.
+   The 4 composed service tiles (Archive Scanning, Data Migration, Compliance Setup,
+   AI-Powered Ingestion) read icon-beside-name so they fit the reduced card height
+   without crowding. Icon shrinks 64→52px; the name left-aligns and wraps to ≤2 lines
+   within the remaining width. All 4 share this rule, so they stay consistent. === */
+.svc-tiles-section .tile-logo--composed {
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  padding: 16px 22px;
+}
+.svc-tiles-section .tile-logo--composed .tile-logo-icon {
+  width: 52px; height: 52px; flex: 0 0 52px;
+}
+.svc-tiles-section .tile-logo--composed .tile-logo-name {
+  text-align: left;
+  font-size: 0.98rem;
+  line-height: 1.22;
+  max-width: 11.5em;    /* let the longest name (Compliance Setup) wrap to 2 lines, not run off the stage */
+}
+
+/* Per-logo optical-scale normalization (single-logo marks) */
+.svc-tiles-section .tile-logo--mark.tile-logo--sharepoint svg {
+  width: 84px; height: 84px; max-width: 84px; max-height: 84px;
+}
+.svc-tiles-section .tile-logo--product.tile-logo--1docstop svg {
+  width: 144px; height: auto; max-width: 144px; max-height: 64px;
+}
+.svc-tiles-section .tile-logo--product.tile-logo--oneform svg {
+  width: 150px; height: auto; max-width: 150px; max-height: 36px;
+}
+
+/* === Back face === */
+.svc-tiles-section .tile-desc {
+  color: var(--soft-white); font-size: 0.84rem; line-height: 1.45; margin-bottom: 9px;
+}
+.svc-tiles-section .tile-more {
+  display: inline-flex; align-items: center; gap: 0.25rem;
+  color: var(--gold); font-weight: 700; font-size: 0.84rem;
+  padding-top: 0.5rem; border-top: 1px solid var(--gold-hairline);
+}
+.svc-tiles-section .tile-more .arrow { transition: transform 0.3s ease; }
+.svc-tiles-section .tile-link:hover .tile-more .arrow,
+.svc-tiles-section .tile-link.flipped .tile-more .arrow { transform: translateX(3px); }
+.svc-tiles-section .tile-more .lm-label { position: relative; }
+.svc-tiles-section .tile-more .lm-label::after {
+  content: ''; position: absolute; left: 0; bottom: -2px;
+  width: 0; height: 1px; background: var(--gold);
+  transition: width 0.3s ease;
+}
+.svc-tiles-section .tile-link:hover .tile-more .lm-label::after,
+.svc-tiles-section .tile-link.flipped .tile-more .lm-label::after { width: 100%; }
+
+/* ========================================================================
+   WIGGLE + NUDGE — PORTED VERBATIM FROM ONEFORM
+   ======================================================================== */
+@keyframes svcTileWiggle {
+  0%, 100% { transform: rotate(0deg); }
+  15% { transform: rotate(-2deg); }
+  30% { transform: rotate(2.5deg); }
+  45% { transform: rotate(-1.5deg); }
+  60% { transform: rotate(1deg); }
+  75% { transform: rotate(-0.5deg); }
+}
+.svc-tiles-section .tile-link.wiggle .tile-flip {
+  animation: svcTileWiggle 1.5s ease-in-out infinite;
+}
+.svc-tiles-section .tile-link.wiggle:hover .tile-flip { animation: none; }
+.svc-tiles-section .tile-link.wiggle-done .tile-flip { animation: none; }
+
+.svc-tiles-section .tile-nudge {
+  position: absolute; top: -12px; left: 50%; transform: translateX(-50%);
+  background: var(--gold); color: var(--deep-navy); font-size: 10px; font-weight: 700;
+  padding: 4px 12px; border-radius: 20px; white-space: nowrap; z-index: 5;
+  letter-spacing: 0.3px;
+  box-shadow: 0 4px 12px rgba(229, 166, 48, 0.35);
+  transition: opacity 0.4s ease, transform 0.4s ease;
+}
+.svc-tiles-section .tile-nudge::after {
+  content: ''; position: absolute; bottom: -5px; left: 50%; transform: translateX(-50%);
+  width: 0; height: 0; border-left: 5px solid transparent; border-right: 5px solid transparent;
+  border-top: 5px solid var(--gold);
+}
+.svc-tiles-section .tile-link.wiggle-done .tile-nudge {
+  opacity: 0; transform: translateX(-50%) translateY(-8px); pointer-events: none;
+}
+
+/* === Reduced-motion safety net === */
+@media (prefers-reduced-motion: reduce) {
+  .svc-tiles-section .tile-link.wiggle .tile-flip { animation: none !important; }
+  .svc-tiles-section .tile-flip {
+    transition: opacity 150ms ease !important;
+    transform: none !important;
+  }
+  .svc-tiles-section .tile-link:hover .tile-flip,
+  .svc-tiles-section .tile-link.flipped .tile-flip { transform: none !important; }
+  .svc-tiles-section .tile-front,
+  .svc-tiles-section .tile-back {
+    backface-visibility: visible;
+    -webkit-backface-visibility: visible;
+    transform: none !important;
+    transition: opacity 150ms ease;
+  }
+  .svc-tiles-section .tile-back { opacity: 0; }
+  .svc-tiles-section .tile-link:hover .tile-front,
+  .svc-tiles-section .tile-link.flipped .tile-front { opacity: 0; }
+  .svc-tiles-section .tile-link:hover .tile-back,
+  .svc-tiles-section .tile-link.flipped .tile-back { opacity: 1; }
+}
+
+/* === Responsive: 3-up -> 2-up tablet -> 1-up mobile ===
+   WIDTH/HEIGHT FIX (v7.1): every breakpoint caps the COLUMN track at --tile-cap
+   (minmax(0, var(--tile-cap))) so a cell can never grow wider than the cap and the
+   aspect-ratio height resolves cleanly. The grid is left-packed (justify-content)
+   so capped columns line up with the stats strip's left edge. Only the column
+   COUNT, the cap, the gap, and (on mobile) the card RATIO change. */
+
+/* --- Mid-range "small computer window" (~640–959px): 2-up ---
+   Inherits --tile-ratio: 5/2. cap 300px → ~120px tall cards. Still wide+short. */
+@media (max-width: 959px) {
+  .svc-tiles-section { --tile-cap: 300px; }
+  .svc-tiles-section .pillar-tiles {
+    grid-template-columns: repeat(2, minmax(0, var(--tile-cap)));
+  }
+}
+
+/* --- Tight tablet / large phone (~520–639px): 1-up, landscape, capped ---
+   Drop to a single column. The card stays a (capped) wide landscape rectangle and
+   centers in the band so it doesn't strand at the left. cap 360px → ~144px tall.
+   --tile-ratio: 5/2 inherits. */
+@media (max-width: 639px) {
+  .svc-tiles-section { --tile-gap: 16px; --tile-cap: 360px; }
+  .svc-tiles-section .pillar-tiles {
+    grid-template-columns: minmax(0, var(--tile-cap));
+    justify-content: center;   /* center the single capped column in the band */
+  }
+}
+
+/* --- Phone (≤519px): 1-up, FULL-WIDTH landscape card ---
+   The card fills the band edge-to-edge. A full-width 5:2 strip can read a touch
+   letterbox-thin on a narrow phone (height shrinks as width is whatever the band
+   is), so we BUMP the proportion to 2/1 — slightly taller than desktop, giving the
+   horizontal lockup + back-face copy a bit more breathing room. Driven purely by
+   the --tile-ratio token so aspect-ratio still resolves the flip faces' box (the
+   faces are position:absolute; inset:0 and need a definite height — aspect-ratio
+   on the .tile-link provides it, no fixed pixel height needed). Type + padding
+   scale down so the logo, copy, and "Learn more →" all fit. */
+@media (max-width: 519px) {
+  .svc-tiles-section { --tile-gap: 14px; --tile-ratio: 2 / 1; }
+  .svc-tiles-section .pillar-tiles {
+    grid-template-columns: minmax(0, 1fr);   /* full-width single column */
+    justify-content: stretch;
+  }
+  .svc-tiles-section .tile-link {
+    max-width: none;          /* fill the column edge-to-edge in the band */
+  }
+  /* Scale type + padding down so content fits the shorter card. */
+  .svc-tiles-section .tile-logo { padding: 14px 18px; }
+  .svc-tiles-section .tile-logo--composed { gap: 14px; padding: 14px 18px; }
+  .svc-tiles-section .tile-logo--composed .tile-logo-icon { width: 48px; height: 48px; flex: 0 0 48px; }
+  .svc-tiles-section .tile-logo-name { font-size: 0.92rem; }
+  .svc-tiles-section .tile-logo--composed .tile-logo-name { font-size: 0.92rem; }
+  .svc-tiles-section .tile-logo--product svg,
+  .svc-tiles-section .tile-logo--mark svg { max-height: 70px; }
+  .svc-tiles-section .tile-logo--mark.tile-logo--sharepoint svg {
+    width: 70px; height: 70px; max-width: 70px; max-height: 70px;
+  }
+  .svc-tiles-section .tile-back { padding: 16px 22px; }
+  .svc-tiles-section .tile-desc { font-size: 0.82rem; line-height: 1.45; margin-bottom: 8px; }
+  .svc-tiles-section .tile-more { font-size: 0.8rem; padding-top: 0.45rem; }
+}
+
+/* --- Very small phones (≤360px): trim type a touch more (ratio 2/1 inherits) --- */
+@media (max-width: 360px) {
+  .svc-tiles-section .tile-logo-name,
+  .svc-tiles-section .tile-logo--composed .tile-logo-name { font-size: 0.86rem; }
+  .svc-tiles-section .tile-desc { font-size: 0.8rem; }
+}
 </style>
 </head>
 <body>
@@ -988,7 +1378,6 @@
     <ul class="nav-links" id="navLinks">
       <li><a href="index.html" aria-current="page">Home</a></li>
       <li><a href="about.html">About</a></li>
-      <li><a href="why-sytech.html">Why SyTech</a></li>
       <li class="nav-has-mega">
         <a href="services.html" class="nav-mega-trigger" aria-haspopup="true" aria-expanded="false">
           Services
@@ -1689,6 +2078,298 @@
 
 
 <!-- ============================================================
+     SERVICE TILE GRID — EXPERIMENTAL SECTION (v7 fork only)
+     ============================================================
+     Browsable flip-tile expression of the 7 services in 3 pillars
+     (Organize / Unify / Scale). Component ported verbatim from
+     prototypes/service-tiles-prototype.html; CSS + JS scoped to this
+     fork only (see the scoped <style> block above + <script> below).
+     Placed directly below the stats strip per Ethan's request. NOTE:
+     this is a separate, more browsable expression than the hero
+     Organize/Unify/Scale scroll section above — intentional, not a dup.
+     Tiles link to the real service pages.
+     ============================================================ -->
+<section class="svc-tiles-section" id="service-tiles" aria-label="SyTech services, grouped by pillar">
+  <div class="container">
+
+    <!-- Section intro. PLACEHOLDER COPY — eyebrow + heading are stand-ins
+         for Reed/Ethan to refine. Structure/style are final, words are not. -->
+    <div class="svc-tiles-intro fade-up">
+      <span class="svc-tiles-eyebrow">Our Services</span>
+      <h2 class="svc-tiles-heading">Everything we do, grouped the way we work</h2>
+    </div>
+
+    <div class="tile-grid fade-up">
+
+      <!-- ============================ ORGANIZE ============================ -->
+      <section class="pillar" aria-labelledby="svc-pillar-organize">
+        <header class="pillar-header" id="svc-pillar-organize">
+          <span class="pillar-num">01</span>
+          <span class="pillar-name">Organize</span>
+        </header>
+        <div class="pillar-tiles">
+
+          <!-- TEACH TILE: Archive Scanning (top-left) — wiggles + nudge -->
+          <a class="tile-link wiggle" id="firstFlipCard" href="services-scanning.html"
+             aria-label="Archive Scanning — We scan and index your paper records into searchable digital files, ready for your systems. Learn more.">
+            <div class="tile-nudge" aria-hidden="true">&#x1F449; Hover over me!</div>
+            <div class="tile-flip">
+              <div class="tile-front">
+                <div class="tile-logo tile-logo--composed">
+                  <span class="tile-logo-icon" aria-hidden="true">
+                  <svg viewBox="0 0 256 256" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="#25426B" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" role="presentation">
+                    <path d="M44 64h60l16 16v72H44z"/>
+                    <path d="M104 64v16h16"/>
+                    <path d="M62 102h44"/>
+                    <path d="M62 120h44"/>
+                    <path d="M62 138h28"/>
+                    <path d="M30 108h104" stroke="#E5A630"/>
+                    <path d="M168 84h36l24 24v64h-60z"/>
+                    <path d="M204 84v24h24"/>
+                    <path d="M186 146h24" stroke="#E5A630"/>
+                    <path d="M186 132h24" stroke="#E5A630"/>
+                    <path d="M134 128h26"/>
+                    <path d="M150 120l10 8-10 8"/>
+                  </svg>
+                  </span>
+                  <span class="tile-logo-name">Archive Scanning</span>
+                </div>
+              </div>
+              <div class="tile-back">
+                <p class="tile-desc">We scan and index your paper records into searchable digital files, ready for your systems.</p>
+                <span class="tile-more"><span class="lm-label">Learn more</span> <span class="arrow">&rarr;</span></span>
+              </div>
+            </div>
+          </a>
+
+          <!-- Data Migration -->
+          <a class="tile-link" href="services-data-migration.html"
+             aria-label="Data Migration — We move your records out of old or scattered systems into one clean, organized home. Learn more.">
+            <div class="tile-flip">
+              <div class="tile-front">
+                <div class="tile-logo tile-logo--composed">
+                  <span class="tile-logo-icon" aria-hidden="true">
+                  <svg viewBox="0 0 256 256" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="#25426B" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" role="presentation">
+                    <ellipse cx="58" cy="74" rx="34" ry="13"/>
+                    <path d="M24 74v44c0 7.2 15.2 13 34 13s34-5.8 34-13V74"/>
+                    <path d="M24 96c0 7.2 15.2 13 34 13s34-5.8 34-13"/>
+                    <ellipse cx="198" cy="138" rx="34" ry="13"/>
+                    <path d="M164 138v44c0 7.2 15.2 13 34 13s34-5.8 34-13v-44"/>
+                    <path d="M164 160c0 7.2 15.2 13 34 13s34-5.8 34-13"/>
+                    <g stroke="#E5A630">
+                      <path d="M98 112 152 132"/>
+                      <path d="M138 122l16 11-6 17"/>
+                    </g>
+                  </svg>
+                  </span>
+                  <span class="tile-logo-name">Data Migration</span>
+                </div>
+              </div>
+              <div class="tile-back">
+                <p class="tile-desc">We move your records out of old or scattered systems into one clean, organized home.</p>
+                <span class="tile-more"><span class="lm-label">Learn more</span> <span class="arrow">&rarr;</span></span>
+              </div>
+            </div>
+          </a>
+
+          <!-- Records Management & Compliance Setup -->
+          <a class="tile-link" href="services-compliance-setup.html"
+             aria-label="Records Management and Compliance Setup — We set up retention rules and structure so your records stay organized and audit-ready. Learn more.">
+            <div class="tile-flip">
+              <div class="tile-front">
+                <div class="tile-logo tile-logo--composed">
+                  <span class="tile-logo-icon" aria-hidden="true">
+                  <svg viewBox="0 0 256 256" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="#25426B" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" role="presentation">
+                    <path d="M56 56h96l28 28v100a8 8 0 0 1-8 8H56a8 8 0 0 1-8-8V64a8 8 0 0 1 8-8Z"/>
+                    <path d="M152 56v28h28"/>
+                    <path d="M74 104h62"/>
+                    <path d="M74 124h62"/>
+                    <path d="M74 144h40"/>
+                    <g stroke="#E5A630">
+                      <circle cx="172" cy="172" r="30" fill="#FFFFFF"/>
+                      <path d="M159 172l9 9 18-19"/>
+                    </g>
+                  </svg>
+                  </span>
+                  <span class="tile-logo-name">Records Management &amp; Compliance Setup</span>
+                </div>
+              </div>
+              <div class="tile-back">
+                <p class="tile-desc">We set up retention rules and structure so your records stay organized and audit-ready.</p>
+                <span class="tile-more"><span class="lm-label">Learn more</span> <span class="arrow">&rarr;</span></span>
+              </div>
+            </div>
+          </a>
+
+        </div>
+      </section>
+
+      <!-- ============================= UNIFY ============================= -->
+      <section class="pillar" aria-labelledby="svc-pillar-unify">
+        <header class="pillar-header" id="svc-pillar-unify">
+          <span class="pillar-num">02</span>
+          <span class="pillar-name">Unify</span>
+        </header>
+        <div class="pillar-tiles">
+
+          <!-- OneForm (real wordmark) -->
+          <a class="tile-link" href="services-oneform.html"
+             aria-label="OneForm — Replace paper forms with one e-forms platform: design, storage, and support all in one place. Learn more.">
+            <div class="tile-flip">
+              <div class="tile-front">
+                <div class="tile-logo tile-logo--product tile-logo--oneform">
+                  <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 849.09 172.38" role="img" aria-label="OneForm">
+                    <title>OneForm</title>
+                    <image width="849.09" height="172.38" href="data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz48c3ZnIGlkPSJMYXllcl8xIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA4NDkuMDkgMTcyLjM4Ij48ZGVmcz48c3R5bGU+LmNscy0xe2ZpbGw6IzFhMmM0Mjt9LmNscy0ye2ZpbGw6IzJiYjhlYjt9PC9zdHlsZT48L2RlZnM+PHBhdGggY2xhc3M9ImNscy0xIiBkPSJNODQ5LjA5LDEyOC42N2MtMy41LS41Ni0yNCwxLjU0LTI0LTEuOXYtNDMuNTljLTcuMjgsNy42MS0xMS43MiwxOC42NS0xNy44OCwyNi45Ny0uODEsMS4wOS0xLjE5LDIuNDktMi45NCwyLjA4bC0yMC44Ny0zMC4zMnY0Ni43NWgtMjIuNzRWNDQuMDJoMjMuMzdjMi43OSwwLDE4LjQ0LDMxLjAzLDIwLjIzLDMxLjYsMi4zNi43NSwxLjY5LS45NCwyLjE3LTEuNjUsMi43NS00LjExLDE2LjE2LTI4LjgxLDE3LjY1LTI5LjY3LDMuMDQtMS43NiwyMC4xMS43NCwyNS4wMS0uMjd2ODQuNjZaIi8+PHBhdGggY2xhc3M9ImNscy0xIiBkPSJNNjI4LjAyLDEyOS45NGgtMTguOTVjLTQ5LjIyLTEwLjY5LTQ1LjcxLTgyLjYzLDQuMzctODcuMjQsNTcuNzctNS4zMSw2OS4wOCw3My4yMiwxNC41OCw4Ny4yNFpNNjEzLjc4LDY0LjUzYy0yMi4zMyw0LjEtMjAuMzUsNDEuMzMuOTQsNDMuOTUsMzQuMzIsNC4yMywzMi4xNy01MC4wMy0uOTQtNDMuOTVaIi8+PHBhdGggY2xhc3M9ImNscy0xIiBkPSJNNzIyLjE0LDQ0LjAyYzMwLjQ2LDMuNjEsMzguMDksNDEuNDYsMTAuNzEsNTQuOTlsMTguOTcsMjkuNjdoLTI1LjljLTIuOTEsMC0xMy43MS0yMi42Mi0xNy4wNi0yNC42My0yLjU3LTEuNTQtNy4xMi0uMjktMTAuMS0uNjR2MjUuMjdoLTIyLjExYy0uMTMsMC0xLjg5LTEuNzYtMS44OS0xLjlWNDUuOTFjMC0uMTMsMS43Ni0xLjksMS44OS0xLjksMTMuNzMsMCwzMi40OC0xLjU0LDQ1LjQ4LDBaTTY5OC43Niw4NC40NWgxOC4zMmMxMC44OSwwLDkuOTctMTguOTUsMi41My0xOC45NWgtMjAuODR2MTguOTVaIi8+PHBhdGggY2xhc3M9ImNscy0xIiBkPSJNNTY2LjEyLDQ0LjAydjIxLjQ4aC00Mi45NXYxMi42NGgzOS4xNnYyMC4yMmgtMzkuMTZ2MzAuMzJoLTIyLjExYy0uMTMsMC0xLjg5LTEuNzYtMS44OS0xLjlWNDUuOTFjMC0uMTMsMS43Ni0xLjksMS44OS0xLjloNjUuMDZaIi8+PHBhdGggY2xhc3M9ImNscy0yIiBkPSJNMTAxLjA1LS4xOWMyMS44OSwzLjkxLDQwLjE5LDEwLjc0LDU2LjY0LDI2LjAxLDEuNTMsMS40MiwxLjUzLDMuNzUsMy4yNiwzLjk1VjYuNDdsNTguOC41NXYxOS40MmM0LjY2LTMuMTcsNy45LTguMSwxMi4zLTExLjU2LDI4LjE4LTIyLjE2LDcxLjQ5LTE1LjI1LDg2Ljk5LDE4LjE5LDEwLjI0LTEzLjg1LDI0LjE5LTI0LjEzLDQwLjc2LTI5LjEyLDUuNzgtMS43NCwxMS44MS0yLjE4LDE3LjQ4LTQuMTVoMTYuNjRjNS40OCwxLjc1LDExLjI5LDIuMTEsMTYuODgsMy42NSwyNy42OCw3LjU4LDQ2LjM5LDI4Ljc5LDUzLjU4LDU2LjI2LDEuNjIsNi4xOSwxLjksMTIuOCwzLjg3LDE4Ljg3djIzLjNoLTEwOS44M2M1LjEyLDI3LjI2LDM1Ljc2LDMyLjk1LDU3LjcsMjAuNTUsNS4zMi0zLjAxLDguNTQtNy4zNywxMy44OC05LjQzLDIuMDIuMDYsMjguMjIsMjIuMDcsMzAuNTIsMjYuMDYtMzAuNjcsNDIuNDYtMTAwLjI2LDQzLjI2LTEzNi40OSw3LjIxdjIyLjc1YzAsLjEyLTEuNTUsMS42Ni0xLjY2LDEuNjZoLTU1LjQ3Yy0uMTIsMC0xLjY2LTEuNTUtMS42Ni0xLjY2VjYwLjg0aC00Ni4wNGMtMS4zMywwLTE1LjUxLDEwLjM1LTE4LjMsMTEuNjV2MjYuMDhoMTcuMmMuMTIsMCwxLjY2LDEuNTUsMS42NiwxLjY2djY4LjhjMCwuMTItMS41NSwxLjY2LTEuNjYsMS42NmgtNTUuNDdjLS4xMiwwLTEuNjYtMS41NS0xLjY2LTEuNjZ2LTI2LjA4Yy00MC4zMiw0Mi40LTExNi42MiwzOC44Ni0xNDguMDEtMTIuMjlDNS44NCwxMTkuMDksMi43OSwxMDcuMzEuMSw5NC4xM2MuMjEtMy42NS0uMy03LjQ2LDAtMTEuMUMzLjIzLDQ0Ljg2LDI3Ljg5LDE0LjMxLDY0LjcsMy45Nkw4My4zLS4xOWgxNy43NVpNNDEzLjksNzEuOTRjLTQuNTctMzguNTctNTEuMzUtMzguMzYtNTYuNTgsMGg1Ni41OFpNODQuMTIsNTAuMDFjLTM5LjY2LDYuMjEtMzQuNjEsNzcuOTUsMTEuODIsNzIuODQsNDQuMTYtNC44NSwzNy43MS04MC41OS0xMS44Mi03Mi44NFoiLz48cGF0aCBjbGFzcz0iY2xzLTIiIGQ9Ik00NjguMjYsNzguNTljLTEuOTctNi4wNy0yLjI1LTEyLjY5LTMuODctMTguODctNy4xOS0yNy40Ny0yNS45LTQ4LjY4LTUzLjU4LTU2LjI2LTUuNTktMS41My0xMS40LTEuOS0xNi44OC0zLjY1aC0xNi42NGMtNS42NywxLjk3LTExLjcsMi40MS0xNy40OCw0LjE1LTE2LjU3LDQuOTgtMzAuNTIsMTUuMjctNDAuNzYsMjkuMTItMS4yMS0yLjYyLTIuNjItNS4wNi00LjE1LTcuMzUtMTUuMDUsMTYuNzYtMzEuNjgsMzIuMDgtNDkuNjUsNDUuNzJ2OTcuNThjMCwuMTIsMS41NSwxLjY2LDEuNjYsMS42Nmg1NS40N2MuMTIsMCwxLjY2LTEuNTUsMS42Ni0xLjY2di0yMi43NWMzNi4yMywzNi4wNSwxMDUuODIsMzUuMjUsMTM2LjQ5LTcuMjEtMi4zLTMuOTktMjguNDktMjYtMzAuNTItMjYuMDYtNS4zNCwyLjA2LTguNTYsNi40My0xMy44OCw5LjQzLTIxLjk1LDEyLjQxLTUyLjU4LDYuNzEtNTcuNy0yMC41NGgxMDkuODN2LTIzLjMxWk0zNTcuMzIsNzEuOTRjNS4yMy0zOC4zNiw1Mi4wMS0zOC41Nyw1Ni41OCwwaC01Ni41OFpNMjE5Ljc1LDEwMC43N3Y2OC4yNmMwLC4xMi0xLjU1LDEuNjYtMS42NiwxLjY2aC01NS40N2MtLjEyLDAtMS42Ni0xLjU1LTEuNjYtMS42NnYtMjYuMDhjLTM3LjE1LDM5LjA2LTEwNC44NCwzOS4xMy0xMzkuODEtMS4xLDEwLjA5Ljg3LDIwLjMsMS4zMSwzMC42MiwxLjMxLDYwLjgsMCwxMTguMDItMTUuMzUsMTY3Ljk5LTQyLjM5WiIvPjxwYXRoIGNsYXNzPSJjbHMtMiIgZD0iTTI2NS4yNCw4NC4wOWM2OC0uOTIsMTM1LjEzLTUuNDcsMjAxLjE4LTEzLjQ5LS42Mi0zLjY0LTEuMTEtNy4zMy0yLjA0LTEwLjg4LTcuMTktMjcuNDctMjUuOS00OC42OC01My41OC01Ni4yNi01LjU5LTEuNTMtMTEuNC0xLjktMTYuODgtMy42NWgtMTYuNjRjLTUuNjcsMS45Ny0xMS43LDIuNDEtMTcuNDgsNC4xNS0xNi41Nyw0Ljk4LTMwLjUyLDE1LjI3LTQwLjc2LDI5LjEyQzMwMy41NC0uMzcsMjYwLjIzLTcuMjgsMjMyLjA1LDE0Ljg5Yy00LjQsMy40Ni03LjY0LDguMzktMTIuMywxMS41NlY3LjAybC01OC44LS41NXYyMy4zYy0xLjczLS4yLTEuNzQtMi41My0zLjI2LTMuOTVDMTQxLjI0LDEwLjU2LDEyMi45NCwzLjcyLDEwMS4wNS0uMTloLTE3Ljc1bC0xOC42LDQuMTVDMzIuNDQsMTMuMDMsOS41MSwzNy42MywyLjIzLDY5LjI3YzE4LjY4LDIuMzgsMzcuNDQsNC40Nyw1Ni4yOSw2LjI5LDIuODQtMTIuNTgsMTEuMzItMjMuMzEsMjUuNjEtMjUuNTUsMjQuMzUtMy44MSwzOC4yOCwxMi41Niw0MC45MSwzMC43NywyNS4xNiwxLjUzLDUwLjQ1LDIuNTYsNzUuODYsMy4wOHYtMTEuMzdjMi43OS0xLjMsMTYuOTgtMTEuNjUsMTguMy0xMS42NWg0Ni4wNHYyMy4yNFpNNDEzLjksNzEuOTRoLTU2LjU4YzUuMjMtMzguMzYsNTIuMDEtMzguNTcsNTYuNTgsMFoiLz48L3N2Zz4="/>
+                  </svg>
+                </div>
+              </div>
+              <div class="tile-back">
+                <p class="tile-desc">Replace paper forms with one e-forms platform: design, storage, and support all in one place.</p>
+                <span class="tile-more"><span class="lm-label">Learn more</span> <span class="arrow">&rarr;</span></span>
+              </div>
+            </div>
+          </a>
+
+          <!-- SharePoint ERMS (Microsoft mark only) -->
+          <a class="tile-link" href="services-sharepoint-erms.html"
+             aria-label="SharePoint ERMS — We build records and content management on SharePoint, inside the Microsoft 365 you already own. Learn more.">
+            <div class="tile-flip">
+              <div class="tile-front">
+                <div class="tile-logo tile-logo--mark tile-logo--sharepoint">
+                  <span aria-hidden="true" style="display:flex;">
+                  <svg viewBox="177 1.3 232.8 232.7" width="232.8" height="232.7" xmlns="http://www.w3.org/2000/svg" role="presentation">
+                    <circle fill="#036C70" cx="286.3" cy="70.4" r="69.1"/>
+                    <circle fill="#1A9BA1" cx="350.8" cy="131.3" r="59.1"/>
+                    <circle fill="#37C6D0" cx="293.5" cy="186.7" r="47.3"/>
+                    <path opacity="0.1" d="M298.4,52.2h-78.8c-10,36.8,11.7,74.8,48.6,84.9c5.9,1.6,12,2.4,18.1,2.4c2,0,4-0.1,6-0.3l0,0.3c-25.6,0.7-46,21.6-46,47.3c0,1.2,0,2.4,0.1,3.6h52c5.3,0,9.7-4.3,9.7-9.7V61.9C308.1,56.5,303.7,52.2,298.4,52.2z"/>
+                    <path opacity="0.2" d="M291.1,59.4H218c-6,37.7,19.7,73.1,57.4,79.2c3.6,0.6,7.2,0.9,10.8,0.9c2,0,4-0.1,6-0.3l0,0.3c-26.1,0.7-46.7,22.5-46,48.6c0.1,3.2,0.5,6.4,1.2,9.6h43.6c5.3,0,9.7-4.3,9.7-9.7V69.1C300.8,63.8,296.5,59.5,291.1,59.4z"/>
+                    <path fill="#03787C" d="M186.8,59.4h97c5.4,0,9.7,4.3,9.7,9.7l0,0v97c0,5.4-4.3,9.7-9.7,9.7c0,0,0,0,0,0h-97c-5.4,0-9.7-4.3-9.7-9.7c0,0,0,0,0,0v-97C177.1,63.8,181.5,59.4,186.8,59.4C186.8,59.4,186.8,59.4,186.8,59.4z"/>
+                    <path fill="#FFFFFF" d="M218.4,116.4c-2.5-1.6-4.5-3.8-6-6.3c-1.4-2.7-2.2-5.6-2.1-8.7c-0.1-4.1,1.3-8.1,3.9-11.2c2.8-3.1,6.3-5.5,10.3-6.7c4.5-1.5,9.3-2.2,14.1-2.2c6.3-0.2,12.6,0.6,18.5,2.6V97c-2.6-1.6-5.4-2.7-8.4-3.4c-3.2-0.8-6.5-1.2-9.8-1.2c-3.5-0.1-6.9,0.6-10.1,2.1c-2.4,1-4,3.4-4,6.1c0,1.6,0.6,3.1,1.7,4.3c1.3,1.4,2.9,2.5,4.6,3.3c1.9,1,4.8,2.2,8.6,3.8c0.4,0.1,0.8,0.3,1.2,0.5c3.7,1.5,7.3,3.2,10.8,5.3c2.6,1.6,4.8,3.8,6.4,6.4c1.6,3,2.4,6.3,2.3,9.7c0.2,4.2-1.1,8.3-3.6,11.7c-2.5,3.1-5.9,5.3-9.7,6.5c-4.5,1.4-9.1,2.1-13.8,2c-4.2,0-8.4-0.3-12.5-1c-3.5-0.6-6.9-1.5-10.2-2.9v-13.8c3.1,2.2,6.6,3.9,10.3,4.9c3.7,1.1,7.5,1.8,11.3,1.8c3.6,0.2,7.1-0.5,10.3-2.2c2.2-1.3,3.5-3.6,3.5-6.2c0-1.8-0.7-3.5-1.9-4.7c-1.6-1.5-3.4-2.8-5.3-3.7c-2.3-1.1-5.6-2.6-10.1-4.5C224.9,120.2,221.6,118.4,218.4,116.4L218.4,116.4z"/>
+                  </svg>
+                  </span>
+                </div>
+              </div>
+              <div class="tile-back">
+                <p class="tile-desc">We build records and content management on SharePoint, inside the Microsoft 365 you already own.</p>
+                <span class="tile-more"><span class="lm-label">Learn more</span> <span class="arrow">&rarr;</span></span>
+              </div>
+            </div>
+          </a>
+
+          <!-- 1DocStop (full ribbon) -->
+          <a class="tile-link" href="services-1docstop.html"
+             aria-label="1DocStop — A simple, affordable records management solution. No expensive software or proprietary hardware required. Learn more.">
+            <div class="tile-flip">
+              <div class="tile-front">
+                <div class="tile-logo tile-logo--product tile-logo--1docstop">
+                  <span aria-hidden="true" style="display:flex;">
+                  <svg viewBox="0 0 527.7 235.3" width="527.7" height="235.3" xmlns="http://www.w3.org/2000/svg" role="presentation">
+                    <linearGradient id="p1ds_a" gradientUnits="userSpaceOnUse" x1="123.6387" y1="-55.635" x2="2.4734" y2="91.2148"><stop offset="0" stop-color="#2BAAE1"/><stop offset="1" stop-color="#085979"/></linearGradient>
+                    <path fill="url(#p1ds_a)" d="M15.9,35.8v95.4H6.4V45.5H1.7v-9.7"/>
+                    <linearGradient id="p1ds_b" gradientUnits="userSpaceOnUse" x1="211.91" y1="17.5039" x2="90.7445" y2="164.3542"><stop offset="0" stop-color="#2BAAE1"/><stop offset="1" stop-color="#085979"/></linearGradient>
+                    <path fill="url(#p1ds_b)" d="M112.3,86.7c0-14.8,7.4-22.3,22.3-22.3h22.3c14.8,0,22.3,7.4,22.3,22.3v22.3c0,14.8-7.4,22.3-22.3,22.3h-22.3c-14.8,0-22.3-7.4-22.3-22.3V86.7z M134.5,74c-8.5,0-12.7,4.2-12.7,12.7v22.3c0,8.5,4.2,12.7,12.7,12.7h22.3c8.5,0,12.7-4.2,12.7-12.7V86.7c0-8.5-4.2-12.7-12.7-12.7H134.5z"/>
+                    <linearGradient id="p1ds_c" gradientUnits="userSpaceOnUse" x1="154.4489" y1="-30.2138" x2="33.2836" y2="116.6362"><stop offset="0" stop-color="#2BAAE1"/><stop offset="1" stop-color="#085979"/></linearGradient>
+                    <path fill="url(#p1ds_c)" d="M69.4,131.2h-35V35.8h35c21.2,0,31.8,10.6,31.8,31.8v31.8C101.2,120.6,90.6,131.2,69.4,131.2z M69.4,45.3H44v76.3h25.4c14.8,0,22.3-7.4,22.3-22.3V67.6C91.7,52.7,84.3,45.3,69.4,45.3z"/>
+                    <linearGradient id="p1ds_d" gradientUnits="userSpaceOnUse" x1="363.5197" y1="178.6887" x2="466.2589" y2="12.2962"><stop offset="0" stop-color="#2DB24A"/><stop offset="1" stop-color="#00541A"/></linearGradient>
+                    <path fill="url(#p1ds_d)" d="M380.1,86.7c0-14.8,7.4-22.3,22.3-22.3h22.3c14.8,0,22.3,7.4,22.3,22.3v22.3c0,14.8-7.4,22.3-22.3,22.3h-22.3c-14.8,0-22.3-7.4-22.3-22.3V86.7z M402.3,74c-8.5,0-12.7,4.2-12.7,12.7v22.3c0,8.5,4.2,12.7,12.7,12.7h22.3c8.5,0,12.7-4.2,12.7-12.7V86.7c0-8.5-4.2-12.7-12.7-12.7H402.3z"/>
+                    <linearGradient id="p1ds_e" gradientUnits="userSpaceOnUse" x1="420.6774" y1="213.9809" x2="523.4169" y2="47.588"><stop offset="0" stop-color="#2DB24A"/><stop offset="1" stop-color="#00541A"/></linearGradient>
+                    <path fill="url(#p1ds_e)" d="M503.5,64.4c14.8,0,22.3,7.4,22.3,22.3v22.3c0,14.8-7.4,22.3-22.3,22.3h-35v28.6H459V86.7c0-14.8,7.4-22.3,22.3-22.3H503.5z M516.3,86.7c0-8.5-4.2-12.7-12.7-12.7h-22.3c-8.5,0-12.7,4.2-12.7,12.7v35h35c8.5,0,12.7-4.2,12.7-12.7V86.7z"/>
+                    <path fill="#8D8E8D" d="M214.8,74.1c0.8-0.1,1.6-0.1,2.4-0.1h21.9v-9.5h-14.5C221.1,67.6,217.8,70.8,214.8,74.1z"/>
+                    <path fill="#8D8E8D" d="M204.5,108.9V86.7c0-0.2,0-0.4,0-0.5c-3.6,4.7-6.8,9.4-9.6,14.2v8.7c0,14.8,7.4,22.3,22.3,22.3h21.9v-9.5h-21.9C208.7,121.7,204.5,117.4,204.5,108.9z"/>
+                    <path fill="#8D8E8D" d="M340.4,117.1c3.4-3.8,6.6-7.6,9.5-11.4v-31h15.9v-9.5h-15.9V49.2h-9.5v15.9h-13.1v9.5h13.1V117.1z"/>
+                    <linearGradient id="p1ds_f" gradientUnits="userSpaceOnUse" x1="275.0165" y1="69.2656" x2="153.851" y2="216.1157"><stop offset="0" stop-color="#2BAAE1"/><stop offset="1" stop-color="#085979"/></linearGradient>
+                    <path fill="url(#p1ds_f)" d="M175.4,154.8c5.8,7.3,14.2,12.1,24.3,14.7c-4.7-2.5-8.8-5.7-12-9.7c-5.3-6.6-7.8-14.8-7.8-23.8c-0.1-4.8,0.6-9.9,2.1-15.3c6.4-24,26.8-51.3,57.3-73.1c49.6-35.5,106.9-42.9,128-16.4c3.8,4.7,6.1,10.2,7.2,16.2c0.8-11.2-1.8-21.2-8.2-29.2c-22.4-28.1-83.3-20.3-136,17.5C177.5,73.4,152.9,126.8,175.4,154.8z"/>
+                    <linearGradient id="p1ds_g" gradientUnits="userSpaceOnUse" x1="270.0182" y1="120.9565" x2="372.7575" y2="-45.4361"><stop offset="0" stop-color="#2DB24A"/><stop offset="1" stop-color="#00541A"/></linearGradient>
+                    <path fill="url(#p1ds_g)" d="M383.3,26.9c-5.8-9.1-14.5-15.5-25.2-19.4c4.9,3.3,9.1,7.5,12.3,12.5c5.3,8.3,7.6,18.1,7.2,28.8c-0.1,5.6-1.1,11.6-3,17.8c-8,27.7-31.2,58.2-64.7,81.3c-54.7,37.6-116.3,41.4-137.6,8.4c-3.8-5.9-6-12.5-6.9-19.7c-1.4,13.1,0.9,25.2,7.3,35.2c22.6,35.1,88.1,31.1,146.2-8.9C377,122.8,405.9,62,383.3,26.9z"/>
+                    <path fill="#8D8E8D" d="M296.1,80.3H277c-10.6,0-15.9-5.3-15.9-15.9c0-12.7,5.3-19.1,15.9-19.1h37.6v-9.5H277c-17,0-25.4,9.5-25.4,28.6c0,17,8.5,25.4,25.4,25.4h19.1c8.5,0,12.7,5.3,12.7,15.9c0,10.6-4.2,15.9-12.7,15.9h-40.8v9.6l40.8,0c14.8,0,22.3-8.5,22.3-25.4C318.3,88.8,310.9,80.3,296.1,80.3z"/>
+                    <g fill="#00ADEE">
+                      <path d="M17.8,202.5H12c-3.6,0-5.2,1.6-5.2,5.2v13.1c0,3.5,1.7,5.2,5.2,5.2h5.8c3.6,0,5.2-1.6,5.2-5.2v-13.1C23,204.1,21.4,202.5,17.8,202.5z M21.7,220.7c0,2.5-1.3,3.8-3.9,3.8H12c-2.5,0-3.9-1.3-3.9-3.8v-13.1c0-2.5,1.3-3.8,3.9-3.8h5.8c2.5,0,3.9,1.3,3.9,3.8V220.7z"/>
+                      <path d="M35.1,209.8h-8.5v16.1H28v-14.7h7.2c4.1,0,6.3,2.2,6.3,6.3v8.4h1.4v-8.4C42.8,212.3,40.3,209.8,35.1,209.8z"/>
+                      <path d="M57,224.6h-5.8c-1.2,0-2.1-0.3-2.7-0.9c-1.1-1.1-1.1-3-1.1-4.5c0-0.3,0-0.6,0-0.9l0-0.6l12.9,0c0.6-0.1,2-0.5,2-3.5c0-3-1.7-4.3-5.2-4.3h-5.8c-3.6,0-5.2,1.6-5.2,5.2v5.7c0,3.5,1.7,5.2,5.2,5.2H57c3.4,0,5-1.5,5.2-4.6h-1.4C60.6,223.4,59.3,224.6,57,224.6z M47.3,215c0-2.5,1.3-3.8,3.9-3.8H57c2.5,0,3.9,1.3,3.9,3.8c0,0.7-0.4,1.2-1.1,1.4l-0.1,0l-12.3,0.1V215z"/>
+                      <path d="M74.6,209.3c0,3,1.6,4.6,4.7,4.6h5c3.6,0,5.2,1.9,5.2,6c0,4.1-1.7,6-5.2,6h-11v-1.3h11c1.8,0,3.9-0.8,3.9-4.6s-2.1-4.6-3.9-4.6h-5c-4.1,0-6-2-6-6c0-4.6,2-6.8,6-6.8h10.2v1.3H79.2C77.1,203.8,74.6,204.8,74.6,209.3z"/>
+                      <polygon points="101.9,209.9 101.9,211.2 97.7,211.2 97.7,225.9 96.4,225.9 96.4,211.2 93.1,211.2 93.1,209.9 96.4,209.9 96.4,205.8 97.7,205.8 97.7,209.9 "/>
+                      <path d="M116.3,209.8h-5.8c-3.6,0-5.2,1.6-5.2,5.2v5.7c0,3.5,1.7,5.2,5.2,5.2h5.8c3.6,0,5.2-1.6,5.2-5.2V215C121.6,211.5,119.9,209.8,116.3,209.8z M120.2,220.7c0,2.5-1.3,3.8-3.9,3.8h-5.8c-2.5,0-3.9-1.3-3.9-3.8V215c0-2.5,1.3-3.8,3.9-3.8h5.8c2.5,0,3.9,1.3,3.9,3.8V220.7z"/>
+                      <path d="M136.1,209.8h-5.8c-3.6,0-5.2,1.6-5.2,5.2v18.3h1.4v-7.4h9.6c3.6,0,5.2-1.6,5.2-5.2V215C141.4,211.5,139.7,209.8,136.1,209.8z M140,220.7c0,2.5-1.3,3.8-3.9,3.8h-9.6V215c0-2.5,1.3-3.8,3.9-3.8h5.8c2.5,0,3.9,1.3,3.9,3.8V220.7z"/>
+                    </g>
+                    <g fill="#2AB24B">
+                      <path d="M162.9,202.5h-8.4v23.4h8.4c5.1,0,7.6-2.5,7.6-7.6v-8.2C170.5,205,168,202.5,162.9,202.5z M169.2,218.3c0,4.1-2.2,6.3-6.3,6.3h-7.1v-20.7h7.1c4.1,0,6.3,2.2,6.3,6.3V218.3z"/>
+                      <path d="M185,209.8h-5.7c-3.5,0-5.2,1.6-5.2,5.2v5.7c0,3.5,1.6,5.2,5.2,5.2h5.7c3.5,0,5.2-1.6,5.2-5.2V215C190.1,211.5,188.5,209.8,185,209.8z M188.8,220.7c0,2.5-1.3,3.8-3.8,3.8h-5.7c-2.5,0-3.8-1.3-3.8-3.8V215c0-2.5,1.3-3.8,3.8-3.8h5.7c2.5,0,3.8,1.3,3.8,3.8V220.7z"/>
+                      <path d="M204.6,224.6h-5.7c-2.5,0-3.8-1.3-3.8-3.8V215c0-2.5,1.3-3.8,3.8-3.8h5.7c2.3,0,3.6,1.1,3.8,3.3h1.3c-0.2-3.1-1.8-4.6-5.2-4.6h-5.7c-3.5,0-5.2,1.6-5.2,5.2v5.7c0,3.5,1.6,5.2,5.2,5.2h5.7c3.3,0,5-1.5,5.2-4.6h-1.3C208.2,223.4,206.9,224.6,204.6,224.6z"/>
+                      <path d="M272.5,224.6h-5.8c-1.1,0-2.1-0.3-2.7-0.9c-1.1-1.1-1.1-3-1.1-4.5c0-0.3,0-0.6,0-0.9l0-0.6l12.9,0c0.6-0.1,2-0.5,2-3.5c0-3-1.7-4.3-5.2-4.3h-5.8c-3.6,0-5.2,1.6-5.2,5.2v5.7c0,3.5,1.7,5.2,5.2,5.2h5.8c3.4,0,5-1.5,5.2-4.6h-1.4C276.2,223.4,274.9,224.6,272.5,224.6z M262.9,215c0-2.5,1.3-3.8,3.9-3.8h5.8c2.5,0,3.9,1.3,3.9,3.8c0,0.7-0.4,1.2-1.1,1.4l-0.1,0l-12.3,0.1V215z"/>
+                      <polygon points="308.8,209.8 308.8,211.2 304.6,211.2 304.6,225.9 303.3,225.9 303.3,211.2 300,211.2 300,209.8 303.3,209.8 303.3,205.8 304.6,205.8 304.6,209.8 "/>
+                      <path d="M340.5,202.5l-9,22.2l-9-22.2h-1.7v23.4h1.3v-20.8l8.4,20.8h1.9l8.4-20.8v20.8h1.3v-23.4H340.5z"/>
+                      <path d="M356.7,209.8h-5.8c-3.4,0-5,1.5-5.2,4.6h1.4c0.2-2.1,1.5-3.3,3.8-3.3h5.8c1.1,0,2.1,0.3,2.7,0.9c1.1,1.1,1.1,3,1.1,4.5c0,0.3,0,0.6,0,0.9l0,0.6l-12.9,0c-0.6,0.1-2,0.5-2,3.5c0,3,1.7,4.3,5.2,4.3h5.8c3.6,0,5.2-1.6,5.2-5.2V215C361.9,211.5,360.2,209.8,356.7,209.8z M360.5,220.7c0,2.5-1.3,3.8-3.9,3.8h-5.8c-2.5,0-3.9-1.3-3.9-3.8c0-0.7,0.4-1.1,1.1-1.4l0.1,0l12.3-0.1V220.7z"/>
+                      <path d="M373.9,209.8h-8.4v16.1h1.3v-14.7h7.1c4.1,0,6.3,2.2,6.3,6.3v8.4h1.3v-8.4C381.5,212.3,379,209.8,373.9,209.8z"/>
+                      <path d="M395.8,209.8h-5.7c-3.5,0-5.2,1.6-5.2,5.2v5.7c0,3.5,1.6,5.2,5.2,5.2h5.8c1.1,0,2.1,0.3,2.7,0.9c1.1,1.1,1.1,3,1.1,4.5c0,0.3,0,0.6,0,0.9l0,0.6l-12.9,0c-0.6,0.1-2,0.5-2,3.5l1.4,0c0.2-2.1,1.5-3.3,3.8-3.3h5.8c3.6,0,5.2-1.6,5.2-5.2V215C401,211.5,399.4,209.8,395.8,209.8z M399.7,220.7c0,2.5-1.3,3.8-3.9,3.8h-5.8c-2.5,0-3.9-1.3-3.9-3.8c0-0.7,0.4-1.1,1.1-1.4l0.1,0l12.3-0.1V220.7z"/>
+                      <path d="M415.6,209.8h-5.7c-3.5,0-5.2,1.6-5.2,5.2v5.7c0,3.5,1.6,5.2,5.2,5.2h9.6v2.2c0,2.5-1.3,3.8-3.8,3.8h-10.9v1.3h10.9c3.5,0,5.2-1.6,5.2-5.2V215C420.8,211.5,419.1,209.8,415.6,209.8z M419.4,224.6h-9.6c-2.5,0-3.8-1.3-3.8-3.8V215c0-2.5,1.3-3.8,3.8-3.8h5.7c2.5,0,3.8,1.3,3.8,3.8V224.6z"/>
+                      <path d="M434.8,224.6H429c-1.1,0-2.1-0.3-2.7-0.9c-1.1-1.1-1.1-3-1.1-4.5c0-0.3,0-0.6,0-0.9l0-0.6l12.9,0c0.6-0.1,2-0.5,2-3.5c0-3-1.7-4.3-5.2-4.3H429c-3.6,0-5.2,1.6-5.2,5.2v5.7c0,3.5,1.7,5.2,5.2,5.2h5.8c3.4,0,5-1.5,5.2-4.6h-1.4C438.4,223.4,437.1,224.6,434.8,224.6z M425.1,215c0-2.5,1.3-3.8,3.9-3.8h5.8c2.5,0,3.9,1.3,3.9,3.8c0,0.7-0.4,1.2-1.1,1.4l-0.1,0l-12.3,0.1V215z"/>
+                      <path d="M461,209.8h-3.3c-1.8,0-2.3,0.8-2.5,1.5l-0.3,0.8l-0.6-0.6c-1.2-1.1-3.1-1.7-5.5-1.7h-6v16.1h1.3v-14.7h4.6c4.1,0,6.3,2.2,6.3,6.3v8.4h1.3v-13.3c0-0.8,0.5-1.4,1.4-1.4h3.3c4.1,0,6.3,2.2,6.3,6.3v8.4h1.3v-8.4C468.6,212.3,466.1,209.8,461,209.8z"/>
+                      <path d="M482.4,224.6h-5.8c-1.1,0-2.1-0.3-2.7-0.9c-1.2-1.1-1.1-3-1.1-4.5c0-0.3,0-0.6,0-0.9l0-0.6l12.9,0c0.6-0.1,2-0.5,2-3.5c0-3-1.7-4.3-5.2-4.3h-5.8c-3.6,0-5.2,1.6-5.2,5.2v5.7c0,3.5,1.7,5.2,5.2,5.2h5.8c3.4,0,5-1.5,5.2-4.6h-1.4C486.1,223.4,484.7,224.6,482.4,224.6z M472.8,215c0-2.5,1.3-3.8,3.9-3.8h5.8c2.5,0,3.9,1.3,3.9,3.8c0,0.7-0.4,1.2-1.1,1.4l-0.1,0l-12.3,0.1V215z"/>
+                      <path d="M499,209.8h-8.4v16.1h1.3v-14.7h7.1c4.1,0,6.3,2.2,6.3,6.3v8.4h1.3v-8.4C506.7,212.3,504.2,209.8,499,209.8z"/>
+                      <polygon points="518.2,209.8 518.2,211.2 514.1,211.2 514.1,225.9 512.7,225.9 512.7,211.2 509.5,211.2 509.5,209.8 512.7,209.8 512.7,205.8 514.1,205.8 514.1,209.8 "/>
+                    </g>
+                  </svg>
+                  </span>
+                </div>
+              </div>
+              <div class="tile-back">
+                <p class="tile-desc">A simple, affordable records management solution. No expensive software or proprietary hardware required.</p>
+                <span class="tile-more"><span class="lm-label">Learn more</span> <span class="arrow">&rarr;</span></span>
+              </div>
+            </div>
+          </a>
+
+        </div>
+      </section>
+
+      <!-- ============================= SCALE ============================= -->
+      <section class="pillar" aria-labelledby="svc-pillar-scale">
+        <header class="pillar-header" id="svc-pillar-scale">
+          <span class="pillar-num">03</span>
+          <span class="pillar-name">Scale</span>
+        </header>
+        <div class="pillar-tiles">
+
+          <!-- AI-Powered Ingestion — lone tile, left-aligned -->
+          <a class="tile-link" href="services-ai-ingestion.html"
+             aria-label="AI-Powered Ingestion — We use AI to read, sort, and file high volumes of records automatically, so your team doesn't have to. Learn more.">
+            <div class="tile-flip">
+              <div class="tile-front">
+                <div class="tile-logo tile-logo--composed">
+                  <span class="tile-logo-icon" aria-hidden="true">
+                  <svg viewBox="0 0 256 256" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="#25426B" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" role="presentation">
+                    <path d="M30 96h44v52H30z"/>
+                    <path d="M42 84h44v52"/>
+                    <path d="M86 110 118 122" stroke="#E5A630"/>
+                    <path d="M105 114l13 8-5 14" stroke="#E5A630"/>
+                    <rect x="126" y="92" width="60" height="60" rx="14"/>
+                    <circle cx="156" cy="122" r="9" fill="#E5A630" stroke="#E5A630"/>
+                    <path d="M186 110h22m-22 24h22"/>
+                    <circle cx="216" cy="110" r="7"/>
+                    <circle cx="216" cy="134" r="7"/>
+                    <path d="M138 92V80m18 12V80m18 12V80"/>
+                  </svg>
+                  </span>
+                  <span class="tile-logo-name">AI-Powered Ingestion</span>
+                </div>
+              </div>
+              <div class="tile-back">
+                <p class="tile-desc">We use AI to read, sort, and file high volumes of records automatically, so your team doesn't have to.</p>
+                <span class="tile-more"><span class="lm-label">Learn more</span> <span class="arrow">&rarr;</span></span>
+              </div>
+            </div>
+          </a>
+
+        </div>
+      </section>
+
+    </div>
+  </div>
+</section>
+
+
+<!-- ============================================================
      CTA SECTION
      ============================================================ -->
 <section class="cta-section" id="contact" aria-label="Call to action">
@@ -1711,7 +2392,28 @@
   <div class="container">
     <div class="footer-grid">
       <div class="footer-brand">
-        <div class="footer-logo"><span style="color: var(--gold);">Sy</span>Tech Solutions</div>
+        <div class="footer-logo">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1546 647" role="img" aria-label="SyTech Solutions">
+            <g fill="#25426B">
+              <path d="M122.1,171.5c46.9-3.3,94,5.3,138.2,20.6l0,53.5c-18-5.7-35.8-12-54.2-16.3c-19.6-4.8-39.7-8.4-60-8c-12.7,0.6-25.9,1.9-37.1,8.2c-5,2.9-10,7.8-9.8,14.1c-0.3,4.7,2.5,8.8,5.8,11.9c4.5,4.3,10.2,6.9,15.8,9.3c19.3,7.8,39.5,12.7,59.3,19.1c14.3,4.6,28.5,9.4,42.2,15.4c14.7,6.6,28.2,16,38.9,28.1c10.5,11.7,15.2,27.7,14.6,43.3c0.2,17-7,33.9-19.1,45.8c-15.9,15.8-37.1,25-58.5,30.3c-21.6,5.1-44,6.6-66.2,5.8c-39.5-1.1-78.5-10.5-114.7-26.2l0.1-59.4c17.6,9.5,35.8,18,54.6,24.6c18.6,6.6,38.2,10.2,58,10.7c11.8,0.2,23.7,0,35.1-2.9c6.1-1.6,12.3-4.2,16.7-8.9c4.2-4.5,5.9-11.2,4.5-17.2c-1.8-5.8-6.4-10.2-11.3-13.5c-6.4-4-13.6-6.6-20.6-9.2c-17.5-6.2-35.6-10.5-53.2-16.2c-11.7-3.7-23.3-7.7-34.6-12.3c-15.6-6.3-30-16.1-41.3-28.6c-9.5-10.5-14.5-24.6-15.1-38.7c-1.1-14,2.5-28.5,11-39.9c8.3-11.5,20.2-19.9,32.8-26.3C75,177.7,98.6,173.1,122.1,171.5L122.1,171.5z"/>
+              <polygon points="728.5,228.5 728.5,452.6 641.8,452.5 641.8,228.4 516.3,228.5 516.2,178.6 854.3,178.6 854.3,228.4"/>
+              <path d="M1300.5,451.9l0-274.7l73.8,0l0.1,116.6c5.3-4.3,10.1-9.2,15.8-13c19.2-13.8,43.3-19.8,66.8-18.1c21.2,0.7,42.8,7.7,58.7,22.1c13.2,11.6,20,29.3,19.9,46.7l0,120.3l-73.9,0l-0.1-110.7c-0.5-9.9-3.4-20.5-11-27.2c-7.9-7.2-19.3-8.9-29.7-8.4c-16.8,1.2-31.3,11.6-42.5,23.5c-1.6,2-4.5,3.6-4.1,6.5v116.4L1300.5,451.9L1300.5,451.9z"/>
+              <path d="M1093.8,279.7c23.6-13.8,51.1-19.5,78.2-20.2c28.9-0.8,57.7,4,85.4,12.1l-0.1,43.4c-21-8.4-43.7-13.2-66.4-12.2c-14.3,0.7-28.8,3.6-41.2,10.9c-10.3,6-19.2,15.1-22.9,26.6c-4,12.7-3.2,27.1,3,39c6.1,11.6,17,19.9,28.9,24.9c16.5,6.8,34.9,7.5,52.5,5.2c16.8-2.4,33.4-6.7,49.6-11.5l0.1,42c-23.7,6.8-48.1,11.5-72.8,12.3c-22.7,0.5-45.7-1.4-67.5-8c-16.6-5-32.4-12.9-45.6-24.1c-13.2-11-23.1-26-27-42.8c-3.9-16.7-3.2-34.7,3-50.7C1058.6,306.3,1075.3,290.6,1093.8,279.7L1093.8,279.7z"/>
+              <polygon points="458.6,259.8 405.9,355.2 356,260 277.9,259.9 369.3,415.2 300.8,534.5 379.1,534.5 536.1,259.9"/>
+              <path d="M1023.7,365.5c1.4-19.4-2.8-39.5-13.3-56c-7-11.1-16.6-20.3-27.4-27.7c-15.2-10.5-32.8-17-51-20.1c-17.2-2.9-34.8-3.1-52.1-1.1c-19.3,2.3-38.3,8-55,18.2c-14.2,8.7-26.9,20.3-35.2,34.8c-9.1,15.7-12.3,34.3-10.4,52.3c1.2,15.2,7.2,30,16.8,41.9c11.5,14.1,27,24.4,43.6,31.4c28.4,11.8,59.8,14.1,90.2,12.8c31.1-1.5,62.4-8.4,89.6-23.9l0-37c-27.3,16.1-58.5,27.4-90.6,26.5c-19.3-0.4-39.6-4.2-55.1-16.5c-11.1-8.4-17.5-21.9-18.6-35.7L1023.7,365.5z M857,334.7c1.1-12.2,6.8-24.6,17.2-31.7c10.1-7,22.8-8.8,34.8-8.7c12.2,0.1,25.2,2.7,34.8,10.8c8.8,7.3,13.2,18.5,14.9,29.5C924.8,334.8,890.9,334.7,857,334.7z"/>
+              <path d="M695,533c11.2-3,22.9-0.5,33.4,3.9l0,13.5c-7.9-3.4-16.4-7-25.2-5.8c-2.7,0.5-6.4,2-6.1,5.4c-0.2,2.7,2.4,4.2,4.6,5.3c8.4,4.1,18.5,5.7,25.1,13c5,5.2,5.8,13.3,3.5,20c-2.6,6.8-9.3,11.1-16.2,12.6c-11.3,2.3-23.2-0.1-33.2-5.7l0-14.2c3.6,1.7,6.1,3.4,9.3,4.8c5.8,2.8,12.6,4.3,18.9,2.8c2.6-0.5,5.2-2.7,4.9-5.6c0.2-3.3-3.1-5.2-5.7-6.4c-8.2-3.8-18-5.5-24.3-12.6c-4.4-4.7-5.4-11.8-3.8-17.9C682,539.3,688.4,534.8,695,533L695,533z"/>
+              <path d="M1506,531.9c9.3-1,18.7,1.5,27.3,5l0,13.5c-7.9-3.4-16.5-7.1-25.3-5.8c-3,0.4-5.8,2.3-6.5,5.4c0.8,1.6,1.6,3.5,3.3,4.3c8.5,4.9,19.3,6.1,26.4,13.5c5.4,5.1,6.4,13.6,3.9,20.4c-2.5,6.8-9.3,11.1-16.1,12.6c-11.3,2.3-23.3,0-33.3-5.6l0-14.8c6.9,4.7,14.7,8.9,23.3,8.9c3.2-0.1,7-0.4,9-3.2c1.7-2.6,0.6-6.4-2.2-7.9c-5.4-3.3-11.8-4.7-17.5-7.4c-6.3-2.6-12.3-7.7-13.6-14.6c-0.9-5-0.5-10.5,2.5-14.7C1491.5,535.3,1498.9,532.6,1506,531.9L1506,531.9z"/>
+              <polygon points="892.8,532.7 909.8,532.6 909.8,588.2 944.7,588.2 944.7,600.7 892.8,600.6 892.8,532.7"/>
+              <path d="M985.2,532.6l17,0l0,40.4c-0.1,6.4,4.9,12.2,11,13.7c6.3,1.6,13.8,0.8,18.6-4c3.1-3,4.3-7.5,4.4-11.8l0.1-38.5l16.9,0.1V572c-0.2,7.7-2.2,15.9-8,21.2c-7.4,7.2-18.3,8.8-28.2,8.4c-9.9-0.1-20.7-3.4-26.7-11.8c-4.4-6-5.3-13.6-5.1-20.8L985.2,532.6L985.2,532.6z"/>
+              <polygon points="1079.6,532.6 1145.8,532.7 1145.7,545.3 1121.3,545.2 1121.3,600.6 1104.3,600.6 1104.3,545.4 1079.6,545.2 1079.6,532.6"/>
+              <polygon points="1188.4,600.7 1188.4,532.6 1205.3,532.6 1205.4,600.7 1188.4,600.7"/>
+              <polygon points="1371.5,600.7 1371.5,532.6 1387,532.7 1423.3,574.1 1423.4,532.7 1440.3,532.6 1440.3,600.6 1425.9,600.7 1388.5,557.3 1388.4,600.7 1371.5,600.7"/>
+              <path d="M848.3,560.1c-2.5-12.5-12.6-22.8-24.7-26.4c-7.8-2.3-16.1-2.5-24-0.8c-11,2.3-20.8,10-25.5,20.2c-4.5,10-3.8,22.3,2.2,31.5c4.7,7.1,11.7,12.7,19.9,15.1c7.1,2.2,14.6,2.3,21.9,1.4c11.8-1.7,22.6-9.5,27.8-20.2C849,574.5,849.5,567,848.3,560.1z M828.7,577.9c-7.5,12.6-28.5,13-36.6,0.8c-6.8-10.1-3.4-26.3,8.5-30.9c7.9-2.9,17.9-2.5,24.4,3.3C832.3,557.6,833.4,569.5,828.7,577.9z"/>
+              <path d="M1326.1,556.9c-2.2-7.2-7.2-13.4-13.1-17.9c-8.3-6.2-19.2-8-29.3-7.1c-13,0.8-25.2,9-30.9,20.7c-5.1,10.6-3.9,24,3.1,33.4c5.8,8.2,15.1,13.6,25,15c7.6,0.9,15.4,0.7,22.7-1.8c7.9-2.8,14.8-8.4,19.2-15.5C1327.8,575.9,1328.9,565.8,1326.1,556.9z M1301.1,584.2c-5.6,3.5-12.7,4-19,2.6c-7.3-1.7-13.2-7.9-14.5-15.3c-0.7-4.8-0.6-9.9,1.6-14.3c2.4-5.2,7.3-9,12.8-10.4c6.7-1.3,14.4-1.1,20,3.2C1313,557.7,1312.7,577,1301.1,584.2z"/>
+            </g>
+            <path fill="#25426B" d="M300.1,12.2c9.4-3.5,19.8-1,28.5,3.1c15.9,7.5,29.2,19.2,41.7,31.3c22.9,22.8,42.6,48.5,61.1,75c30.4,44,56.7,90.6,80.6,138.3c3.7,7.6,7.3,15.2,11.1,22.8c5.6,11.9,10.7,24,16.5,35.8c15.3-4.5,32.2-2.6,46.3,4.7c14.5,7.3,26,20.4,31.4,35.7c3.8,10.2,4.4,21.4,2.9,32.2c-3.2,20.6-17.1,38.9-35.8,47.9c12.6,41.7,23.4,84.4,25.8,128.1c0.4,14.1,0,28.5-4,42.2c-2.4,7.6-6.1,15.4-13,20c-7.3,4.5-16.4,6.6-24.9,4.2c-15.4-3.8-28.3-13.7-40.2-23.6c-26-22.8-47.6-50.2-67.8-78.2c-15.1-21.1-28.9-43.1-42.3-65.2c1.4-2.6,2.9-5.1,4.4-7.7c25.5,43.3,53,85.7,86.6,123.2c12.9,13.8,26.4,27.5,42.7,37.3c8.3,4.8,18,9.1,27.8,7.3c5.9-1.8,9.9-7.1,12.5-12.4c4.4-9.4,5.7-19.9,6.2-30.1c0.6-16.7-1.2-33.5-3.8-50c-5-30.7-12.9-60.9-22.3-90.6c-12.9,3-26.7,2.3-39-2.6c-16-6.2-29.3-19.1-36-34.9c-7.1-16.6-6.8-36.3,1-52.6c5.9-12.8,16.3-23.3,28.7-30c-4.1-8.5-13-28.8-13.6-30.3c-5.3-11.1-10.6-22.1-16.1-33.1c-18.5-37-38.6-73.1-60.8-108c-15.9-24.8-32.7-48.9-51.5-71.6c-12.1-14.5-24.9-28.5-39.5-40.4c-8.9-7.1-18.4-13.9-29.4-17.3c-5-1.4-10.7-2.2-15.7-0.3c-7.2,3.5-11,11.1-13.4,18.3c-4.5,14.7-3.9,30.3-3.2,45.4c3.1,39,13,77.1,24.3,114.4c6.1,20.1,13.3,39.8,20.2,59.6c-2.7,0.1-5.4,0.2-8,0.1c-13.2-35.9-24.8-72.4-33.3-109.7c-6.2-27.3-10.8-55.2-10.9-83.3c0.5-13,1.4-26.4,6.9-38.4C286,21.2,291.9,14.3,300.1,12.2L300.1,12.2z"/>
+          </svg>
+        </div>
         <p>Public sector records management services. From complexity to clarity.</p>
       </div>
       <div class="footer-col">
@@ -1733,7 +2435,7 @@
       </div>
     </div>
     <div class="footer-bottom">
-      <a href="privacy-security.html">Privacy &amp; Security</a> &nbsp;&middot;&nbsp; &copy; 2026 SyTech Solutions. All rights reserved.
+      <a href="trust-security.html">Trust &amp; Security</a> &nbsp;&middot;&nbsp; <a href="privacy-policy.html">Privacy Policy</a> &nbsp;&middot;&nbsp; &copy; 2026 SyTech Solutions. All rights reserved.
     </div>
   </div>
 </footer>
@@ -2325,6 +3027,59 @@
   });
 
 })();
+</script>
+
+<!-- ============================================================
+     SERVICE TILE GRID — interaction layer (v7 fork only)
+     Ported VERBATIM from the OneForm "Why OneForm" flip-card script.
+     Scoped to .svc-tiles-section .tile-link so it touches nothing else
+     on the page. Tiles use real .html hrefs, so the page's existing
+     a[href^="#"] smooth-scroll handler never intercepts them. On
+     desktop a click follows the link; on touch/narrow the first tap
+     flips and the "Learn more" link navigates on the second tap.
+     ============================================================ -->
+<script>
+  (function() {
+    var section = document.querySelector('.svc-tiles-section');
+    if (!section) return;
+
+    var firstCard = section.querySelector('#firstFlipCard');
+    var flipCards = section.querySelectorAll('.tile-link');
+
+    // Stop the teach-once wiggle on the first card when ANY tile is hovered.
+    if (firstCard) {
+      flipCards.forEach(function(card) {
+        card.addEventListener('mouseenter', function() {
+          firstCard.classList.remove('wiggle');
+          firstCard.classList.add('wiggle-done');
+        }, { once: true });
+      });
+    }
+
+    function flipHandler(card) {
+      flipCards.forEach(function(c) { if (c !== card) c.classList.remove('flipped'); });
+      card.classList.toggle('flipped');
+      if (firstCard) {
+        firstCard.classList.remove('wiggle');
+        firstCard.classList.add('wiggle-done');
+      }
+    }
+
+    flipCards.forEach(function(card) {
+      card.addEventListener('click', function(e) {
+        // Desktop pointer devices follow the link straight through.
+        if (window.innerWidth > 768 && !('ontouchstart' in window)) return;
+        e.preventDefault();
+        flipHandler(card);
+      });
+      card.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          flipHandler(card);
+        }
+      });
+    });
+  })();
 </script>
 
 </body>

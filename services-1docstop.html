@@ -11,40 +11,97 @@
 <link rel="stylesheet" href="assets/css/sytech-shared.css">
 <link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.0.3/src/regular/style.css">
 <style>
+/* === Per-page accent (color pass 2026-06-18) === */
+:root { --accent: #2E7DB5; --accent-ink: #2A6FA0; }
 /* ==========================================================================
-   services-1docstop.html — Batch 2a Subpage (Unify, parallel to SharePoint ERMS)
-   Inherits sibling recipe (.section-header, .cross-link, .archive-quote,
-   .cta-strip, .breadcrumb, two-column hero).
-   New on this page only:
-     - Product Window hero animation (App Window chrome + 4-beat use-cycle)
-       — Cole spec v2 §1 + §6 "Product Window" visual signature
-     - Vault-hub schematic with 4 orbital responsibilities (Section A)
-       — Cole spec v2 §6.1 / Section A — primary visual moat-carrier
-     - Three-up capability grid (Section B)
-       — Cole spec v2 §6.2 — cross-device + multi-user + OCR intake
+   services-1docstop-topgradient.html — TOP-COLOR GRADIENT HERO variant (2026-06-18)
+   Forked from services-1docstop-lighthero.html. ONLY the .page-hero region changes:
+   the hero background becomes a 180deg VERTICAL gradient — a SOFT, TRANSLUCENT steel-blue
+   WASH at the top (behind breadcrumb/eyebrow/headline) fading straight down to light/white.
+   Replicates the SHIPPED, Ethan-approved locked template
+   services-scanning-topgradient.html, swapped to 1DocStop's Steel Blue accent
+   (#2E7DB5, RGB 46,125,181). Per-page values from
+   planning/spec-service-page-color-palette-2026-06-18.md →
+   "Top-Color Gradient Rollout — 1DocStop + SharePoint (per-page values)" → PAGE 1.
+
+   Top text uses the DARK light-hero treatment, with two darkened OVERRIDES the spec
+   requires for AA on the 0.52 steel-blue tint (effective rgb(142,183,212)):
+     - h1 base   navy   #25426B            → 5.02:1 (PASS small+large)
+     - h1 span   #235880  (darkened steel) → 3.48:1 (PASS 3:1 large)  [OVERRIDE the lighthero --accent span]
+     - eyebrow   #1D456A  (deep steel)     → 4.66:1 (PASS 4.5 small)  [OVERRIDE the lighthero --accent-ink eyebrow]
+     - lead      slate  #3d4f5f            → ~6.6:1 (PASS)
+   Dots re-tinted NAVY rgba(37,66,107,0.10) 1px / 24px (were steel-blue in lighthero).
+   Cursor glow KEEPS steel blue, aligned to the template alpha ramp 0.24 / 0.12 / 0.04 / 0.
+   The dark product WINDOW interior is KEPT VERBATIM from the lighthero (it is a product
+   render, stays a dark window floating on the light canvas). Nothing below the hero changes.
+   Top alpha SHIPPED = 0.52 (1DocStop holds the standard template alpha; navy clears with room).
    ========================================================================== */
 
 
-/* ---- Page Hero — same scaffold as SharePoint ERMS lines 22-40 ---- */
-.page-hero { padding: 11rem 0 5rem; background: linear-gradient(175deg, var(--deep-navy) 0%, var(--navy) 60%, #2d5080 100%); position: relative; overflow: hidden; color: var(--white); }
-.page-hero::after { content: ''; position: absolute; inset: 0; background-image: radial-gradient(rgba(255,255,255,0.04) 1px, transparent 1px); background-size: 24px 24px; pointer-events: none; }
+/* ---- Page Hero — TOP-COLOR GRADIENT CONVERSION (2026-06-18) ----
+   Light canvas → full 180deg vertical fade: translucent steel-blue WASH top
+   → light → white floor. The steel blue is built as rgba over the light canvas
+   (not a solid hex) so it reads as a soft, premium tint. Navy h1 / darkened-steel
+   accents / slate lead all clear AA on it. The product WINDOW interior stays dark. */
+.page-hero {
+  padding: 11rem 0 5rem;
+  position: relative;
+  overflow: hidden;
+  color: var(--navy); /* dark text treatment — top is a pale steel-blue wash, not solid */
+  background: linear-gradient(180deg,
+      rgba(46,125,181,0.52)  0%,    /* SHIPPED top alpha 0.52 — soft steel-blue wash over --light (navy 5.02:1) */
+      rgba(46,125,181,0.18) 40%,    /* wash thins toward the light canvas */
+      var(--light)          75%,    /* #F5F5F5 — into the light canvas */
+      var(--white)         100%);   /* #FFFFFF — white floor at the very bottom of the hero */
+}
+/* ::before steel-blue corner glow REMOVED (template Part 4) — the vertical gradient now carries
+   all the steel blue; a separate corner glow would double up and muddy. */
+
+/* ---- Mouse-reactive dot field (interactive, 2026-06-18) ----
+   REPLACES the old static ::after radial-gradient dot tile AND the removed cursor-following glow.
+   Ported VERBATIM from services-scanning-topgradient.html (the approved locked implementation).
+   A <canvas> renders the SAME resting look as the old tile — navy dots rgba(37,66,107,0.10),
+   ~1px radius, 24px grid spacing — but each dot can displace individually toward/away from the
+   cursor (a CSS background tile can't move per-dot). JS owns the field; see the canvas block in
+   <script>. The canvas sits ABOVE the hero gradient background but BELOW .container (z-index 1),
+   so all hero content (eyebrow, h1, lead, breadcrumb, product window) stays fully legible, and
+   pointer-events:none so it never intercepts clicks/hovers. The 1DocStop dots were ALREADY navy
+   in this top-gradient version, so no color change — identical to Scanning.
+   At rest (and on reduced-motion / touch / no-hover) JS paints the static grid once — identical
+   to the old tile, no layout shift. */
+.hero-dotfield {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 0;            /* above the gradient background; below .container (z-index 1) */
+  display: block;
+}
 .page-hero .container { position: relative; z-index: 1; }
+
 .page-hero-grid { display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr); gap: 3.5rem; align-items: center; }
 .page-hero-copy { min-width: 0; }
-.page-hero .eyebrow { display: inline-block; font-size: 0.7rem; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; color: var(--gold); margin-bottom: 1rem; }
-.page-hero h1 { font-size: clamp(2rem, 4.5vw, 3.2rem); font-weight: 700; line-height: 1.15; margin-bottom: 1.25rem; letter-spacing: -0.01em; }
-.page-hero h1 span { color: var(--gold); }
-.page-hero p.lead { font-size: 1.1rem; line-height: 1.7; color: rgba(255,255,255,0.82); }
+/* TOP-GRADIENT: eyebrow → #1D456A (deep steel) — darkened for 4.5:1 SMALL on the 0.52 steel-blue
+   tint; the lighthero --accent-ink #2A6FA0 fails AA small here. */
+.page-hero .eyebrow { display: inline-block; font-size: 0.7rem; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; color: #1D456A; margin-bottom: 1rem; }
+/* TOP-GRADIENT: h1 base → navy; span → #235880 (darkened steel) for 3:1 large on the tint
+   (the lighthero --accent span fails 3:1 large here). */
+.page-hero h1 { font-size: clamp(2rem, 4.5vw, 3.2rem); font-weight: 700; line-height: 1.15; margin-bottom: 1.25rem; letter-spacing: -0.01em; color: var(--navy); }
+.page-hero h1 span { color: #235880; }
+.page-hero p.lead { font-size: 1.1rem; line-height: 1.7; color: var(--text-body); }
 
-/* Breadcrumb — inherited verbatim from sibling */
+/* Breadcrumb — light-version accent treatment (KEEP, already wired in lighthero):
+   links slate --text-body, separators + hover --accent-ink/--accent, current-page navy bold.
+   All read on the pale steel-blue wash + light field. */
 .breadcrumb { margin-bottom: 1.25rem; }
 .breadcrumb ol { list-style: none; padding: 0; margin: 0; display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: center; font-size: 0.8rem; }
-.breadcrumb li { display: inline-flex; align-items: center; gap: 0.5rem; color: rgba(255,255,255,0.65); }
-.breadcrumb li + li::before { content: '\203A'; color: var(--gold); font-size: 0.95rem; line-height: 1; padding-right: 0.25rem; }
-.breadcrumb a { color: rgba(255,255,255,0.65); transition: color 0.2s ease; }
-.breadcrumb a:hover { color: var(--gold); }
-.breadcrumb [aria-current="page"] { color: rgba(255,255,255,0.95); font-weight: 700; }
-.breadcrumb [aria-current="step"] { color: rgba(255,255,255,0.85); }
+.breadcrumb li { display: inline-flex; align-items: center; gap: 0.5rem; color: var(--text-body); }
+.breadcrumb li + li::before { content: '\203A'; color: var(--accent-ink); font-size: 0.95rem; line-height: 1; padding-right: 0.25rem; }
+.breadcrumb a { color: var(--text-body); transition: color 0.2s ease; }
+.breadcrumb a:hover { color: var(--accent); }
+.breadcrumb [aria-current="page"] { color: var(--navy); font-weight: 700; }
+.breadcrumb [aria-current="step"] { color: #6B7785; }
 
 
 /* ==========================================================================
@@ -53,6 +110,10 @@
    (post-titlebar-lockdown, post-truncation-fix).
    Container geometry (max-width 560px, aspect-ratio 600/360) matches sibling
    proven container — no new geometry risk (Cole Risk 1).
+   TOP-GRADIENT: the window INTERIOR stays a dark navy app shell (it is a product
+   render, not a schematic) — KEPT EXACTLY as the lighthero version. Only the shell's
+   drop-shadow is the navy-tint elevation so the dark window reads as an elevated
+   premium product on the light canvas.
    ========================================================================== */
 .hero-product-window {
   position: relative;
@@ -71,14 +132,17 @@
   aspect-ratio: 600 / 360;
 }
 
-/* The App Window outer shell — Cole spec §1.2 + §6.2 */
+/* The App Window outer shell — Cole spec §1.2 + §6.2.
+   Shadow is the navy-tint elevation (rgba(37,66,107,…)) so the dark window lifts
+   cleanly off the light canvas as a premium product render, not a heavy black slab.
+   Steel-blue chrome border at 0.55 for definition against the light field. */
 .window-chrome {
   position: absolute;
   inset: 0;
   background: #1A2D4A;
-  border: 1px solid rgba(229,166,48,0.45);
+  border: 1px solid rgba(46,125,181,0.55);
   border-radius: 8px;
-  box-shadow: 0 8px 32px rgba(0,0,0,0.25);
+  box-shadow: 0 20px 60px rgba(37,66,107,0.18), 0 1px 3px rgba(37,66,107,0.10);
   overflow: hidden;
   display: flex;
   flex-direction: column;
@@ -90,7 +154,7 @@
   height: 32px;
   flex-shrink: 0;
   background: #22375A;
-  border-bottom: 1px solid rgba(229,166,48,0.18);
+  border-bottom: 1px solid rgba(46,125,181,0.18);
   display: flex;
   align-items: center;
   padding: 0 12px;
@@ -119,7 +183,7 @@
   pointer-events: none;
 }
 .window-title .crumb-sep {
-  color: rgba(229,166,48,0.65);
+  color: rgba(46,125,181,0.65);
   margin: 0 0.35em;
 }
 .window-micro-label {
@@ -129,7 +193,7 @@
   transform: translateY(-50%);
   font-size: 0.62rem;
   font-weight: 700;
-  color: var(--gold);
+  color: var(--accent);
   letter-spacing: 0.16em;
   text-transform: uppercase;
   pointer-events: none;
@@ -149,7 +213,7 @@
   width: 100%;
   height: 36px;
   background: #22375A;
-  border: 1px solid rgba(229,166,48,0.25);
+  border: 1px solid rgba(46,125,181,0.25);
   border-radius: 6px;
   display: flex;
   align-items: center;
@@ -157,9 +221,9 @@
   gap: 10px;
   transition: border-color 250ms cubic-bezier(0.4,0,0.2,1);
 }
-.window-search-input.is-active { border-color: rgba(229,166,48,0.75); }
+.window-search-input.is-active { border-color: rgba(46,125,181,0.75); }
 .window-search-input .ph {
-  color: var(--gold);
+  color: var(--accent);
   font-size: 14px;
   opacity: 0.85;
   flex-shrink: 0;
@@ -176,7 +240,7 @@
   display: inline-block;
   width: 1.5px;
   height: 12px;
-  background: var(--gold);
+  background: var(--accent);
   margin-left: 1px;
   vertical-align: middle;
   opacity: 0;
@@ -214,18 +278,18 @@
   position: relative;
 }
 .window-folder-row.is-active {
-  border-left-color: var(--gold);
-  background: rgba(229,166,48,0.06);
+  border-left-color: var(--accent);
+  background: rgba(46,125,181,0.06);
   color: rgba(255,255,255,0.95);
 }
 .window-folder-row .ph {
   font-size: 12px;
-  color: rgba(229,166,48,0.55);
+  color: rgba(46,125,181,0.55);
   flex-shrink: 0;
   margin-top: 1px;
   line-height: 1;
 }
-.window-folder-row.is-active .ph { color: var(--gold); }
+.window-folder-row.is-active .ph { color: var(--accent); }
 .window-folder-label {
   flex: 1 1 auto;
   white-space: normal;
@@ -242,7 +306,7 @@
   line-height: 1.25;
 }
 .window-folder-row.is-active .window-folder-count {
-  color: rgba(229,166,48,0.75);
+  color: rgba(46,125,181,0.75);
 }
 
 /* RIGHT PANE — holds records grid OR viewer */
@@ -257,7 +321,7 @@
 /* RESULT COUNT LABEL — Beat 3 only */
 .window-result-count {
   font-size: 0.58rem;
-  color: rgba(229,166,48,0.85);
+  color: rgba(46,125,181,0.85);
   letter-spacing: 0.06em;
   text-transform: uppercase;
   font-weight: 700;
@@ -303,7 +367,7 @@
 }
 .window-record-card .card-head .ph {
   font-size: 11px;
-  color: rgba(229,166,48,0.6);
+  color: rgba(46,125,181,0.6);
   flex-shrink: 0;
   margin-top: 1px;
   line-height: 1;
@@ -341,8 +405,8 @@
 }
 .window-record-card.is-match .card-snippet { display: block; }
 .window-record-card.is-match {
-  background: rgba(229,166,48,0.04);
-  border-color: rgba(229,166,48,0.18);
+  background: rgba(46,125,181,0.04);
+  border-color: rgba(46,125,181,0.18);
 }
 /* Gold underline draw on first match card */
 .window-record-card.is-first-match .card-title::after {
@@ -352,7 +416,7 @@
   bottom: -2px;
   width: 0;
   height: 1px;
-  background: var(--gold);
+  background: var(--accent);
   transition: width 400ms cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }
 .window-record-card.is-first-match.is-underlined .card-title::after {
@@ -389,7 +453,7 @@
   flex-shrink: 0;
 }
 .window-viewer-crumb .crumb-sep {
-  color: var(--gold);
+  color: var(--accent);
   margin: 0 0.4em;
 }
 .window-viewer-paper {
@@ -426,7 +490,7 @@
   top: 30%;
   width: 2px;
   height: 22px;
-  background: var(--gold);
+  background: var(--accent);
   border-radius: 1px;
   transition: top 2000ms linear;
 }
@@ -467,12 +531,12 @@
 .viewer-doc-line--med   { width: 78%; }
 .viewer-doc-line--long  { width: 92%; }
 
-/* Hero caption */
+/* Hero caption — TOP-GRADIENT: sits on the light canvas below the window → slate. */
 .hero-caption {
   margin-top: 1.1rem;
   font-size: 0.82rem;
   line-height: 1.55;
-  color: rgba(255,255,255,0.62);
+  color: var(--text-body);
   font-style: italic;
 }
 
@@ -489,7 +553,7 @@
 .section.alt { background: var(--light); }
 .section.breathe { padding: 7rem 0; }
 .section-header { text-align: center; max-width: 760px; margin: 0 auto 2.5rem; }
-.section .section-eyebrow { display: block; font-size: 0.7rem; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; color: var(--gold); margin-bottom: 0.75rem; }
+.section .section-eyebrow { display: block; font-size: 0.7rem; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; color: var(--accent-ink); margin-bottom: 0.75rem; }
 .section h2 { font-size: clamp(1.6rem, 2.6vw, 2rem); font-weight: 700; line-height: 1.2; margin-bottom: 1rem; letter-spacing: -0.01em; color: var(--navy); }
 .section-header h2 { max-width: 760px; margin-left: auto; margin-right: auto; }
 .section-intro { font-size: 1.05rem; line-height: 1.75; color: var(--text-body); margin: 0 auto 0; max-width: 640px; }
@@ -515,7 +579,7 @@
 
 /* SVG connector layer — gold hairlines from vault edge to orbital edge */
 .vault-connectors { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
-.vault-connector { stroke: var(--gold); stroke-width: 1.5; fill: none; stroke-linecap: round; opacity: 0; transition: opacity 600ms ease-out; }
+.vault-connector { stroke: var(--accent); stroke-width: 1.5; fill: none; stroke-linecap: round; opacity: 0; transition: opacity 600ms ease-out; }
 .vault-radial.is-visible .vault-connector { opacity: 0.7; }
 .vault-radial.is-visible .vault-connector:nth-child(1) { transition-delay: 240ms; }
 .vault-radial.is-visible .vault-connector:nth-child(2) { transition-delay: 380ms; }
@@ -528,19 +592,19 @@
   width: 220px; height: 152px;
   display: flex; flex-direction: column; align-items: center; justify-content: center;
   gap: 0.6rem;
-  background: radial-gradient(circle at center, rgba(229,166,48,0.06) 0%, var(--white) 70%);
-  border: 1.5px solid var(--gold);
+  background: radial-gradient(circle at center, rgba(46,125,181,0.06) 0%, var(--white) 70%);
+  border: 1.5px solid var(--accent);
   border-radius: 12px;
-  box-shadow: 0 4px 16px rgba(37,66,107,0.10), 0 0 0 6px rgba(229,166,48,0.06);
+  box-shadow: 0 4px 16px rgba(37,66,107,0.10), 0 0 0 6px rgba(46,125,181,0.06);
   z-index: 2;
   opacity: 0;
   transform: translate(-50%, -50%) scale(0.92);
   transition: opacity 500ms cubic-bezier(0.4,0,0.2,1), transform 500ms cubic-bezier(0.4,0,0.2,1);
 }
 .vault-radial.is-visible .vault-hub { opacity: 1; transform: translate(-50%, -50%) scale(1); }
-.vault-hub i { font-size: 44px; color: var(--gold); line-height: 1; }
+.vault-hub i { font-size: 44px; color: var(--accent); line-height: 1; }
 .vault-hub-label { font-size: 0.7rem; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; color: var(--navy); text-align: center; line-height: 1.25; }
-.vault-hub-sublabel { font-size: 0.6rem; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--gold); text-align: center; line-height: 1.2; }
+.vault-hub-sublabel { font-size: 0.6rem; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--accent); text-align: center; line-height: 1.2; }
 
 /* 4 orbital nodes — circular badges at 4 cardinal positions */
 .vault-orbital {
@@ -560,7 +624,7 @@
   padding: 0.5rem;
 }
 .vault-radial.is-visible .vault-orbital { opacity: 1; }
-.vault-orbital:hover { border-color: rgba(229,166,48,0.55); box-shadow: 0 4px 14px rgba(37,66,107,0.08); }
+.vault-orbital:hover { border-color: rgba(46,125,181,0.55); box-shadow: 0 4px 14px rgba(37,66,107,0.08); }
 .vault-orbital i { font-size: 32px; color: var(--navy); line-height: 1; }
 .vault-orbital-label { font-size: 0.62rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--navy); text-align: center; line-height: 1.25; }
 
@@ -572,11 +636,11 @@
 
 /* Mobile 2x2 grid (≤768px) */
 .vault-grid { display: none; max-width: 600px; margin: 2rem auto 0; }
-.vault-grid-header { text-align: center; margin-bottom: 1.75rem; padding: 1.25rem 1.5rem; background: radial-gradient(circle at center, rgba(229,166,48,0.06) 0%, var(--white) 70%); border: 1.5px solid var(--gold); border-radius: 12px; box-shadow: 0 4px 16px rgba(37,66,107,0.10); display: inline-flex; flex-direction: column; gap: 0.4rem; align-items: center; }
+.vault-grid-header { text-align: center; margin-bottom: 1.75rem; padding: 1.25rem 1.5rem; background: radial-gradient(circle at center, rgba(46,125,181,0.06) 0%, var(--white) 70%); border: 1.5px solid var(--accent); border-radius: 12px; box-shadow: 0 4px 16px rgba(37,66,107,0.10); display: inline-flex; flex-direction: column; gap: 0.4rem; align-items: center; }
 .vault-grid-wrap { text-align: center; margin-bottom: 1.5rem; }
-.vault-grid-header i { font-size: 36px; color: var(--gold); display: block; line-height: 1; }
+.vault-grid-header i { font-size: 36px; color: var(--accent); display: block; line-height: 1; }
 .vault-grid-header-label { display: block; font-size: 0.72rem; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; color: var(--navy); }
-.vault-grid-header-sublabel { display: block; font-size: 0.6rem; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--gold); }
+.vault-grid-header-sublabel { display: block; font-size: 0.6rem; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--accent); }
 .vault-grid-tiles { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.85rem; }
 .vault-grid-tile {
   display: flex; flex-direction: column; align-items: center; justify-content: center;
@@ -622,7 +686,7 @@
   gap: 1rem;
   padding: 2.25rem 1.75rem 2rem;
   background: var(--white);
-  border-top: 1px solid rgba(229,166,48,0.3);
+  border-top: 1px solid rgba(46,125,181,0.3);
   border-radius: 4px;
   box-shadow: 0 2px 8px rgba(37,66,107,0.04);
   opacity: 0;
@@ -663,7 +727,7 @@
   font-weight: 700;
   letter-spacing: 0.16em;
   text-transform: uppercase;
-  color: var(--gold);
+  color: var(--accent);
   line-height: 1.3;
   font-family: Tahoma, 'Segoe UI', Arial, Helvetica, sans-serif;
   margin: 0;
@@ -700,7 +764,7 @@
   display: block;
   font-size: clamp(2.4rem, 5vw, 4rem);
   font-weight: 700;
-  color: var(--gold);
+  color: var(--accent);
   line-height: 1;
   letter-spacing: -0.02em;
   margin-bottom: 0.75rem;
@@ -719,7 +783,7 @@
 /* ==========================================================================
    SECTION D — Editorial Pull-Quote (inherited verbatim from sibling)
    ========================================================================== */
-.archive-quote { max-width: 760px; margin: 0 auto; padding: 2rem 2.25rem; background: rgba(229,166,48,0.08); border-left: 4px solid var(--gold); border-radius: 4px; opacity: 0; transform: translateY(8px); transition: opacity 600ms cubic-bezier(0.4,0,0.2,1), transform 600ms cubic-bezier(0.4,0,0.2,1); }
+.archive-quote { max-width: 760px; margin: 0 auto; padding: 2rem 2.25rem; background: rgba(46,125,181,0.08); border-left: 4px solid var(--accent); border-radius: 4px; opacity: 0; transform: translateY(8px); transition: opacity 600ms cubic-bezier(0.4,0,0.2,1), transform 600ms cubic-bezier(0.4,0,0.2,1); }
 .archive-quote.is-visible { opacity: 1; transform: translateY(0); }
 .archive-quote p { font-size: 1.25rem; line-height: 1.5; color: var(--navy); font-weight: 700; margin: 0; letter-spacing: -0.005em; }
 
@@ -730,8 +794,8 @@
 .cta-strip { background: var(--navy); padding: 4rem 0; color: var(--white); text-align: center; }
 .cta-strip h2 { color: var(--white); font-size: clamp(1.5rem, 2.4vw, 2rem); margin-bottom: 1rem; max-width: 720px; margin-left: auto; margin-right: auto; }
 .cta-strip p { color: rgba(255,255,255,0.78); max-width: 640px; margin: 0 auto 1.75rem; line-height: 1.7; }
-.btn-primary { display: inline-block; padding: 0.85rem 2rem; background: var(--gold); color: var(--deep-navy); font-size: 0.95rem; font-weight: 700; border-radius: 6px; text-decoration: none; transition: all 0.3s; border: none; cursor: pointer; }
-.btn-primary:hover { background: #d4952a; transform: translateY(-2px); box-shadow: 0 6px 20px rgba(229,166,48,0.35); }
+.btn-primary { display: inline-block; padding: 0.85rem 2rem; background: var(--accent); color: #FFFFFF; font-size: 0.95rem; font-weight: 700; border-radius: 6px; text-decoration: none; transition: all 0.3s; border: none; cursor: pointer; }
+.btn-primary:hover { background: var(--accent-ink); transform: translateY(-2px); box-shadow: 0 6px 20px rgba(46,125,181,0.35); }
 .btn-primary:focus-visible { outline: 3px solid var(--white); outline-offset: 3px; }
 
 
@@ -739,23 +803,26 @@
    CROSS-LINK (inherited verbatim — NO .is-single, 2 sibling cards)
    ========================================================================== */
 .cross-link { padding: 5rem 0; background: var(--light); text-align: center; }
-.cross-link .section-eyebrow { display: block; font-size: 0.7rem; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; color: var(--gold); margin-bottom: 0.75rem; }
+.cross-link .section-eyebrow { display: block; font-size: 0.7rem; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; color: var(--accent-ink); margin-bottom: 0.75rem; }
 .cross-link h2 { font-size: clamp(1.6rem, 2.6vw, 2rem); font-weight: 700; line-height: 1.2; margin-bottom: 2.5rem; letter-spacing: -0.01em; color: var(--navy); }
 .cross-link-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; max-width: 880px; margin: 0 auto 2rem; text-align: left; }
-.cross-link-card { display: flex; flex-direction: column; gap: 0.75rem; padding: 1.75rem 1.75rem 1.5rem; background: var(--white); border-left: 4px solid var(--gold); border-radius: 4px; box-shadow: 0 2px 8px rgba(37,66,107,0.04); transition: transform 300ms ease, box-shadow 300ms ease; text-decoration: none; }
+.cross-link-card { display: flex; flex-direction: column; gap: 0.75rem; padding: 1.75rem 1.75rem 1.5rem; background: var(--white); border-left: 4px solid var(--xlink-ui); border-radius: 4px; box-shadow: 0 2px 8px rgba(37,66,107,0.04); transition: transform 300ms ease, box-shadow 300ms ease; text-decoration: none; }
 .cross-link-card:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(37,66,107,0.10); }
-.cross-link-card:focus-visible { outline: 3px solid var(--gold); outline-offset: 3px; }
-.cross-link-card .card-eyebrow { font-size: 0.65rem; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; color: var(--gold); }
+.cross-link-card:focus-visible { outline: 3px solid var(--xlink-ui); outline-offset: 3px; }
+.cross-link-card .card-eyebrow { font-size: 0.65rem; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; color: var(--xlink-ink); }
 .cross-link-card h3 { font-size: clamp(1.15rem, 1.8vw, 1.35rem); font-weight: 700; color: var(--navy); line-height: 1.25; letter-spacing: -0.005em; position: relative; display: inline-block; }
-.cross-link-card h3::after { content: ''; position: absolute; bottom: -2px; left: 0; width: 0; height: 2px; background: var(--gold); transition: width 300ms ease; }
+.cross-link-card h3::after { content: ''; position: absolute; bottom: -2px; left: 0; width: 0; height: 2px; background: var(--xlink-ui); transition: width 300ms ease; }
 .cross-link-card:hover h3::after { width: 100%; }
 .cross-link-card p { font-size: 0.95rem; line-height: 1.65; color: var(--text-body); margin: 0; }
 .cross-link-card .card-arrow { margin-top: auto; display: inline-flex; align-items: center; gap: 0.4rem; font-size: 0.82rem; font-weight: 700; color: var(--navy); letter-spacing: 0.02em; padding-top: 0.5rem; }
 .cross-link-card .card-arrow i { font-size: 18px; transition: transform 300ms ease; }
-.cross-link-card:hover .card-arrow i { transform: translateX(4px); color: var(--gold); }
+.cross-link-card:hover .card-arrow i { transform: translateX(4px); color: var(--xlink-ui); }
+/* Destination color-coding — each cross-link card wears the accent of the page it LINKS TO (1DocStop links to OneForm + SharePoint ERMS). Values on white per spec §C. */
+.cross-link-card.dest-oneform    { --xlink-ui: #1593CC; --xlink-ink: #1378A6; }
+.cross-link-card.dest-sharepoint { --xlink-ui: #1A6E78; --xlink-ink: #1A6E78; }
 .cross-link-framework { display: inline-flex; align-items: center; gap: 0.4rem; font-size: 0.9rem; font-weight: 700; color: var(--navy); letter-spacing: 0.02em; position: relative; }
-.cross-link-framework::after { content: ''; position: absolute; bottom: -3px; left: 0; width: 100%; height: 2px; background: var(--gold); transform: scaleX(0); transform-origin: left; transition: transform 300ms ease; }
-.cross-link-framework:hover { color: var(--gold); }
+.cross-link-framework::after { content: ''; position: absolute; bottom: -3px; left: 0; width: 100%; height: 2px; background: var(--accent); transform: scaleX(0); transform-origin: left; transition: transform 300ms ease; }
+.cross-link-framework:hover { color: var(--accent); }
 .cross-link-framework:hover::after { transform: scaleX(1); }
 
 
@@ -853,16 +920,16 @@
 .docstop-video-band .dsvid-header { text-align: center; max-width: 760px; margin: 0 auto 3rem; }
 .docstop-video-band .dsvid-eyebrow {
   display: block; font-size: 0.7rem; font-weight: 700; letter-spacing: 0.18em;
-  text-transform: uppercase; color: var(--gold); margin-bottom: 0.75rem;
+  text-transform: uppercase; color: var(--accent-ink); margin-bottom: 0.75rem;
 }
 .docstop-video-band .dsvid-header h2 {
   font-size: clamp(1.6rem, 2.6vw, 2rem); font-weight: 700; line-height: 1.2;
   letter-spacing: -0.01em; color: var(--navy); margin: 0 0 1rem;
 }
-.docstop-video-band .dsvid-header h2 span { color: var(--gold); }
+.docstop-video-band .dsvid-header h2 span { color: var(--accent); }
 .docstop-video-band .dsvid-divider {
   width: 60px; height: 4px; border-radius: 2px;
-  background: linear-gradient(90deg, var(--gold), #d4952a);
+  background: linear-gradient(90deg, var(--accent), var(--accent-ink));
   margin: 0 auto 1.25rem;
 }
 .docstop-video-band .dsvid-sub {
@@ -877,7 +944,7 @@
   aspect-ratio: 16 / 9;
   border-radius: 12px;
   overflow: hidden;
-  border: 1px solid rgba(229,166,48,0.35);
+  border: 1px solid rgba(46,125,181,0.35);
   box-shadow: 0 24px 64px rgba(37,66,107,0.22);
   background-color: var(--deep-navy);
   background-size: cover; background-position: center;
@@ -895,9 +962,9 @@
   position: absolute; top: 50%; left: 50%;
   transform: translate(-50%, -50%);
   width: 96px; height: 96px; border-radius: 50%;
-  background: var(--gold);
+  background: var(--accent);
   display: flex; align-items: center; justify-content: center;
-  box-shadow: 0 12px 40px rgba(229,166,48,0.45), 0 0 0 0 rgba(229,166,48,0.4);
+  box-shadow: 0 12px 40px rgba(46,125,181,0.45), 0 0 0 0 rgba(46,125,181,0.4);
   z-index: 3;
   transition: transform 0.3s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.3s;
   animation: dsvid-yt-pulse 2.8s ease-in-out infinite;
@@ -906,14 +973,14 @@
 .docstop-video-band .dsvid-yt-facade:hover .dsvid-yt-play,
 .docstop-video-band .dsvid-yt-facade:focus-visible .dsvid-yt-play {
   transform: translate(-50%, -50%) scale(1.1);
-  box-shadow: 0 16px 50px rgba(229,166,48,0.6);
+  box-shadow: 0 16px 50px rgba(46,125,181,0.6);
 }
 .docstop-video-band .dsvid-yt-facade:focus-visible {
-  outline: 3px solid var(--gold); outline-offset: 4px;
+  outline: 3px solid var(--accent); outline-offset: 4px;
 }
 @keyframes dsvid-yt-pulse {
-  0%, 100% { box-shadow: 0 12px 40px rgba(229,166,48,0.45), 0 0 0 0 rgba(229,166,48,0.45); }
-  50%      { box-shadow: 0 12px 40px rgba(229,166,48,0.45), 0 0 0 18px rgba(229,166,48,0); }
+  0%, 100% { box-shadow: 0 12px 40px rgba(46,125,181,0.45), 0 0 0 0 rgba(46,125,181,0.45); }
+  50%      { box-shadow: 0 12px 40px rgba(46,125,181,0.45), 0 0 0 18px rgba(46,125,181,0); }
 }
 .docstop-video-band .dsvid-yt-label {
   position: absolute; bottom: 1.25rem; left: 1.25rem; z-index: 3;
@@ -923,7 +990,7 @@
 }
 .docstop-video-band .dsvid-yt-label::before {
   content: ''; width: 8px; height: 8px; border-radius: 50%;
-  background: var(--gold);
+  background: var(--accent);
 }
 
 /* Injected iframe wrapper — responsive 16:9, absolute-fill */
@@ -931,7 +998,7 @@
   position: relative; max-width: 900px; margin: 0 auto;
   aspect-ratio: 16 / 9; border-radius: 12px; overflow: hidden;
   box-shadow: 0 24px 64px rgba(37,66,107,0.22);
-  border: 1px solid rgba(229,166,48,0.35);
+  border: 1px solid rgba(46,125,181,0.35);
 }
 .docstop-video-band .dsvid-yt-iframe-wrap iframe {
   position: absolute; inset: 0; width: 100%; height: 100%; border: 0;
@@ -1050,8 +1117,15 @@
      (post-titlebar-lockdown, post-truncation-fix). H1 updated per
      Owner directive 2026-05-28: "Simple, Affordable Records Management"
      (lifted from SyTech existing brand language).
+     TOP-COLOR GRADIENT CONVERSION 2026-06-18: light canvas + steel-blue
+     TOP WASH (0.52 → light → white) + navy dots + steel-blue cursor glow;
+     hero text → navy h1 / #235880 span / #1D456A eyebrow / slate lead; the
+     dark product window stays dark with a navy-tint elevation shadow.
      ============================================================ -->
 <section class="page-hero">
+  <!-- Mouse-reactive navy dot field (interactive). Painted above the gradient background but
+       below .container. JS draws the resting grid and displaces dots near the cursor. -->
+  <canvas class="hero-dotfield" id="heroDotField" aria-hidden="true"></canvas>
   <div class="container">
     <div class="page-hero-grid">
       <div class="page-hero-copy">
@@ -1466,13 +1540,13 @@
     </div>
 
     <div class="cross-link-grid">
-      <a href="services-oneform.html" class="cross-link-card">
+      <a href="services-oneform.html" class="cross-link-card dest-oneform">
         <span class="card-eyebrow">Unify</span>
         <h3>OneForm</h3>
         <p>Electronic forms built inside the cloud environment your agency already owns.</p>
         <span class="card-arrow">Explore <i class="ph ph-arrow-right" aria-hidden="true"></i></span>
       </a>
-      <a href="services-sharepoint-erms.html" class="cross-link-card">
+      <a href="services-sharepoint-erms.html" class="cross-link-card dest-sharepoint">
         <span class="card-eyebrow">Unify</span>
         <h3>SharePoint ERMS</h3>
         <p>Already invested in Microsoft 365? Configure SharePoint as your records system.</p>
@@ -1607,6 +1681,175 @@
 
   // ----- Reduced-motion detection (top-level scope for all sections) -----
   var prefersReducedMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+
+  // ============================================================
+  // HERO MOUSE-REACTIVE DOT FIELD (interactive, 2026-06-18)
+  // Ported VERBATIM from services-scanning-topgradient.html (approved/locked).
+  // REPLACES the old static ::after dot tile AND the removed cursor-following glow.
+  // A <canvas> renders the SAME resting grid as the old tile (navy dots
+  // rgba(37,66,107,0.10), ~1px radius, 24px spacing), then displaces each dot
+  // individually toward/away from the cursor:
+  // - Within RADIUS of the pointer, each dot is REPELLED outward along the radial,
+  //   scaled by a cubic falloff so the push is strongest at center and the field
+  //   stays gentle/premium, never jumpy.
+  // - Every dot eases back toward its home each frame (spring-like return), so
+  //   the disturbance trails the cursor and settles smoothly when it leaves.
+  // - rAF loop runs only while the pointer is active OR while any dot is still
+  //   settling (> a tiny epsilon from home); it idles when fully at rest.
+  // - ResizeObserver (with a window-resize fallback) rebuilds the grid + DPR.
+  //
+  // Guards: prefers-reduced-motion and touch / no-hover devices paint the
+  // static grid ONCE (identical to the old tile) and wire NO listeners — no
+  // motion, no layout shift.
+  // ============================================================
+  (function() {
+    var hero = document.querySelector('.page-hero');
+    var canvas = document.getElementById('heroDotField');
+    if (!hero || !canvas || !canvas.getContext) return;
+    var ctx = canvas.getContext('2d');
+
+    // Resting look — matched 1:1 to the old ::after tile.
+    var GRID = 24;                 // px spacing (was background-size: 24px)
+    var DOT_R = 1;                 // px radius (was 1px dots)
+    var DOT_COLOR = 'rgba(37,66,107,0.10)';  // navy at low alpha (was the tile color)
+
+    // Interaction tuning — subtle/premium repel.
+    var RADIUS = 120;              // px influence radius around the pointer
+    var MAX_PUSH = 14;             // px max displacement at the pointer center
+    var EASE = 0.14;              // per-frame return toward home (spring stiffness)
+    var EPSILON = 0.05;          // settle threshold to idle the loop
+
+    var dots = [];                 // { hx, hy, x, y }  home + current
+    var dpr = 1;
+    var pointerX = -9999, pointerY = -9999;
+    var pointerActive = false;
+    var rafId = null;
+
+    var canHover = !window.matchMedia || window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+    var interactive = !prefersReducedMotion && canHover;
+
+    // Build the dot grid for the current hero size; reset current pos to home.
+    function buildGrid(w, h) {
+      dots.length = 0;
+      // Inset the grid by half a cell so it reads centered like the CSS tile.
+      var startX = GRID / 2, startY = GRID / 2;
+      for (var y = startY; y < h; y += GRID) {
+        for (var x = startX; x < w; x += GRID) {
+          dots.push({ hx: x, hy: y, x: x, y: y });
+        }
+      }
+    }
+
+    // Draw the current dot positions (single pass).
+    function draw(w, h) {
+      ctx.clearRect(0, 0, w, h);
+      ctx.fillStyle = DOT_COLOR;
+      for (var i = 0; i < dots.length; i++) {
+        var d = dots[i];
+        ctx.beginPath();
+        ctx.arc(d.x, d.y, DOT_R, 0, Math.PI * 2);
+        ctx.fill();
+      }
+    }
+
+    // Size the canvas to the hero, account for devicePixelRatio, rebuild grid, repaint.
+    function resize() {
+      var rect = hero.getBoundingClientRect();
+      var w = Math.max(1, Math.round(rect.width));
+      var h = Math.max(1, Math.round(rect.height));
+      dpr = Math.min(window.devicePixelRatio || 1, 2);  // cap DPR for perf
+      canvas.width = w * dpr;
+      canvas.height = h * dpr;
+      canvas.style.width = w + 'px';
+      canvas.style.height = h + 'px';
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      buildGrid(w, h);
+      draw(w, h);   // paint the static resting grid immediately (no layout shift, no FOUC)
+    }
+
+    // Smooth cubic falloff: 1 at center → 0 at edge.
+    function falloff(t) { var u = 1 - t; return u * u * u; }
+
+    function loop() {
+      var rect = hero.getBoundingClientRect();
+      var w = rect.width, h = rect.height;
+      var moving = false;
+      var r2 = RADIUS * RADIUS;
+
+      for (var i = 0; i < dots.length; i++) {
+        var d = dots[i];
+        var tx = d.hx, ty = d.hy;   // target defaults to home
+
+        if (pointerActive) {
+          var dx = d.hx - pointerX;
+          var dy = d.hy - pointerY;
+          var dist2 = dx * dx + dy * dy;
+          if (dist2 < r2) {
+            var dist = Math.sqrt(dist2) || 0.0001;
+            var push = falloff(dist / RADIUS) * MAX_PUSH;
+            // Repel: push dot outward, away from the pointer, along the radial.
+            tx = d.hx + (dx / dist) * push;
+            ty = d.hy + (dy / dist) * push;
+          }
+        }
+
+        // Ease current position toward the target (toward push pos, or back home).
+        d.x += (tx - d.x) * EASE;
+        d.y += (ty - d.y) * EASE;
+
+        if (Math.abs(d.x - tx) > EPSILON || Math.abs(d.y - ty) > EPSILON) moving = true;
+      }
+
+      draw(w, h);
+
+      // Keep running while the pointer is active or while dots are still settling.
+      if (pointerActive || moving) {
+        rafId = window.requestAnimationFrame(loop);
+      } else {
+        rafId = null;
+        draw(w, h);   // final crisp resting frame
+      }
+    }
+
+    function ensureLoop() {
+      if (rafId === null) rafId = window.requestAnimationFrame(loop);
+    }
+
+    // Initial sizing + static paint (runs for ALL cases, including reduced-motion/touch).
+    resize();
+
+    // Track resize for both interactive and static cases (canvas must follow hero size).
+    if ('ResizeObserver' in window) {
+      var ro = new ResizeObserver(function() { resize(); });
+      ro.observe(hero);
+    } else {
+      window.addEventListener('resize', resize, { passive: true });
+    }
+
+    // No interaction on reduced-motion / touch / no-hover — leave the static grid as-is.
+    if (!interactive) return;
+
+    hero.addEventListener('pointermove', function(e) {
+      if (e.pointerType === 'touch') return;   // ignore touch contacts
+      var rect = hero.getBoundingClientRect();
+      pointerX = e.clientX - rect.left;
+      pointerY = e.clientY - rect.top;
+      pointerActive = true;
+      ensureLoop();
+    }, { passive: true });
+
+    hero.addEventListener('pointerenter', function(e) {
+      if (e.pointerType === 'touch') return;
+      pointerActive = true;
+      ensureLoop();
+    });
+
+    hero.addEventListener('pointerleave', function() {
+      pointerActive = false;   // dots ease back home; loop runs until settled, then idles
+      ensureLoop();
+    });
+  })();
 
 
   /* ==========================================================================

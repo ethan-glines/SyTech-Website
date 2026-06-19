@@ -8,167 +8,174 @@
 <link rel="stylesheet" href="assets/css/sytech-shared.css">
 <link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.0.3/src/regular/style.css">
 <style>
+/* === Per-page accent (Serious-Tone revision 2026-06-18 — Slate-Violet) === */
+:root {
+  --accent: #473C7A;       /* deep slate-violet — TOP WASH + animation ACTION strokes/fills (UNCHANGED) */
+  --accent-ink: #383066;   /* eyebrow / section-eyebrow / card-eyebrow (UNCHANGED) */
+  /* ACCENT-POP revision 2026-06-18b: the deep #473C7A sits too close to navy #25426B to read as an
+     accent on the headline + links. Two brighter, richer violets added (NOT lavender):
+       --accent-span : headline accent word ONLY. Large text → needs ≥3:1 on the 0.42 top tint.
+                       #5544B0 = 3.26:1 on the ~#ACA7C2 top tint (clears 3:1 large); 7.46:1 on white.
+       --accent-link : link/interactive accents. Brighter than old #473C7A, AA-safe small on white.
+                       #5746B3 = 7.15:1 on white, 6.78:1 on #F5F5F5 (clears 4.5:1 small). */
+  --accent-span: #5544B0;
+  --accent-link: #5746B3;
+}
 /* ==========================================================================
-   services-data-migration.html — Batch 2b Subpage 1 of 4
-   Inherits the scanning + SharePoint ERMS + AI Ingestion recipe verbatim:
-   .section-header (centered), .archive-quote, .cta-strip, .cross-link,
-   .breadcrumb, two-column hero scaffold, .steps Process Diagram,
-   .compare-split / .compare-closer (verbatim from AI Ingestion).
+   services-data-migration-topgradient.html — TOP-COLOR GRADIENT HERO variant (2026-06-18)
+   Forked from services-data-migration.html. This page never got a light-hero step, so the
+   conversion is FULL: (A) the dark-navy hero becomes the locked top-gradient (slate-violet wash
+   top → light → white floor) with the DARK light-hero text treatment, (B) the reactive navy
+   dot-field canvas REPLACES the static ::after dot tile (no cursor glow), and (C) the hero
+   migration-bridge animation frame is re-skinned to a WHITE CARD and every .dm-* element is
+   re-solved on white (navy carries STRUCTURE, slate-violet carries ACTION; glows → solid strokes).
+   Nothing below the hero changes.
 
-   NEW on this page only: the sourcing/transfer hero animation
-   (3 static legacy vessels left → gold migration bridge center →
-   M365 tenant indexed grid right). 4th distinct hero mechanism in
-   the series — different from scanning (sequential lifecycle),
-   SharePoint ERMS (replacement cycle), AI Ingestion (transformation
-   field). This one is convergence/transfer.
+   SERIOUS-TONE RECOLOR (2026-06-18): the original Migration indigo #5B53A6 washed to a soft
+   lavender (#AEAAD1) at the low top alpha — too gentle for "engineered, large-scale transfer."
+   Replaced with Migration Slate-Violet #473C7A (RGB 71,60,122): a deep, low-chroma graphite-
+   violet that washes to a cool, intentional slate-violet, not a pastel.
 
-   No new colors. Navy + gold only. NO red. Tags on bridge are
-   navy text on soft white pill (Cole 2026-05-21 — NOT gold).
-   M365 tenant boundary on the right matches AI Ingestion's
-   .ti-tenant treatment exactly (1px hairline, dasharray 3 4,
-   rounded rect) per Cole's constraint #5 (cross-subpage signature).
+   TOP ALPHA = 0.42 — this hue is darker/bluer than the old indigo so it washes darker; 0.46
+   would drop navy h1 to ~4.20:1 / fails. 0.42 = 4.58:1 / PASS.
+   Effective top tint = 0.42 slate-violet (71,60,122) over --light #F5F5F5 ≈ rgb(172,167,194) (#ACA7C2).
+   Contrast on that top tint (WCAG 2.1):
+     - navy h1 #25426B           = 4.58:1  (clears 4.5:1 AA small + large)
+     - h1 accent span #473C7A    = 4.13:1  (clears 3:1 large) — brand slate-violet, NO override
+                                            (cleaner than the old indigo, which had to override)
+     - eyebrow #383066           = 5.12:1  (clears 4.5:1 small) — deep slate-violet family, not navy
+     - lead slate #3d4f5f        = ~6.3:1  (PASS)
+   Spec: planning/spec-service-page-color-palette-2026-06-18.md → "Serious-Tone Revision … Data Migration TOP PICK".
    ========================================================================== */
 
 
-/* ---- Page Hero — same scaffold as predecessors ---- */
-.page-hero { padding: 11rem 0 5rem; background: linear-gradient(175deg, var(--deep-navy) 0%, var(--navy) 60%, #2d5080 100%); position: relative; overflow: hidden; color: var(--white); }
-.page-hero::after { content: ''; position: absolute; inset: 0; background-image: radial-gradient(rgba(255,255,255,0.04) 1px, transparent 1px); background-size: 24px 24px; pointer-events: none; }
+/* ---- Page Hero — TOP-GRADIENT (180deg vertical: slate-violet wash top → light → white floor) ---- */
+.page-hero {
+  padding: 11rem 0 5rem;
+  position: relative;
+  overflow: hidden;
+  color: var(--navy); /* dark text treatment — top is a pale slate-violet wash, not solid */
+  background: linear-gradient(180deg,
+      rgba(71,60,122,0.42)  0%,    /* SHIPPED top alpha 0.42 — soft slate-violet wash over --light (navy ~4.58:1) */
+      rgba(71,60,122,0.15) 40%,    /* second stop scaled with the top (0.16→0.15) to keep the fade proportional */
+      var(--light)          75%,   /* #F5F5F5 — into the light canvas */
+      var(--white)         100%);  /* #FFFFFF — white floor at the very bottom of the hero */
+}
+/* ::after static dot tile REMOVED — replaced by the reactive .hero-dotfield canvas below.
+   ::before cursor glow REMOVED — the vertical gradient carries all the slate-violet; a glow would muddy. */
+
+/* ---- Mouse-reactive dot field (interactive, 2026-06-18) — ported verbatim from
+   services-scanning-topgradient.html. A <canvas> renders the SAME resting look as the old static
+   tile — navy dots rgba(37,66,107,0.10), ~1px radius, 24px grid — but each dot can displace
+   toward/away from the cursor. JS owns the field (see the canvas block in <script>). The canvas
+   sits ABOVE the gradient background but BELOW .container (z-index 1), pointer-events:none.
+   At rest (and on reduced-motion / touch / no-hover) JS paints the static grid once. */
+.hero-dotfield {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 0;            /* above the gradient background; below .container (z-index 1) */
+  display: block;
+}
 .page-hero .container { position: relative; z-index: 1; }
 .page-hero-grid { display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr); gap: 3.5rem; align-items: center; }
 .page-hero-copy { min-width: 0; }
-.page-hero .eyebrow { display: inline-block; font-size: 0.7rem; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; color: var(--gold); margin-bottom: 1rem; }
-.page-hero h1 { font-size: clamp(2rem, 4.5vw, 3.2rem); font-weight: 700; line-height: 1.15; margin-bottom: 1.25rem; letter-spacing: -0.01em; }
-.page-hero h1 span { color: var(--gold); }
-.page-hero p.lead { font-size: 1.1rem; line-height: 1.7; color: rgba(255,255,255,0.82); }
+/* Eyebrow — deep slate-violet #383066 (5.12:1 small on the 0.42 slate-violet top tint). Slate-violet family, NOT navy. */
+.page-hero .eyebrow { display: inline-block; font-size: 0.7rem; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; color: #383066; margin-bottom: 1rem; }
+.page-hero h1 { font-size: clamp(2rem, 4.5vw, 3.2rem); font-weight: 700; line-height: 1.15; margin-bottom: 1.25rem; letter-spacing: -0.01em; color: var(--navy); }
+/* h1 highlight span — BRIGHTENED to --accent-span #5544B0 so it pops as an accent against the navy
+   headline (the deep #473C7A read too close to navy). 3.26:1 on the 0.42 top tint — clears 3:1 large. */
+.page-hero h1 span { color: var(--accent-span); }
+/* Lead — slate --text-body (~6.3:1 near the top, well above AA lower down). */
+.page-hero p.lead { font-size: 1.1rem; line-height: 1.7; color: var(--text-body); }
 
-/* Breadcrumb — inherited verbatim from predecessors */
+/* Breadcrumb — light-version accent treatment: links slate --text-body, separators + hover
+   slate-violet ink/accent, current-page navy bold. All read on the pale slate-violet wash + light field. */
 .breadcrumb { margin-bottom: 1.25rem; }
 .breadcrumb ol { list-style: none; padding: 0; margin: 0; display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: center; font-size: 0.8rem; }
-.breadcrumb li { display: inline-flex; align-items: center; gap: 0.5rem; color: rgba(255,255,255,0.65); }
-.breadcrumb li + li::before { content: '\203A'; color: var(--gold); font-size: 0.95rem; line-height: 1; padding-right: 0.25rem; }
-.breadcrumb a { color: rgba(255,255,255,0.65); transition: color 0.2s ease; }
-.breadcrumb a:hover { color: var(--gold); }
-.breadcrumb [aria-current="page"] { color: rgba(255,255,255,0.95); font-weight: 700; }
-.breadcrumb [aria-current="step"] { color: rgba(255,255,255,0.85); }
+.breadcrumb li { display: inline-flex; align-items: center; gap: 0.5rem; color: var(--text-body); }
+.breadcrumb li + li::before { content: '\203A'; color: var(--accent-link); font-size: 0.95rem; line-height: 1; padding-right: 0.25rem; }
+.breadcrumb a { color: var(--text-body); transition: color 0.2s ease; }
+.breadcrumb a:hover { color: var(--accent-link); }
+.breadcrumb [aria-current="page"] { color: var(--navy); font-weight: 700; }
+.breadcrumb [aria-current="step"] { color: var(--text-body); }
 
 
 /* ==========================================================================
    Hero Animation — SOURCING/TRANSFER (12s cycle, 3 staggered passes)
+   WHITE-CARD CONVERSION (2026-06-18): the frame flips to a white card and every .dm-* element
+   re-solves on white. Principle (white-card model): STRUCTURE → navy; ACTION/accent → slate-violet
+   with small alpha/weight bumps so slate-violet holds on white; NO glows on white.
 
-   Cole's 5 non-negotiable constraints:
-     1. Element density ceiling: 4 focal points max at any moment.
-        The 3 source vessels on the left are STATIC substrate
-        (they do not animate individually). Cross-vessel sequencing
-        (t=0/4/8s) keeps records-in-transit at 1-2 max simultaneously.
-        Migration bridge pulse counts as 1 focal. Settled-record ring
-        on the most-recently-arrived grid slot counts as 1 focal.
-        Total active focals at any instant: 2-3.
-     2. Icon vocabulary consistency: the record glyph traveling across
-        the bridge is the SAME ph-file-text silhouette used in the
-        Process Diagram Step 02 "Extract" icon AND in AI Ingestion's
-        hero. Cross-subpage glyph consistency — visitors learn one
-        "record" glyph that recurs across the series.
-     3. Color discipline: only navy + gold rendered. NO red. NO blue.
-        NO third color. State separation (legacy → in-transit → settled)
-        is OPACITY ONLY. Legacy vessels at lower navy opacity; records
-        in transit at full white/gold outline; settled records gold-tinted.
-     4. Reduced motion: static composite via #dmStaticScene (CSS swap)
-        showing all three thirds simultaneously — 3 vessels left, one
-        record frozen mid-bridge with pill visible, indexed grid right.
-     5. M365 tenant boundary matches AI Ingestion's .ti-tenant treatment
-        EXACTLY — same stroke weight (1px), same dasharray (3 4),
-        same corner radius (10), same proportions (180x280 at x=400 y=40).
-
-   The migration bridge — 2026-05-21 Cole spec:
-     A horizontal gold band spanning the center, x=220..380, y centered.
-     Translucent gold fill (rgba 229,166,48,0.10), gold stroke (0.55 opacity).
-     Subtle directional pulse (left-to-right) via CSS keyframes on a
-     separate "flow" layer inside the bridge — animates a thin gold gradient
-     swipe that signals "transfer direction" without adding focal weight.
-
-   Metadata tag treatment — Cole 2026-05-21 critical lock:
-     Pills are NAVY TEXT ON SOFT WHITE FILL — NOT gold. Gold is bridge
-     infrastructure; pills are passengers. Pill fill #FFFFFF, navy text,
-     subtle navy hairline border. Travels alongside each record across
-     the bridge. Different from AI Ingestion's gold-on-deep-navy pills.
-
-   Stage geometry (viewBox 600x360):
-     LEFT third  (x: 30..180)    — 3 vessels stacked vertically
-                                     Vessel 1 (top, y center ~70):  on-prem ECM server stack (3 disc rects)
-                                     Vessel 2 (mid, y center ~165): file-share folder tree
-                                     Vessel 3 (bot, y center ~260): aging SharePoint farm (globe glyph)
-     MIDDLE third (x: 200..400)  — Gold migration bridge (translucent gold band)
-                                     + 1-2 focal records mid-transit
-                                     + 1 metadata pill traveling alongside the lead record
-     RIGHT third (x: 400..580)   — M365 tenant boundary (1px navy/white hairline dashed rect)
-                                     + 4x3 indexed grid of settled records (12 slots)
-                                     + "most recently settled" focal ring
-
-   Cross-vessel sequencing (LOCKED):
-     t=0s:  Vessel 1 emits record A → A traverses bridge → settles at t=4s
-     t=4s:  Vessel 2 emits record B → B traverses bridge → settles at t=8s
-     t=8s:  Vessel 3 emits record C → C traverses bridge → settles at t=12s
-     Loop repeats. Each pass 4s. 1-2 records in transit at any moment.
+   Cole's 5 original constraints still hold (density ceiling 4 focals; shared ph-file-text record
+   glyph; color discipline now navy + slate-violet; reduced-motion static composite; M365 tenant
+   boundary signature). The bridge "TRANSFER" story is purely structural — no claim/figure.
    ========================================================================== */
 .hero-story { position: relative; width: 100%; max-width: 560px; margin-left: auto; opacity: 0; transform: translateY(10px); transition: opacity 700ms cubic-bezier(0.4,0,0.2,1), transform 700ms cubic-bezier(0.4,0,0.2,1); }
 .hero-story.is-visible { opacity: 1; transform: translateY(0); }
+/* White card (OneForm .cinema-stage model) — OPAQUE, so the slate-violet→light gradient behind it
+   never bleeds through; the animation's contrast context is the white card. */
 .hero-story-frame {
   position: relative;
-  background: rgba(255,255,255,0.04);
-  border: 1px solid rgba(255,255,255,0.10);
+  background: var(--white);
+  border: 1px solid rgba(37,66,107,0.12);
   border-radius: 14px;
   padding: 1.25rem 1rem 1rem;
-  backdrop-filter: blur(6px);
-  -webkit-backdrop-filter: blur(6px);
+  box-shadow: 0 20px 60px rgba(37,66,107,0.10), 0 1px 3px rgba(37,66,107,0.06);
 }
 .hero-story-frame::before {
   content: '';
   position: absolute;
   top: 0; left: 0; right: 0; height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(229,166,48,0.5), transparent);
+  background: linear-gradient(90deg, transparent, rgba(71,60,122,0.6), transparent);
 }
 .hero-story-svg { width: 100%; height: auto; display: block; aspect-ratio: 600 / 360; }
 .hero-story-legend {
   display: flex; justify-content: space-between; align-items: center;
   margin-top: 0.6rem; padding: 0 0.25rem;
   font-size: 0.62rem; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase;
-  color: rgba(255,255,255,0.62);
+  color: var(--text-body);
 }
 .hero-story-legend span { display: inline-flex; align-items: center; gap: 0.35rem; }
+/* Legend dot — slate-violet fill, GLOW DROPPED (a halo muddies on white; the 6px dot holds on its own). */
 .hero-story-legend .dot {
   display: inline-block; width: 6px; height: 6px; border-radius: 50%;
-  background: var(--gold); box-shadow: 0 0 6px rgba(229,166,48,0.7);
+  background: var(--accent);
 }
-.hero-caption { margin-top: 1.1rem; font-size: 0.82rem; line-height: 1.55; color: rgba(255,255,255,0.62); font-style: italic; }
+/* Caption — sits BELOW the white card, in the lower/light zone of the hero; slate stays legible. */
+.hero-caption { margin-top: 1.1rem; font-size: 0.82rem; line-height: 1.55; color: var(--text-body); font-style: italic; }
 
 
-/* ---- SVG element styling — navy + gold only, opacity carries state ---- */
+/* ---- SVG element styling — ON-WHITE: navy = STRUCTURE, slate-violet = ACTION ---- */
 
-/* Background grid (matches predecessor heroes) */
-.dm-bg-grid { stroke: rgba(255,255,255,0.05); stroke-width: 1; }
+/* Background grid — navy at low alpha (white lines vanish on white) */
+.dm-bg-grid { stroke: rgba(37,66,107,0.06); stroke-width: 1; }
 
-/* Static source vessel — lighter navy fill (legacy state via opacity) */
+/* Static source vessel — STRUCTURE (legacy = intentionally dull): faint navy fill + gray outline
+   so the vessels read as muted legacy containers, not white ghosts. */
 .dm-vessel-fill {
-  fill: rgba(255,255,255,0.06);
-  stroke: rgba(197,205,216,0.50);
+  fill: rgba(37,66,107,0.04);
+  stroke: rgba(124,136,150,0.55);
   stroke-width: 1;
 }
 .dm-vessel-icon {
   fill: none;
-  stroke: rgba(197,205,216,0.75);
+  stroke: rgba(124,136,150,0.75);
   stroke-width: 1.4;
   stroke-linecap: round;
   stroke-linejoin: round;
 }
 .dm-vessel-icon-fill {
-  fill: rgba(197,205,216,0.20);
-  stroke: rgba(197,205,216,0.75);
+  fill: rgba(124,136,150,0.20);
+  stroke: rgba(124,136,150,0.75);
   stroke-width: 1.4;
   stroke-linecap: round;
   stroke-linejoin: round;
 }
 .dm-vessel-label {
-  fill: rgba(197,205,216,0.60);
+  fill: rgba(94,106,120,0.95);
   font-size: 7px;
   font-weight: 700;
   letter-spacing: 1.3px;
@@ -177,20 +184,21 @@
   text-anchor: middle;
 }
 
-/* Migration bridge — gold translucent horizontal band */
+/* Migration bridge — ACTION: soft slate-violet-tinted band on white. 10% slate-violet fill KEPT (reads well
+   on white); stroke bumped to SOLID --accent so the outline holds. */
 .dm-bridge {
-  fill: rgba(229,166,48,0.10);
-  stroke: rgba(229,166,48,0.55);
+  fill: rgba(71,60,122,0.10);
+  stroke: var(--accent);
   stroke-width: 1.5;
 }
 .dm-bridge-pulse {
   fill: none;
-  stroke: var(--gold);
+  stroke: var(--accent);
   stroke-width: 1.5;
   opacity: 0.5;
 }
 .dm-bridge-label {
-  fill: var(--gold);
+  fill: var(--accent-ink);
   font-size: 8px;
   font-weight: 700;
   letter-spacing: 1.5px;
@@ -198,38 +206,40 @@
   font-family: Tahoma, 'Segoe UI', sans-serif;
   text-anchor: middle;
 }
-/* Directional flow swipe inside bridge — subtle gold gradient slide L→R */
+/* Directional flow swipe inside bridge — re-authored gradient (see #dmBridgeFlowGrad in the SVG):
+   a slate-violet sheen readable over the white/slate-violet-tint band. SECOND-highest-risk element. */
 .dm-bridge-flow {
   fill: url(#dmBridgeFlowGrad);
   opacity: 0.65;
 }
 
-/* Focal record — currently traveling across bridge; gold outline */
+/* Focal record — HIGHEST-RISK: a white-alpha record on a white card disappears. Fill = SOLID #FFFFFF
+   (one step brighter than the slate-violet-tint bridge it crosses); the SOLID slate-violet outline holds its edge. */
 .dm-record-focal-rect {
-  fill: rgba(255,255,255,0.18);
-  stroke: var(--gold);
+  fill: var(--white);
+  stroke: var(--accent);
   stroke-width: 1.6;
 }
 .dm-record-focal-line {
-  stroke: rgba(229,166,48,0.85);
+  stroke: rgba(71,60,122,0.85);
   stroke-width: 1;
   fill: none;
 }
 
-/* Settled record — gold-tinted, full opacity (indexed state) */
+/* Settled record — ACTION/payoff: soft slate-violet records on white. 10% slate-violet fill KEPT; stroke
+   bumped to SOLID --accent so each settled record holds. */
 .dm-record-settled {
-  fill: rgba(229,166,48,0.10);
-  stroke: rgba(229,166,48,0.70);
+  fill: rgba(71,60,122,0.10);
+  stroke: var(--accent);
   stroke-width: 1;
 }
 .dm-record-settled-line {
-  stroke: rgba(229,166,48,0.55);
+  stroke: rgba(71,60,122,0.7);
   stroke-width: 0.8;
 }
 
-/* Metadata pill — NAVY TEXT ON SOFT WHITE PILL per Cole 2026-05-21.
-   This is the critical departure from AI Ingestion's gold-on-deep-navy
-   pill treatment. Tags are passengers, not bridge infrastructure. */
+/* Metadata pill — NAVY TEXT ON SOFT WHITE PILL (already designed light — KEPT verbatim). The navy
+   stroke + navy text hold it over the slate-violet-tint bridge. */
 .dm-pill-bg {
   fill: #FFFFFF;
   stroke: rgba(37,66,107,0.25);
@@ -244,18 +254,16 @@
   text-anchor: start;
 }
 
-/* M365 tenant boundary — MATCHES AI Ingestion's .ti-tenant treatment
-   EXACTLY per Cole constraint #5 (cross-subpage signature):
-   stroke rgba(255,255,255,0.30), stroke-width 1, stroke-dasharray 3 4,
-   rx 10, dimensions 180x280 at x=400 y=40. */
+/* M365 tenant boundary — STRUCTURE: flip the white dashed boundary to navy at the same alpha/dasharray
+   (cross-page tenant signature; dasharray 3 4, rx 10 preserved). */
 .dm-tenant {
   fill: none;
-  stroke: rgba(255,255,255,0.30);
+  stroke: rgba(37,66,107,0.30);
   stroke-width: 1;
   stroke-dasharray: 3 4;
 }
 .dm-tenant-label {
-  fill: rgba(255,255,255,0.55);
+  fill: var(--navy);
   font-size: 8px;
   font-weight: 700;
   letter-spacing: 1.5px;
@@ -264,10 +272,11 @@
   text-anchor: middle;
 }
 
-/* Last-settled focal ring on the most-recently-arrived grid slot */
+/* Last-settled focal ring — ACTION: slate-violet ring expanding on white reads fine; JS pulse peak ≥0.6,
+   fully fades. Solid stroke, no glow. */
 .dm-settled-ring {
   fill: none;
-  stroke: var(--gold);
+  stroke: var(--accent);
   stroke-width: 1.2;
   opacity: 0;
 }
@@ -283,12 +292,14 @@
   /* Bridge subtle pulse — separate from focal cycle */
   .dm-bridge-pulse { animation: dm-bridge-pulse 2.6s ease-in-out infinite; }
 
-  /* Directional flow swipe — slides a thin gold highlight L→R across bridge */
+  /* Directional flow swipe — slides a thin slate-violet highlight L→R across bridge */
   .dm-bridge-flow { animation: dm-bridge-flow 3s linear infinite; }
 }
 
+/* Bridge pulse peak raised to 0.7 (was 0.70 already at 50%; on white the low step also lifted
+   slightly so the pulse holds) */
 @keyframes dm-bridge-pulse {
-  0%, 100% { opacity: 0.35; stroke-width: 1.5; }
+  0%, 100% { opacity: 0.40; stroke-width: 1.5; }
   50%      { opacity: 0.70; stroke-width: 2; }
 }
 @keyframes dm-bridge-flow {
@@ -313,7 +324,7 @@
 .section.alt { background: var(--light); }
 .section.breathe { padding: 7rem 0; }
 .section-header { text-align: center; max-width: 760px; margin: 0 auto 2.5rem; }
-.section .section-eyebrow { display: block; font-size: 0.7rem; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; color: var(--gold); margin-bottom: 0.75rem; }
+.section .section-eyebrow { display: block; font-size: 0.7rem; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; color: var(--accent-ink); margin-bottom: 0.75rem; }
 .section h2 { font-size: clamp(1.6rem, 2.6vw, 2rem); font-weight: 700; line-height: 1.2; margin-bottom: 1rem; letter-spacing: -0.01em; color: var(--navy); }
 .section-header h2 { max-width: 760px; margin-left: auto; margin-right: auto; }
 .section-intro { font-size: 1.05rem; line-height: 1.75; color: var(--text-body); margin: 0 auto 0; max-width: 640px; }
@@ -321,18 +332,15 @@
 
 /* ==========================================================================
    SECTION 1 — Animated Process Diagram (5 steps)
-   Pattern inherited from services-scanning.html (.steps / .step). 5 cols.
-   Step 02 "Extract" uses ph-file-text — same icon as the hero record glyph
-   (Cole's icon vocabulary consistency lock — at least one step echoes hero
-   record glyph; Extract is where records leave the legacy source, the
-   natural "record glyph" moment in the process).
    ========================================================================== */
 .steps { display: grid; grid-template-columns: repeat(5, 1fr); gap: 1rem; margin: 1.5rem 0 1.75rem; position: relative; list-style: none; padding: 0; }
-.steps::before { content: ''; position: absolute; top: 66px; left: calc(10% + 18px); right: calc(10% + 18px); height: 2px; background: linear-gradient(to right, rgba(229,166,48,0.45), rgba(229,166,48,0.45) 80%, rgba(229,166,48,0.10)); z-index: 0; pointer-events: none; }
+.steps::before { content: ''; position: absolute; top: 66px; left: calc(10% + 18px); right: calc(10% + 18px); height: 2px; background: linear-gradient(to right, rgba(71,60,122,0.45), rgba(71,60,122,0.45) 80%, rgba(71,60,122,0.10)); z-index: 0; pointer-events: none; }
 .step { position: relative; z-index: 1; display: flex; flex-direction: column; align-items: flex-start; }
-.step-icon { display: inline-flex; align-items: center; justify-content: center; width: 48px; height: 48px; border-radius: 8px; background: rgba(229,166,48,0.10); margin-bottom: 0.5rem; }
+.step-icon { display: inline-flex; align-items: center; justify-content: center; width: 48px; height: 48px; border-radius: 8px; background: rgba(71,60,122,0.10); margin-bottom: 0.5rem; }
 .step-icon i { font-size: 28px; color: var(--navy); line-height: 1; }
-.step-num { display: inline-flex; align-items: center; justify-content: center; width: 36px; height: 36px; border-radius: 50%; background: var(--gold); color: var(--deep-navy); font-size: 0.78rem; font-weight: 700; letter-spacing: 0.02em; margin-bottom: 0.85rem; box-shadow: 0 0 0 4px var(--white); }
+/* FIX 2 (2026-06-18b): step-number circle is a SOLID slate-violet (--accent #473C7A) fill — the old
+   --deep-navy text was illegible on it. Switched to #FFFFFF (white on #473C7A ≈ 8.0:1, passes AA). */
+.step-num { display: inline-flex; align-items: center; justify-content: center; width: 36px; height: 36px; border-radius: 50%; background: var(--accent); color: #FFFFFF; font-size: 0.78rem; font-weight: 700; letter-spacing: 0.02em; margin-bottom: 0.85rem; box-shadow: 0 0 0 4px var(--white); }
 .step-label { font-size: 0.82rem; font-weight: 700; color: var(--navy); letter-spacing: 0.02em; text-transform: uppercase; margin-bottom: 0.4rem; }
 .step-copy { font-size: 0.88rem; line-height: 1.55; color: var(--text-body); margin: 0; }
 
@@ -350,8 +358,6 @@
 
 /* ==========================================================================
    SECTION 2 — Comparison Split (Typical Migration vs. SyTech Migration)
-   Pattern inherited verbatim from services-ai-ingestion.html (.compare-split
-   / .compare-col / .compare-divider / .compare-closer).
    ========================================================================== */
 .compare-split { display: grid; grid-template-columns: 1fr auto 1fr; gap: 0; max-width: 980px; margin: 2.5rem auto 0; align-items: stretch; }
 .compare-col { display: flex; flex-direction: column; gap: 1rem; padding: 2.25rem 2rem; border-radius: 10px; opacity: 0; transform: translateY(8px); transition: opacity 500ms cubic-bezier(0.4,0,0.2,1), transform 500ms cubic-bezier(0.4,0,0.2,1); }
@@ -361,7 +367,7 @@
 .compare-col .compare-icon { display: inline-flex; align-items: center; justify-content: center; width: 48px; height: 48px; border-radius: 8px; margin-bottom: 0.25rem; }
 .compare-col.is-left .compare-icon { background: rgba(124,136,150,0.12); }
 .compare-col.is-left .compare-icon i { font-size: 28px; color: #7c8896; line-height: 1; }
-.compare-col.is-right .compare-icon { background: rgba(229,166,48,0.12); }
+.compare-col.is-right .compare-icon { background: rgba(71,60,122,0.12); }
 .compare-col.is-right .compare-icon i { font-size: 28px; color: var(--navy); line-height: 1; }
 .compare-col h3 { font-size: clamp(1.05rem, 1.6vw, 1.25rem); font-weight: 700; line-height: 1.25; letter-spacing: -0.005em; }
 .compare-col.is-left h3 { color: #7c8896; }
@@ -369,17 +375,16 @@
 .compare-col p { font-size: 0.98rem; line-height: 1.65; margin: 0; }
 .compare-col.is-left p { color: #7c8896; }
 .compare-col.is-right p { color: var(--text-body); }
-.compare-divider { width: 1px; background: linear-gradient(to bottom, transparent, var(--gold) 20%, var(--gold) 80%, transparent); margin: 0 1rem; min-height: 100%; }
+.compare-divider { width: 1px; background: linear-gradient(to bottom, transparent, var(--accent) 20%, var(--accent) 80%, transparent); margin: 0 1rem; min-height: 100%; }
 
-.compare-closer { max-width: 720px; margin: 2.5rem auto 0; text-align: center; padding: 1.25rem 1.5rem; border-top: 2px solid var(--gold); }
+.compare-closer { max-width: 720px; margin: 2.5rem auto 0; text-align: center; padding: 1.25rem 1.5rem; border-top: 2px solid var(--accent); }
 .compare-closer p { font-size: 1.1rem; line-height: 1.5; color: var(--navy); font-weight: 700; letter-spacing: -0.005em; margin: 0; }
 
 
 /* ==========================================================================
    SECTION 3 — Editorial Pull-Quote (inherited verbatim)
-   21-word two-sentence pull-quote — Cole-tightened. Generous whitespace.
    ========================================================================== */
-.archive-quote { max-width: 760px; margin: 0 auto; padding: 2rem 2.25rem; background: rgba(229,166,48,0.08); border-left: 4px solid var(--gold); border-radius: 4px; opacity: 0; transform: translateY(8px); transition: opacity 600ms cubic-bezier(0.4,0,0.2,1), transform 600ms cubic-bezier(0.4,0,0.2,1); }
+.archive-quote { max-width: 760px; margin: 0 auto; padding: 2rem 2.25rem; background: rgba(71,60,122,0.08); border-left: 4px solid var(--accent); border-radius: 4px; opacity: 0; transform: translateY(8px); transition: opacity 600ms cubic-bezier(0.4,0,0.2,1), transform 600ms cubic-bezier(0.4,0,0.2,1); }
 .archive-quote.is-visible { opacity: 1; transform: translateY(0); }
 .archive-quote p { font-size: 1.25rem; line-height: 1.5; color: var(--navy); font-weight: 700; margin: 0; letter-spacing: -0.005em; }
 
@@ -390,35 +395,36 @@
 .cta-strip { background: var(--navy); padding: 4rem 0; color: var(--white); text-align: center; }
 .cta-strip h2 { color: var(--white); font-size: clamp(1.5rem, 2.4vw, 2rem); margin-bottom: 1rem; max-width: 720px; margin-left: auto; margin-right: auto; }
 .cta-strip p { color: rgba(255,255,255,0.78); max-width: 640px; margin: 0 auto 1.75rem; line-height: 1.7; }
-.btn-primary { display: inline-block; padding: 0.85rem 2rem; background: var(--gold); color: var(--deep-navy); font-size: 0.95rem; font-weight: 700; border-radius: 6px; text-decoration: none; transition: all 0.3s; border: none; cursor: pointer; }
-.btn-primary:hover { background: #d4952a; transform: translateY(-2px); box-shadow: 0 6px 20px rgba(229,166,48,0.35); }
+.btn-primary { display: inline-block; padding: 0.85rem 2rem; background: var(--accent); color: #FFFFFF; font-size: 0.95rem; font-weight: 700; border-radius: 6px; text-decoration: none; transition: all 0.3s; border: none; cursor: pointer; }
+.btn-primary:hover { background: var(--accent-ink); transform: translateY(-2px); box-shadow: 0 6px 20px rgba(71,60,122,0.35); }
 .btn-primary:focus-visible { outline: 3px solid var(--white); outline-offset: 3px; }
 
 
 /* ==========================================================================
    SECTION 5 — Cross-Link (2-card variant — Archive Scanning + Compliance Setup)
-   Two sibling Organize-phase cards per Reed's locked copy and the
-   architectural plan.
    ========================================================================== */
 .cross-link { padding: 5rem 0; background: var(--light); text-align: center; }
-.cross-link .section-eyebrow { display: block; font-size: 0.7rem; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; color: var(--gold); margin-bottom: 0.75rem; }
+.cross-link .section-eyebrow { display: block; font-size: 0.7rem; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; color: var(--accent-ink); margin-bottom: 0.75rem; }
 .cross-link h2 { font-size: clamp(1.6rem, 2.6vw, 2rem); font-weight: 700; line-height: 1.2; margin-bottom: 2.5rem; letter-spacing: -0.01em; color: var(--navy); }
 .cross-link-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; max-width: 880px; margin: 0 auto 2rem; text-align: left; }
 
-.cross-link-card { display: flex; flex-direction: column; gap: 0.75rem; padding: 1.75rem 1.75rem 1.5rem; background: var(--white); border-left: 4px solid var(--gold); border-radius: 4px; box-shadow: 0 2px 8px rgba(37,66,107,0.04); transition: transform 300ms ease, box-shadow 300ms ease; text-decoration: none; }
+.cross-link-card { display: flex; flex-direction: column; gap: 0.75rem; padding: 1.75rem 1.75rem 1.5rem; background: var(--white); border-left: 4px solid var(--xlink-ui); border-radius: 4px; box-shadow: 0 2px 8px rgba(37,66,107,0.04); transition: transform 300ms ease, box-shadow 300ms ease; text-decoration: none; }
 .cross-link-card:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(37,66,107,0.10); }
-.cross-link-card:focus-visible { outline: 3px solid var(--gold); outline-offset: 3px; }
-.cross-link-card .card-eyebrow { font-size: 0.65rem; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; color: var(--gold); }
+.cross-link-card:focus-visible { outline: 3px solid var(--xlink-ui); outline-offset: 3px; }
+.cross-link-card .card-eyebrow { font-size: 0.65rem; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; color: var(--xlink-ink); }
 .cross-link-card h3 { font-size: clamp(1.15rem, 1.8vw, 1.35rem); font-weight: 700; color: var(--navy); line-height: 1.25; letter-spacing: -0.005em; position: relative; display: inline-block; }
-.cross-link-card h3::after { content: ''; position: absolute; bottom: -2px; left: 0; width: 0; height: 2px; background: var(--gold); transition: width 300ms ease; }
+.cross-link-card h3::after { content: ''; position: absolute; bottom: -2px; left: 0; width: 0; height: 2px; background: var(--xlink-ui); transition: width 300ms ease; }
 .cross-link-card:hover h3::after { width: 100%; }
 .cross-link-card p { font-size: 0.95rem; line-height: 1.65; color: var(--text-body); margin: 0; }
 .cross-link-card .card-arrow { margin-top: auto; display: inline-flex; align-items: center; gap: 0.4rem; font-size: 0.82rem; font-weight: 700; color: var(--navy); letter-spacing: 0.02em; padding-top: 0.5rem; }
 .cross-link-card .card-arrow i { font-size: 18px; transition: transform 300ms ease; }
-.cross-link-card:hover .card-arrow i { transform: translateX(4px); color: var(--gold); }
+.cross-link-card:hover .card-arrow i { transform: translateX(4px); color: var(--xlink-ui); }
+/* Destination color-coding — each cross-link card wears the accent of the page it LINKS TO (Data Migration links to Scanning + Compliance Setup). Values on white per spec §C. */
+.cross-link-card.dest-scanning   { --xlink-ui: #C2683A; --xlink-ink: #A8542B; }
+.cross-link-card.dest-compliance { --xlink-ui: #7A5418; --xlink-ink: #7A5418; }
 .cross-link-framework { display: inline-flex; align-items: center; gap: 0.4rem; font-size: 0.9rem; font-weight: 700; color: var(--navy); letter-spacing: 0.02em; position: relative; }
-.cross-link-framework::after { content: ''; position: absolute; bottom: -3px; left: 0; width: 100%; height: 2px; background: var(--gold); transform: scaleX(0); transform-origin: left; transition: transform 300ms ease; }
-.cross-link-framework:hover { color: var(--gold); }
+.cross-link-framework::after { content: ''; position: absolute; bottom: -3px; left: 0; width: 100%; height: 2px; background: var(--accent-link); transform: scaleX(0); transform-origin: left; transition: transform 300ms ease; }
+.cross-link-framework:hover { color: var(--accent-link); }
 .cross-link-framework:hover::after { transform: scaleX(1); }
 
 
@@ -566,6 +572,9 @@
      PAGE HERO — two-column with sourcing/transfer animation
      ============================================================ -->
 <section class="page-hero">
+  <!-- Mouse-reactive navy dot field (interactive). Painted above the gradient background but
+       below .container. JS draws the resting grid and displaces dots near the cursor. -->
+  <canvas class="hero-dotfield" id="heroDotField" aria-hidden="true"></canvas>
   <div class="container">
     <div class="page-hero-grid">
       <div class="page-hero-copy">
@@ -581,15 +590,17 @@
         <p class="lead">Most agencies are sitting on records inside systems they no longer want &mdash; legacy on-prem ECM, retiring file shares, aging SharePoint farms. We move those records into the Microsoft 365 tenant your agency already owns. Taxonomy, retention, permissions, and audit trail come with them.</p>
       </div>
 
-      <div class="hero-story" id="heroStory" role="img" aria-label="Animation: three legacy source systems on the left — an on-prem ECM server stack, a file-share folder tree, and an aging SharePoint farm — each periodically emit a record glyph that travels rightward across a translucent gold migration bridge, accompanied by a small white metadata pill labeling its taxonomy, retention, or permission attribute. Records emerge on the right and settle into an ordered, indexed grid inside a Microsoft 365 tenant boundary.">
+      <div class="hero-story" id="heroStory" role="img" aria-label="Animation: three legacy source systems on the left — an on-prem ECM server stack, a file-share folder tree, and an aging SharePoint farm — each periodically emit a record glyph that travels rightward across a translucent slate-violet migration bridge, accompanied by a small white metadata pill labeling its taxonomy, retention, or permission attribute. Records emerge on the right and settle into an ordered, indexed grid inside a Microsoft 365 tenant boundary.">
         <div class="hero-story-frame">
           <svg class="hero-story-svg" viewBox="0 0 600 360" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
             <defs>
-              <!-- Directional flow gradient for the bridge — animated swipe -->
+              <!-- Directional flow gradient for the bridge — animated swipe.
+                   RE-AUTHORED for white card: a slate-violet sheen readable over the white/slate-violet-tint
+                   band (was tuned to glow over dark). transparent → slate-violet 0.45 → transparent. -->
               <linearGradient id="dmBridgeFlowGrad" x1="0%" y1="0%" x2="100%" y2="0%">
-                <stop offset="0%"   stop-color="rgba(229,166,48,0)"/>
-                <stop offset="50%"  stop-color="rgba(229,166,48,0.55)"/>
-                <stop offset="100%" stop-color="rgba(229,166,48,0)"/>
+                <stop offset="0%"   stop-color="rgba(71,60,122,0)"/>
+                <stop offset="50%"  stop-color="rgba(71,60,122,0.45)"/>
+                <stop offset="100%" stop-color="rgba(71,60,122,0)"/>
               </linearGradient>
             </defs>
 
@@ -604,94 +615,57 @@
             <!-- LIVE STAGE — animated sourcing/transfer -->
             <g id="dmLiveStage">
 
-              <!-- LEFT THIRD — 3 STATIC LEGACY SOURCE VESSELS (substrate).
-                   Drawn at scattered y positions. Each vessel sits inside an
-                   80x80 frame for visual consistency. Cole's constraint #1:
-                   vessels are STATIC substrate, they do not animate. -->
+              <!-- LEFT THIRD — 3 STATIC LEGACY SOURCE VESSELS (substrate). -->
 
-              <!-- ===== Vessel 1 — On-prem ECM server stack (top) =====
-                   Three stacked disc/drive rects with status pips (no green;
-                   navy-on-white-tint for "legacy" via opacity). Phosphor
-                   ph-database family silhouette. -->
+              <!-- ===== Vessel 1 — On-prem ECM server stack (top) ===== -->
               <g id="dmVessel1" transform="translate(40,30)">
-                <!-- Vessel frame -->
                 <rect class="dm-vessel-fill" x="0" y="0" width="100" height="86" rx="6"/>
-                <!-- Disc 1 (top) -->
                 <ellipse class="dm-vessel-icon-fill" cx="50" cy="22" rx="22" ry="6"/>
-                <!-- Disc 2 (mid) -->
                 <ellipse class="dm-vessel-icon-fill" cx="50" cy="42" rx="22" ry="6"/>
-                <!-- Disc 3 (bot) -->
                 <ellipse class="dm-vessel-icon-fill" cx="50" cy="62" rx="22" ry="6"/>
-                <!-- Connecting walls -->
-                <line x1="28" y1="22" x2="28" y2="62" stroke="rgba(197,205,216,0.75)" stroke-width="1.4"/>
-                <line x1="72" y1="22" x2="72" y2="62" stroke="rgba(197,205,216,0.75)" stroke-width="1.4"/>
-                <!-- Status pips (small dots) -->
-                <circle cx="42" cy="22" r="1.2" fill="rgba(197,205,216,0.85)"/>
-                <circle cx="42" cy="42" r="1.2" fill="rgba(197,205,216,0.85)"/>
-                <circle cx="42" cy="62" r="1.2" fill="rgba(197,205,216,0.85)"/>
-                <!-- Label -->
+                <line x1="28" y1="22" x2="28" y2="62" stroke="rgba(124,136,150,0.75)" stroke-width="1.4"/>
+                <line x1="72" y1="22" x2="72" y2="62" stroke="rgba(124,136,150,0.75)" stroke-width="1.4"/>
+                <circle cx="42" cy="22" r="1.2" fill="rgba(124,136,150,0.85)"/>
+                <circle cx="42" cy="42" r="1.2" fill="rgba(124,136,150,0.85)"/>
+                <circle cx="42" cy="62" r="1.2" fill="rgba(124,136,150,0.85)"/>
                 <text class="dm-vessel-label" x="50" y="80">On-Prem ECM</text>
               </g>
 
-              <!-- ===== Vessel 2 — File-share folder tree (middle) =====
-                   Phosphor ph-folders silhouette: layered folder shapes
-                   to suggest a tree. Parent folder + 2 child folder peeks. -->
+              <!-- ===== Vessel 2 — File-share folder tree (middle) ===== -->
               <g id="dmVessel2" transform="translate(40,135)">
                 <rect class="dm-vessel-fill" x="0" y="0" width="100" height="86" rx="6"/>
-                <!-- Background folder (peek) -->
                 <path class="dm-vessel-icon-fill"
                       d="M 25 22 L 38 22 L 42 26 L 75 26 L 75 56 L 25 56 Z"
                       transform="translate(4,4)"
                       style="opacity:0.45"/>
-                <!-- Main folder (front) -->
                 <path class="dm-vessel-icon-fill"
                       d="M 25 22 L 38 22 L 42 26 L 75 26 L 75 56 L 25 56 Z"/>
-                <!-- Folder tab fold -->
-                <line x1="25" y1="26" x2="75" y2="26" stroke="rgba(197,205,216,0.75)" stroke-width="1.4"/>
-                <!-- File rows inside folder -->
-                <line x1="32" y1="36" x2="68" y2="36" stroke="rgba(197,205,216,0.55)" stroke-width="0.8"/>
-                <line x1="32" y1="42" x2="60" y2="42" stroke="rgba(197,205,216,0.55)" stroke-width="0.8"/>
-                <line x1="32" y1="48" x2="65" y2="48" stroke="rgba(197,205,216,0.55)" stroke-width="0.8"/>
-                <!-- Label -->
+                <line x1="25" y1="26" x2="75" y2="26" stroke="rgba(124,136,150,0.75)" stroke-width="1.4"/>
+                <line x1="32" y1="36" x2="68" y2="36" stroke="rgba(124,136,150,0.55)" stroke-width="0.8"/>
+                <line x1="32" y1="42" x2="60" y2="42" stroke="rgba(124,136,150,0.55)" stroke-width="0.8"/>
+                <line x1="32" y1="48" x2="65" y2="48" stroke="rgba(124,136,150,0.55)" stroke-width="0.8"/>
                 <text class="dm-vessel-label" x="50" y="76">File Share</text>
               </g>
 
-              <!-- ===== Vessel 3 — Aging SharePoint farm (bottom) =====
-                   Phosphor ph-globe-hemisphere-west-style globe glyph
-                   suggesting a hosted/networked legacy platform. Sphere
-                   with longitude arcs and a hemispheric continent shape. -->
+              <!-- ===== Vessel 3 — Aging SharePoint farm (bottom) ===== -->
               <g id="dmVessel3" transform="translate(40,240)">
                 <rect class="dm-vessel-fill" x="0" y="0" width="100" height="86" rx="6"/>
-                <!-- Globe outline -->
                 <circle class="dm-vessel-icon-fill" cx="50" cy="40" r="22"/>
-                <!-- Longitude ellipse (vertical) -->
-                <ellipse cx="50" cy="40" rx="8" ry="22" fill="none" stroke="rgba(197,205,216,0.75)" stroke-width="1.2"/>
-                <!-- Equator line -->
-                <line x1="28" y1="40" x2="72" y2="40" stroke="rgba(197,205,216,0.75)" stroke-width="1.2"/>
-                <!-- Hemisphere continent hint (offset) -->
+                <ellipse cx="50" cy="40" rx="8" ry="22" fill="none" stroke="rgba(124,136,150,0.75)" stroke-width="1.2"/>
+                <line x1="28" y1="40" x2="72" y2="40" stroke="rgba(124,136,150,0.75)" stroke-width="1.2"/>
                 <path d="M 38 32 Q 44 28 50 32 Q 56 36 54 42 Q 50 46 44 44 Q 38 40 38 32 Z"
-                      fill="rgba(197,205,216,0.30)" stroke="rgba(197,205,216,0.60)" stroke-width="0.8"/>
-                <!-- Label -->
+                      fill="rgba(124,136,150,0.30)" stroke="rgba(124,136,150,0.60)" stroke-width="0.8"/>
                 <text class="dm-vessel-label" x="50" y="80">SharePoint Farm</text>
               </g>
 
-              <!-- MIDDLE THIRD — GOLD MIGRATION BRIDGE.
-                   Horizontal translucent gold band, x=200..350, y centered
-                   around 160. Pulse outline + directional flow swipe inside.
-                   Cole's constraint #3: gold only.
-                   2026-05-21 — bridge width shortened from 200 to 150 to open
-                   a 50px visual gap between bridge right edge (x=350) and
-                   tenant left edge (x=400). Records traverse x=200 → x=328
-                   so doc right edge lands at x=350 cleanly. -->
+              <!-- MIDDLE THIRD — INDIGO MIGRATION BRIDGE. -->
               <g aria-hidden="true">
                 <!-- Bridge body -->
                 <rect class="dm-bridge" x="200" y="130" width="150" height="60" rx="8"/>
                 <!-- Pulse outline (animated) -->
                 <rect class="dm-bridge-pulse" x="200" y="130" width="150" height="60" rx="8"/>
 
-                <!-- Directional flow swipe — masked to bridge bounds.
-                     A thin gold gradient slides L→R inside the bridge band.
-                     We use a clipPath to keep it inside the rounded rect. -->
+                <!-- Directional flow swipe — masked to bridge bounds. -->
                 <defs>
                   <clipPath id="dmBridgeClip">
                     <rect x="200" y="130" width="150" height="60" rx="8"/>
@@ -705,16 +679,11 @@
                 <text class="dm-bridge-label" x="275" y="123">Migration Bridge</text>
 
                 <!-- Subtle horizontal flow lines inside bridge for texture -->
-                <line x1="215" y1="148" x2="335" y2="148" stroke="rgba(229,166,48,0.20)" stroke-width="0.8" stroke-dasharray="3 4"/>
-                <line x1="215" y1="172" x2="335" y2="172" stroke="rgba(229,166,48,0.20)" stroke-width="0.8" stroke-dasharray="3 4"/>
+                <line x1="215" y1="148" x2="335" y2="148" stroke="rgba(71,60,122,0.30)" stroke-width="0.8" stroke-dasharray="3 4"/>
+                <line x1="215" y1="172" x2="335" y2="172" stroke="rgba(71,60,122,0.30)" stroke-width="0.8" stroke-dasharray="3 4"/>
               </g>
 
-              <!-- Focal record A — primary record currently in transit.
-                   Animated by JS each frame. Travels from a vessel exit point
-                   (x ~ 145, y ~ 70/165/265 depending on vessel) → bridge entry
-                   (x=200, y=160) → bridge exit (x=400, y=160) → grid slot.
-                   Uses the SAME ph-file-text silhouette as AI Ingestion's
-                   hero AND Process Diagram Step 02 (Cole constraint #2). -->
+              <!-- Focal record A — primary record currently in transit. -->
               <g id="dmFocalGroup" transform="translate(145,70)" opacity="0">
                 <rect class="dm-record-focal-rect" x="0" y="0" width="22" height="28" rx="1.5"/>
                 <path d="M 14 0 L 14 8 L 22 8" class="dm-record-focal-line"/>
@@ -723,56 +692,43 @@
                 <line x1="4" y1="21" x2="17" y2="21" class="dm-record-focal-line"/>
               </g>
 
-              <!-- Metadata pill A — travels alongside focal record A while it's
-                   on/near the bridge. NAVY TEXT ON WHITE PILL per Cole 2026-05-21
-                   (NOT gold — gold is bridge infrastructure, pills are passengers). -->
+              <!-- Metadata pill A — NAVY TEXT ON WHITE PILL (passenger tag). -->
               <g id="dmPillGroup" transform="translate(180,72)" opacity="0">
                 <rect id="dmPillRect" class="dm-pill-bg" x="0" y="0" width="78" height="13" rx="6.5"/>
                 <text id="dmPillText" class="dm-pill-text" x="5" y="9">taxonomy: HR/personnel</text>
               </g>
 
-              <!-- RIGHT THIRD — M365 TENANT BOUNDARY + 4x3 INDEXED GRID.
-                   Tenant boundary matches AI Ingestion's .ti-tenant treatment
-                   EXACTLY (constraint #5): 180x280 at x=400 y=40, rx 10,
-                   1px stroke rgba(255,255,255,0.30), dasharray 3 4. -->
+              <!-- RIGHT THIRD — M365 TENANT BOUNDARY + 4x3 INDEXED GRID. -->
               <g aria-hidden="true">
-                <!-- M365 tenant boundary — cross-subpage visual signature -->
+                <!-- M365 tenant boundary — cross-subpage visual signature (navy on white) -->
                 <rect class="dm-tenant" x="400" y="40" width="180" height="280" rx="10"/>
                 <text class="dm-tenant-label" x="490" y="58">Microsoft 365 Tenant</text>
-
-                <!-- 4x3 indexed grid of settled records (12 slots).
-                     Each slot 30x36 with 8px gap. Doc itself is 22x28 (centered).
-                     Grid spans: 4 cols * 30 + 3 * 8 = 144px wide,
-                                 3 rows * 36 + 2 * 8 = 124px tall.
-                     Centered horizontally in tenant boundary (400+180=580, midpoint 490).
-                     Grid starts at x = 490 - 72 = 418.
-                     Y starts at 90 (so it fits between top label y=58 and bottom label y=308). -->
 
                 <!-- Row 1 (y=90) -->
                 <g transform="translate(418,90)">
                   <rect width="22" height="28" rx="1.5" class="dm-record-settled"/>
-                  <path d="M 14 0 L 14 8 L 22 8" fill="none" stroke="rgba(229,166,48,0.70)" stroke-width="1"/>
+                  <path d="M 14 0 L 14 8 L 22 8" fill="none" stroke="var(--accent)" stroke-width="1"/>
                   <line x1="4" y1="13" x2="17" y2="13" class="dm-record-settled-line"/>
                   <line x1="4" y1="17" x2="14" y2="17" class="dm-record-settled-line"/>
                   <line x1="4" y1="21" x2="17" y2="21" class="dm-record-settled-line"/>
                 </g>
                 <g transform="translate(456,90)">
                   <rect width="22" height="28" rx="1.5" class="dm-record-settled"/>
-                  <path d="M 14 0 L 14 8 L 22 8" fill="none" stroke="rgba(229,166,48,0.70)" stroke-width="1"/>
+                  <path d="M 14 0 L 14 8 L 22 8" fill="none" stroke="var(--accent)" stroke-width="1"/>
                   <line x1="4" y1="13" x2="17" y2="13" class="dm-record-settled-line"/>
                   <line x1="4" y1="17" x2="14" y2="17" class="dm-record-settled-line"/>
                   <line x1="4" y1="21" x2="17" y2="21" class="dm-record-settled-line"/>
                 </g>
                 <g transform="translate(494,90)">
                   <rect width="22" height="28" rx="1.5" class="dm-record-settled"/>
-                  <path d="M 14 0 L 14 8 L 22 8" fill="none" stroke="rgba(229,166,48,0.70)" stroke-width="1"/>
+                  <path d="M 14 0 L 14 8 L 22 8" fill="none" stroke="var(--accent)" stroke-width="1"/>
                   <line x1="4" y1="13" x2="17" y2="13" class="dm-record-settled-line"/>
                   <line x1="4" y1="17" x2="14" y2="17" class="dm-record-settled-line"/>
                   <line x1="4" y1="21" x2="17" y2="21" class="dm-record-settled-line"/>
                 </g>
                 <g transform="translate(532,90)">
                   <rect width="22" height="28" rx="1.5" class="dm-record-settled"/>
-                  <path d="M 14 0 L 14 8 L 22 8" fill="none" stroke="rgba(229,166,48,0.70)" stroke-width="1"/>
+                  <path d="M 14 0 L 14 8 L 22 8" fill="none" stroke="var(--accent)" stroke-width="1"/>
                   <line x1="4" y1="13" x2="17" y2="13" class="dm-record-settled-line"/>
                   <line x1="4" y1="17" x2="14" y2="17" class="dm-record-settled-line"/>
                   <line x1="4" y1="21" x2="17" y2="21" class="dm-record-settled-line"/>
@@ -781,28 +737,28 @@
                 <!-- Row 2 (y=146) -->
                 <g transform="translate(418,146)">
                   <rect width="22" height="28" rx="1.5" class="dm-record-settled"/>
-                  <path d="M 14 0 L 14 8 L 22 8" fill="none" stroke="rgba(229,166,48,0.70)" stroke-width="1"/>
+                  <path d="M 14 0 L 14 8 L 22 8" fill="none" stroke="var(--accent)" stroke-width="1"/>
                   <line x1="4" y1="13" x2="17" y2="13" class="dm-record-settled-line"/>
                   <line x1="4" y1="17" x2="14" y2="17" class="dm-record-settled-line"/>
                   <line x1="4" y1="21" x2="17" y2="21" class="dm-record-settled-line"/>
                 </g>
                 <g transform="translate(456,146)">
                   <rect width="22" height="28" rx="1.5" class="dm-record-settled"/>
-                  <path d="M 14 0 L 14 8 L 22 8" fill="none" stroke="rgba(229,166,48,0.70)" stroke-width="1"/>
+                  <path d="M 14 0 L 14 8 L 22 8" fill="none" stroke="var(--accent)" stroke-width="1"/>
                   <line x1="4" y1="13" x2="17" y2="13" class="dm-record-settled-line"/>
                   <line x1="4" y1="17" x2="14" y2="17" class="dm-record-settled-line"/>
                   <line x1="4" y1="21" x2="17" y2="21" class="dm-record-settled-line"/>
                 </g>
                 <g transform="translate(494,146)">
                   <rect width="22" height="28" rx="1.5" class="dm-record-settled"/>
-                  <path d="M 14 0 L 14 8 L 22 8" fill="none" stroke="rgba(229,166,48,0.70)" stroke-width="1"/>
+                  <path d="M 14 0 L 14 8 L 22 8" fill="none" stroke="var(--accent)" stroke-width="1"/>
                   <line x1="4" y1="13" x2="17" y2="13" class="dm-record-settled-line"/>
                   <line x1="4" y1="17" x2="14" y2="17" class="dm-record-settled-line"/>
                   <line x1="4" y1="21" x2="17" y2="21" class="dm-record-settled-line"/>
                 </g>
                 <g transform="translate(532,146)">
                   <rect width="22" height="28" rx="1.5" class="dm-record-settled"/>
-                  <path d="M 14 0 L 14 8 L 22 8" fill="none" stroke="rgba(229,166,48,0.70)" stroke-width="1"/>
+                  <path d="M 14 0 L 14 8 L 22 8" fill="none" stroke="var(--accent)" stroke-width="1"/>
                   <line x1="4" y1="13" x2="17" y2="13" class="dm-record-settled-line"/>
                   <line x1="4" y1="17" x2="14" y2="17" class="dm-record-settled-line"/>
                   <line x1="4" y1="21" x2="17" y2="21" class="dm-record-settled-line"/>
@@ -811,46 +767,43 @@
                 <!-- Row 3 (y=202) -->
                 <g transform="translate(418,202)">
                   <rect width="22" height="28" rx="1.5" class="dm-record-settled"/>
-                  <path d="M 14 0 L 14 8 L 22 8" fill="none" stroke="rgba(229,166,48,0.70)" stroke-width="1"/>
+                  <path d="M 14 0 L 14 8 L 22 8" fill="none" stroke="var(--accent)" stroke-width="1"/>
                   <line x1="4" y1="13" x2="17" y2="13" class="dm-record-settled-line"/>
                   <line x1="4" y1="17" x2="14" y2="17" class="dm-record-settled-line"/>
                   <line x1="4" y1="21" x2="17" y2="21" class="dm-record-settled-line"/>
                 </g>
                 <g transform="translate(456,202)">
                   <rect width="22" height="28" rx="1.5" class="dm-record-settled"/>
-                  <path d="M 14 0 L 14 8 L 22 8" fill="none" stroke="rgba(229,166,48,0.70)" stroke-width="1"/>
+                  <path d="M 14 0 L 14 8 L 22 8" fill="none" stroke="var(--accent)" stroke-width="1"/>
                   <line x1="4" y1="13" x2="17" y2="13" class="dm-record-settled-line"/>
                   <line x1="4" y1="17" x2="14" y2="17" class="dm-record-settled-line"/>
                   <line x1="4" y1="21" x2="17" y2="21" class="dm-record-settled-line"/>
                 </g>
                 <g transform="translate(494,202)">
                   <rect width="22" height="28" rx="1.5" class="dm-record-settled"/>
-                  <path d="M 14 0 L 14 8 L 22 8" fill="none" stroke="rgba(229,166,48,0.70)" stroke-width="1"/>
+                  <path d="M 14 0 L 14 8 L 22 8" fill="none" stroke="var(--accent)" stroke-width="1"/>
                   <line x1="4" y1="13" x2="17" y2="13" class="dm-record-settled-line"/>
                   <line x1="4" y1="17" x2="14" y2="17" class="dm-record-settled-line"/>
                   <line x1="4" y1="21" x2="17" y2="21" class="dm-record-settled-line"/>
                 </g>
                 <g transform="translate(532,202)">
                   <rect width="22" height="28" rx="1.5" class="dm-record-settled"/>
-                  <path d="M 14 0 L 14 8 L 22 8" fill="none" stroke="rgba(229,166,48,0.70)" stroke-width="1"/>
+                  <path d="M 14 0 L 14 8 L 22 8" fill="none" stroke="var(--accent)" stroke-width="1"/>
                   <line x1="4" y1="13" x2="17" y2="13" class="dm-record-settled-line"/>
                   <line x1="4" y1="17" x2="14" y2="17" class="dm-record-settled-line"/>
                   <line x1="4" y1="21" x2="17" y2="21" class="dm-record-settled-line"/>
                 </g>
 
                 <!-- "Indexed" sublabel inside tenant boundary -->
-                <text class="dm-tenant-label" x="490" y="308" style="fill: rgba(229,166,48,0.65);">Indexed</text>
+                <text class="dm-tenant-label" x="490" y="308" style="fill: rgba(71,60,122,0.85);">Indexed</text>
               </g>
 
-              <!-- Last-settled focal ring — JS positions over a grid slot when
-                   each focal record completes its journey. Sits ON TOP of grid. -->
+              <!-- Last-settled focal ring — JS positions over a grid slot. -->
               <rect id="dmSettledRing" class="dm-settled-ring" x="416" y="88" width="26" height="32" rx="3"/>
 
             </g>
 
-            <!-- STATIC SCENE — shown only under prefers-reduced-motion.
-                 Renders all three thirds simultaneously with one record
-                 frozen mid-bridge, pill visible, indexed grid populated. -->
+            <!-- STATIC SCENE — shown only under prefers-reduced-motion. -->
             <g id="dmStaticScene">
 
               <!-- 3 static vessels (same as live stage) -->
@@ -859,40 +812,40 @@
                 <ellipse class="dm-vessel-icon-fill" cx="50" cy="22" rx="22" ry="6"/>
                 <ellipse class="dm-vessel-icon-fill" cx="50" cy="42" rx="22" ry="6"/>
                 <ellipse class="dm-vessel-icon-fill" cx="50" cy="62" rx="22" ry="6"/>
-                <line x1="28" y1="22" x2="28" y2="62" stroke="rgba(197,205,216,0.75)" stroke-width="1.4"/>
-                <line x1="72" y1="22" x2="72" y2="62" stroke="rgba(197,205,216,0.75)" stroke-width="1.4"/>
-                <circle cx="42" cy="22" r="1.2" fill="rgba(197,205,216,0.85)"/>
-                <circle cx="42" cy="42" r="1.2" fill="rgba(197,205,216,0.85)"/>
-                <circle cx="42" cy="62" r="1.2" fill="rgba(197,205,216,0.85)"/>
+                <line x1="28" y1="22" x2="28" y2="62" stroke="rgba(124,136,150,0.75)" stroke-width="1.4"/>
+                <line x1="72" y1="22" x2="72" y2="62" stroke="rgba(124,136,150,0.75)" stroke-width="1.4"/>
+                <circle cx="42" cy="22" r="1.2" fill="rgba(124,136,150,0.85)"/>
+                <circle cx="42" cy="42" r="1.2" fill="rgba(124,136,150,0.85)"/>
+                <circle cx="42" cy="62" r="1.2" fill="rgba(124,136,150,0.85)"/>
                 <text class="dm-vessel-label" x="50" y="80">On-Prem ECM</text>
               </g>
               <g transform="translate(40,135)">
                 <rect class="dm-vessel-fill" x="0" y="0" width="100" height="86" rx="6"/>
                 <path class="dm-vessel-icon-fill" d="M 25 22 L 38 22 L 42 26 L 75 26 L 75 56 L 25 56 Z" transform="translate(4,4)" style="opacity:0.45"/>
                 <path class="dm-vessel-icon-fill" d="M 25 22 L 38 22 L 42 26 L 75 26 L 75 56 L 25 56 Z"/>
-                <line x1="25" y1="26" x2="75" y2="26" stroke="rgba(197,205,216,0.75)" stroke-width="1.4"/>
-                <line x1="32" y1="36" x2="68" y2="36" stroke="rgba(197,205,216,0.55)" stroke-width="0.8"/>
-                <line x1="32" y1="42" x2="60" y2="42" stroke="rgba(197,205,216,0.55)" stroke-width="0.8"/>
-                <line x1="32" y1="48" x2="65" y2="48" stroke="rgba(197,205,216,0.55)" stroke-width="0.8"/>
+                <line x1="25" y1="26" x2="75" y2="26" stroke="rgba(124,136,150,0.75)" stroke-width="1.4"/>
+                <line x1="32" y1="36" x2="68" y2="36" stroke="rgba(124,136,150,0.55)" stroke-width="0.8"/>
+                <line x1="32" y1="42" x2="60" y2="42" stroke="rgba(124,136,150,0.55)" stroke-width="0.8"/>
+                <line x1="32" y1="48" x2="65" y2="48" stroke="rgba(124,136,150,0.55)" stroke-width="0.8"/>
                 <text class="dm-vessel-label" x="50" y="76">File Share</text>
               </g>
               <g transform="translate(40,240)">
                 <rect class="dm-vessel-fill" x="0" y="0" width="100" height="86" rx="6"/>
                 <circle class="dm-vessel-icon-fill" cx="50" cy="40" r="22"/>
-                <ellipse cx="50" cy="40" rx="8" ry="22" fill="none" stroke="rgba(197,205,216,0.75)" stroke-width="1.2"/>
-                <line x1="28" y1="40" x2="72" y2="40" stroke="rgba(197,205,216,0.75)" stroke-width="1.2"/>
+                <ellipse cx="50" cy="40" rx="8" ry="22" fill="none" stroke="rgba(124,136,150,0.75)" stroke-width="1.2"/>
+                <line x1="28" y1="40" x2="72" y2="40" stroke="rgba(124,136,150,0.75)" stroke-width="1.2"/>
                 <path d="M 38 32 Q 44 28 50 32 Q 56 36 54 42 Q 50 46 44 44 Q 38 40 38 32 Z"
-                      fill="rgba(197,205,216,0.30)" stroke="rgba(197,205,216,0.60)" stroke-width="0.8"/>
+                      fill="rgba(124,136,150,0.30)" stroke="rgba(124,136,150,0.60)" stroke-width="0.8"/>
                 <text class="dm-vessel-label" x="50" y="80">SharePoint Farm</text>
               </g>
 
               <!-- Migration bridge (static, no pulse/flow) -->
               <rect class="dm-bridge" x="200" y="130" width="150" height="60" rx="8"/>
               <text class="dm-bridge-label" x="275" y="123">Migration Bridge</text>
-              <line x1="215" y1="148" x2="335" y2="148" stroke="rgba(229,166,48,0.20)" stroke-width="0.8" stroke-dasharray="3 4"/>
-              <line x1="215" y1="172" x2="335" y2="172" stroke="rgba(229,166,48,0.20)" stroke-width="0.8" stroke-dasharray="3 4"/>
+              <line x1="215" y1="148" x2="335" y2="148" stroke="rgba(71,60,122,0.30)" stroke-width="0.8" stroke-dasharray="3 4"/>
+              <line x1="215" y1="172" x2="335" y2="172" stroke="rgba(71,60,122,0.30)" stroke-width="0.8" stroke-dasharray="3 4"/>
 
-              <!-- One record frozen mid-bridge (center of new 200..350 band) -->
+              <!-- One record frozen mid-bridge -->
               <g transform="translate(264,146)">
                 <rect class="dm-record-focal-rect" width="22" height="28" rx="1.5"/>
                 <path d="M 14 0 L 14 8 L 22 8" class="dm-record-focal-line"/>
@@ -901,8 +854,7 @@
                 <line x1="4" y1="21" x2="17" y2="21" class="dm-record-focal-line"/>
               </g>
 
-              <!-- Metadata pill (visible in static) — navy on white.
-                   Sits above the bridge band, aligned to record x=264. -->
+              <!-- Metadata pill (visible in static) — navy on white. -->
               <g transform="translate(262,113)">
                 <rect class="dm-pill-bg" x="0" y="0" width="78" height="13" rx="6.5"/>
                 <text class="dm-pill-text" x="5" y="9">retention: 7yr</text>
@@ -912,20 +864,20 @@
               <rect class="dm-tenant" x="400" y="40" width="180" height="280" rx="10"/>
               <text class="dm-tenant-label" x="490" y="58">Microsoft 365 Tenant</text>
 
-              <g transform="translate(418,90)"><rect width="22" height="28" rx="1.5" class="dm-record-settled"/><path d="M 14 0 L 14 8 L 22 8" fill="none" stroke="rgba(229,166,48,0.70)" stroke-width="1"/><line x1="4" y1="13" x2="17" y2="13" class="dm-record-settled-line"/><line x1="4" y1="17" x2="14" y2="17" class="dm-record-settled-line"/><line x1="4" y1="21" x2="17" y2="21" class="dm-record-settled-line"/></g>
-              <g transform="translate(456,90)"><rect width="22" height="28" rx="1.5" class="dm-record-settled"/><path d="M 14 0 L 14 8 L 22 8" fill="none" stroke="rgba(229,166,48,0.70)" stroke-width="1"/><line x1="4" y1="13" x2="17" y2="13" class="dm-record-settled-line"/><line x1="4" y1="17" x2="14" y2="17" class="dm-record-settled-line"/><line x1="4" y1="21" x2="17" y2="21" class="dm-record-settled-line"/></g>
-              <g transform="translate(494,90)"><rect width="22" height="28" rx="1.5" class="dm-record-settled"/><path d="M 14 0 L 14 8 L 22 8" fill="none" stroke="rgba(229,166,48,0.70)" stroke-width="1"/><line x1="4" y1="13" x2="17" y2="13" class="dm-record-settled-line"/><line x1="4" y1="17" x2="14" y2="17" class="dm-record-settled-line"/><line x1="4" y1="21" x2="17" y2="21" class="dm-record-settled-line"/></g>
-              <g transform="translate(532,90)"><rect width="22" height="28" rx="1.5" class="dm-record-settled"/><path d="M 14 0 L 14 8 L 22 8" fill="none" stroke="rgba(229,166,48,0.70)" stroke-width="1"/><line x1="4" y1="13" x2="17" y2="13" class="dm-record-settled-line"/><line x1="4" y1="17" x2="14" y2="17" class="dm-record-settled-line"/><line x1="4" y1="21" x2="17" y2="21" class="dm-record-settled-line"/></g>
-              <g transform="translate(418,146)"><rect width="22" height="28" rx="1.5" class="dm-record-settled"/><path d="M 14 0 L 14 8 L 22 8" fill="none" stroke="rgba(229,166,48,0.70)" stroke-width="1"/><line x1="4" y1="13" x2="17" y2="13" class="dm-record-settled-line"/><line x1="4" y1="17" x2="14" y2="17" class="dm-record-settled-line"/><line x1="4" y1="21" x2="17" y2="21" class="dm-record-settled-line"/></g>
-              <g transform="translate(456,146)"><rect width="22" height="28" rx="1.5" class="dm-record-settled"/><path d="M 14 0 L 14 8 L 22 8" fill="none" stroke="rgba(229,166,48,0.70)" stroke-width="1"/><line x1="4" y1="13" x2="17" y2="13" class="dm-record-settled-line"/><line x1="4" y1="17" x2="14" y2="17" class="dm-record-settled-line"/><line x1="4" y1="21" x2="17" y2="21" class="dm-record-settled-line"/></g>
-              <g transform="translate(494,146)"><rect width="22" height="28" rx="1.5" class="dm-record-settled"/><path d="M 14 0 L 14 8 L 22 8" fill="none" stroke="rgba(229,166,48,0.70)" stroke-width="1"/><line x1="4" y1="13" x2="17" y2="13" class="dm-record-settled-line"/><line x1="4" y1="17" x2="14" y2="17" class="dm-record-settled-line"/><line x1="4" y1="21" x2="17" y2="21" class="dm-record-settled-line"/></g>
-              <g transform="translate(532,146)"><rect width="22" height="28" rx="1.5" class="dm-record-settled"/><path d="M 14 0 L 14 8 L 22 8" fill="none" stroke="rgba(229,166,48,0.70)" stroke-width="1"/><line x1="4" y1="13" x2="17" y2="13" class="dm-record-settled-line"/><line x1="4" y1="17" x2="14" y2="17" class="dm-record-settled-line"/><line x1="4" y1="21" x2="17" y2="21" class="dm-record-settled-line"/></g>
-              <g transform="translate(418,202)"><rect width="22" height="28" rx="1.5" class="dm-record-settled"/><path d="M 14 0 L 14 8 L 22 8" fill="none" stroke="rgba(229,166,48,0.70)" stroke-width="1"/><line x1="4" y1="13" x2="17" y2="13" class="dm-record-settled-line"/><line x1="4" y1="17" x2="14" y2="17" class="dm-record-settled-line"/><line x1="4" y1="21" x2="17" y2="21" class="dm-record-settled-line"/></g>
-              <g transform="translate(456,202)"><rect width="22" height="28" rx="1.5" class="dm-record-settled"/><path d="M 14 0 L 14 8 L 22 8" fill="none" stroke="rgba(229,166,48,0.70)" stroke-width="1"/><line x1="4" y1="13" x2="17" y2="13" class="dm-record-settled-line"/><line x1="4" y1="17" x2="14" y2="17" class="dm-record-settled-line"/><line x1="4" y1="21" x2="17" y2="21" class="dm-record-settled-line"/></g>
-              <g transform="translate(494,202)"><rect width="22" height="28" rx="1.5" class="dm-record-settled"/><path d="M 14 0 L 14 8 L 22 8" fill="none" stroke="rgba(229,166,48,0.70)" stroke-width="1"/><line x1="4" y1="13" x2="17" y2="13" class="dm-record-settled-line"/><line x1="4" y1="17" x2="14" y2="17" class="dm-record-settled-line"/><line x1="4" y1="21" x2="17" y2="21" class="dm-record-settled-line"/></g>
-              <g transform="translate(532,202)"><rect width="22" height="28" rx="1.5" class="dm-record-settled"/><path d="M 14 0 L 14 8 L 22 8" fill="none" stroke="rgba(229,166,48,0.70)" stroke-width="1"/><line x1="4" y1="13" x2="17" y2="13" class="dm-record-settled-line"/><line x1="4" y1="17" x2="14" y2="17" class="dm-record-settled-line"/><line x1="4" y1="21" x2="17" y2="21" class="dm-record-settled-line"/></g>
+              <g transform="translate(418,90)"><rect width="22" height="28" rx="1.5" class="dm-record-settled"/><path d="M 14 0 L 14 8 L 22 8" fill="none" stroke="var(--accent)" stroke-width="1"/><line x1="4" y1="13" x2="17" y2="13" class="dm-record-settled-line"/><line x1="4" y1="17" x2="14" y2="17" class="dm-record-settled-line"/><line x1="4" y1="21" x2="17" y2="21" class="dm-record-settled-line"/></g>
+              <g transform="translate(456,90)"><rect width="22" height="28" rx="1.5" class="dm-record-settled"/><path d="M 14 0 L 14 8 L 22 8" fill="none" stroke="var(--accent)" stroke-width="1"/><line x1="4" y1="13" x2="17" y2="13" class="dm-record-settled-line"/><line x1="4" y1="17" x2="14" y2="17" class="dm-record-settled-line"/><line x1="4" y1="21" x2="17" y2="21" class="dm-record-settled-line"/></g>
+              <g transform="translate(494,90)"><rect width="22" height="28" rx="1.5" class="dm-record-settled"/><path d="M 14 0 L 14 8 L 22 8" fill="none" stroke="var(--accent)" stroke-width="1"/><line x1="4" y1="13" x2="17" y2="13" class="dm-record-settled-line"/><line x1="4" y1="17" x2="14" y2="17" class="dm-record-settled-line"/><line x1="4" y1="21" x2="17" y2="21" class="dm-record-settled-line"/></g>
+              <g transform="translate(532,90)"><rect width="22" height="28" rx="1.5" class="dm-record-settled"/><path d="M 14 0 L 14 8 L 22 8" fill="none" stroke="var(--accent)" stroke-width="1"/><line x1="4" y1="13" x2="17" y2="13" class="dm-record-settled-line"/><line x1="4" y1="17" x2="14" y2="17" class="dm-record-settled-line"/><line x1="4" y1="21" x2="17" y2="21" class="dm-record-settled-line"/></g>
+              <g transform="translate(418,146)"><rect width="22" height="28" rx="1.5" class="dm-record-settled"/><path d="M 14 0 L 14 8 L 22 8" fill="none" stroke="var(--accent)" stroke-width="1"/><line x1="4" y1="13" x2="17" y2="13" class="dm-record-settled-line"/><line x1="4" y1="17" x2="14" y2="17" class="dm-record-settled-line"/><line x1="4" y1="21" x2="17" y2="21" class="dm-record-settled-line"/></g>
+              <g transform="translate(456,146)"><rect width="22" height="28" rx="1.5" class="dm-record-settled"/><path d="M 14 0 L 14 8 L 22 8" fill="none" stroke="var(--accent)" stroke-width="1"/><line x1="4" y1="13" x2="17" y2="13" class="dm-record-settled-line"/><line x1="4" y1="17" x2="14" y2="17" class="dm-record-settled-line"/><line x1="4" y1="21" x2="17" y2="21" class="dm-record-settled-line"/></g>
+              <g transform="translate(494,146)"><rect width="22" height="28" rx="1.5" class="dm-record-settled"/><path d="M 14 0 L 14 8 L 22 8" fill="none" stroke="var(--accent)" stroke-width="1"/><line x1="4" y1="13" x2="17" y2="13" class="dm-record-settled-line"/><line x1="4" y1="17" x2="14" y2="17" class="dm-record-settled-line"/><line x1="4" y1="21" x2="17" y2="21" class="dm-record-settled-line"/></g>
+              <g transform="translate(532,146)"><rect width="22" height="28" rx="1.5" class="dm-record-settled"/><path d="M 14 0 L 14 8 L 22 8" fill="none" stroke="var(--accent)" stroke-width="1"/><line x1="4" y1="13" x2="17" y2="13" class="dm-record-settled-line"/><line x1="4" y1="17" x2="14" y2="17" class="dm-record-settled-line"/><line x1="4" y1="21" x2="17" y2="21" class="dm-record-settled-line"/></g>
+              <g transform="translate(418,202)"><rect width="22" height="28" rx="1.5" class="dm-record-settled"/><path d="M 14 0 L 14 8 L 22 8" fill="none" stroke="var(--accent)" stroke-width="1"/><line x1="4" y1="13" x2="17" y2="13" class="dm-record-settled-line"/><line x1="4" y1="17" x2="14" y2="17" class="dm-record-settled-line"/><line x1="4" y1="21" x2="17" y2="21" class="dm-record-settled-line"/></g>
+              <g transform="translate(456,202)"><rect width="22" height="28" rx="1.5" class="dm-record-settled"/><path d="M 14 0 L 14 8 L 22 8" fill="none" stroke="var(--accent)" stroke-width="1"/><line x1="4" y1="13" x2="17" y2="13" class="dm-record-settled-line"/><line x1="4" y1="17" x2="14" y2="17" class="dm-record-settled-line"/><line x1="4" y1="21" x2="17" y2="21" class="dm-record-settled-line"/></g>
+              <g transform="translate(494,202)"><rect width="22" height="28" rx="1.5" class="dm-record-settled"/><path d="M 14 0 L 14 8 L 22 8" fill="none" stroke="var(--accent)" stroke-width="1"/><line x1="4" y1="13" x2="17" y2="13" class="dm-record-settled-line"/><line x1="4" y1="17" x2="14" y2="17" class="dm-record-settled-line"/><line x1="4" y1="21" x2="17" y2="21" class="dm-record-settled-line"/></g>
+              <g transform="translate(532,202)"><rect width="22" height="28" rx="1.5" class="dm-record-settled"/><path d="M 14 0 L 14 8 L 22 8" fill="none" stroke="var(--accent)" stroke-width="1"/><line x1="4" y1="13" x2="17" y2="13" class="dm-record-settled-line"/><line x1="4" y1="17" x2="14" y2="17" class="dm-record-settled-line"/><line x1="4" y1="21" x2="17" y2="21" class="dm-record-settled-line"/></g>
 
-              <text class="dm-tenant-label" x="490" y="308" style="fill: rgba(229,166,48,0.65);">Indexed</text>
+              <text class="dm-tenant-label" x="490" y="308" style="fill: rgba(71,60,122,0.85);">Indexed</text>
 
               <!-- Last-settled ring on first slot -->
               <rect class="dm-settled-ring" x="416" y="88" width="26" height="32" rx="3" opacity="1"/>
@@ -947,8 +899,6 @@
 
 <!-- ============================================================
      SECTION 1 — ANIMATED PROCESS DIAGRAM (5 steps)
-     Step 02 "Extract" uses ph-file-text — same icon as the hero
-     record glyph (Cole's icon vocabulary consistency lock).
      ============================================================ -->
 <section class="section">
   <div class="container">
@@ -1062,10 +1012,6 @@
 
 <!-- ============================================================
      SECTION 5 — CROSS-LINK (2-card variant)
-     Organize phase has 3 subpages: Archive Scanning, Data Migration
-     (this page), Records Management & Compliance Setup. Two sibling
-     cards point to the non-self Organize siblings.
-     Card descriptions are Cole-canonical (locked 2026-05-21).
      ============================================================ -->
 <section class="cross-link" aria-labelledby="cross-link-heading">
   <div class="container">
@@ -1075,13 +1021,13 @@
     </div>
 
     <div class="cross-link-grid">
-      <a href="services-scanning.html" class="cross-link-card">
+      <a href="services-scanning.html" class="cross-link-card dest-scanning">
         <span class="card-eyebrow">Organize</span>
         <h3>Archive Scanning</h3>
         <p>Decades of paper records become searchable, indexed, and governed by your policies.</p>
         <span class="card-arrow">Explore <i class="ph ph-arrow-right" aria-hidden="true"></i></span>
       </a>
-      <a href="services-compliance-setup.html" class="cross-link-card">
+      <a href="services-compliance-setup.html" class="cross-link-card dest-compliance">
         <span class="card-eyebrow">Organize</span>
         <h3>Records Management &amp; Compliance Setup</h3>
         <p>Configure retention, permissions, and audit posture inside SharePoint Online.</p>
@@ -1218,34 +1164,167 @@
   var prefersReducedMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   // ============================================================
+  // MOUSE-REACTIVE DOT FIELD (interactive, 2026-06-18) — ported verbatim from
+  // services-scanning-topgradient.html. Replaces the old static ::after dot tile.
+  // A <canvas> renders the SAME resting look as the old CSS tile — navy dots
+  // rgba(37,66,107,0.10), ~1px radius, 24px grid — but each dot can displace
+  // individually toward/away from the cursor.
+  //
+  // Guards: prefers-reduced-motion and touch / no-hover devices paint the
+  // static grid ONCE (identical to the old tile) and wire NO listeners.
+  // ============================================================
+  (function() {
+    var hero = document.querySelector('.page-hero');
+    var canvas = document.getElementById('heroDotField');
+    if (!hero || !canvas || !canvas.getContext) return;
+    var ctx = canvas.getContext('2d');
+
+    // Resting look — matched 1:1 to the old ::after tile.
+    var GRID = 24;                 // px spacing (was background-size: 24px)
+    var DOT_R = 1;                 // px radius (was 1px dots)
+    var DOT_COLOR = 'rgba(37,66,107,0.10)';  // navy at low alpha (was the tile color)
+
+    // Interaction tuning — subtle/premium repel.
+    var RADIUS = 120;              // px influence radius around the pointer
+    var MAX_PUSH = 14;             // px max displacement at the pointer center
+    var EASE = 0.14;              // per-frame return toward home (spring stiffness)
+    var EPSILON = 0.05;          // settle threshold to idle the loop
+
+    var dots = [];                 // { hx, hy, x, y }  home + current
+    var dpr = 1;
+    var pointerX = -9999, pointerY = -9999;
+    var pointerActive = false;
+    var rafId = null;
+
+    var canHover = !window.matchMedia || window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+    var interactive = !prefersReducedMotion && canHover;
+
+    // Build the dot grid for the current hero size; reset current pos to home.
+    function buildGrid(w, h) {
+      dots.length = 0;
+      // Inset the grid by half a cell so it reads centered like the CSS tile.
+      var startX = GRID / 2, startY = GRID / 2;
+      for (var y = startY; y < h; y += GRID) {
+        for (var x = startX; x < w; x += GRID) {
+          dots.push({ hx: x, hy: y, x: x, y: y });
+        }
+      }
+    }
+
+    // Draw the current dot positions (single pass).
+    function draw(w, h) {
+      ctx.clearRect(0, 0, w, h);
+      ctx.fillStyle = DOT_COLOR;
+      for (var i = 0; i < dots.length; i++) {
+        var d = dots[i];
+        ctx.beginPath();
+        ctx.arc(d.x, d.y, DOT_R, 0, Math.PI * 2);
+        ctx.fill();
+      }
+    }
+
+    // Size the canvas to the hero, account for devicePixelRatio, rebuild grid, repaint.
+    function resize() {
+      var rect = hero.getBoundingClientRect();
+      var w = Math.max(1, Math.round(rect.width));
+      var h = Math.max(1, Math.round(rect.height));
+      dpr = Math.min(window.devicePixelRatio || 1, 2);  // cap DPR for perf
+      canvas.width = w * dpr;
+      canvas.height = h * dpr;
+      canvas.style.width = w + 'px';
+      canvas.style.height = h + 'px';
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      buildGrid(w, h);
+      draw(w, h);   // paint the static resting grid immediately (no layout shift, no FOUC)
+    }
+
+    // Smooth cubic falloff: 1 at center → 0 at edge.
+    function falloff(t) { var u = 1 - t; return u * u * u; }
+
+    function loop() {
+      var rect = hero.getBoundingClientRect();
+      var w = rect.width, h = rect.height;
+      var moving = false;
+      var r2 = RADIUS * RADIUS;
+
+      for (var i = 0; i < dots.length; i++) {
+        var d = dots[i];
+        var tx = d.hx, ty = d.hy;   // target defaults to home
+
+        if (pointerActive) {
+          var dx = d.hx - pointerX;
+          var dy = d.hy - pointerY;
+          var dist2 = dx * dx + dy * dy;
+          if (dist2 < r2) {
+            var dist = Math.sqrt(dist2) || 0.0001;
+            var push = falloff(dist / RADIUS) * MAX_PUSH;
+            // Repel: push dot outward, away from the pointer, along the radial.
+            tx = d.hx + (dx / dist) * push;
+            ty = d.hy + (dy / dist) * push;
+          }
+        }
+
+        // Ease current position toward the target (toward push pos, or back home).
+        d.x += (tx - d.x) * EASE;
+        d.y += (ty - d.y) * EASE;
+
+        if (Math.abs(d.x - tx) > EPSILON || Math.abs(d.y - ty) > EPSILON) moving = true;
+      }
+
+      draw(w, h);
+
+      // Keep running while the pointer is active or while dots are still settling.
+      if (pointerActive || moving) {
+        rafId = window.requestAnimationFrame(loop);
+      } else {
+        rafId = null;
+        draw(w, h);   // final crisp resting frame
+      }
+    }
+
+    function ensureLoop() {
+      if (rafId === null) rafId = window.requestAnimationFrame(loop);
+    }
+
+    // Initial sizing + static paint (runs for ALL cases, including reduced-motion/touch).
+    resize();
+
+    // Track resize for both interactive and static cases (canvas must follow hero size).
+    if ('ResizeObserver' in window) {
+      var ro = new ResizeObserver(function() { resize(); });
+      ro.observe(hero);
+    } else {
+      window.addEventListener('resize', resize, { passive: true });
+    }
+
+    // No interaction on reduced-motion / touch / no-hover — leave the static grid as-is.
+    if (!interactive) return;
+
+    hero.addEventListener('pointermove', function(e) {
+      if (e.pointerType === 'touch') return;   // ignore touch contacts
+      var rect = hero.getBoundingClientRect();
+      pointerX = e.clientX - rect.left;
+      pointerY = e.clientY - rect.top;
+      pointerActive = true;
+      ensureLoop();
+    }, { passive: true });
+
+    hero.addEventListener('pointerenter', function(e) {
+      if (e.pointerType === 'touch') return;
+      pointerActive = true;
+      ensureLoop();
+    });
+
+    hero.addEventListener('pointerleave', function() {
+      pointerActive = false;   // dots ease back home; loop runs until settled, then idles
+      ensureLoop();
+    });
+  })();
+
+  // ============================================================
   // HERO ANIMATION — Sourcing/Transfer (12s cycle, 3 staggered passes)
-  //
-  // Cole's 5 non-negotiable constraints:
-  //   1. Element density: 4 focal points max at any moment.
-  //      - 3 vessels: STATIC substrate (zero animation per vessel)
-  //      - Bridge pulse: 1 focal (CSS-driven, separate from JS loop)
-  //      - Focal record(s) in transit: 1-2 max via cross-vessel sequencing
-  //      - Settled-record ring: 1 focal on most recent grid slot
-  //      Total active focals at any instant: 2-3.
-  //   2. Icon vocabulary: focal record uses ph-file-text silhouette
-  //      (matches Step 02 "Extract" icon AND AI Ingestion's hero glyph).
-  //   3. Color discipline: only navy + gold rendered. State separation
-  //      is opacity/saturation, never a new hue. Pills are navy-on-white
-  //      per Cole 2026-05-21 (NOT gold like AI Ingestion).
-  //   4. Reduced motion: static composite via #dmStaticScene (CSS swap).
-  //   5. M365 tenant boundary matches AI Ingestion's .ti-tenant exactly.
-  //
-  // The focal cycle (1 JS rAF loop) drives:
-  //   - dmFocalGroup transform (x position, y position, opacity)
-  //   - dmPillGroup position, text content, opacity
-  //   - dmSettledRing position, opacity (on the grid slot of the most
-  //     recently completed pass)
-  //
-  // 3 focal passes per 12s cycle — one per vessel (1, 2, 3 in order).
-  // Each pass 4s long. Cross-vessel sequencing per Cole's lock:
-  //   Pass 1 (t=0..4s):  Vessel 1 → bridge → grid slot 0 (top-left)
-  //   Pass 2 (t=4..8s):  Vessel 2 → bridge → grid slot 4 (mid-left)
-  //   Pass 3 (t=8..12s): Vessel 3 → bridge → grid slot 8 (bot-left)
+  // (Logic unchanged from the dark-hero original; only colors moved to white
+  //  via CSS. The focal cycle drives the focal record, pill, and settled ring.)
   // ============================================================
   var heroStory   = document.getElementById('heroStory');
   var focalGroup  = document.getElementById('dmFocalGroup');
@@ -1260,11 +1339,6 @@
   }
 
   // Vessel exit points (where records emerge from each vessel).
-  // Each vessel is 100px wide at x-translate 40, so the right edge is x=140.
-  // Records exit at the vertical center of each vessel.
-  // Vessel 1: translate(40,30), 86 tall → center y = 30 + 43 = 73 (use 60 for doc top-left)
-  // Vessel 2: translate(40,135), 86 tall → center y = 135 + 43 = 178 (use 165)
-  // Vessel 3: translate(40,240), 86 tall → center y = 240 + 43 = 283 (use 270)
   var VESSEL_EXITS = [
     { x: 145, y: 60  },   // On-prem ECM
     { x: 145, y: 165 },   // File Share
@@ -1272,46 +1346,28 @@
   ];
 
   // Grid slot positions (4 cols x 3 rows = 12 slots).
-  // Match the static markup: y=90/146/202, x=418/456/494/532.
-  // The settled-ring is 26x32 with 2px inset, so ring.x = slot.x - 2, ring.y = slot.y - 2.
   var GRID_SLOTS = [
     { x: 416, y: 88  }, { x: 454, y: 88  }, { x: 492, y: 88  }, { x: 530, y: 88  },   // row 1
     { x: 416, y: 144 }, { x: 454, y: 144 }, { x: 492, y: 144 }, { x: 530, y: 144 },   // row 2
     { x: 416, y: 200 }, { x: 454, y: 200 }, { x: 492, y: 200 }, { x: 530, y: 200 }    // row 3
   ];
-  // Each pass deposits its record into a distinct grid slot. We use
-  // slots 0, 4, 8 (left column, one per row) so each pass visibly lands
-  // in a "new" position for the ring to highlight.
   var PASS_SLOTS = [0, 4, 8];
 
   // Metadata pill labels per Reed's locked copy — one per vessel/pass.
-  // Each carries a different preservation dimension: taxonomy, retention, permission.
   var PILL_LABELS = [
     'taxonomy: HR/personnel',
     'retention: 7yr',
     'permission: read-only'
   ];
 
-  // Approximate text widths for pill sizing (Tahoma 7px bold, letter-spacing 0.3px).
-  // We compute these once via getBBox after first render; fallback hardcoded.
-  var PILL_WIDTHS = [88, 60, 78];  // taxonomy ~88, retention ~60, permission ~78
+  // Approximate text widths for pill sizing.
+  var PILL_WIDTHS = [88, 60, 78];
 
   if (!prefersReducedMotion && heroStory && focalGroup && pillGroup && settledRing) {
 
     var CYCLE_MS  = 12000;   // full loop length
     var PASS_DUR  = 4000;    // one pass: 4 seconds
     var PASSES    = 3;       // 3 passes per cycle (one per vessel)
-
-    // Within a single pass (0..1 normalized progress):
-    //   0.00..0.20  approach bridge from vessel exit (left of bridge)
-    //   0.20..0.75  traverse bridge (left edge x=200 → right edge x=328,
-    //               doc right edge lands at x=350 = bridge right edge)
-    //   0.75..0.95  descend from bridge exit (x=328) to grid slot
-    //   0.95..1.00  lock into slot, ring engages
-    //
-    // The pill is visible during 0.15..0.78 (slightly precedes traversal start
-    // and slightly outlasts traversal end so it stays alongside the record
-    // during all bridge time + a touch of approach/exit).
 
     function smoothstep(a, b, t) {
       var x = Math.max(0, Math.min(1, (t - a) / (b - a)));
@@ -1331,12 +1387,7 @@
     var lastPillLabel = -1;
     var lastRingSlot = -1;
 
-    // Try to measure each pill label width once via getBBox at first
-    // text content — this catches font rendering variation. We do this
-    // lazily on first render of each label.
     function measurePillForLabel(idx) {
-      // pillText is the <text> element. We swap textContent, force
-      // a getBBox, then write the pill rect width to fit + padding.
       if (!pillText || !pillRect) return PILL_WIDTHS[idx];
       pillText.textContent = PILL_LABELS[idx];
       var bb;
@@ -1359,50 +1410,34 @@
       var startPt = VESSEL_EXITS[passIdx];
       var slotIdx = PASS_SLOTS[passIdx];
       var endSlot = GRID_SLOTS[slotIdx];
-      // Focal endpoint in grid: top-left of doc inside the ring (+2 inset).
       var endX = endSlot.x + 2;
       var endY = endSlot.y + 2;
-
-      // ---- Focal record waypoints ----
-      // Stage A: vessel exit → bridge entry (x=200, y=160 mid-bridge)
-      // Stage B: bridge entry → bridge exit (x=200 → x=328)
-      // Stage C: bridge exit → grid slot
-      // Stage D: locked in slot
 
       var fx, fy, fOp;
 
       if (passT < 0.05) {
-        // Fade-in at vessel exit
         fx = startPt.x;
         fy = startPt.y;
         fOp = passT / 0.05;
       } else if (passT < 0.20) {
-        // Stage A — approach bridge from vessel exit
         var a = (passT - 0.05) / 0.15;
         var ea = smoothstep(0, 1, a);
         fx = startPt.x + (200 - startPt.x) * ea;
         fy = startPt.y + (146 - startPt.y) * ea;   // 146 = bridge top-aligned doc y
         fOp = 1;
       } else if (passT < 0.75) {
-        // Stage B — traverse bridge (left edge → right edge)
         var b = (passT - 0.20) / 0.55;
         var eb = smoothstep(0, 1, b);
         fx = 200 + (328 - 200) * eb;   // 328 = bridge right edge (350) - doc width (22)
         fy = 146;
         fOp = 1;
       } else if (passT < 0.95) {
-        // Stage C — bridge exit → grid slot
         var c = (passT - 0.75) / 0.20;
         var ec = smoothstep(0, 1, c);
         fx = 328 + (endX - 328) * ec;
         fy = 146 + (endY - 146) * ec;
         fOp = 1;
       } else {
-        // Stage D — locked in slot, focal record fades into the static
-        // settled grid background. We fade focal opacity slightly so
-        // the slot occupant looks like a permanent member rather than
-        // a hovering ghost. (The settled ring is what carries the
-        // "most-recently-arrived" focal signal.)
         fx = endX;
         fy = endY;
         fOp = 1 - smoothstep(0.95, 1.00, passT) * 0.5;   // 1 → 0.5
@@ -1416,11 +1451,6 @@
       }
 
       // ---- Metadata pill ----
-      // Pill is visible while record is on bridge approach + traversal
-      // (passT 0.15..0.78, with brief fade edges). Position: offset
-      // ABOVE the focal record by ~16px (so it's not below the bridge band).
-      // Pill text updates once per pass (set at start of pass).
-
       var pillOp;
       if (passT < 0.12 || passT > 0.82) {
         pillOp = 0;
@@ -1433,8 +1463,6 @@
       }
       pillOp = Math.max(0, Math.min(1, pillOp));
 
-      // Update pill text label & rect width at start of pass.
-      // We measure on first encounter, cache the width thereafter.
       if (lastPillLabel !== passIdx) {
         lastPillLabel = passIdx;
         if (pillText) pillText.textContent = PILL_LABELS[passIdx];
@@ -1442,23 +1470,14 @@
         if (pillRect) pillRect.setAttribute('width', w);
       }
 
-      // Position pill ABOVE focal record (above the bridge band so it's
-      // visible against the dark hero background). Offset: focal record
-      // is 28 tall, pill is 13 tall, gap 4px. Anchor: pill x aligns
-      // with focal x.
-      // For stages other than bridge traversal, place pill directly
-      // beside the record at standard offset to keep it visible.
       var pillX, pillY;
       if (passT < 0.20) {
-        // Approach: pill above focal record
         pillX = fx;
         pillY = fy - 17;
       } else if (passT < 0.75) {
-        // On bridge: pill above the bridge band, anchored to record x
         pillX = fx - 2;
         pillY = 113;
       } else {
-        // Descent: pill above record, fading out
         pillX = fx;
         pillY = fy - 17;
       }
@@ -1470,20 +1489,13 @@
       }
 
       // ---- Settled ring ----
-      // Ring appears when record lands in slot (passT >= 0.93) and
-      // persists into the start of the NEXT pass (until passT 0.15 of
-      // the new pass) before fading. The ring sits on the slot of
-      // the current pass during late-pass, and on the PREVIOUS pass's
-      // slot during early-pass.
       var ringOp = 0;
       var ringSlotIdx = slotIdx;
 
       if (passT >= 0.93) {
-        // Lingering on current pass's slot — fade in
         ringOp = smoothstep(0.93, 0.98, passT);
         ringSlotIdx = slotIdx;
       } else if (passT < 0.15) {
-        // Early next-pass — ring still visible on PREVIOUS pass's slot
         var prevPass = (passIdx - 1 + PASSES) % PASSES;
         ringSlotIdx = PASS_SLOTS[prevPass];
         ringOp = 1 - smoothstep(0, 0.15, passT);

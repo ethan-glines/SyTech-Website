@@ -8,190 +8,203 @@
 <link rel="stylesheet" href="assets/css/sytech-shared.css">
 <link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.0.3/src/regular/style.css">
 <style>
+/* === Per-page accent (Bronze Seal serious-tone recolor 2026-06-18) === */
+:root { --accent: #7A5418; --accent-ink: #573A0F; }
 /* ==========================================================================
-   services-compliance-setup.html — Batch 2b Subpage 2 of 4
-   Inherits the scanning + SharePoint ERMS + AI Ingestion subpage recipe:
-   .section-header (centered), .archive-quote, .cta-strip, .cross-link,
-   .breadcrumb, two-column hero scaffold, .steps Process Diagram,
-   .compare-split + .compare-closer from AI Ingestion verbatim.
-   REUSES the .trust-strip-section / .trust-grid / .trust-tile pattern
-   from why-sytech.html verbatim for Section 3 (operational fact tiles).
-   NEW on this page only: the structuring-sequence hero animation
-   (chaotic substrate → three slim governance rails → labeled records
-   environment inside M365 tenant).
-   No new colors. Navy + gold only.
+   services-compliance-setup-topgradient.html — TOP-COLOR GRADIENT HERO variant (2026-06-18)
+   Forked from services-compliance-setup.html. FULL TWO-PART CONVERSION (this page
+   skipped the light-hero step, so it needs BOTH the white-card animation conversion
+   AND the top-gradient contrast values in one clean hero rebuild):
+     (A) .page-hero background → 180deg VERTICAL gradient: a SOFT, TRANSLUCENT
+         bronze WASH at the top (behind breadcrumb/eyebrow/headline) fading
+         straight down to light/white. Top text uses the DARK light-hero treatment
+         (navy h1 + bronze-ink accents + slate lead).
+     (B) The structuring-sequence animation FRAME flips to a WHITE card and every
+         .cs-* element re-solves ON WHITE (navy carries structure; bronze carries
+         governance action; the deep-navy bundle badge stays dark).
+   Accent: Bronze Seal #7A5418 (RGB 122,84,24) — recolored 2026-06-18 from the
+   prior Compliance Burgundy (the desaturated wine washed to a dusty rose
+   #C8A7AE, off-register for a government records/compliance brand; bronze stays an
+   intentional parchment-bronze as a light wash).
+   TOP ALPHA = 0.44 (the alpha that keeps navy h1 ≥4.5:1; 0.46 drops navy to ~4.43:1).
+   At 0.44 the effective top tint is rgba(122,84,24,0.44) over --light → ~rgb(192,174,148)
+   (#C0AE94, lum ~0.433), a warm parchment-bronze. Contrast on this top:
+     navy #25426B      → 4.56:1 (clears 4.5:1 AA small)
+     h1 span #7A5418   → 3.11:1 (clears 3:1 large — brand bronze, NO override needed)
+     eyebrow #573A0F   → 4.76:1 (clears 4.5:1 AA small)
+     lead --text-body  → ~6.4:1 (PASS)
+   Spec: planning/spec-service-page-color-palette-2026-06-18.md →
+   "Serious-Tone Revision — Compliance Setup + Data Migration (2026-06-18)" → Compliance TOP PICK.
    ========================================================================== */
 
 
-/* ---- Page Hero — same scaffold as predecessor subpages ---- */
-.page-hero { padding: 11rem 0 5rem; background: linear-gradient(175deg, var(--deep-navy) 0%, var(--navy) 60%, #2d5080 100%); position: relative; overflow: hidden; color: var(--white); }
-.page-hero::after { content: ''; position: absolute; inset: 0; background-image: radial-gradient(rgba(255,255,255,0.04) 1px, transparent 1px); background-size: 24px 24px; pointer-events: none; }
+/* ---- Page Hero — TOP-GRADIENT (2026-06-18) — full 180deg vertical fade: translucent
+   bronze WASH top → light → white floor. The bronze is built as rgba over the light
+   canvas (not a solid hex) so it reads as a soft, premium parchment-bronze tint. Navy h1 /
+   bronze-ink accents / slate lead all clear AA on it. */
+.page-hero {
+  padding: 11rem 0 5rem;
+  position: relative;
+  overflow: hidden;
+  color: var(--navy); /* dark text treatment — top is a pale bronze wash, not solid bronze */
+  background: linear-gradient(180deg,
+      rgba(122,84,24,0.44)  0%,    /* SHIPPED top alpha 0.44 (Bronze Seal; navy h1 ~4.56:1) */
+      rgba(122,84,24,0.15) 40%,    /* second stop kept at 0.15 to keep the fade proportional */
+      var(--light)          75%,   /* #F5F5F5 — into the light canvas */
+      var(--white)         100%);  /* #FFFFFF — white floor at the very bottom of the hero */
+}
+/* ::before corner glow REMOVED — the vertical gradient carries all the bronze; a separate
+   corner glow would double up and muddy. */
+
+/* ---- Mouse-reactive dot field (interactive, 2026-06-18) ----
+   REPLACES the old static ::after radial-gradient dot tile AND the removed cursor-following glow.
+   A <canvas> renders the SAME resting look as the old tile — navy dots rgba(37,66,107,0.10),
+   ~1px radius, 24px grid spacing — but each dot can displace individually toward/away from the
+   cursor. JS owns the field; see the canvas block in <script>. The canvas sits ABOVE the hero
+   gradient background but BELOW .container (z-index 1), so all hero content stays fully legible,
+   and pointer-events:none so it never intercepts clicks/hovers. At rest (and on reduced-motion /
+   touch / no-hover) JS paints the static grid once — identical to the old tile, no layout shift. */
+.hero-dotfield {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 0;            /* above the gradient background; below .container (z-index 1) */
+  display: block;
+}
 .page-hero .container { position: relative; z-index: 1; }
 .page-hero-grid { display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr); gap: 3.5rem; align-items: center; }
 .page-hero-copy { min-width: 0; }
-.page-hero .eyebrow { display: inline-block; font-size: 0.7rem; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; color: var(--gold); margin-bottom: 1rem; }
-.page-hero h1 { font-size: clamp(2rem, 4.5vw, 3.2rem); font-weight: 700; line-height: 1.15; margin-bottom: 1.25rem; letter-spacing: -0.01em; }
-.page-hero h1 span { color: var(--gold); }
-.page-hero p.lead { font-size: 1.1rem; line-height: 1.7; color: rgba(255,255,255,0.82); }
+/* Eyebrow — deep-bronze #573A0F (4.76:1 small on the 0.44 bronze top). Bronze/umber hue
+   family, not navy. Scoped to the hero eyebrow ONLY. */
+.page-hero .eyebrow { display: inline-block; font-size: 0.7rem; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; color: #573A0F; margin-bottom: 1rem; }
+.page-hero h1 { font-size: clamp(2rem, 4.5vw, 3.2rem); font-weight: 700; line-height: 1.15; margin-bottom: 1.25rem; letter-spacing: -0.01em; color: var(--navy); }
+/* h1 highlight span — brand bronze #7A5418 = --accent (line 12). On the 0.44 bronze
+   top it reaches 3.11:1 → clears 3:1 large at the 32px+ bold h1 size. NO override needed —
+   the brand accent works as the span (as burgundy did before the recolor). */
+.page-hero h1 span { color: var(--accent); }
+/* Lead — slate --text-body. ~6.4:1 on the 0.44 bronze wash near the top; mostly renders in
+   the lower/light zone where it is well above AA. */
+.page-hero p.lead { font-size: 1.1rem; line-height: 1.7; color: var(--text-body); }
 
-/* Breadcrumb — inherited verbatim */
+/* Breadcrumb — light-version accent treatment (for the pale-burgundy top):
+   links slate --text-body, separators + hover burgundy-ink/accent, current-page navy bold. */
 .breadcrumb { margin-bottom: 1.25rem; }
 .breadcrumb ol { list-style: none; padding: 0; margin: 0; display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: center; font-size: 0.8rem; }
-.breadcrumb li { display: inline-flex; align-items: center; gap: 0.5rem; color: rgba(255,255,255,0.65); }
-.breadcrumb li + li::before { content: '\203A'; color: var(--gold); font-size: 0.95rem; line-height: 1; padding-right: 0.25rem; }
-.breadcrumb a { color: rgba(255,255,255,0.65); transition: color 0.2s ease; }
-.breadcrumb a:hover { color: var(--gold); }
-.breadcrumb [aria-current="page"] { color: rgba(255,255,255,0.95); font-weight: 700; }
-.breadcrumb [aria-current="step"] { color: rgba(255,255,255,0.85); }
+.breadcrumb li { display: inline-flex; align-items: center; gap: 0.5rem; color: var(--text-body); }
+.breadcrumb li + li::before { content: '\203A'; color: var(--accent-ink); font-size: 0.95rem; line-height: 1; padding-right: 0.25rem; }
+.breadcrumb a { color: var(--text-body); transition: color 0.2s ease; }
+.breadcrumb a:hover { color: var(--accent); }
+.breadcrumb [aria-current="page"] { color: var(--navy); font-weight: 700; }
+.breadcrumb [aria-current="step"] { color: var(--text-body); }
 
 
 /* ==========================================================================
-   Hero Animation — STRUCTURING SEQUENCE (12s cycle)
+   Hero Animation — STRUCTURING SEQUENCE (12s cycle) — ON WHITE CARD
    The 5th distinct hero mechanism in the series. Visually distinguished
    from AI Ingestion's transformation field by:
-     - NOT a single wide gold column. Instead THREE slim gold governance
+     - NOT a single wide column. Instead THREE slim bronze governance
        rails (classification / retention / permissions), each its own
        vertical line with a tiny rail label.
      - The structuring "work" is the focal doc receiving a bundled
        3-chip metadata badge AS A SINGLE UNIT (Cole constraint #5).
      - Right side is a LABELED records environment (records in neat rows
-       with tiny gold classification labels beside them), not an indexed
-       4x4 grid of identical glyphs.
+       with tiny burgundy classification labels beside them).
 
-   Cole's 5 non-negotiable constraints:
-     1. Element density ceiling: 4 active focal points max. The 12-15
-        substrate document glyphs drift AS A GROUP (single CSS transform
-        on the parent <g>). They never animate individually.
-     2. Icon vocabulary consistency: hero document glyphs use the SAME
-        silhouette as ph-file-text in the Process Diagram (Step 04
-        "Document Governance" + matches AI Ingestion hero + Data Migration
-        hero — series cross-page lock).
-     3. Color discipline: navy + gold only. State separation
-        (unstructured → in-band → structured) via opacity only.
-        Unsorted = lighter navy (white-on-navy at low opacity);
-        structured = gold-tinted fill + gold stroke.
-     4. Reduced-motion fallback: static composite with all three stages
-        drawn simultaneously (scattered left, one mid-process between the
-        three governance rails with bundle visible, labeled records grid
-        fully populated inside the M365 tenant boundary).
-     5. Metadata tag bundling: the three governance chips (classification
-        chip, retention pill, permissions marker) animate as ONE bundled
-        composite unit beside the focal doc. They share one container <g>,
-        one opacity transition, one position. Counted as ONE focal point.
-
-   Stage geometry (viewBox 600x360):
-     LEFT third  (x: 30..220)   — 14 substrate document glyphs, drifting
-                                  as group at random rotations
-     MIDDLE third (x: 240..380) — Three slim gold governance rails at
-                                  x=260, x=305, x=350 (rail labels CLS,
-                                  RET, ACL). One focal document mid-process.
-                                  Bundled 3-chip badge beside focal doc.
-     RIGHT third (x: 400..570)  — M365 tenant boundary (dashed navy hairline)
-                                  + 4 rows x 4 cols of labeled records,
-                                  each record has a tiny gold class chip
-                                  beside it. Bottom label: "Structured."
-
-   The focal cycle (3s per pass, 4 passes per 12s cycle):
-     0.00..0.20  — substrate edge → rails entry (left to x=255)
-     0.20..0.32  — focal at classification rail (CLS), chip 1 of bundle
-                   appears
-     0.32..0.44  — focal at retention rail (RET), chip 2 appears
-                   (bundle now 2 of 3 visible — but per Cole #5 the bundle
-                   is treated as one unit, so all 3 chips fade in together
-                   between passT 0.22..0.30, hold, fade out together
-                   between passT 0.58..0.66)
-     0.20..0.66  — bundle visible together (composite badge: 3 chips stacked)
-     0.66..0.88  — focal exits rails to right, lands in a labeled records
-                   slot
-     0.88..1.00  — settled focal ring on the record's slot
-     Repeat.
-
-   The substrate group drift: ONE CSS-driven translateX animation, very
-   slow (~6px range over 12s, sinusoidal). Documents themselves are
-   static within the group.
+   WHITE-CARD CONVERSION (2026-06-18): the frame flips from the dark glass card
+   to a WHITE card (OneForm .cinema-stage model). On white, navy carries STRUCTURE
+   (grid, substrate docs, tenant boundary), bronze carries ACTION (rails, settled
+   docs, focal outline, labels — alphas bumped so bronze holds on white), and the
+   deep-navy bundle badge stays dark (the ONE intentional dark element).
    ========================================================================== */
 .hero-story { position: relative; width: 100%; max-width: 560px; margin-left: auto; opacity: 0; transform: translateY(10px); transition: opacity 700ms cubic-bezier(0.4,0,0.2,1), transform 700ms cubic-bezier(0.4,0,0.2,1); }
 .hero-story.is-visible { opacity: 1; transform: translateY(0); }
+/* White card (OneForm .cinema-stage model). The card is OPAQUE, so the burgundy→light
+   gradient behind it never bleeds through; the animation's contrast context is the white
+   card. The card visually bridges the gradient (burgundy above / light below) — a feature. */
 .hero-story-frame {
   position: relative;
-  background: rgba(255,255,255,0.04);
-  border: 1px solid rgba(255,255,255,0.10);
+  background: var(--white);
+  border: 1px solid rgba(37,66,107,0.12);
   border-radius: 14px;
   padding: 1.25rem 1rem 1rem;
-  backdrop-filter: blur(6px);
-  -webkit-backdrop-filter: blur(6px);
+  box-shadow: 0 20px 60px rgba(37,66,107,0.10), 0 1px 3px rgba(37,66,107,0.06);
 }
 .hero-story-frame::before {
   content: '';
   position: absolute;
   top: 0; left: 0; right: 0; height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(229,166,48,0.5), transparent);
+  background: linear-gradient(90deg, transparent, rgba(122,84,24,0.6), transparent);
 }
 .hero-story-svg { width: 100%; height: auto; display: block; aspect-ratio: 600 / 360; }
 .hero-story-legend {
   display: flex; justify-content: space-between; align-items: center;
   margin-top: 0.6rem; padding: 0 0.25rem;
   font-size: 0.62rem; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase;
-  color: rgba(255,255,255,0.62);
+  color: var(--text-body);
 }
 .hero-story-legend span { display: inline-flex; align-items: center; gap: 0.35rem; }
 .hero-story-legend .dot {
   display: inline-block; width: 6px; height: 6px; border-radius: 50%;
-  background: var(--gold); box-shadow: 0 0 6px rgba(229,166,48,0.7);
+  background: var(--accent);
 }
-.hero-caption { margin-top: 1.1rem; font-size: 0.82rem; line-height: 1.55; color: rgba(255,255,255,0.62); font-style: italic; }
+/* Caption — sits BELOW the white card, in the lower/light zone of the hero, so slate stays legible. */
+.hero-caption { margin-top: 1.1rem; font-size: 0.82rem; line-height: 1.55; color: var(--text-body); font-style: italic; }
 
-/* ---- SVG element styling — navy + gold only, opacity carries state ---- */
+/* ---- SVG element styling — ON WHITE: navy carries structure, burgundy carries action ---- */
 
-/* Background grid */
-.cs-bg-grid { stroke: rgba(255,255,255,0.05); stroke-width: 1; }
+/* Background grid — STRUCTURE, navy faint grid (was white-on-navy) */
+.cs-bg-grid { stroke: rgba(37,66,107,0.06); stroke-width: 1; }
 
-/* Substrate document glyph — lighter navy, drifts as group */
+/* Substrate document glyph — STRUCTURE, muted gray-navy chips on white (dull but visible) */
 .cs-doc {
-  fill: rgba(255,255,255,0.10);
-  stroke: rgba(197,205,216,0.55);
+  fill: rgba(37,66,107,0.05);
+  stroke: rgba(124,136,150,0.6);
   stroke-width: 1;
 }
-.cs-doc-line { stroke: rgba(197,205,216,0.45); stroke-width: 0.8; }
+.cs-doc-line { stroke: rgba(124,136,150,0.5); stroke-width: 0.8; }
 
-/* Settled (labeled) document — gold-tinted, full saturation */
+/* Settled (labeled) document — ACTION/payoff, soft bronze fill + solid bronze stroke */
 .cs-doc-settled {
-  fill: rgba(229,166,48,0.10);
-  stroke: rgba(229,166,48,0.70);
+  fill: rgba(122,84,24,0.10);
+  stroke: var(--accent);
   stroke-width: 1;
 }
-.cs-doc-settled-line { stroke: rgba(229,166,48,0.55); stroke-width: 0.8; }
+.cs-doc-settled-line { stroke: rgba(122,84,24,0.7); stroke-width: 0.8; }
 
-/* Classification chip beside settled doc (tiny gold label) */
+/* Classification chip beside settled doc — ACTION, tiny solid bronze chip */
 .cs-settled-chip {
-  fill: rgba(229,166,48,0.85);
+  fill: var(--accent);
   stroke: none;
   rx: 2;
 }
 
-/* Focal document — currently being processed (full white/gold outline) */
+/* Focal document — being processed. HIGHEST-RISK on white: solid white fill + solid
+   bronze outline (the white-paper-on-white-card fix). */
 .cs-doc-focal {
-  fill: rgba(255,255,255,0.18);
-  stroke: var(--gold);
+  fill: var(--white);
+  stroke: var(--accent);
   stroke-width: 1.6;
 }
-.cs-doc-focal-line { stroke: rgba(229,166,48,0.85); stroke-width: 1; }
+.cs-doc-focal-line { stroke: rgba(122,84,24,0.85); stroke-width: 1; }
 
-/* Three governance rails (slim vertical gold lines + labels) */
+/* Three governance rails — ACTION, bronze dashed; alpha bumped 0.55→0.8 so the
+   CLS/RET/ACL trio reads clearly on white. */
 .cs-rail {
-  stroke: rgba(229,166,48,0.55);
+  stroke: rgba(122,84,24,0.8);
   stroke-width: 1.5;
   stroke-dasharray: 3 4;
   fill: none;
 }
 .cs-rail-pulse {
-  stroke: var(--gold);
+  stroke: var(--accent);
   stroke-width: 1.5;
   fill: none;
   opacity: 0;
 }
 .cs-rail-label {
-  fill: var(--gold);
+  fill: var(--accent-ink);
   font-size: 7.5px;
   font-weight: 700;
   letter-spacing: 1.2px;
@@ -200,9 +213,9 @@
   text-anchor: middle;
 }
 
-/* Governance band container label */
+/* Governance band container label — ACTION, full bronze-ink (0.65 alpha would dull below AA) */
 .cs-band-label {
-  fill: rgba(229,166,48,0.65);
+  fill: var(--accent-ink);
   font-size: 8px;
   font-weight: 700;
   letter-spacing: 1.5px;
@@ -211,28 +224,27 @@
   text-anchor: middle;
 }
 
-/* Governance band container outline — wraps all 3 rails (CLS, RET, ACL)
-   so the trio reads as a single composite region. Dashed gold hairline,
-   matches rail dasharray for vocabulary consistency. Added 2026-05-21
-   to resolve the perception that only the middle rail (RET) was "in"
-   the governance band and CLS/ACL were floating outside it. */
+/* Governance band container outline — wraps all 3 rails so the trio reads as a single
+   composite region. Dashed bronze hairline; alpha bumped 0.45→0.6 so the band reads
+   on white (the whole point of the band frame). */
 .cs-band-frame {
   fill: none;
-  stroke: rgba(229,166,48,0.45);
+  stroke: rgba(122,84,24,0.6);
   stroke-width: 1;
   stroke-dasharray: 3 4;
 }
 
-/* Bundled metadata badge (3 chips stacked vertically beside focal doc).
-   Per Cole constraint #5: this is a SINGLE composite focal unit. The three
-   chips share one container <g>, one opacity transition, one position. */
+/* Bundled metadata badge — ACTION, deep-navy badge. KEPT deep-navy: the ONE intentional
+   dark element, anchors the "structuring work" and reads great on white (mirrors
+   SharePoint's deep-navy M365 pill). TEXT/ICON = WHITE: bronze text on this dark navy
+   fill collided (#7A5418 on #1a2c42 ≈ 2.07:1, unreadable). White lifts to ~14:1. */
 .cs-bundle-rect {
   fill: var(--deep-navy);
-  stroke: var(--gold);
+  stroke: var(--accent);
   stroke-width: 1;
 }
 .cs-bundle-text {
-  fill: var(--gold);
+  fill: var(--white);
   font-size: 6.5px;
   font-weight: 700;
   letter-spacing: 0.6px;
@@ -241,18 +253,19 @@
   text-anchor: start;
 }
 .cs-bundle-icon {
-  fill: var(--gold);
+  fill: var(--white);
 }
 
-/* M365 tenant boundary (right side) — same vocabulary as AI Ingestion */
+/* M365 tenant boundary (right side) — STRUCTURE, flip white→navy boundary
+   (cross-page tenant signature; keep dasharray 3 4) */
 .cs-tenant {
   fill: none;
-  stroke: rgba(255,255,255,0.30);
+  stroke: rgba(37,66,107,0.30);
   stroke-width: 1;
   stroke-dasharray: 3 4;
 }
 .cs-tenant-label {
-  fill: rgba(255,255,255,0.55);
+  fill: var(--navy);
   font-size: 8px;
   font-weight: 700;
   letter-spacing: 1.5px;
@@ -261,10 +274,10 @@
   text-anchor: middle;
 }
 
-/* "Last settled" focal ring on the most recently labeled record */
+/* "Last settled" focal ring on the most recently labeled record — ACTION, burgundy pulse */
 .cs-settled-ring {
   fill: none;
-  stroke: var(--gold);
+  stroke: var(--accent);
   stroke-width: 1.2;
   opacity: 0;
 }
@@ -293,9 +306,10 @@
   75%  { transform: translateX(3px)  translateY(1.5px); }
   100% { transform: translateX(0)    translateY(0); }
 }
+/* Rail pulse — peak raised to 0.7 (was 0.65) so the pulse lands ≥0.7 on white */
 @keyframes cs-rail-pulse {
   0%, 100% { opacity: 0.15; }
-  50%      { opacity: 0.65; }
+  50%      { opacity: 0.7; }
 }
 
 /* Reduced motion — hide live stage, show static composite */
@@ -312,7 +326,7 @@
 .section.alt { background: var(--light); }
 .section.breathe { padding: 7rem 0; }
 .section-header { text-align: center; max-width: 760px; margin: 0 auto 2.5rem; }
-.section .section-eyebrow { display: block; font-size: 0.7rem; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; color: var(--gold); margin-bottom: 0.75rem; }
+.section .section-eyebrow { display: block; font-size: 0.7rem; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; color: var(--accent-ink); margin-bottom: 0.75rem; }
 .section h2 { font-size: clamp(1.6rem, 2.6vw, 2rem); font-weight: 700; line-height: 1.2; margin-bottom: 1rem; letter-spacing: -0.01em; color: var(--navy); }
 .section-header h2 { max-width: 760px; margin-left: auto; margin-right: auto; }
 .section-intro { font-size: 1.05rem; line-height: 1.75; color: var(--text-body); margin: 0 auto 0; max-width: 640px; }
@@ -326,11 +340,11 @@
    AI Ingestion + Data Migration hero glyphs for series consistency).
    ========================================================================== */
 .steps { display: grid; grid-template-columns: repeat(5, 1fr); gap: 1rem; margin: 1.5rem 0 1.75rem; position: relative; list-style: none; padding: 0; }
-.steps::before { content: ''; position: absolute; top: 66px; left: calc(10% + 18px); right: calc(10% + 18px); height: 2px; background: linear-gradient(to right, rgba(229,166,48,0.45), rgba(229,166,48,0.45) 80%, rgba(229,166,48,0.10)); z-index: 0; pointer-events: none; }
+.steps::before { content: ''; position: absolute; top: 66px; left: calc(10% + 18px); right: calc(10% + 18px); height: 2px; background: linear-gradient(to right, rgba(122,84,24,0.45), rgba(122,84,24,0.45) 80%, rgba(122,84,24,0.10)); z-index: 0; pointer-events: none; }
 .step { position: relative; z-index: 1; display: flex; flex-direction: column; align-items: flex-start; }
-.step-icon { display: inline-flex; align-items: center; justify-content: center; width: 48px; height: 48px; border-radius: 8px; background: rgba(229,166,48,0.10); margin-bottom: 0.5rem; }
+.step-icon { display: inline-flex; align-items: center; justify-content: center; width: 48px; height: 48px; border-radius: 8px; background: rgba(122,84,24,0.10); margin-bottom: 0.5rem; }
 .step-icon i { font-size: 28px; color: var(--navy); line-height: 1; }
-.step-num { display: inline-flex; align-items: center; justify-content: center; width: 36px; height: 36px; border-radius: 50%; background: var(--gold); color: var(--deep-navy); font-size: 0.78rem; font-weight: 700; letter-spacing: 0.02em; margin-bottom: 0.85rem; box-shadow: 0 0 0 4px var(--white); }
+.step-num { display: inline-flex; align-items: center; justify-content: center; width: 36px; height: 36px; border-radius: 50%; background: var(--accent); color: #FFFFFF; font-size: 0.78rem; font-weight: 700; letter-spacing: 0.02em; margin-bottom: 0.85rem; box-shadow: 0 0 0 4px var(--white); }
 .step-label { font-size: 0.82rem; font-weight: 700; color: var(--navy); letter-spacing: 0.02em; text-transform: uppercase; margin-bottom: 0.4rem; }
 .step-copy { font-size: 0.88rem; line-height: 1.55; color: var(--text-body); margin: 0; }
 
@@ -357,7 +371,7 @@
 .compare-col .compare-icon { display: inline-flex; align-items: center; justify-content: center; width: 48px; height: 48px; border-radius: 8px; margin-bottom: 0.25rem; }
 .compare-col.is-left .compare-icon { background: rgba(124,136,150,0.12); }
 .compare-col.is-left .compare-icon i { font-size: 28px; color: #7c8896; line-height: 1; }
-.compare-col.is-right .compare-icon { background: rgba(229,166,48,0.12); }
+.compare-col.is-right .compare-icon { background: rgba(122,84,24,0.12); }
 .compare-col.is-right .compare-icon i { font-size: 28px; color: var(--navy); line-height: 1; }
 .compare-col h3 { font-size: clamp(1.05rem, 1.6vw, 1.25rem); font-weight: 700; line-height: 1.25; letter-spacing: -0.005em; }
 .compare-col.is-left h3 { color: #7c8896; }
@@ -365,27 +379,20 @@
 .compare-col p { font-size: 0.98rem; line-height: 1.65; margin: 0; }
 .compare-col.is-left p { color: #7c8896; }
 .compare-col.is-right p { color: var(--text-body); }
-.compare-divider { width: 1px; background: linear-gradient(to bottom, transparent, var(--gold) 20%, var(--gold) 80%, transparent); margin: 0 1rem; min-height: 100%; }
+.compare-divider { width: 1px; background: linear-gradient(to bottom, transparent, var(--accent) 20%, var(--accent) 80%, transparent); margin: 0 1rem; min-height: 100%; }
 
-.compare-closer { max-width: 720px; margin: 2.5rem auto 0; text-align: center; padding: 1.25rem 1.5rem; border-top: 2px solid var(--gold); }
+.compare-closer { max-width: 720px; margin: 2.5rem auto 0; text-align: center; padding: 1.25rem 1.5rem; border-top: 2px solid var(--accent); }
 .compare-closer p { font-size: 1.1rem; line-height: 1.5; color: var(--navy); font-weight: 700; letter-spacing: -0.005em; margin: 0; }
 
 
 /* ==========================================================================
    SECTION 3 — Operational Infrastructure (TILE-GRID SCHEMATIC VARIANT)
    REUSES the .trust-strip-section / .trust-grid / .trust-tile pattern
-   from why-sytech.html verbatim. Zero new bespoke styling. Cole's lock:
-   the existing operational fact tiles ship as-is, framework-name-free,
-   in a "this is how we set up your compliance" framing.
-
-   Note: we restage as a centered section header (per subpage Section 11
-   center-alignment lock) so it matches the body-section header pattern
-   used elsewhere on the page. The .trust-grid + .trust-tile rules below
-   are imported verbatim — identical values to why-sytech.html.
+   from why-sytech.html verbatim. Zero new bespoke styling.
    ========================================================================== */
 .trust-strip-section { padding: 5rem 0; background: var(--white); border-top: 1px solid #E3E9EF; border-bottom: 1px solid rgba(37,66,107,0.08); }
 .trust-strip-section .section-header { text-align: center; max-width: 760px; margin: 0 auto 2.5rem; }
-.trust-strip-section .section-eyebrow { display: block; font-size: 0.7rem; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; color: var(--gold); margin-bottom: 0.75rem; }
+.trust-strip-section .section-eyebrow { display: block; font-size: 0.7rem; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; color: var(--accent-ink); margin-bottom: 0.75rem; }
 .trust-strip-section h2 { font-size: clamp(1.6rem, 2.6vw, 2rem); font-weight: 700; line-height: 1.2; margin-bottom: 1rem; letter-spacing: -0.01em; color: var(--navy); }
 .trust-strip-section .section-intro { font-size: 1.05rem; line-height: 1.75; color: var(--text-body); margin: 0 auto 0; max-width: 640px; }
 .trust-grid {
@@ -397,13 +404,13 @@
 .trust-tile {
   position: relative; padding: 1.25rem 1.25rem 1.25rem 1.5rem;
   background: var(--light); border-radius: 8px;
-  border-left: 3px solid var(--gold);
+  border-left: 3px solid var(--accent);
   display: flex; flex-direction: column; gap: 0.5rem;
   min-height: 110px;
 }
 .trust-tile .tile-num {
   font-size: 0.65rem; font-weight: 700; letter-spacing: 0.18em;
-  color: var(--gold); font-family: 'SF Mono', 'Consolas', 'Monaco', monospace;
+  color: var(--accent); font-family: 'SF Mono', 'Consolas', 'Monaco', monospace;
   text-transform: uppercase;
 }
 .trust-tile .tile-fact {
@@ -430,7 +437,7 @@
 /* ==========================================================================
    SECTION 4 — Editorial Pull-Quote (inherited verbatim)
    ========================================================================== */
-.archive-quote { max-width: 760px; margin: 0 auto; padding: 2rem 2.25rem; background: rgba(229,166,48,0.08); border-left: 4px solid var(--gold); border-radius: 4px; opacity: 0; transform: translateY(8px); transition: opacity 600ms cubic-bezier(0.4,0,0.2,1), transform 600ms cubic-bezier(0.4,0,0.2,1); }
+.archive-quote { max-width: 760px; margin: 0 auto; padding: 2rem 2.25rem; background: rgba(122,84,24,0.08); border-left: 4px solid var(--accent); border-radius: 4px; opacity: 0; transform: translateY(8px); transition: opacity 600ms cubic-bezier(0.4,0,0.2,1), transform 600ms cubic-bezier(0.4,0,0.2,1); }
 .archive-quote.is-visible { opacity: 1; transform: translateY(0); }
 .archive-quote p { font-size: 1.25rem; line-height: 1.5; color: var(--navy); font-weight: 700; margin: 0; letter-spacing: -0.005em; }
 
@@ -441,8 +448,8 @@
 .cta-strip { background: var(--navy); padding: 4rem 0; color: var(--white); text-align: center; }
 .cta-strip h2 { color: var(--white); font-size: clamp(1.5rem, 2.4vw, 2rem); margin-bottom: 1rem; max-width: 720px; margin-left: auto; margin-right: auto; }
 .cta-strip p { color: rgba(255,255,255,0.78); max-width: 640px; margin: 0 auto 1.75rem; line-height: 1.7; }
-.btn-primary { display: inline-block; padding: 0.85rem 2rem; background: var(--gold); color: var(--deep-navy); font-size: 0.95rem; font-weight: 700; border-radius: 6px; text-decoration: none; transition: all 0.3s; border: none; cursor: pointer; }
-.btn-primary:hover { background: #d4952a; transform: translateY(-2px); box-shadow: 0 6px 20px rgba(229,166,48,0.35); }
+.btn-primary { display: inline-block; padding: 0.85rem 2rem; background: var(--accent); color: var(--white); font-size: 0.95rem; font-weight: 700; border-radius: 6px; text-decoration: none; transition: all 0.3s; border: none; cursor: pointer; }
+.btn-primary:hover { background: var(--accent-ink); transform: translateY(-2px); box-shadow: 0 6px 20px rgba(122,84,24,0.35); }
 .btn-primary:focus-visible { outline: 3px solid var(--white); outline-offset: 3px; }
 
 
@@ -450,23 +457,26 @@
    Cross-Link (2-card variant — Archive Scanning + Data Migration)
    ========================================================================== */
 .cross-link { padding: 5rem 0; background: var(--light); text-align: center; }
-.cross-link .section-eyebrow { display: block; font-size: 0.7rem; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; color: var(--gold); margin-bottom: 0.75rem; }
+.cross-link .section-eyebrow { display: block; font-size: 0.7rem; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; color: var(--accent-ink); margin-bottom: 0.75rem; }
 .cross-link h2 { font-size: clamp(1.6rem, 2.6vw, 2rem); font-weight: 700; line-height: 1.2; margin-bottom: 2.5rem; letter-spacing: -0.01em; color: var(--navy); }
 .cross-link-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; max-width: 880px; margin: 0 auto 2rem; text-align: left; }
-.cross-link-card { display: flex; flex-direction: column; gap: 0.75rem; padding: 1.75rem 1.75rem 1.5rem; background: var(--white); border-left: 4px solid var(--gold); border-radius: 4px; box-shadow: 0 2px 8px rgba(37,66,107,0.04); transition: transform 300ms ease, box-shadow 300ms ease; text-decoration: none; }
+.cross-link-card { display: flex; flex-direction: column; gap: 0.75rem; padding: 1.75rem 1.75rem 1.5rem; background: var(--white); border-left: 4px solid var(--xlink-ui); border-radius: 4px; box-shadow: 0 2px 8px rgba(37,66,107,0.04); transition: transform 300ms ease, box-shadow 300ms ease; text-decoration: none; }
 .cross-link-card:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(37,66,107,0.10); }
-.cross-link-card:focus-visible { outline: 3px solid var(--gold); outline-offset: 3px; }
-.cross-link-card .card-eyebrow { font-size: 0.65rem; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; color: var(--gold); }
+.cross-link-card:focus-visible { outline: 3px solid var(--xlink-ui); outline-offset: 3px; }
+.cross-link-card .card-eyebrow { font-size: 0.65rem; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; color: var(--xlink-ink); }
 .cross-link-card h3 { font-size: clamp(1.15rem, 1.8vw, 1.35rem); font-weight: 700; color: var(--navy); line-height: 1.25; letter-spacing: -0.005em; position: relative; display: inline-block; }
-.cross-link-card h3::after { content: ''; position: absolute; bottom: -2px; left: 0; width: 0; height: 2px; background: var(--gold); transition: width 300ms ease; }
+.cross-link-card h3::after { content: ''; position: absolute; bottom: -2px; left: 0; width: 0; height: 2px; background: var(--xlink-ui); transition: width 300ms ease; }
 .cross-link-card:hover h3::after { width: 100%; }
 .cross-link-card p { font-size: 0.95rem; line-height: 1.65; color: var(--text-body); margin: 0; }
 .cross-link-card .card-arrow { margin-top: auto; display: inline-flex; align-items: center; gap: 0.4rem; font-size: 0.82rem; font-weight: 700; color: var(--navy); letter-spacing: 0.02em; padding-top: 0.5rem; }
 .cross-link-card .card-arrow i { font-size: 18px; transition: transform 300ms ease; }
-.cross-link-card:hover .card-arrow i { transform: translateX(4px); color: var(--gold); }
+.cross-link-card:hover .card-arrow i { transform: translateX(4px); color: var(--xlink-ui); }
+/* Destination color-coding — each cross-link card wears the accent of the page it LINKS TO (Compliance Setup links to Scanning + Data Migration). Values on white per spec §C. */
+.cross-link-card.dest-scanning        { --xlink-ui: #C2683A; --xlink-ink: #A8542B; }
+.cross-link-card.dest-data-migration  { --xlink-ui: #473C7A; --xlink-ink: #473C7A; }
 .cross-link-framework { display: inline-flex; align-items: center; gap: 0.4rem; font-size: 0.9rem; font-weight: 700; color: var(--navy); letter-spacing: 0.02em; position: relative; }
-.cross-link-framework::after { content: ''; position: absolute; bottom: -3px; left: 0; width: 100%; height: 2px; background: var(--gold); transform: scaleX(0); transform-origin: left; transition: transform 300ms ease; }
-.cross-link-framework:hover { color: var(--gold); }
+.cross-link-framework::after { content: ''; position: absolute; bottom: -3px; left: 0; width: 100%; height: 2px; background: var(--accent); transform: scaleX(0); transform-origin: left; transition: transform 300ms ease; }
+.cross-link-framework:hover { color: var(--accent); }
 .cross-link-framework:hover::after { transform: scaleX(1); }
 
 
@@ -624,6 +634,9 @@
      PAGE HERO — two-column with structuring-sequence animation
      ============================================================ -->
 <section class="page-hero">
+  <!-- Mouse-reactive navy dot field (interactive). Painted above the gradient background but
+       below .container. JS draws the resting grid and displaces dots near the cursor. -->
+  <canvas class="hero-dotfield" id="heroDotField" aria-hidden="true"></canvas>
   <div class="container">
     <div class="page-hero-grid">
       <div class="page-hero-copy">
@@ -656,41 +669,40 @@
 
               <!-- LEFT THIRD — Substrate document glyphs (drift as group via CSS).
                    14 documents at scattered positions and rotations, all using the
-                   .cs-doc styling (lighter navy at low opacity; Cole constraint #3
-                   — no third color, opacity carries unstructured state). -->
+                   .cs-doc styling (now muted gray-navy on white). -->
               <g id="csSubstrate" aria-hidden="true">
                 <!-- Column 1 -->
                 <g transform="translate(40,50) rotate(-12)">
                   <rect width="22" height="28" rx="1.5" class="cs-doc"/>
-                  <path d="M 14 0 L 14 8 L 22 8" fill="none" stroke="rgba(197,205,216,0.55)" stroke-width="1"/>
+                  <path d="M 14 0 L 14 8 L 22 8" fill="none" stroke="rgba(124,136,150,0.6)" stroke-width="1"/>
                   <line x1="4" y1="13" x2="17" y2="13" class="cs-doc-line"/>
                   <line x1="4" y1="17" x2="14" y2="17" class="cs-doc-line"/>
                   <line x1="4" y1="21" x2="17" y2="21" class="cs-doc-line"/>
                 </g>
                 <g transform="translate(75,105) rotate(8)">
                   <rect width="22" height="28" rx="1.5" class="cs-doc"/>
-                  <path d="M 14 0 L 14 8 L 22 8" fill="none" stroke="rgba(197,205,216,0.55)" stroke-width="1"/>
+                  <path d="M 14 0 L 14 8 L 22 8" fill="none" stroke="rgba(124,136,150,0.6)" stroke-width="1"/>
                   <line x1="4" y1="13" x2="17" y2="13" class="cs-doc-line"/>
                   <line x1="4" y1="17" x2="14" y2="17" class="cs-doc-line"/>
                   <line x1="4" y1="21" x2="17" y2="21" class="cs-doc-line"/>
                 </g>
                 <g transform="translate(35,160) rotate(-6)">
                   <rect width="22" height="28" rx="1.5" class="cs-doc"/>
-                  <path d="M 14 0 L 14 8 L 22 8" fill="none" stroke="rgba(197,205,216,0.55)" stroke-width="1"/>
+                  <path d="M 14 0 L 14 8 L 22 8" fill="none" stroke="rgba(124,136,150,0.6)" stroke-width="1"/>
                   <line x1="4" y1="13" x2="17" y2="13" class="cs-doc-line"/>
                   <line x1="4" y1="17" x2="14" y2="17" class="cs-doc-line"/>
                   <line x1="4" y1="21" x2="17" y2="21" class="cs-doc-line"/>
                 </g>
                 <g transform="translate(80,215) rotate(15)">
                   <rect width="22" height="28" rx="1.5" class="cs-doc"/>
-                  <path d="M 14 0 L 14 8 L 22 8" fill="none" stroke="rgba(197,205,216,0.55)" stroke-width="1"/>
+                  <path d="M 14 0 L 14 8 L 22 8" fill="none" stroke="rgba(124,136,150,0.6)" stroke-width="1"/>
                   <line x1="4" y1="13" x2="17" y2="13" class="cs-doc-line"/>
                   <line x1="4" y1="17" x2="14" y2="17" class="cs-doc-line"/>
                   <line x1="4" y1="21" x2="17" y2="21" class="cs-doc-line"/>
                 </g>
                 <g transform="translate(45,265) rotate(-10)">
                   <rect width="22" height="28" rx="1.5" class="cs-doc"/>
-                  <path d="M 14 0 L 14 8 L 22 8" fill="none" stroke="rgba(197,205,216,0.55)" stroke-width="1"/>
+                  <path d="M 14 0 L 14 8 L 22 8" fill="none" stroke="rgba(124,136,150,0.6)" stroke-width="1"/>
                   <line x1="4" y1="13" x2="17" y2="13" class="cs-doc-line"/>
                   <line x1="4" y1="17" x2="14" y2="17" class="cs-doc-line"/>
                   <line x1="4" y1="21" x2="17" y2="21" class="cs-doc-line"/>
@@ -699,28 +711,28 @@
                 <!-- Column 2 -->
                 <g transform="translate(125,65) rotate(11)">
                   <rect width="22" height="28" rx="1.5" class="cs-doc"/>
-                  <path d="M 14 0 L 14 8 L 22 8" fill="none" stroke="rgba(197,205,216,0.55)" stroke-width="1"/>
+                  <path d="M 14 0 L 14 8 L 22 8" fill="none" stroke="rgba(124,136,150,0.6)" stroke-width="1"/>
                   <line x1="4" y1="13" x2="17" y2="13" class="cs-doc-line"/>
                   <line x1="4" y1="17" x2="14" y2="17" class="cs-doc-line"/>
                   <line x1="4" y1="21" x2="17" y2="21" class="cs-doc-line"/>
                 </g>
                 <g transform="translate(155,125) rotate(-15)">
                   <rect width="22" height="28" rx="1.5" class="cs-doc"/>
-                  <path d="M 14 0 L 14 8 L 22 8" fill="none" stroke="rgba(197,205,216,0.55)" stroke-width="1"/>
+                  <path d="M 14 0 L 14 8 L 22 8" fill="none" stroke="rgba(124,136,150,0.6)" stroke-width="1"/>
                   <line x1="4" y1="13" x2="17" y2="13" class="cs-doc-line"/>
                   <line x1="4" y1="17" x2="14" y2="17" class="cs-doc-line"/>
                   <line x1="4" y1="21" x2="17" y2="21" class="cs-doc-line"/>
                 </g>
                 <g transform="translate(130,185) rotate(7)">
                   <rect width="22" height="28" rx="1.5" class="cs-doc"/>
-                  <path d="M 14 0 L 14 8 L 22 8" fill="none" stroke="rgba(197,205,216,0.55)" stroke-width="1"/>
+                  <path d="M 14 0 L 14 8 L 22 8" fill="none" stroke="rgba(124,136,150,0.6)" stroke-width="1"/>
                   <line x1="4" y1="13" x2="17" y2="13" class="cs-doc-line"/>
                   <line x1="4" y1="17" x2="14" y2="17" class="cs-doc-line"/>
                   <line x1="4" y1="21" x2="17" y2="21" class="cs-doc-line"/>
                 </g>
                 <g transform="translate(160,240) rotate(-8)">
                   <rect width="22" height="28" rx="1.5" class="cs-doc"/>
-                  <path d="M 14 0 L 14 8 L 22 8" fill="none" stroke="rgba(197,205,216,0.55)" stroke-width="1"/>
+                  <path d="M 14 0 L 14 8 L 22 8" fill="none" stroke="rgba(124,136,150,0.6)" stroke-width="1"/>
                   <line x1="4" y1="13" x2="17" y2="13" class="cs-doc-line"/>
                   <line x1="4" y1="17" x2="14" y2="17" class="cs-doc-line"/>
                   <line x1="4" y1="21" x2="17" y2="21" class="cs-doc-line"/>
@@ -729,52 +741,45 @@
                 <!-- Column 3 (closer to rails entry) -->
                 <g transform="translate(190,85) rotate(-9)">
                   <rect width="22" height="28" rx="1.5" class="cs-doc"/>
-                  <path d="M 14 0 L 14 8 L 22 8" fill="none" stroke="rgba(197,205,216,0.55)" stroke-width="1"/>
+                  <path d="M 14 0 L 14 8 L 22 8" fill="none" stroke="rgba(124,136,150,0.6)" stroke-width="1"/>
                   <line x1="4" y1="13" x2="17" y2="13" class="cs-doc-line"/>
                   <line x1="4" y1="17" x2="14" y2="17" class="cs-doc-line"/>
                   <line x1="4" y1="21" x2="17" y2="21" class="cs-doc-line"/>
                 </g>
                 <g transform="translate(185,145) rotate(6)">
                   <rect width="22" height="28" rx="1.5" class="cs-doc"/>
-                  <path d="M 14 0 L 14 8 L 22 8" fill="none" stroke="rgba(197,205,216,0.55)" stroke-width="1"/>
+                  <path d="M 14 0 L 14 8 L 22 8" fill="none" stroke="rgba(124,136,150,0.6)" stroke-width="1"/>
                   <line x1="4" y1="13" x2="17" y2="13" class="cs-doc-line"/>
                   <line x1="4" y1="17" x2="14" y2="17" class="cs-doc-line"/>
                   <line x1="4" y1="21" x2="17" y2="21" class="cs-doc-line"/>
                 </g>
                 <g transform="translate(195,210) rotate(-14)">
                   <rect width="22" height="28" rx="1.5" class="cs-doc"/>
-                  <path d="M 14 0 L 14 8 L 22 8" fill="none" stroke="rgba(197,205,216,0.55)" stroke-width="1"/>
+                  <path d="M 14 0 L 14 8 L 22 8" fill="none" stroke="rgba(124,136,150,0.6)" stroke-width="1"/>
                   <line x1="4" y1="13" x2="17" y2="13" class="cs-doc-line"/>
                   <line x1="4" y1="17" x2="14" y2="17" class="cs-doc-line"/>
                   <line x1="4" y1="21" x2="17" y2="21" class="cs-doc-line"/>
                 </g>
                 <g transform="translate(180,265) rotate(10)">
                   <rect width="22" height="28" rx="1.5" class="cs-doc"/>
-                  <path d="M 14 0 L 14 8 L 22 8" fill="none" stroke="rgba(197,205,216,0.55)" stroke-width="1"/>
+                  <path d="M 14 0 L 14 8 L 22 8" fill="none" stroke="rgba(124,136,150,0.6)" stroke-width="1"/>
                   <line x1="4" y1="13" x2="17" y2="13" class="cs-doc-line"/>
                   <line x1="4" y1="17" x2="14" y2="17" class="cs-doc-line"/>
                   <line x1="4" y1="21" x2="17" y2="21" class="cs-doc-line"/>
                 </g>
                 <g transform="translate(60,295) rotate(5)">
                   <rect width="22" height="28" rx="1.5" class="cs-doc"/>
-                  <path d="M 14 0 L 14 8 L 22 8" fill="none" stroke="rgba(197,205,216,0.55)" stroke-width="1"/>
+                  <path d="M 14 0 L 14 8 L 22 8" fill="none" stroke="rgba(124,136,150,0.6)" stroke-width="1"/>
                   <line x1="4" y1="13" x2="17" y2="13" class="cs-doc-line"/>
                   <line x1="4" y1="17" x2="14" y2="17" class="cs-doc-line"/>
                   <line x1="4" y1="21" x2="17" y2="21" class="cs-doc-line"/>
                 </g>
 
-                <!-- Substrate label (subtle, low-opacity) -->
-                <text class="cs-tenant-label" x="115" y="340" style="fill: rgba(197,205,216,0.45);">Unstructured</text>
+                <!-- Substrate label (subtle, low-opacity gray-navy on white) -->
+                <text class="cs-tenant-label" x="115" y="340" style="fill: rgba(124,136,150,0.7);">Unstructured</text>
               </g>
 
-              <!-- MIDDLE THIRD — Three governance rails + band label + band frame.
-                   Three slim vertical gold rails: CLS (x=260), RET (x=305), ACL (x=350).
-                   Wrapped in a dashed-gold container outline (cs-band-frame) so the
-                   trio reads as a single composite "governance band" region. Frame
-                   spans x=242..368 (17px padding before CLS rail, 18px after ACL rail),
-                   y=60..318 (just below the eyebrow label, just above the rail labels).
-                   Eyebrow text x=305 sits centered within the new container.
-                   Cole constraint #3 holds: gold only. -->
+              <!-- MIDDLE THIRD — Three governance rails + band label + band frame. -->
               <g aria-hidden="true">
                 <!-- Band container outline (wraps all 3 rails) -->
                 <rect class="cs-band-frame" x="242" y="60" width="126" height="258" rx="8"/>
@@ -799,65 +804,53 @@
               </g>
 
               <!-- Focal document — animated by JS each frame.
-                   Moves left→right across viewBox x: 220 → 410, y: 180 (center band).
-                   Traverses the three rails in sequence; bundle appears beside it
-                   for the duration of the rail traversal. -->
+                   On white: solid white fill + solid bronze outline (the focal-doc fix). -->
               <g id="csFocalGroup" transform="translate(220,180) rotate(0)">
                 <rect x="0" y="0" width="22" height="28" rx="1.5"
-                      fill="rgba(255,255,255,0.18)" stroke="rgba(229,166,48,0.85)" stroke-width="1.6"/>
-                <path d="M 14 0 L 14 8 L 22 8" fill="none" stroke="rgba(229,166,48,0.85)" stroke-width="1.4"/>
-                <line x1="4" y1="13" x2="17" y2="13" stroke="rgba(229,166,48,0.85)" stroke-width="1"/>
-                <line x1="4" y1="17" x2="14" y2="17" stroke="rgba(229,166,48,0.85)" stroke-width="1"/>
-                <line x1="4" y1="21" x2="17" y2="21" stroke="rgba(229,166,48,0.85)" stroke-width="1"/>
+                      fill="#FFFFFF" stroke="rgba(122,84,24,0.85)" stroke-width="1.6"/>
+                <path d="M 14 0 L 14 8 L 22 8" fill="none" stroke="rgba(122,84,24,0.85)" stroke-width="1.4"/>
+                <line x1="4" y1="13" x2="17" y2="13" stroke="rgba(122,84,24,0.85)" stroke-width="1"/>
+                <line x1="4" y1="17" x2="14" y2="17" stroke="rgba(122,84,24,0.85)" stroke-width="1"/>
+                <line x1="4" y1="21" x2="17" y2="21" stroke="rgba(122,84,24,0.85)" stroke-width="1"/>
               </g>
 
               <!-- Bundled metadata badge — Cole constraint #5: ONE composite focal unit.
-                   Three chips stacked vertically beside the focal doc, sharing a
-                   single container <g>, single opacity transition, single position.
-                   Chip 1: classification (type), Chip 2: retention (years),
-                   Chip 3: permissions (lock). -->
+                   Deep-navy badge with burgundy text — kept dark on white (the ONE intentional
+                   dark element). -->
               <g id="csBundleGroup" transform="translate(380,170)" opacity="0">
                 <!-- Chip 1 — Classification -->
-                <rect class="cs-bundle-rect" x="0" y="0" width="56" height="11" rx="5.5"/>
+                <rect class="cs-bundle-rect" x="0" y="0" width="78" height="11" rx="5.5"/>
                 <text class="cs-bundle-text" x="5" y="7.6">CLS</text>
                 <text class="cs-bundle-text" x="22" y="7.6" style="font-weight: 400; letter-spacing: 0.3px;" id="csBundleChip1">personnel</text>
 
                 <!-- Chip 2 — Retention -->
-                <rect class="cs-bundle-rect" x="0" y="14" width="56" height="11" rx="5.5"/>
+                <rect class="cs-bundle-rect" x="0" y="14" width="78" height="11" rx="5.5"/>
                 <text class="cs-bundle-text" x="5" y="21.6">RET</text>
                 <text class="cs-bundle-text" x="22" y="21.6" style="font-weight: 400; letter-spacing: 0.3px;" id="csBundleChip2">7yr</text>
 
                 <!-- Chip 3 — Permissions (lock icon) -->
-                <rect class="cs-bundle-rect" x="0" y="28" width="56" height="11" rx="5.5"/>
+                <rect class="cs-bundle-rect" x="0" y="28" width="78" height="11" rx="5.5"/>
                 <text class="cs-bundle-text" x="5" y="35.6">ACL</text>
-                <!-- Small Phosphor-style lock icon (simplified shape, gold) -->
+                <!-- Small Phosphor-style lock icon (simplified shape, bronze) -->
                 <g transform="translate(22,30.5)" class="cs-bundle-icon">
                   <rect x="0" y="2" width="6" height="5" rx="0.6"/>
-                  <path d="M 1 2 V 1.2 A 2 2 0 0 1 5 1.2 V 2" fill="none" stroke="rgba(229,166,48,0.9)" stroke-width="0.7"/>
+                  <path d="M 1 2 V 1.2 A 2 2 0 0 1 5 1.2 V 2" fill="none" stroke="#FFFFFF" stroke-width="0.7"/>
                 </g>
                 <text class="cs-bundle-text" x="30" y="35.6" style="font-weight: 400; letter-spacing: 0.3px;" id="csBundleChip3">role: hr</text>
               </g>
 
-              <!-- RIGHT THIRD — M365 tenant boundary + labeled records environment.
-                   4 rows x 4 cols of records inside the tenant boundary. Each
-                   record has a tiny gold class chip beside it (operational
-                   detail that says "labeled," not just "stored"). Cole
-                   constraint #3 holds: gold-tinted fills + gold strokes,
-                   no third color. -->
+              <!-- RIGHT THIRD — M365 tenant boundary + labeled records environment. -->
               <g aria-hidden="true">
                 <!-- M365 tenant boundary -->
                 <rect class="cs-tenant" x="410" y="50" width="170" height="270" rx="10"/>
                 <text class="cs-tenant-label" x="495" y="68">Microsoft 365 Tenant</text>
 
-                <!-- 4x4 labeled records grid.
-                     Each cell: doc (22x28) + tiny chip (10x4) to its right.
-                     Cell width 38, height 50, gap 8.
-                     Grid starts at x=425, y=82. -->
+                <!-- 4x4 labeled records grid. -->
 
                 <!-- Row 1 -->
                 <g transform="translate(425,82)">
                   <rect width="22" height="28" rx="1.5" class="cs-doc-settled"/>
-                  <path d="M 14 0 L 14 8 L 22 8" fill="none" stroke="rgba(229,166,48,0.70)" stroke-width="1"/>
+                  <path d="M 14 0 L 14 8 L 22 8" fill="none" stroke="var(--accent)" stroke-width="1"/>
                   <line x1="4" y1="13" x2="17" y2="13" class="cs-doc-settled-line"/>
                   <line x1="4" y1="17" x2="14" y2="17" class="cs-doc-settled-line"/>
                   <line x1="4" y1="21" x2="17" y2="21" class="cs-doc-settled-line"/>
@@ -865,7 +858,7 @@
                 </g>
                 <g transform="translate(463,82)">
                   <rect width="22" height="28" rx="1.5" class="cs-doc-settled"/>
-                  <path d="M 14 0 L 14 8 L 22 8" fill="none" stroke="rgba(229,166,48,0.70)" stroke-width="1"/>
+                  <path d="M 14 0 L 14 8 L 22 8" fill="none" stroke="var(--accent)" stroke-width="1"/>
                   <line x1="4" y1="13" x2="17" y2="13" class="cs-doc-settled-line"/>
                   <line x1="4" y1="17" x2="14" y2="17" class="cs-doc-settled-line"/>
                   <line x1="4" y1="21" x2="17" y2="21" class="cs-doc-settled-line"/>
@@ -873,7 +866,7 @@
                 </g>
                 <g transform="translate(501,82)">
                   <rect width="22" height="28" rx="1.5" class="cs-doc-settled"/>
-                  <path d="M 14 0 L 14 8 L 22 8" fill="none" stroke="rgba(229,166,48,0.70)" stroke-width="1"/>
+                  <path d="M 14 0 L 14 8 L 22 8" fill="none" stroke="var(--accent)" stroke-width="1"/>
                   <line x1="4" y1="13" x2="17" y2="13" class="cs-doc-settled-line"/>
                   <line x1="4" y1="17" x2="14" y2="17" class="cs-doc-settled-line"/>
                   <line x1="4" y1="21" x2="17" y2="21" class="cs-doc-settled-line"/>
@@ -881,7 +874,7 @@
                 </g>
                 <g transform="translate(539,82)">
                   <rect width="22" height="28" rx="1.5" class="cs-doc-settled"/>
-                  <path d="M 14 0 L 14 8 L 22 8" fill="none" stroke="rgba(229,166,48,0.70)" stroke-width="1"/>
+                  <path d="M 14 0 L 14 8 L 22 8" fill="none" stroke="var(--accent)" stroke-width="1"/>
                   <line x1="4" y1="13" x2="17" y2="13" class="cs-doc-settled-line"/>
                   <line x1="4" y1="17" x2="14" y2="17" class="cs-doc-settled-line"/>
                   <line x1="4" y1="21" x2="17" y2="21" class="cs-doc-settled-line"/>
@@ -890,7 +883,7 @@
                 <!-- Row 2 -->
                 <g transform="translate(425,134)">
                   <rect width="22" height="28" rx="1.5" class="cs-doc-settled"/>
-                  <path d="M 14 0 L 14 8 L 22 8" fill="none" stroke="rgba(229,166,48,0.70)" stroke-width="1"/>
+                  <path d="M 14 0 L 14 8 L 22 8" fill="none" stroke="var(--accent)" stroke-width="1"/>
                   <line x1="4" y1="13" x2="17" y2="13" class="cs-doc-settled-line"/>
                   <line x1="4" y1="17" x2="14" y2="17" class="cs-doc-settled-line"/>
                   <line x1="4" y1="21" x2="17" y2="21" class="cs-doc-settled-line"/>
@@ -898,7 +891,7 @@
                 </g>
                 <g transform="translate(463,134)">
                   <rect width="22" height="28" rx="1.5" class="cs-doc-settled"/>
-                  <path d="M 14 0 L 14 8 L 22 8" fill="none" stroke="rgba(229,166,48,0.70)" stroke-width="1"/>
+                  <path d="M 14 0 L 14 8 L 22 8" fill="none" stroke="var(--accent)" stroke-width="1"/>
                   <line x1="4" y1="13" x2="17" y2="13" class="cs-doc-settled-line"/>
                   <line x1="4" y1="17" x2="14" y2="17" class="cs-doc-settled-line"/>
                   <line x1="4" y1="21" x2="17" y2="21" class="cs-doc-settled-line"/>
@@ -906,7 +899,7 @@
                 </g>
                 <g transform="translate(501,134)">
                   <rect width="22" height="28" rx="1.5" class="cs-doc-settled"/>
-                  <path d="M 14 0 L 14 8 L 22 8" fill="none" stroke="rgba(229,166,48,0.70)" stroke-width="1"/>
+                  <path d="M 14 0 L 14 8 L 22 8" fill="none" stroke="var(--accent)" stroke-width="1"/>
                   <line x1="4" y1="13" x2="17" y2="13" class="cs-doc-settled-line"/>
                   <line x1="4" y1="17" x2="14" y2="17" class="cs-doc-settled-line"/>
                   <line x1="4" y1="21" x2="17" y2="21" class="cs-doc-settled-line"/>
@@ -914,7 +907,7 @@
                 </g>
                 <g transform="translate(539,134)">
                   <rect width="22" height="28" rx="1.5" class="cs-doc-settled"/>
-                  <path d="M 14 0 L 14 8 L 22 8" fill="none" stroke="rgba(229,166,48,0.70)" stroke-width="1"/>
+                  <path d="M 14 0 L 14 8 L 22 8" fill="none" stroke="var(--accent)" stroke-width="1"/>
                   <line x1="4" y1="13" x2="17" y2="13" class="cs-doc-settled-line"/>
                   <line x1="4" y1="17" x2="14" y2="17" class="cs-doc-settled-line"/>
                   <line x1="4" y1="21" x2="17" y2="21" class="cs-doc-settled-line"/>
@@ -923,7 +916,7 @@
                 <!-- Row 3 -->
                 <g transform="translate(425,186)">
                   <rect width="22" height="28" rx="1.5" class="cs-doc-settled"/>
-                  <path d="M 14 0 L 14 8 L 22 8" fill="none" stroke="rgba(229,166,48,0.70)" stroke-width="1"/>
+                  <path d="M 14 0 L 14 8 L 22 8" fill="none" stroke="var(--accent)" stroke-width="1"/>
                   <line x1="4" y1="13" x2="17" y2="13" class="cs-doc-settled-line"/>
                   <line x1="4" y1="17" x2="14" y2="17" class="cs-doc-settled-line"/>
                   <line x1="4" y1="21" x2="17" y2="21" class="cs-doc-settled-line"/>
@@ -931,7 +924,7 @@
                 </g>
                 <g transform="translate(463,186)">
                   <rect width="22" height="28" rx="1.5" class="cs-doc-settled"/>
-                  <path d="M 14 0 L 14 8 L 22 8" fill="none" stroke="rgba(229,166,48,0.70)" stroke-width="1"/>
+                  <path d="M 14 0 L 14 8 L 22 8" fill="none" stroke="var(--accent)" stroke-width="1"/>
                   <line x1="4" y1="13" x2="17" y2="13" class="cs-doc-settled-line"/>
                   <line x1="4" y1="17" x2="14" y2="17" class="cs-doc-settled-line"/>
                   <line x1="4" y1="21" x2="17" y2="21" class="cs-doc-settled-line"/>
@@ -939,7 +932,7 @@
                 </g>
                 <g transform="translate(501,186)">
                   <rect width="22" height="28" rx="1.5" class="cs-doc-settled"/>
-                  <path d="M 14 0 L 14 8 L 22 8" fill="none" stroke="rgba(229,166,48,0.70)" stroke-width="1"/>
+                  <path d="M 14 0 L 14 8 L 22 8" fill="none" stroke="var(--accent)" stroke-width="1"/>
                   <line x1="4" y1="13" x2="17" y2="13" class="cs-doc-settled-line"/>
                   <line x1="4" y1="17" x2="14" y2="17" class="cs-doc-settled-line"/>
                   <line x1="4" y1="21" x2="17" y2="21" class="cs-doc-settled-line"/>
@@ -947,7 +940,7 @@
                 </g>
                 <g transform="translate(539,186)">
                   <rect width="22" height="28" rx="1.5" class="cs-doc-settled"/>
-                  <path d="M 14 0 L 14 8 L 22 8" fill="none" stroke="rgba(229,166,48,0.70)" stroke-width="1"/>
+                  <path d="M 14 0 L 14 8 L 22 8" fill="none" stroke="var(--accent)" stroke-width="1"/>
                   <line x1="4" y1="13" x2="17" y2="13" class="cs-doc-settled-line"/>
                   <line x1="4" y1="17" x2="14" y2="17" class="cs-doc-settled-line"/>
                   <line x1="4" y1="21" x2="17" y2="21" class="cs-doc-settled-line"/>
@@ -956,7 +949,7 @@
                 <!-- Row 4 -->
                 <g transform="translate(425,238)">
                   <rect width="22" height="28" rx="1.5" class="cs-doc-settled"/>
-                  <path d="M 14 0 L 14 8 L 22 8" fill="none" stroke="rgba(229,166,48,0.70)" stroke-width="1"/>
+                  <path d="M 14 0 L 14 8 L 22 8" fill="none" stroke="var(--accent)" stroke-width="1"/>
                   <line x1="4" y1="13" x2="17" y2="13" class="cs-doc-settled-line"/>
                   <line x1="4" y1="17" x2="14" y2="17" class="cs-doc-settled-line"/>
                   <line x1="4" y1="21" x2="17" y2="21" class="cs-doc-settled-line"/>
@@ -964,7 +957,7 @@
                 </g>
                 <g transform="translate(463,238)">
                   <rect width="22" height="28" rx="1.5" class="cs-doc-settled"/>
-                  <path d="M 14 0 L 14 8 L 22 8" fill="none" stroke="rgba(229,166,48,0.70)" stroke-width="1"/>
+                  <path d="M 14 0 L 14 8 L 22 8" fill="none" stroke="var(--accent)" stroke-width="1"/>
                   <line x1="4" y1="13" x2="17" y2="13" class="cs-doc-settled-line"/>
                   <line x1="4" y1="17" x2="14" y2="17" class="cs-doc-settled-line"/>
                   <line x1="4" y1="21" x2="17" y2="21" class="cs-doc-settled-line"/>
@@ -972,7 +965,7 @@
                 </g>
                 <g transform="translate(501,238)">
                   <rect width="22" height="28" rx="1.5" class="cs-doc-settled"/>
-                  <path d="M 14 0 L 14 8 L 22 8" fill="none" stroke="rgba(229,166,48,0.70)" stroke-width="1"/>
+                  <path d="M 14 0 L 14 8 L 22 8" fill="none" stroke="var(--accent)" stroke-width="1"/>
                   <line x1="4" y1="13" x2="17" y2="13" class="cs-doc-settled-line"/>
                   <line x1="4" y1="17" x2="14" y2="17" class="cs-doc-settled-line"/>
                   <line x1="4" y1="21" x2="17" y2="21" class="cs-doc-settled-line"/>
@@ -980,14 +973,14 @@
                 </g>
                 <g transform="translate(539,238)">
                   <rect width="22" height="28" rx="1.5" class="cs-doc-settled"/>
-                  <path d="M 14 0 L 14 8 L 22 8" fill="none" stroke="rgba(229,166,48,0.70)" stroke-width="1"/>
+                  <path d="M 14 0 L 14 8 L 22 8" fill="none" stroke="var(--accent)" stroke-width="1"/>
                   <line x1="4" y1="13" x2="17" y2="13" class="cs-doc-settled-line"/>
                   <line x1="4" y1="17" x2="14" y2="17" class="cs-doc-settled-line"/>
                   <line x1="4" y1="21" x2="17" y2="21" class="cs-doc-settled-line"/>
                 </g>
 
                 <!-- "Structured" sublabel at bottom of tenant -->
-                <text class="cs-tenant-label" x="495" y="308" style="fill: rgba(229,166,48,0.65);">Structured</text>
+                <text class="cs-tenant-label" x="495" y="308" style="fill: var(--accent-ink);">Structured</text>
               </g>
 
               <!-- Last-settled focal ring — JS positions this over a grid slot when
@@ -996,23 +989,20 @@
 
             </g>
 
-            <!-- STATIC SCENE — shown only under prefers-reduced-motion.
-                 Full composite illustration with all three stages rendered
-                 simultaneously: substrate (scattered left), focal mid-rails
-                 with bundle visible, labeled records grid fully populated. -->
+            <!-- STATIC SCENE — shown only under prefers-reduced-motion. -->
             <g id="csStaticScene">
 
               <!-- Substrate (static positions) -->
               <g>
-                <g transform="translate(40,50) rotate(-12)"><rect width="22" height="28" rx="1.5" class="cs-doc"/><path d="M 14 0 L 14 8 L 22 8" fill="none" stroke="rgba(197,205,216,0.55)" stroke-width="1"/><line x1="4" y1="13" x2="17" y2="13" class="cs-doc-line"/><line x1="4" y1="17" x2="14" y2="17" class="cs-doc-line"/><line x1="4" y1="21" x2="17" y2="21" class="cs-doc-line"/></g>
-                <g transform="translate(75,105) rotate(8)"><rect width="22" height="28" rx="1.5" class="cs-doc"/><path d="M 14 0 L 14 8 L 22 8" fill="none" stroke="rgba(197,205,216,0.55)" stroke-width="1"/><line x1="4" y1="13" x2="17" y2="13" class="cs-doc-line"/><line x1="4" y1="17" x2="14" y2="17" class="cs-doc-line"/><line x1="4" y1="21" x2="17" y2="21" class="cs-doc-line"/></g>
-                <g transform="translate(35,160) rotate(-6)"><rect width="22" height="28" rx="1.5" class="cs-doc"/><path d="M 14 0 L 14 8 L 22 8" fill="none" stroke="rgba(197,205,216,0.55)" stroke-width="1"/><line x1="4" y1="13" x2="17" y2="13" class="cs-doc-line"/><line x1="4" y1="17" x2="14" y2="17" class="cs-doc-line"/><line x1="4" y1="21" x2="17" y2="21" class="cs-doc-line"/></g>
-                <g transform="translate(80,215) rotate(15)"><rect width="22" height="28" rx="1.5" class="cs-doc"/><path d="M 14 0 L 14 8 L 22 8" fill="none" stroke="rgba(197,205,216,0.55)" stroke-width="1"/><line x1="4" y1="13" x2="17" y2="13" class="cs-doc-line"/><line x1="4" y1="17" x2="14" y2="17" class="cs-doc-line"/><line x1="4" y1="21" x2="17" y2="21" class="cs-doc-line"/></g>
-                <g transform="translate(125,65) rotate(11)"><rect width="22" height="28" rx="1.5" class="cs-doc"/><path d="M 14 0 L 14 8 L 22 8" fill="none" stroke="rgba(197,205,216,0.55)" stroke-width="1"/><line x1="4" y1="13" x2="17" y2="13" class="cs-doc-line"/><line x1="4" y1="17" x2="14" y2="17" class="cs-doc-line"/><line x1="4" y1="21" x2="17" y2="21" class="cs-doc-line"/></g>
-                <g transform="translate(155,185) rotate(7)"><rect width="22" height="28" rx="1.5" class="cs-doc"/><path d="M 14 0 L 14 8 L 22 8" fill="none" stroke="rgba(197,205,216,0.55)" stroke-width="1"/><line x1="4" y1="13" x2="17" y2="13" class="cs-doc-line"/><line x1="4" y1="17" x2="14" y2="17" class="cs-doc-line"/><line x1="4" y1="21" x2="17" y2="21" class="cs-doc-line"/></g>
-                <g transform="translate(190,85) rotate(-9)"><rect width="22" height="28" rx="1.5" class="cs-doc"/><path d="M 14 0 L 14 8 L 22 8" fill="none" stroke="rgba(197,205,216,0.55)" stroke-width="1"/><line x1="4" y1="13" x2="17" y2="13" class="cs-doc-line"/><line x1="4" y1="17" x2="14" y2="17" class="cs-doc-line"/><line x1="4" y1="21" x2="17" y2="21" class="cs-doc-line"/></g>
-                <g transform="translate(185,240) rotate(6)"><rect width="22" height="28" rx="1.5" class="cs-doc"/><path d="M 14 0 L 14 8 L 22 8" fill="none" stroke="rgba(197,205,216,0.55)" stroke-width="1"/><line x1="4" y1="13" x2="17" y2="13" class="cs-doc-line"/><line x1="4" y1="17" x2="14" y2="17" class="cs-doc-line"/><line x1="4" y1="21" x2="17" y2="21" class="cs-doc-line"/></g>
-                <text class="cs-tenant-label" x="115" y="340" style="fill: rgba(197,205,216,0.45);">Unstructured</text>
+                <g transform="translate(40,50) rotate(-12)"><rect width="22" height="28" rx="1.5" class="cs-doc"/><path d="M 14 0 L 14 8 L 22 8" fill="none" stroke="rgba(124,136,150,0.6)" stroke-width="1"/><line x1="4" y1="13" x2="17" y2="13" class="cs-doc-line"/><line x1="4" y1="17" x2="14" y2="17" class="cs-doc-line"/><line x1="4" y1="21" x2="17" y2="21" class="cs-doc-line"/></g>
+                <g transform="translate(75,105) rotate(8)"><rect width="22" height="28" rx="1.5" class="cs-doc"/><path d="M 14 0 L 14 8 L 22 8" fill="none" stroke="rgba(124,136,150,0.6)" stroke-width="1"/><line x1="4" y1="13" x2="17" y2="13" class="cs-doc-line"/><line x1="4" y1="17" x2="14" y2="17" class="cs-doc-line"/><line x1="4" y1="21" x2="17" y2="21" class="cs-doc-line"/></g>
+                <g transform="translate(35,160) rotate(-6)"><rect width="22" height="28" rx="1.5" class="cs-doc"/><path d="M 14 0 L 14 8 L 22 8" fill="none" stroke="rgba(124,136,150,0.6)" stroke-width="1"/><line x1="4" y1="13" x2="17" y2="13" class="cs-doc-line"/><line x1="4" y1="17" x2="14" y2="17" class="cs-doc-line"/><line x1="4" y1="21" x2="17" y2="21" class="cs-doc-line"/></g>
+                <g transform="translate(80,215) rotate(15)"><rect width="22" height="28" rx="1.5" class="cs-doc"/><path d="M 14 0 L 14 8 L 22 8" fill="none" stroke="rgba(124,136,150,0.6)" stroke-width="1"/><line x1="4" y1="13" x2="17" y2="13" class="cs-doc-line"/><line x1="4" y1="17" x2="14" y2="17" class="cs-doc-line"/><line x1="4" y1="21" x2="17" y2="21" class="cs-doc-line"/></g>
+                <g transform="translate(125,65) rotate(11)"><rect width="22" height="28" rx="1.5" class="cs-doc"/><path d="M 14 0 L 14 8 L 22 8" fill="none" stroke="rgba(124,136,150,0.6)" stroke-width="1"/><line x1="4" y1="13" x2="17" y2="13" class="cs-doc-line"/><line x1="4" y1="17" x2="14" y2="17" class="cs-doc-line"/><line x1="4" y1="21" x2="17" y2="21" class="cs-doc-line"/></g>
+                <g transform="translate(155,185) rotate(7)"><rect width="22" height="28" rx="1.5" class="cs-doc"/><path d="M 14 0 L 14 8 L 22 8" fill="none" stroke="rgba(124,136,150,0.6)" stroke-width="1"/><line x1="4" y1="13" x2="17" y2="13" class="cs-doc-line"/><line x1="4" y1="17" x2="14" y2="17" class="cs-doc-line"/><line x1="4" y1="21" x2="17" y2="21" class="cs-doc-line"/></g>
+                <g transform="translate(190,85) rotate(-9)"><rect width="22" height="28" rx="1.5" class="cs-doc"/><path d="M 14 0 L 14 8 L 22 8" fill="none" stroke="rgba(124,136,150,0.6)" stroke-width="1"/><line x1="4" y1="13" x2="17" y2="13" class="cs-doc-line"/><line x1="4" y1="17" x2="14" y2="17" class="cs-doc-line"/><line x1="4" y1="21" x2="17" y2="21" class="cs-doc-line"/></g>
+                <g transform="translate(185,240) rotate(6)"><rect width="22" height="28" rx="1.5" class="cs-doc"/><path d="M 14 0 L 14 8 L 22 8" fill="none" stroke="rgba(124,136,150,0.6)" stroke-width="1"/><line x1="4" y1="13" x2="17" y2="13" class="cs-doc-line"/><line x1="4" y1="17" x2="14" y2="17" class="cs-doc-line"/><line x1="4" y1="21" x2="17" y2="21" class="cs-doc-line"/></g>
+                <text class="cs-tenant-label" x="115" y="340" style="fill: rgba(124,136,150,0.7);">Unstructured</text>
               </g>
 
               <!-- Three governance rails + band frame (static, no pulse) -->
@@ -1025,30 +1015,30 @@
               <line class="cs-rail" x1="350" y1="70" x2="350" y2="310"/>
               <text class="cs-rail-label" x="350" y="328">ACL</text>
 
-              <!-- Focal doc fixed at the retention rail (middle of band) -->
+              <!-- Focal doc fixed at the retention rail (middle of band) — on white: solid white fill -->
               <g transform="translate(294,180)">
-                <rect width="22" height="28" rx="1.5" fill="rgba(255,255,255,0.18)" stroke="rgba(229,166,48,0.85)" stroke-width="1.6"/>
-                <path d="M 14 0 L 14 8 L 22 8" fill="none" stroke="rgba(229,166,48,0.85)" stroke-width="1.4"/>
-                <line x1="4" y1="13" x2="17" y2="13" stroke="rgba(229,166,48,0.85)" stroke-width="1"/>
-                <line x1="4" y1="17" x2="14" y2="17" stroke="rgba(229,166,48,0.85)" stroke-width="1"/>
-                <line x1="4" y1="21" x2="17" y2="21" stroke="rgba(229,166,48,0.85)" stroke-width="1"/>
+                <rect width="22" height="28" rx="1.5" fill="#FFFFFF" stroke="rgba(122,84,24,0.85)" stroke-width="1.6"/>
+                <path d="M 14 0 L 14 8 L 22 8" fill="none" stroke="rgba(122,84,24,0.85)" stroke-width="1.4"/>
+                <line x1="4" y1="13" x2="17" y2="13" stroke="rgba(122,84,24,0.85)" stroke-width="1"/>
+                <line x1="4" y1="17" x2="14" y2="17" stroke="rgba(122,84,24,0.85)" stroke-width="1"/>
+                <line x1="4" y1="21" x2="17" y2="21" stroke="rgba(122,84,24,0.85)" stroke-width="1"/>
               </g>
 
               <!-- Bundle (visible in static composite) -->
               <g transform="translate(360,170)">
-                <rect class="cs-bundle-rect" x="0" y="0" width="56" height="11" rx="5.5"/>
+                <rect class="cs-bundle-rect" x="0" y="0" width="78" height="11" rx="5.5"/>
                 <text class="cs-bundle-text" x="5" y="7.6">CLS</text>
                 <text class="cs-bundle-text" x="22" y="7.6" style="font-weight: 400; letter-spacing: 0.3px;">personnel</text>
 
-                <rect class="cs-bundle-rect" x="0" y="14" width="56" height="11" rx="5.5"/>
+                <rect class="cs-bundle-rect" x="0" y="14" width="78" height="11" rx="5.5"/>
                 <text class="cs-bundle-text" x="5" y="21.6">RET</text>
                 <text class="cs-bundle-text" x="22" y="21.6" style="font-weight: 400; letter-spacing: 0.3px;">7yr</text>
 
-                <rect class="cs-bundle-rect" x="0" y="28" width="56" height="11" rx="5.5"/>
+                <rect class="cs-bundle-rect" x="0" y="28" width="78" height="11" rx="5.5"/>
                 <text class="cs-bundle-text" x="5" y="35.6">ACL</text>
                 <g transform="translate(22,30.5)" class="cs-bundle-icon">
                   <rect x="0" y="2" width="6" height="5" rx="0.6"/>
-                  <path d="M 1 2 V 1.2 A 2 2 0 0 1 5 1.2 V 2" fill="none" stroke="rgba(229,166,48,0.9)" stroke-width="0.7"/>
+                  <path d="M 1 2 V 1.2 A 2 2 0 0 1 5 1.2 V 2" fill="none" stroke="#FFFFFF" stroke-width="0.7"/>
                 </g>
                 <text class="cs-bundle-text" x="30" y="35.6" style="font-weight: 400; letter-spacing: 0.3px;">role: hr</text>
               </g>
@@ -1058,30 +1048,30 @@
               <text class="cs-tenant-label" x="495" y="68">Microsoft 365 Tenant</text>
 
               <!-- Row 1 -->
-              <g transform="translate(425,82)"><rect width="22" height="28" rx="1.5" class="cs-doc-settled"/><path d="M 14 0 L 14 8 L 22 8" fill="none" stroke="rgba(229,166,48,0.70)" stroke-width="1"/><line x1="4" y1="13" x2="17" y2="13" class="cs-doc-settled-line"/><line x1="4" y1="17" x2="14" y2="17" class="cs-doc-settled-line"/><line x1="4" y1="21" x2="17" y2="21" class="cs-doc-settled-line"/><rect class="cs-settled-chip" x="24" y="10" width="10" height="4" rx="2"/></g>
-              <g transform="translate(463,82)"><rect width="22" height="28" rx="1.5" class="cs-doc-settled"/><path d="M 14 0 L 14 8 L 22 8" fill="none" stroke="rgba(229,166,48,0.70)" stroke-width="1"/><line x1="4" y1="13" x2="17" y2="13" class="cs-doc-settled-line"/><line x1="4" y1="17" x2="14" y2="17" class="cs-doc-settled-line"/><line x1="4" y1="21" x2="17" y2="21" class="cs-doc-settled-line"/><rect class="cs-settled-chip" x="24" y="10" width="10" height="4" rx="2"/></g>
-              <g transform="translate(501,82)"><rect width="22" height="28" rx="1.5" class="cs-doc-settled"/><path d="M 14 0 L 14 8 L 22 8" fill="none" stroke="rgba(229,166,48,0.70)" stroke-width="1"/><line x1="4" y1="13" x2="17" y2="13" class="cs-doc-settled-line"/><line x1="4" y1="17" x2="14" y2="17" class="cs-doc-settled-line"/><line x1="4" y1="21" x2="17" y2="21" class="cs-doc-settled-line"/><rect class="cs-settled-chip" x="24" y="10" width="10" height="4" rx="2"/></g>
-              <g transform="translate(539,82)"><rect width="22" height="28" rx="1.5" class="cs-doc-settled"/><path d="M 14 0 L 14 8 L 22 8" fill="none" stroke="rgba(229,166,48,0.70)" stroke-width="1"/><line x1="4" y1="13" x2="17" y2="13" class="cs-doc-settled-line"/><line x1="4" y1="17" x2="14" y2="17" class="cs-doc-settled-line"/><line x1="4" y1="21" x2="17" y2="21" class="cs-doc-settled-line"/></g>
+              <g transform="translate(425,82)"><rect width="22" height="28" rx="1.5" class="cs-doc-settled"/><path d="M 14 0 L 14 8 L 22 8" fill="none" stroke="var(--accent)" stroke-width="1"/><line x1="4" y1="13" x2="17" y2="13" class="cs-doc-settled-line"/><line x1="4" y1="17" x2="14" y2="17" class="cs-doc-settled-line"/><line x1="4" y1="21" x2="17" y2="21" class="cs-doc-settled-line"/><rect class="cs-settled-chip" x="24" y="10" width="10" height="4" rx="2"/></g>
+              <g transform="translate(463,82)"><rect width="22" height="28" rx="1.5" class="cs-doc-settled"/><path d="M 14 0 L 14 8 L 22 8" fill="none" stroke="var(--accent)" stroke-width="1"/><line x1="4" y1="13" x2="17" y2="13" class="cs-doc-settled-line"/><line x1="4" y1="17" x2="14" y2="17" class="cs-doc-settled-line"/><line x1="4" y1="21" x2="17" y2="21" class="cs-doc-settled-line"/><rect class="cs-settled-chip" x="24" y="10" width="10" height="4" rx="2"/></g>
+              <g transform="translate(501,82)"><rect width="22" height="28" rx="1.5" class="cs-doc-settled"/><path d="M 14 0 L 14 8 L 22 8" fill="none" stroke="var(--accent)" stroke-width="1"/><line x1="4" y1="13" x2="17" y2="13" class="cs-doc-settled-line"/><line x1="4" y1="17" x2="14" y2="17" class="cs-doc-settled-line"/><line x1="4" y1="21" x2="17" y2="21" class="cs-doc-settled-line"/><rect class="cs-settled-chip" x="24" y="10" width="10" height="4" rx="2"/></g>
+              <g transform="translate(539,82)"><rect width="22" height="28" rx="1.5" class="cs-doc-settled"/><path d="M 14 0 L 14 8 L 22 8" fill="none" stroke="var(--accent)" stroke-width="1"/><line x1="4" y1="13" x2="17" y2="13" class="cs-doc-settled-line"/><line x1="4" y1="17" x2="14" y2="17" class="cs-doc-settled-line"/><line x1="4" y1="21" x2="17" y2="21" class="cs-doc-settled-line"/></g>
 
               <!-- Row 2 -->
-              <g transform="translate(425,134)"><rect width="22" height="28" rx="1.5" class="cs-doc-settled"/><path d="M 14 0 L 14 8 L 22 8" fill="none" stroke="rgba(229,166,48,0.70)" stroke-width="1"/><line x1="4" y1="13" x2="17" y2="13" class="cs-doc-settled-line"/><line x1="4" y1="17" x2="14" y2="17" class="cs-doc-settled-line"/><line x1="4" y1="21" x2="17" y2="21" class="cs-doc-settled-line"/><rect class="cs-settled-chip" x="24" y="10" width="10" height="4" rx="2"/></g>
-              <g transform="translate(463,134)"><rect width="22" height="28" rx="1.5" class="cs-doc-settled"/><path d="M 14 0 L 14 8 L 22 8" fill="none" stroke="rgba(229,166,48,0.70)" stroke-width="1"/><line x1="4" y1="13" x2="17" y2="13" class="cs-doc-settled-line"/><line x1="4" y1="17" x2="14" y2="17" class="cs-doc-settled-line"/><line x1="4" y1="21" x2="17" y2="21" class="cs-doc-settled-line"/><rect class="cs-settled-chip" x="24" y="10" width="10" height="4" rx="2"/></g>
-              <g transform="translate(501,134)"><rect width="22" height="28" rx="1.5" class="cs-doc-settled"/><path d="M 14 0 L 14 8 L 22 8" fill="none" stroke="rgba(229,166,48,0.70)" stroke-width="1"/><line x1="4" y1="13" x2="17" y2="13" class="cs-doc-settled-line"/><line x1="4" y1="17" x2="14" y2="17" class="cs-doc-settled-line"/><line x1="4" y1="21" x2="17" y2="21" class="cs-doc-settled-line"/><rect class="cs-settled-chip" x="24" y="10" width="10" height="4" rx="2"/></g>
-              <g transform="translate(539,134)"><rect width="22" height="28" rx="1.5" class="cs-doc-settled"/><path d="M 14 0 L 14 8 L 22 8" fill="none" stroke="rgba(229,166,48,0.70)" stroke-width="1"/><line x1="4" y1="13" x2="17" y2="13" class="cs-doc-settled-line"/><line x1="4" y1="17" x2="14" y2="17" class="cs-doc-settled-line"/><line x1="4" y1="21" x2="17" y2="21" class="cs-doc-settled-line"/></g>
+              <g transform="translate(425,134)"><rect width="22" height="28" rx="1.5" class="cs-doc-settled"/><path d="M 14 0 L 14 8 L 22 8" fill="none" stroke="var(--accent)" stroke-width="1"/><line x1="4" y1="13" x2="17" y2="13" class="cs-doc-settled-line"/><line x1="4" y1="17" x2="14" y2="17" class="cs-doc-settled-line"/><line x1="4" y1="21" x2="17" y2="21" class="cs-doc-settled-line"/><rect class="cs-settled-chip" x="24" y="10" width="10" height="4" rx="2"/></g>
+              <g transform="translate(463,134)"><rect width="22" height="28" rx="1.5" class="cs-doc-settled"/><path d="M 14 0 L 14 8 L 22 8" fill="none" stroke="var(--accent)" stroke-width="1"/><line x1="4" y1="13" x2="17" y2="13" class="cs-doc-settled-line"/><line x1="4" y1="17" x2="14" y2="17" class="cs-doc-settled-line"/><line x1="4" y1="21" x2="17" y2="21" class="cs-doc-settled-line"/><rect class="cs-settled-chip" x="24" y="10" width="10" height="4" rx="2"/></g>
+              <g transform="translate(501,134)"><rect width="22" height="28" rx="1.5" class="cs-doc-settled"/><path d="M 14 0 L 14 8 L 22 8" fill="none" stroke="var(--accent)" stroke-width="1"/><line x1="4" y1="13" x2="17" y2="13" class="cs-doc-settled-line"/><line x1="4" y1="17" x2="14" y2="17" class="cs-doc-settled-line"/><line x1="4" y1="21" x2="17" y2="21" class="cs-doc-settled-line"/><rect class="cs-settled-chip" x="24" y="10" width="10" height="4" rx="2"/></g>
+              <g transform="translate(539,134)"><rect width="22" height="28" rx="1.5" class="cs-doc-settled"/><path d="M 14 0 L 14 8 L 22 8" fill="none" stroke="var(--accent)" stroke-width="1"/><line x1="4" y1="13" x2="17" y2="13" class="cs-doc-settled-line"/><line x1="4" y1="17" x2="14" y2="17" class="cs-doc-settled-line"/><line x1="4" y1="21" x2="17" y2="21" class="cs-doc-settled-line"/></g>
 
               <!-- Row 3 -->
-              <g transform="translate(425,186)"><rect width="22" height="28" rx="1.5" class="cs-doc-settled"/><path d="M 14 0 L 14 8 L 22 8" fill="none" stroke="rgba(229,166,48,0.70)" stroke-width="1"/><line x1="4" y1="13" x2="17" y2="13" class="cs-doc-settled-line"/><line x1="4" y1="17" x2="14" y2="17" class="cs-doc-settled-line"/><line x1="4" y1="21" x2="17" y2="21" class="cs-doc-settled-line"/><rect class="cs-settled-chip" x="24" y="10" width="10" height="4" rx="2"/></g>
-              <g transform="translate(463,186)"><rect width="22" height="28" rx="1.5" class="cs-doc-settled"/><path d="M 14 0 L 14 8 L 22 8" fill="none" stroke="rgba(229,166,48,0.70)" stroke-width="1"/><line x1="4" y1="13" x2="17" y2="13" class="cs-doc-settled-line"/><line x1="4" y1="17" x2="14" y2="17" class="cs-doc-settled-line"/><line x1="4" y1="21" x2="17" y2="21" class="cs-doc-settled-line"/><rect class="cs-settled-chip" x="24" y="10" width="10" height="4" rx="2"/></g>
-              <g transform="translate(501,186)"><rect width="22" height="28" rx="1.5" class="cs-doc-settled"/><path d="M 14 0 L 14 8 L 22 8" fill="none" stroke="rgba(229,166,48,0.70)" stroke-width="1"/><line x1="4" y1="13" x2="17" y2="13" class="cs-doc-settled-line"/><line x1="4" y1="17" x2="14" y2="17" class="cs-doc-settled-line"/><line x1="4" y1="21" x2="17" y2="21" class="cs-doc-settled-line"/><rect class="cs-settled-chip" x="24" y="10" width="10" height="4" rx="2"/></g>
-              <g transform="translate(539,186)"><rect width="22" height="28" rx="1.5" class="cs-doc-settled"/><path d="M 14 0 L 14 8 L 22 8" fill="none" stroke="rgba(229,166,48,0.70)" stroke-width="1"/><line x1="4" y1="13" x2="17" y2="13" class="cs-doc-settled-line"/><line x1="4" y1="17" x2="14" y2="17" class="cs-doc-settled-line"/><line x1="4" y1="21" x2="17" y2="21" class="cs-doc-settled-line"/></g>
+              <g transform="translate(425,186)"><rect width="22" height="28" rx="1.5" class="cs-doc-settled"/><path d="M 14 0 L 14 8 L 22 8" fill="none" stroke="var(--accent)" stroke-width="1"/><line x1="4" y1="13" x2="17" y2="13" class="cs-doc-settled-line"/><line x1="4" y1="17" x2="14" y2="17" class="cs-doc-settled-line"/><line x1="4" y1="21" x2="17" y2="21" class="cs-doc-settled-line"/><rect class="cs-settled-chip" x="24" y="10" width="10" height="4" rx="2"/></g>
+              <g transform="translate(463,186)"><rect width="22" height="28" rx="1.5" class="cs-doc-settled"/><path d="M 14 0 L 14 8 L 22 8" fill="none" stroke="var(--accent)" stroke-width="1"/><line x1="4" y1="13" x2="17" y2="13" class="cs-doc-settled-line"/><line x1="4" y1="17" x2="14" y2="17" class="cs-doc-settled-line"/><line x1="4" y1="21" x2="17" y2="21" class="cs-doc-settled-line"/><rect class="cs-settled-chip" x="24" y="10" width="10" height="4" rx="2"/></g>
+              <g transform="translate(501,186)"><rect width="22" height="28" rx="1.5" class="cs-doc-settled"/><path d="M 14 0 L 14 8 L 22 8" fill="none" stroke="var(--accent)" stroke-width="1"/><line x1="4" y1="13" x2="17" y2="13" class="cs-doc-settled-line"/><line x1="4" y1="17" x2="14" y2="17" class="cs-doc-settled-line"/><line x1="4" y1="21" x2="17" y2="21" class="cs-doc-settled-line"/><rect class="cs-settled-chip" x="24" y="10" width="10" height="4" rx="2"/></g>
+              <g transform="translate(539,186)"><rect width="22" height="28" rx="1.5" class="cs-doc-settled"/><path d="M 14 0 L 14 8 L 22 8" fill="none" stroke="var(--accent)" stroke-width="1"/><line x1="4" y1="13" x2="17" y2="13" class="cs-doc-settled-line"/><line x1="4" y1="17" x2="14" y2="17" class="cs-doc-settled-line"/><line x1="4" y1="21" x2="17" y2="21" class="cs-doc-settled-line"/></g>
 
               <!-- Row 4 -->
-              <g transform="translate(425,238)"><rect width="22" height="28" rx="1.5" class="cs-doc-settled"/><path d="M 14 0 L 14 8 L 22 8" fill="none" stroke="rgba(229,166,48,0.70)" stroke-width="1"/><line x1="4" y1="13" x2="17" y2="13" class="cs-doc-settled-line"/><line x1="4" y1="17" x2="14" y2="17" class="cs-doc-settled-line"/><line x1="4" y1="21" x2="17" y2="21" class="cs-doc-settled-line"/><rect class="cs-settled-chip" x="24" y="10" width="10" height="4" rx="2"/></g>
-              <g transform="translate(463,238)"><rect width="22" height="28" rx="1.5" class="cs-doc-settled"/><path d="M 14 0 L 14 8 L 22 8" fill="none" stroke="rgba(229,166,48,0.70)" stroke-width="1"/><line x1="4" y1="13" x2="17" y2="13" class="cs-doc-settled-line"/><line x1="4" y1="17" x2="14" y2="17" class="cs-doc-settled-line"/><line x1="4" y1="21" x2="17" y2="21" class="cs-doc-settled-line"/><rect class="cs-settled-chip" x="24" y="10" width="10" height="4" rx="2"/></g>
-              <g transform="translate(501,238)"><rect width="22" height="28" rx="1.5" class="cs-doc-settled"/><path d="M 14 0 L 14 8 L 22 8" fill="none" stroke="rgba(229,166,48,0.70)" stroke-width="1"/><line x1="4" y1="13" x2="17" y2="13" class="cs-doc-settled-line"/><line x1="4" y1="17" x2="14" y2="17" class="cs-doc-settled-line"/><line x1="4" y1="21" x2="17" y2="21" class="cs-doc-settled-line"/><rect class="cs-settled-chip" x="24" y="10" width="10" height="4" rx="2"/></g>
-              <g transform="translate(539,238)"><rect width="22" height="28" rx="1.5" class="cs-doc-settled"/><path d="M 14 0 L 14 8 L 22 8" fill="none" stroke="rgba(229,166,48,0.70)" stroke-width="1"/><line x1="4" y1="13" x2="17" y2="13" class="cs-doc-settled-line"/><line x1="4" y1="17" x2="14" y2="17" class="cs-doc-settled-line"/><line x1="4" y1="21" x2="17" y2="21" class="cs-doc-settled-line"/></g>
+              <g transform="translate(425,238)"><rect width="22" height="28" rx="1.5" class="cs-doc-settled"/><path d="M 14 0 L 14 8 L 22 8" fill="none" stroke="var(--accent)" stroke-width="1"/><line x1="4" y1="13" x2="17" y2="13" class="cs-doc-settled-line"/><line x1="4" y1="17" x2="14" y2="17" class="cs-doc-settled-line"/><line x1="4" y1="21" x2="17" y2="21" class="cs-doc-settled-line"/><rect class="cs-settled-chip" x="24" y="10" width="10" height="4" rx="2"/></g>
+              <g transform="translate(463,238)"><rect width="22" height="28" rx="1.5" class="cs-doc-settled"/><path d="M 14 0 L 14 8 L 22 8" fill="none" stroke="var(--accent)" stroke-width="1"/><line x1="4" y1="13" x2="17" y2="13" class="cs-doc-settled-line"/><line x1="4" y1="17" x2="14" y2="17" class="cs-doc-settled-line"/><line x1="4" y1="21" x2="17" y2="21" class="cs-doc-settled-line"/><rect class="cs-settled-chip" x="24" y="10" width="10" height="4" rx="2"/></g>
+              <g transform="translate(501,238)"><rect width="22" height="28" rx="1.5" class="cs-doc-settled"/><path d="M 14 0 L 14 8 L 22 8" fill="none" stroke="var(--accent)" stroke-width="1"/><line x1="4" y1="13" x2="17" y2="13" class="cs-doc-settled-line"/><line x1="4" y1="17" x2="14" y2="17" class="cs-doc-settled-line"/><line x1="4" y1="21" x2="17" y2="21" class="cs-doc-settled-line"/><rect class="cs-settled-chip" x="24" y="10" width="10" height="4" rx="2"/></g>
+              <g transform="translate(539,238)"><rect width="22" height="28" rx="1.5" class="cs-doc-settled"/><path d="M 14 0 L 14 8 L 22 8" fill="none" stroke="var(--accent)" stroke-width="1"/><line x1="4" y1="13" x2="17" y2="13" class="cs-doc-settled-line"/><line x1="4" y1="17" x2="14" y2="17" class="cs-doc-settled-line"/><line x1="4" y1="21" x2="17" y2="21" class="cs-doc-settled-line"/></g>
 
-              <text class="cs-tenant-label" x="495" y="308" style="fill: rgba(229,166,48,0.65);">Structured</text>
+              <text class="cs-tenant-label" x="495" y="308" style="fill: var(--accent-ink);">Structured</text>
 
               <!-- Last-settled focal ring on first labeled grid slot -->
               <rect class="cs-settled-ring" x="423" y="80" width="26" height="32" rx="3" opacity="1"/>
@@ -1248,13 +1238,13 @@
     </div>
 
     <div class="cross-link-grid">
-      <a href="services-scanning.html" class="cross-link-card">
+      <a href="services-scanning.html" class="cross-link-card dest-scanning">
         <span class="card-eyebrow">Organize</span>
         <h3>Archive Scanning</h3>
         <p>Decades of paper records become searchable, indexed, and governed by your policies.</p>
         <span class="card-arrow">Explore <i class="ph ph-arrow-right" aria-hidden="true"></i></span>
       </a>
-      <a href="services-data-migration.html" class="cross-link-card">
+      <a href="services-data-migration.html" class="cross-link-card dest-data-migration">
         <span class="card-eyebrow">Organize</span>
         <h3>Data Migration</h3>
         <p>Move legacy data into the cloud platform your agency already owns.</p>
@@ -1391,6 +1381,165 @@
   var prefersReducedMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   // ============================================================
+  // MOUSE-REACTIVE DOT FIELD (interactive, 2026-06-18)
+  // Ported VERBATIM from services-scanning-topgradient.html.
+  // Replaces the old cursor-following glow AND the static ::after dot tile.
+  // A <canvas> renders the SAME resting look as the old CSS tile — navy dots
+  // rgba(37,66,107,0.10), ~1px radius, 24px grid — but each dot can displace
+  // individually, which a CSS background tile cannot do.
+  //
+  // Guards: prefers-reduced-motion and touch / no-hover devices paint the
+  // static grid ONCE (identical to the old tile) and wire NO listeners.
+  // ============================================================
+  (function() {
+    var hero = document.querySelector('.page-hero');
+    var canvas = document.getElementById('heroDotField');
+    if (!hero || !canvas || !canvas.getContext) return;
+    var ctx = canvas.getContext('2d');
+
+    // Resting look — matched 1:1 to the old ::after tile.
+    var GRID = 24;                 // px spacing (was background-size: 24px)
+    var DOT_R = 1;                 // px radius (was 1px dots)
+    var DOT_COLOR = 'rgba(37,66,107,0.10)';  // navy at low alpha (was the tile color)
+
+    // Interaction tuning — subtle/premium repel.
+    var RADIUS = 120;              // px influence radius around the pointer
+    var MAX_PUSH = 14;             // px max displacement at the pointer center
+    var EASE = 0.14;              // per-frame return toward home (spring stiffness)
+    var EPSILON = 0.05;          // settle threshold to idle the loop
+
+    var dots = [];                 // { hx, hy, x, y }  home + current
+    var dpr = 1;
+    var pointerX = -9999, pointerY = -9999;
+    var pointerActive = false;
+    var rafId = null;
+
+    var canHover = !window.matchMedia || window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+    var interactive = !prefersReducedMotion && canHover;
+
+    // Build the dot grid for the current hero size; reset current pos to home.
+    function buildGrid(w, h) {
+      dots.length = 0;
+      // Inset the grid by half a cell so it reads centered like the CSS tile.
+      var startX = GRID / 2, startY = GRID / 2;
+      for (var y = startY; y < h; y += GRID) {
+        for (var x = startX; x < w; x += GRID) {
+          dots.push({ hx: x, hy: y, x: x, y: y });
+        }
+      }
+    }
+
+    // Draw the current dot positions (single pass).
+    function draw(w, h) {
+      ctx.clearRect(0, 0, w, h);
+      ctx.fillStyle = DOT_COLOR;
+      for (var i = 0; i < dots.length; i++) {
+        var d = dots[i];
+        ctx.beginPath();
+        ctx.arc(d.x, d.y, DOT_R, 0, Math.PI * 2);
+        ctx.fill();
+      }
+    }
+
+    // Size the canvas to the hero, account for devicePixelRatio, rebuild grid, repaint.
+    function resize() {
+      var rect = hero.getBoundingClientRect();
+      var w = Math.max(1, Math.round(rect.width));
+      var h = Math.max(1, Math.round(rect.height));
+      dpr = Math.min(window.devicePixelRatio || 1, 2);  // cap DPR for perf
+      canvas.width = w * dpr;
+      canvas.height = h * dpr;
+      canvas.style.width = w + 'px';
+      canvas.style.height = h + 'px';
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      buildGrid(w, h);
+      draw(w, h);   // paint the static resting grid immediately (no layout shift, no FOUC)
+    }
+
+    // Smooth cubic falloff: 1 at center → 0 at edge.
+    function falloff(t) { var u = 1 - t; return u * u * u; }
+
+    function loop() {
+      var rect = hero.getBoundingClientRect();
+      var w = rect.width, h = rect.height;
+      var moving = false;
+      var r2 = RADIUS * RADIUS;
+
+      for (var i = 0; i < dots.length; i++) {
+        var d = dots[i];
+        var tx = d.hx, ty = d.hy;   // target defaults to home
+
+        if (pointerActive) {
+          var dx = d.hx - pointerX;
+          var dy = d.hy - pointerY;
+          var dist2 = dx * dx + dy * dy;
+          if (dist2 < r2) {
+            var dist = Math.sqrt(dist2) || 0.0001;
+            var push = falloff(dist / RADIUS) * MAX_PUSH;
+            // Repel: push dot outward, away from the pointer, along the radial.
+            tx = d.hx + (dx / dist) * push;
+            ty = d.hy + (dy / dist) * push;
+          }
+        }
+
+        // Ease current position toward the target (toward push pos, or back home).
+        d.x += (tx - d.x) * EASE;
+        d.y += (ty - d.y) * EASE;
+
+        if (Math.abs(d.x - tx) > EPSILON || Math.abs(d.y - ty) > EPSILON) moving = true;
+      }
+
+      draw(w, h);
+
+      // Keep running while the pointer is active or while dots are still settling.
+      if (pointerActive || moving) {
+        rafId = window.requestAnimationFrame(loop);
+      } else {
+        rafId = null;
+        draw(w, h);   // final crisp resting frame
+      }
+    }
+
+    function ensureLoop() {
+      if (rafId === null) rafId = window.requestAnimationFrame(loop);
+    }
+
+    // Initial sizing + static paint (runs for ALL cases, including reduced-motion/touch).
+    resize();
+
+    // Track resize for both interactive and static cases (canvas must follow hero size).
+    if ('ResizeObserver' in window) {
+      var ro = new ResizeObserver(function() { resize(); });
+      ro.observe(hero);
+    } else {
+      window.addEventListener('resize', resize, { passive: true });
+    }
+
+    // No interaction on reduced-motion / touch / no-hover — leave the static grid as-is.
+    if (!interactive) return;
+
+    hero.addEventListener('pointermove', function(e) {
+      if (e.pointerType === 'touch') return;   // ignore touch contacts
+      var rect = hero.getBoundingClientRect();
+      pointerX = e.clientX - rect.left;
+      pointerY = e.clientY - rect.top;
+      pointerActive = true;
+      ensureLoop();
+    }, { passive: true });
+
+    hero.addEventListener('pointerenter', function(e) {
+      if (e.pointerType === 'touch') return;
+      pointerActive = true;
+      ensureLoop();
+    });
+
+    hero.addEventListener('pointerleave', function() {
+      pointerActive = false;   // dots ease back home; loop runs until settled, then idles
+      ensureLoop();
+    });
+  })();
+
+  // ============================================================
   // HERO ANIMATION — Structuring Sequence (12s cycle)
   //
   // Cole's 5 non-negotiable constraints:
@@ -1401,24 +1550,13 @@
   //      substrate documents drift as a single group (one CSS animation
   //      on the parent <g>).
   //   2. Icon vocabulary: hero docs use ph-file-text silhouette; Step
-  //      04 "Document Governance" uses ph-file-text too. Matches
-  //      AI Ingestion and Data Migration heroes for series consistency.
-  //   3. Color discipline: only navy + gold rendered. State separation
-  //      via opacity/saturation, never new hues.
+  //      04 "Document Governance" uses ph-file-text too.
+  //   3. Color discipline: navy + burgundy rendered. State separation
+  //      via opacity/saturation.
   //   4. Reduced motion: static composite via #csStaticScene (CSS swap).
   //   5. Bundle: 3 chips (CLS / RET / ACL) share a single container,
   //      single opacity transition, single position. Treated as ONE
   //      focal unit, never animated as three.
-  //
-  // The focal cycle is ONE JS rAF loop driving 3 elements:
-  //   - csFocalGroup transform (x position, rotation)
-  //   - csBundleGroup opacity + position (visible while focal traverses
-  //     the rails — chips do NOT animate independently)
-  //   - csSettledRing opacity + transform (lands on a labeled record
-  //     slot after focal exits, lingers until next focal lands)
-  //
-  // 4 focal passes per 12s cycle — one every 3s, each pass 3s long with
-  // visible overlap (next pass starts while ring of prev still showing).
   // ============================================================
   var heroStory   = document.getElementById('heroStory');
   var focalGroup  = document.getElementById('csFocalGroup');
@@ -1434,8 +1572,6 @@
   }
 
   // Labeled record slot positions (4x4 grid) — match the static markup.
-  // Each slot.x/y is the top-left of the 22x28 doc; the ring is 26x32
-  // with a 2px inset so it surrounds the doc.
   var GRID_SLOTS = [
     { x: 423, y: 80  }, { x: 461, y: 80  }, { x: 499, y: 80  }, { x: 537, y: 80  },
     { x: 423, y: 132 }, { x: 461, y: 132 }, { x: 499, y: 132 }, { x: 537, y: 132 },
@@ -1444,9 +1580,6 @@
   ];
 
   // Bundle content per pass — cycles through 4 distinct record types.
-  // Each entry is [classification, retention, permissions]. The bundle
-  // is ONE focal unit — these labels update together when the bundle
-  // is offscreen between passes.
   var BUNDLE_SETS = [
     ['personnel', '7yr',  'role: hr'],
     ['fiscal',    'perm', 'role: cfo'],
@@ -1459,20 +1592,12 @@
     var CYCLE_MS  = 12000;  // full loop length
     var FOCAL_DUR = 3000;   // one focal pass: 3 seconds
     var PASSES    = 4;      // 4 focal passes per cycle
-    // Within a single focal pass (0..1 normalized progress):
-    //   0.00..0.18  approach rails entry from substrate (x: 220 → 250)
-    //   0.18..0.66  traversing the three rails (x: 250 → 360);
-    //               bundle visible throughout (composite focal unit)
-    //   0.66..0.88  exit rails to right, land in labeled record slot
-    //   0.88..1.00  hold in slot, settled ring fades in
 
     function smoothstep(a, b, t) {
       var x = Math.max(0, Math.min(1, (t - a) / (b - a)));
       return x * x * (3 - 2 * x);
     }
 
-    // Per-pass starting position in substrate field (small offsets so it
-    // doesn't always start from the same spot).
     var PASS_STARTS = [
       { x: 220, y: 150 },
       { x: 212, y: 215 },
@@ -1480,8 +1605,6 @@
       { x: 215, y: 250 }
     ];
 
-    // Each pass deposits the focal doc into a different labeled slot
-    // (top 2 rows so the ring is always visible). One slot per pass.
     var PASS_SLOTS = [0, 1, 4, 5];
 
     var rafId = null;
@@ -1490,7 +1613,6 @@
     var pauseStart = 0;
     var startedAt = null;
 
-    // Track bundle + ring state to avoid redundant writes
     var lastBundleOpacity = -1;
     var lastRingOpacity   = -1;
     var lastBundleSet     = -1;
@@ -1501,46 +1623,36 @@
       if (startedAt === null) startedAt = timestamp;
       var elapsed = (timestamp - startedAt - pausedAccum) % CYCLE_MS;
 
-      // Determine which pass we're in, and the local progress within that pass.
       var passIdx = Math.floor(elapsed / FOCAL_DUR) % PASSES;
       var passT   = (elapsed - passIdx * FOCAL_DUR) / FOCAL_DUR;   // 0..1
 
       var start = PASS_STARTS[passIdx];
       var slotIdx = PASS_SLOTS[passIdx];
       var endSlot = GRID_SLOTS[slotIdx];
-      // Focal endpoint inside the slot — doc top-left = slot.x + 2, slot.y + 2.
       var endX = endSlot.x + 2;
       var endY = endSlot.y + 2;
 
-      // Waypoints — drives focal x/y/rotation per stage
       var x, y, rot;
 
       if (passT < 0.18) {
-        // Stage A: substrate edge → rails entry (CLS rail at x=260, mid-band y=180)
         var a = passT / 0.18;
         var ea = smoothstep(0, 1, a);
         x = start.x + (250 - start.x) * ea;
         y = start.y + (180 - start.y) * ea;
-        // Substrate docs have random rotations; focal straightens as it enters band
         rot = -8 + 8 * ea;   // -8° → 0°
       } else if (passT < 0.66) {
-        // Stage B: traversing the three rails — drifts gently from CLS edge
-        // (x=250) to ACL edge (x=360). Within this stage the focal passes
-        // CLS rail (~x=260) → RET rail (~x=305) → ACL rail (~x=350).
         var b = (passT - 0.18) / 0.48;
         var eb = smoothstep(0, 1, b);
         x = 250 + (360 - 250) * eb;
         y = 180;
         rot = 0;
       } else if (passT < 0.88) {
-        // Stage C: exit rails → labeled record slot
         var c = (passT - 0.66) / 0.22;
         var ec = smoothstep(0, 1, c);
         x = 360 + (endX - 360) * ec;
         y = 180 + (endY - 180) * ec;
         rot = 0;
       } else {
-        // Stage D: at slot, focal doc holds for last 12% of pass
         x = endX;
         y = endY;
         rot = 0;
@@ -1549,11 +1661,6 @@
       focalGroup.setAttribute('transform',
         'translate(' + x.toFixed(1) + ',' + y.toFixed(1) + ') rotate(' + rot.toFixed(1) + ')');
 
-      // Bundle — visible while focal is IN the governance band (passT 0.18..0.66
-      // with fade in/out edges). Per Cole constraint #5: ONE focal unit.
-      // The three chips fade in TOGETHER at the start of Stage B, hold
-      // through the entire rail traversal, and fade out TOGETHER as the
-      // focal exits Stage B. Never animated as three.
       var bundleOp;
       if (passT < 0.16 || passT > 0.72) {
         bundleOp = 0;
@@ -1566,8 +1673,6 @@
       }
       bundleOp = Math.max(0, Math.min(1, bundleOp));
 
-      // Update bundle labels once per pass, when bundle is fully offscreen
-      // between passes (passT very close to 0, before fade-in starts).
       if (passT < 0.05 && lastBundleSet !== passIdx) {
         lastBundleSet = passIdx;
         var set = BUNDLE_SETS[passIdx];
@@ -1576,9 +1681,6 @@
         if (bundleChip3) bundleChip3.textContent = set[2];
       }
 
-      // Position bundle beside the focal doc (offset right by ~26px,
-      // slightly above the doc's vertical center so the 3-chip stack
-      // visually anchors to the doc).
       bundleGroup.setAttribute('transform',
         'translate(' + (x + 26).toFixed(1) + ',' + (y - 6).toFixed(1) + ')');
       if (bundleOp !== lastBundleOpacity) {
@@ -1586,8 +1688,6 @@
         lastBundleOpacity = bundleOp;
       }
 
-      // Settled ring — appears when focal lands (passT >= 0.88), persists
-      // until 0.18 into the NEXT pass (when new focal enters the band).
       var ringOp = 0;
       var ringSlotIdx = slotIdx;
       if (passT >= 0.88) {
@@ -1595,7 +1695,6 @@
         ringOp = Math.min(1, ringOp);
         ringSlotIdx = slotIdx;
       } else if (passT < 0.18) {
-        // First fifth of new pass — ring still showing on PREVIOUS pass's slot
         var prevPass = (passIdx - 1 + PASSES) % PASSES;
         ringSlotIdx = PASS_SLOTS[prevPass];
         ringOp = 1 - smoothstep(0, 0.18, passT);

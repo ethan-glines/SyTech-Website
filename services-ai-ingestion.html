@@ -8,153 +8,200 @@
 <link rel="stylesheet" href="assets/css/sytech-shared.css">
 <link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.0.3/src/regular/style.css">
 <style>
+/* === Per-page accent (color pass 2026-06-18) === */
+:root { --accent: #3DB87A; --accent-ink: #2E8E5C; }
 /* ==========================================================================
-   services-ai-ingestion.html — Batch 2a Subpage 3 of 3
-   Inherits the scanning + SharePoint ERMS subpage recipe verbatim:
-   .section-header (centered), .archive-quote, .cta-strip, .cross-link,
-   .breadcrumb, two-column hero scaffold, .steps Process Diagram.
-   Re-uses .compare-split + .compare-closer from SharePoint ERMS verbatim
-   for the Comparison Split. NEW on this page only: the transformation-field
-   hero animation (chaos → AI column → indexed grid).
-   No new colors. Navy + gold only on this page (per Cole's lock — no red,
-   no SharePoint blue, no third color in the hero AI column).
+   services-ai-ingestion-topgradient.html — TOP-COLOR GRADIENT HERO variant (2026-06-18)
+   Forked from services-ai-ingestion.html. The full two-part conversion is applied to
+   the .page-hero region ONLY: (A) the dark navy hero flips to a 180deg VERTICAL top
+   gradient — a translucent SPRING-GREEN wash at the top (behind breadcrumb/eyebrow/
+   headline) fading straight down to light/white; (B) the dark glassmorphism animation
+   frame becomes a WHITE card and every .ti-* element re-solves on white (navy carries
+   STRUCTURE, green carries ACTION). The reactive navy dot-field canvas replaces the old
+   static ::after dot tile (ported verbatim from services-scanning-topgradient.html).
+   Nothing below the hero changes.
+
+   GREEN IS THE EASY PAGE ON THE TOP TINT, THE HARD PAGE ON WHITE (inverse of copper/
+   indigo/burgundy): green is the lightest-effective accent, so the 0.52 top tint stays
+   bright and navy h1 clears comfortably — TOP ALPHA STAYS 0.52, no reduction. But green
+   is the weakest accent AS TEXT/STROKES on white, so the span/eyebrow get the deepest
+   darkening of the rollout and the green animation strokes get the biggest alpha bumps.
+   Per spec → "Final Rollout — AI Ingestion":
+     Top alpha 0.52 (UNCHANGED) → effective top tint rgb(149,213,181) ≈ #95D5B5 (mint).
+     Navy h1 #25426B = 6.02:1 (PASS small).
+     h1 span = #23794B = 3.19:1 (PASS large) — OVERRIDE the brand-green/ink span
+       (the light mint tint gives green-text almost no headroom; deepest span of the set).
+     Eyebrow = #185A38 = 4.87:1 (PASS small) — deep-green family, not navy.
+     Lead = slate --text-body #3d4f5f (~7.6:1, PASS).
+   Spec: planning/spec-service-page-color-palette-2026-06-18.md →
+     "## Final Rollout — AI Ingestion" (contrast block + white-card conversion table).
    ========================================================================== */
 
 
-/* ---- Page Hero — same scaffold as scanning / sharepoint-erms subpages ---- */
-.page-hero { padding: 11rem 0 5rem; background: linear-gradient(175deg, var(--deep-navy) 0%, var(--navy) 60%, #2d5080 100%); position: relative; overflow: hidden; color: var(--white); }
-.page-hero::after { content: ''; position: absolute; inset: 0; background-image: radial-gradient(rgba(255,255,255,0.04) 1px, transparent 1px); background-size: 24px 24px; pointer-events: none; }
+/* ---- Page Hero (two-col layout + breadcrumb) ---- */
+/* TOP-GRADIENT HERO (2026-06-18) — full 180deg vertical fade: translucent spring-green
+   WASH top → light → white floor. The green is built as rgba over the light canvas (not a
+   solid hex) so it reads as a soft, premium mint tint. Navy h1 / deep-green accents /
+   slate lead all clear AA on it. */
+.page-hero {
+  padding: 11rem 0 5rem;
+  position: relative;
+  overflow: hidden;
+  color: var(--navy); /* dark text treatment — top is a pale mint wash, not solid green */
+  background: linear-gradient(180deg,
+      rgba(61,184,122,0.52)  0%,    /* top alpha 0.52 — UNCHANGED; green is light, navy h1 = 6.02:1 */
+      rgba(61,184,122,0.18) 40%,    /* wash thins toward the light canvas */
+      var(--light)          75%,    /* #F5F5F5 — into the light canvas */
+      var(--white)         100%);   /* #FFFFFF — white floor at the very bottom of the hero */
+}
+/* ::before corner glow REMOVED — the vertical gradient now carries all the green;
+   a separate corner glow would double up and muddy. */
+
+/* ---- Mouse-reactive dot field (interactive, 2026-06-18) ----
+   PORTED VERBATIM from services-scanning-topgradient.html. REPLACES the old static
+   ::after radial-gradient dot tile. A <canvas> renders the SAME resting look as the old
+   tile — navy dots rgba(37,66,107,0.10), ~1px radius, 24px grid spacing — but each dot
+   can displace individually toward/away from the cursor. JS owns the field; see the canvas
+   block in <script>. The canvas sits ABOVE the hero gradient background but BELOW
+   .container (z-index 1), so all hero content stays fully legible, and pointer-events:none
+   so it never intercepts clicks/hovers. At rest (and on reduced-motion / touch / no-hover)
+   JS paints the static grid once — identical to the old tile, no layout shift. */
+.hero-dotfield {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 0;            /* above the gradient background; below .container (z-index 1) */
+  display: block;
+}
 .page-hero .container { position: relative; z-index: 1; }
 .page-hero-grid { display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr); gap: 3.5rem; align-items: center; }
 .page-hero-copy { min-width: 0; }
-.page-hero .eyebrow { display: inline-block; font-size: 0.7rem; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; color: var(--gold); margin-bottom: 1rem; }
-.page-hero h1 { font-size: clamp(2rem, 4.5vw, 3.2rem); font-weight: 700; line-height: 1.15; margin-bottom: 1.25rem; letter-spacing: -0.01em; }
-.page-hero h1 span { color: var(--gold); }
-.page-hero p.lead { font-size: 1.1rem; line-height: 1.7; color: rgba(255,255,255,0.82); }
+/* Eyebrow — DEEP GREEN #185A38 (spec A.4): the small 0.7rem uppercase label needs small-text
+   AA (4.5:1). The light mint top tint (0.52 green over #F5F5F5 ≈ rgb(149,213,181)) gives green
+   text almost no headroom; #185A38 measures 4.87:1 on that tint, clearing small-text AA, while
+   staying in the deep-green family (NOT navy). Deepest eyebrow of the three-page rollout. */
+.page-hero .eyebrow { display: inline-block; font-size: 0.7rem; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; color: #185A38; margin-bottom: 1rem; }
+.page-hero h1 { font-size: clamp(2rem, 4.5vw, 3.2rem); font-weight: 700; line-height: 1.15; margin-bottom: 1.25rem; letter-spacing: -0.01em; color: var(--navy); }
+/* h1 highlight span — the colored POP word. On the bright mint top, --accent #3DB87A only
+   reaches ~2.0:1 and even --accent-ink #2E8E5C reaches only ~2.43:1 (both FAIL 3:1 large), so
+   the span is OVERRIDDEN to #23794B (3.19:1, clears 3:1 large at the 32px+ bold h1 size). Still
+   reads as a green pop word (medium-deep green, not navy). Deepest span override in the rollout. */
+.page-hero h1 span { color: #23794B; }
+/* Lead — slate --text-body. On the bright mint wash near the top it clears ~7.6:1; it renders
+   mostly in the lower/light zone where it is well above AA. */
+.page-hero p.lead { font-size: 1.1rem; line-height: 1.7; color: var(--text-body); }
 
-/* Breadcrumb — inherited verbatim */
+/* Breadcrumb — light-version accent treatment (for the pale mint top):
+   links slate --text-body, separators + hover green ink/accent, current-page navy bold. All read
+   on the pale mint wash + light field. */
 .breadcrumb { margin-bottom: 1.25rem; }
 .breadcrumb ol { list-style: none; padding: 0; margin: 0; display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: center; font-size: 0.8rem; }
-.breadcrumb li { display: inline-flex; align-items: center; gap: 0.5rem; color: rgba(255,255,255,0.65); }
-.breadcrumb li + li::before { content: '\203A'; color: var(--gold); font-size: 0.95rem; line-height: 1; padding-right: 0.25rem; }
-.breadcrumb a { color: rgba(255,255,255,0.65); transition: color 0.2s ease; }
-.breadcrumb a:hover { color: var(--gold); }
-.breadcrumb [aria-current="page"] { color: rgba(255,255,255,0.95); font-weight: 700; }
-.breadcrumb [aria-current="step"] { color: rgba(255,255,255,0.85); }
+.breadcrumb li { display: inline-flex; align-items: center; gap: 0.5rem; color: var(--text-body); }
+.breadcrumb li + li::before { content: '\203A'; color: var(--accent-ink); font-size: 0.95rem; line-height: 1; padding-right: 0.25rem; }
+.breadcrumb a { color: var(--text-body); transition: color 0.2s ease; }
+.breadcrumb a:hover { color: var(--accent); }
+.breadcrumb [aria-current="page"] { color: var(--navy); font-weight: 700; }
+.breadcrumb [aria-current="step"] { color: var(--text-body); }
 
 
 /* ==========================================================================
-   Hero Animation — TRANSFORMATION FIELD (12s cycle)
-   Cole's 4 non-negotiable constraints:
-     1. Element density ceiling: 4 focal points max at any moment. The 15-20
-        substrate document glyphs drift AS A GROUP (single CSS transform on
-        the parent group). They never animate individually.
-     2. Icon vocabulary consistency: hero document glyphs use the SAME silhouette
-        as ph-file-text in the Process Diagram (Step 01 "Read"). Both surfaces
-        share a single visual vocabulary for "document."
-     3. AI column color discipline: gold column only, opacity carries the
-        before/after separation. Unsorted = lighter navy (opacity 0.50);
-        sorted = full navy. NO third color anywhere in the hero.
-     4. Reduced-motion fallback: static composite with all three stages drawn
-        simultaneously (scattered left, one mid-process in column, indexed
-        grid on right).
-
-   Stage geometry (viewBox 600x360):
-     LEFT third  (x: 30..200)   — 16 substrate document glyphs, drifting as group
-     MIDDLE third (x: 220..380) — Gold AI column (translucent vertical bar)
-                                  + 1 focal document mid-process (~x=300)
-                                  + 1 metadata pill beside focal doc
-     RIGHT third (x: 400..570)  — M365 tenant boundary (1px navy hairline rect)
-                                  + 4x4 indexed grid of settled documents
-                                  + 1 "most recently settled" focal doc (subtle ring)
-
-   The focal cycle (3s per pass, 4 passes per 12s cycle):
-     0.00s — substrate group sits at scattered initial positions
-     0.00s — a focal document teleports from substrate to MIDDLE column entry
-     0.00..0.60s — focal doc enters column from left, gets gold outline
-     0.60..1.20s — focal doc inside column, metadata pill appears beside it
-     1.20..2.40s — focal doc exits column to right, fades to "indexed" state
-     2.40..3.00s — focal doc lands in indexed grid, last-settled focal ring on it
-     Repeat — next focal doc spawns, previous loses focal ring.
-
-   The substrate group drift: ONE CSS-driven translateX animation, very slow
-   (~6px range over 12s, sinusoidal). Documents themselves are static within
-   the group.
+   Hero Animation — TRANSFORMATION FIELD (12s cycle) — re-skinned to a WHITE CARD.
+   Cole's 4 non-negotiable constraints are preserved (density ceiling, ph-file-text
+   vocabulary, single accent + opacity, reduced-motion static composite). The WHITE-CARD
+   CONVERSION (spec Part B): the frame becomes a white .cinema-stage card; every .ti-*
+   element re-solves on WHITE — STRUCTURE → navy/gray, ACTION → green with the BIGGEST
+   alpha/weight bumps of the rollout (green is the lowest-contrast accent on white, so green
+   at low alpha vanishes fastest; every action stroke goes SOLID --accent, not partial).
    ========================================================================== */
 .hero-story { position: relative; width: 100%; max-width: 560px; margin-left: auto; opacity: 0; transform: translateY(10px); transition: opacity 700ms cubic-bezier(0.4,0,0.2,1), transform 700ms cubic-bezier(0.4,0,0.2,1); }
 .hero-story.is-visible { opacity: 1; transform: translateY(0); }
+/* White card (OneForm .cinema-stage model). The card is OPAQUE, so the green→light gradient
+   behind it never bleeds through; the animation's contrast context is the white card. The card
+   visually bridges the gradient (mint above / light below) — a feature. backdrop-filter REMOVED
+   (nothing to blur behind a solid white card). */
 .hero-story-frame {
   position: relative;
-  background: rgba(255,255,255,0.04);
-  border: 1px solid rgba(255,255,255,0.10);
+  background: var(--white);
+  border: 1px solid rgba(37,66,107,0.12);
   border-radius: 14px;
   padding: 1.25rem 1rem 1rem;
-  backdrop-filter: blur(6px);
-  -webkit-backdrop-filter: blur(6px);
+  box-shadow: 0 20px 60px rgba(37,66,107,0.10), 0 1px 3px rgba(37,66,107,0.06);
 }
 .hero-story-frame::before {
   content: '';
   position: absolute;
   top: 0; left: 0; right: 0; height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(229,166,48,0.5), transparent);
+  background: linear-gradient(90deg, transparent, rgba(61,184,122,0.6), transparent);
 }
 .hero-story-svg { width: 100%; height: auto; display: block; aspect-ratio: 600 / 360; }
 .hero-story-legend {
   display: flex; justify-content: space-between; align-items: center;
   margin-top: 0.6rem; padding: 0 0.25rem;
   font-size: 0.62rem; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase;
-  color: rgba(255,255,255,0.62);
+  color: var(--text-body);
 }
 .hero-story-legend span { display: inline-flex; align-items: center; gap: 0.35rem; }
+/* Legend dot — bare green on white ≈ 2.3:1 (under 3:1 UI). Drop the glow halo (muddies on
+   white) and use the deeper ink #2E8E5C + a thin ring so the marker reads as a defined dot. */
 .hero-story-legend .dot {
   display: inline-block; width: 6px; height: 6px; border-radius: 50%;
-  background: var(--gold); box-shadow: 0 0 6px rgba(229,166,48,0.7);
+  background: var(--accent-ink); box-shadow: 0 0 0 1px rgba(46,142,92,0.5);
 }
-.hero-caption { margin-top: 1.1rem; font-size: 0.82rem; line-height: 1.55; color: rgba(255,255,255,0.62); font-style: italic; }
+/* Caption — sits BELOW the white card, in the lower/light zone of the hero, so slate stays legible. */
+.hero-caption { margin-top: 1.1rem; font-size: 0.82rem; line-height: 1.55; color: var(--text-body); font-style: italic; }
 
-/* ---- SVG element styling — navy + gold only, opacity carries state ---- */
+/* ---- SVG element styling — re-solved ON WHITE. Navy carries STRUCTURE; green carries ACTION
+   (biggest alpha/weight bumps of the rollout so green holds on the white card). ---- */
 
-/* Background grid for "system" feel (matches scanning hero) */
-.ti-bg-grid { stroke: rgba(255,255,255,0.05); stroke-width: 1; }
+/* Background grid for "system" feel — STRUCTURE → navy faint grid */
+.ti-bg-grid { stroke: rgba(37,66,107,0.06); stroke-width: 1; }
 
-/* Substrate document glyph — lighter navy fill, drifts as group */
+/* Substrate document glyph — STRUCTURE: scattered unsorted docs read as muted gray-navy chips
+   on white (dull but visible), drift as group */
 .ti-doc {
-  fill: rgba(255,255,255,0.10);
-  stroke: rgba(197,205,216,0.55);   /* lighter navy via white-tint at low opacity over navy bg */
+  fill: rgba(37,66,107,0.05);
+  stroke: rgba(124,136,150,0.6);
   stroke-width: 1;
 }
-.ti-doc-line { stroke: rgba(197,205,216,0.45); stroke-width: 0.8; }
+.ti-doc-line { stroke: rgba(124,136,150,0.5); stroke-width: 0.8; }
 
-/* Settled document — full navy treatment (gold-tinted to read as "indexed") */
+/* Settled document — ACTION/payoff: the 4x4 indexed grid is the payoff; it must read GREEN,
+   not white. Fill bumped 0.10→0.12; stroke SOLID --accent. */
 .ti-doc-settled {
-  fill: rgba(229,166,48,0.10);
-  stroke: rgba(229,166,48,0.70);
+  fill: rgba(61,184,122,0.12);
+  stroke: var(--accent);
   stroke-width: 1;
 }
-.ti-doc-settled-line { stroke: rgba(229,166,48,0.55); stroke-width: 0.8; }
+.ti-doc-settled-line { stroke: rgba(61,184,122,0.75); stroke-width: 0.8; }
 
-/* Focal document — currently being processed; full white/gold outline */
+/* Focal document — ACTION (one of the two highest-risk): white-alpha on white = invisible.
+   Solid #FFFFFF fill + solid green outline (white-paper-on-white-card fix). Lines near-solid. */
 .ti-doc-focal {
-  fill: rgba(255,255,255,0.18);
-  stroke: var(--gold);
+  fill: var(--white);
+  stroke: var(--accent);
   stroke-width: 1.6;
 }
-.ti-doc-focal-line { stroke: rgba(229,166,48,0.85); stroke-width: 1; }
+.ti-doc-focal-line { stroke: rgba(61,184,122,0.95); stroke-width: 1; }
 
-/* AI column — translucent gold vertical bar in middle */
+/* AI column — ACTION, HIGHEST-RISK element: the literal center of the ingestion story.
+   A 10% green fill + 0.55 green stroke that glowed on dark goes nearly invisible on white,
+   so the whole "pipeline" reads as empty space. Bump fill 0.10→0.12 and make the stroke
+   SOLID --accent so it reads as a defined green column. */
 .ti-ai-col {
-  fill: rgba(229,166,48,0.10);
-  stroke: rgba(229,166,48,0.55);
+  fill: rgba(61,184,122,0.12);
+  stroke: var(--accent);
   stroke-width: 1.5;
 }
 .ti-ai-col-pulse {
   fill: none;
-  stroke: var(--gold);
+  stroke: var(--accent);
   stroke-width: 1.5;
   opacity: 0.5;
 }
 .ti-ai-label {
-  fill: var(--gold);
+  fill: var(--accent-ink);   /* ACTION label, 8px small on white → green ink #2E8E5C */
   font-size: 8px;
   font-weight: 700;
   letter-spacing: 1.5px;
@@ -163,15 +210,16 @@
   text-anchor: middle;
 }
 
-/* Metadata pill beside focal doc */
+/* Metadata pill beside focal doc — ACTION: KEEP deep-navy (the ONE intentional dark element;
+   a deep-navy chip with green text reads great on white; mirrors SharePoint's M365 pill). */
 .ti-pill {
   fill: var(--deep-navy);
-  stroke: var(--gold);
+  stroke: var(--accent);
   stroke-width: 1;
   opacity: 0;
 }
 .ti-pill-text {
-  fill: var(--gold);
+  fill: var(--accent);
   font-size: 7px;
   font-weight: 700;
   letter-spacing: 0.8px;
@@ -181,15 +229,15 @@
   opacity: 0;
 }
 
-/* M365 tenant boundary (right side) — same vocabulary as SharePoint ERMS hero */
+/* M365 tenant boundary (right side) — STRUCTURE: flip white→navy boundary (tenant signature) */
 .ti-tenant {
   fill: none;
-  stroke: rgba(255,255,255,0.30);
+  stroke: rgba(37,66,107,0.30);
   stroke-width: 1;
   stroke-dasharray: 3 4;
 }
 .ti-tenant-label {
-  fill: rgba(255,255,255,0.55);
+  fill: var(--navy);   /* STRUCTURE label → navy */
   font-size: 8px;
   font-weight: 700;
   letter-spacing: 1.5px;
@@ -198,10 +246,11 @@
   text-anchor: middle;
 }
 
-/* "Last settled" focal ring on the most recently indexed grid slot */
+/* "Last settled" focal ring on the most recently indexed grid slot — ACTION: green ring pulse
+   on white needs a higher peak than the others (green is faintest); JS fades to a high peak. */
 .ti-settled-ring {
   fill: none;
-  stroke: var(--gold);
+  stroke: var(--accent);
   stroke-width: 1.2;
   opacity: 0;
 }
@@ -216,9 +265,6 @@
 
   /* AI column subtle vertical pulse — separate from focal cycle */
   .ti-ai-col-pulse { animation: ti-ai-pulse 2.6s ease-in-out infinite; }
-
-  /* Focal document cycle — driven by JS (transform attribute updated each frame).
-     The pill + settled ring opacity transitions are handled inline via JS. */
 }
 
 @keyframes ti-substrate-drift {
@@ -228,16 +274,18 @@
   75%  { transform: translateX(3px)  translateY(1.5px); }
   100% { transform: translateX(0)    translateY(0); }
 }
+/* AI column pulse — peak opacity raised to 0.78 (was 0.75): on white the green pulse at 0.5
+   vanishes; the higher peak keeps it legible (spec Part B, .ti-ai-col-pulse). */
 @keyframes ti-ai-pulse {
-  0%, 100% { opacity: 0.35; stroke-width: 1.5; }
-  50%      { opacity: 0.75; stroke-width: 2; }
+  0%, 100% { opacity: 0.40; stroke-width: 1.5; }
+  50%      { opacity: 0.78; stroke-width: 2; }
 }
 
 /* Reduced motion — hide live stage, show static composite */
 @media (prefers-reduced-motion: reduce) {
   #tiLiveStage { display: none; }
   #tiStaticScene { display: block !important; }
-  .ti-ai-col-pulse { animation: none; opacity: 0.55; }
+  .ti-ai-col-pulse { animation: none; opacity: 0.6; }
 }
 #tiStaticScene { display: none; }
 
@@ -247,7 +295,7 @@
 .section.alt { background: var(--light); }
 .section.breathe { padding: 7rem 0; }
 .section-header { text-align: center; max-width: 760px; margin: 0 auto 2.5rem; }
-.section .section-eyebrow { display: block; font-size: 0.7rem; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; color: var(--gold); margin-bottom: 0.75rem; }
+.section .section-eyebrow { display: block; font-size: 0.7rem; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; color: var(--accent-ink); margin-bottom: 0.75rem; }
 .section h2 { font-size: clamp(1.6rem, 2.6vw, 2rem); font-weight: 700; line-height: 1.2; margin-bottom: 1rem; letter-spacing: -0.01em; color: var(--navy); }
 .section-header h2 { max-width: 760px; margin-left: auto; margin-right: auto; }
 .section-intro { font-size: 1.05rem; line-height: 1.75; color: var(--text-body); margin: 0 auto 0; max-width: 640px; }
@@ -260,11 +308,11 @@
    the hero document glyph (Cole's icon vocabulary consistency lock).
    ========================================================================== */
 .steps { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; margin: 1.5rem 0 1.75rem; position: relative; list-style: none; padding: 0; }
-.steps::before { content: ''; position: absolute; top: 66px; left: calc(12.5% + 18px); right: calc(12.5% + 18px); height: 2px; background: linear-gradient(to right, rgba(229,166,48,0.45), rgba(229,166,48,0.45) 80%, rgba(229,166,48,0.10)); z-index: 0; pointer-events: none; }
+.steps::before { content: ''; position: absolute; top: 66px; left: calc(12.5% + 18px); right: calc(12.5% + 18px); height: 2px; background: linear-gradient(to right, rgba(61,184,122,0.45), rgba(61,184,122,0.45) 80%, rgba(61,184,122,0.10)); z-index: 0; pointer-events: none; }
 .step { position: relative; z-index: 1; display: flex; flex-direction: column; align-items: flex-start; }
-.step-icon { display: inline-flex; align-items: center; justify-content: center; width: 48px; height: 48px; border-radius: 8px; background: rgba(229,166,48,0.10); margin-bottom: 0.5rem; }
+.step-icon { display: inline-flex; align-items: center; justify-content: center; width: 48px; height: 48px; border-radius: 8px; background: rgba(61,184,122,0.10); margin-bottom: 0.5rem; }
 .step-icon i { font-size: 28px; color: var(--navy); line-height: 1; }
-.step-num { display: inline-flex; align-items: center; justify-content: center; width: 36px; height: 36px; border-radius: 50%; background: var(--gold); color: var(--deep-navy); font-size: 0.78rem; font-weight: 700; letter-spacing: 0.02em; margin-bottom: 0.85rem; box-shadow: 0 0 0 4px var(--white); }
+.step-num { display: inline-flex; align-items: center; justify-content: center; width: 36px; height: 36px; border-radius: 50%; background: var(--accent); color: var(--deep-navy); font-size: 0.78rem; font-weight: 700; letter-spacing: 0.02em; margin-bottom: 0.85rem; box-shadow: 0 0 0 4px var(--white); }
 .step-label { font-size: 0.82rem; font-weight: 700; color: var(--navy); letter-spacing: 0.02em; text-transform: uppercase; margin-bottom: 0.4rem; }
 .step-copy { font-size: 0.88rem; line-height: 1.55; color: var(--text-body); margin: 0; }
 
@@ -295,7 +343,7 @@
 .compare-col .compare-icon { display: inline-flex; align-items: center; justify-content: center; width: 48px; height: 48px; border-radius: 8px; margin-bottom: 0.25rem; }
 .compare-col.is-left .compare-icon { background: rgba(124,136,150,0.12); }
 .compare-col.is-left .compare-icon i { font-size: 28px; color: #7c8896; line-height: 1; }
-.compare-col.is-right .compare-icon { background: rgba(229,166,48,0.12); }
+.compare-col.is-right .compare-icon { background: rgba(61,184,122,0.12); }
 .compare-col.is-right .compare-icon i { font-size: 28px; color: var(--navy); line-height: 1; }
 .compare-col h3 { font-size: clamp(1.05rem, 1.6vw, 1.25rem); font-weight: 700; line-height: 1.25; letter-spacing: -0.005em; }
 .compare-col.is-left h3 { color: #7c8896; }
@@ -303,16 +351,16 @@
 .compare-col p { font-size: 0.98rem; line-height: 1.65; margin: 0; }
 .compare-col.is-left p { color: #7c8896; }
 .compare-col.is-right p { color: var(--text-body); }
-.compare-divider { width: 1px; background: linear-gradient(to bottom, transparent, var(--gold) 20%, var(--gold) 80%, transparent); margin: 0 1rem; min-height: 100%; }
+.compare-divider { width: 1px; background: linear-gradient(to bottom, transparent, var(--accent) 20%, var(--accent) 80%, transparent); margin: 0 1rem; min-height: 100%; }
 
-.compare-closer { max-width: 720px; margin: 2.5rem auto 0; text-align: center; padding: 1.25rem 1.5rem; border-top: 2px solid var(--gold); }
+.compare-closer { max-width: 720px; margin: 2.5rem auto 0; text-align: center; padding: 1.25rem 1.5rem; border-top: 2px solid var(--accent); }
 .compare-closer p { font-size: 1.1rem; line-height: 1.5; color: var(--navy); font-weight: 700; letter-spacing: -0.005em; margin: 0; }
 
 
 /* ==========================================================================
    SECTION 3 — Editorial Pull-Quote (inherited verbatim)
    ========================================================================== */
-.archive-quote { max-width: 760px; margin: 0 auto; padding: 2rem 2.25rem; background: rgba(229,166,48,0.08); border-left: 4px solid var(--gold); border-radius: 4px; opacity: 0; transform: translateY(8px); transition: opacity 600ms cubic-bezier(0.4,0,0.2,1), transform 600ms cubic-bezier(0.4,0,0.2,1); }
+.archive-quote { max-width: 760px; margin: 0 auto; padding: 2rem 2.25rem; background: rgba(61,184,122,0.08); border-left: 4px solid var(--accent); border-radius: 4px; opacity: 0; transform: translateY(8px); transition: opacity 600ms cubic-bezier(0.4,0,0.2,1), transform 600ms cubic-bezier(0.4,0,0.2,1); }
 .archive-quote.is-visible { opacity: 1; transform: translateY(0); }
 .archive-quote p { font-size: 1.25rem; line-height: 1.5; color: var(--navy); font-weight: 700; margin: 0; letter-spacing: -0.005em; }
 
@@ -323,8 +371,12 @@
 .cta-strip { background: var(--navy); padding: 4rem 0; color: var(--white); text-align: center; }
 .cta-strip h2 { color: var(--white); font-size: clamp(1.5rem, 2.4vw, 2rem); margin-bottom: 1rem; max-width: 720px; margin-left: auto; margin-right: auto; }
 .cta-strip p { color: rgba(255,255,255,0.78); max-width: 640px; margin: 0 auto 1.75rem; line-height: 1.7; }
-.btn-primary { display: inline-block; padding: 0.85rem 2rem; background: var(--gold); color: var(--deep-navy); font-size: 0.95rem; font-weight: 700; border-radius: 6px; text-decoration: none; transition: all 0.3s; border: none; cursor: pointer; }
-.btn-primary:hover { background: #d4952a; transform: translateY(-2px); box-shadow: 0 6px 20px rgba(229,166,48,0.35); }
+.btn-primary { display: inline-block; padding: 0.85rem 2rem; background: var(--accent); color: var(--deep-navy); font-size: 0.95rem; font-weight: 700; border-radius: 6px; text-decoration: none; transition: all 0.3s; border: none; cursor: pointer; }
+/* Hover fill is a BRIGHTER mint (not the darker --accent-ink) so deep-navy text keeps
+   ≥4.5:1 AA on hover (#4FC98A → ~6.74:1; the old --accent-ink #2E8E5C dropped it to ~3.43:1).
+   State change still reads via the brighter fill + translateY lift + shadow. Button-scoped
+   only — --accent-ink stays dark for eyebrows/links elsewhere. */
+.btn-primary:hover { background: #4FC98A; transform: translateY(-2px); box-shadow: 0 6px 20px rgba(61,184,122,0.35); }
 .btn-primary:focus-visible { outline: 3px solid var(--white); outline-offset: 3px; }
 
 
@@ -336,7 +388,7 @@
    no border-weight change, no extra padding. Only horizontal alignment changes.
    ========================================================================== */
 .cross-link { padding: 5rem 0; background: var(--light); text-align: center; }
-.cross-link .section-eyebrow { display: block; font-size: 0.7rem; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; color: var(--gold); margin-bottom: 0.75rem; }
+.cross-link .section-eyebrow { display: block; font-size: 0.7rem; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; color: var(--accent-ink); margin-bottom: 0.75rem; }
 .cross-link h2 { font-size: clamp(1.6rem, 2.6vw, 2rem); font-weight: 700; line-height: 1.2; margin-bottom: 2.5rem; letter-spacing: -0.01em; color: var(--navy); }
 .cross-link-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; max-width: 880px; margin: 0 auto 2rem; text-align: left; }
 
@@ -349,20 +401,22 @@
    wrapper. */
 .cross-link-grid.is-single { grid-template-columns: 428px; justify-content: center; max-width: 880px; }
 
-.cross-link-card { display: flex; flex-direction: column; gap: 0.75rem; padding: 1.75rem 1.75rem 1.5rem; background: var(--white); border-left: 4px solid var(--gold); border-radius: 4px; box-shadow: 0 2px 8px rgba(37,66,107,0.04); transition: transform 300ms ease, box-shadow 300ms ease; text-decoration: none; }
+.cross-link-card { display: flex; flex-direction: column; gap: 0.75rem; padding: 1.75rem 1.75rem 1.5rem; background: var(--white); border-left: 4px solid var(--xlink-ui); border-radius: 4px; box-shadow: 0 2px 8px rgba(37,66,107,0.04); transition: transform 300ms ease, box-shadow 300ms ease; text-decoration: none; }
 .cross-link-card:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(37,66,107,0.10); }
-.cross-link-card:focus-visible { outline: 3px solid var(--gold); outline-offset: 3px; }
-.cross-link-card .card-eyebrow { font-size: 0.65rem; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; color: var(--gold); }
+.cross-link-card:focus-visible { outline: 3px solid var(--xlink-ui); outline-offset: 3px; }
+.cross-link-card .card-eyebrow { font-size: 0.65rem; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; color: var(--xlink-ink); }
 .cross-link-card h3 { font-size: clamp(1.15rem, 1.8vw, 1.35rem); font-weight: 700; color: var(--navy); line-height: 1.25; letter-spacing: -0.005em; position: relative; display: inline-block; }
-.cross-link-card h3::after { content: ''; position: absolute; bottom: -2px; left: 0; width: 0; height: 2px; background: var(--gold); transition: width 300ms ease; }
+.cross-link-card h3::after { content: ''; position: absolute; bottom: -2px; left: 0; width: 0; height: 2px; background: var(--xlink-ui); transition: width 300ms ease; }
 .cross-link-card:hover h3::after { width: 100%; }
 .cross-link-card p { font-size: 0.95rem; line-height: 1.65; color: var(--text-body); margin: 0; }
 .cross-link-card .card-arrow { margin-top: auto; display: inline-flex; align-items: center; gap: 0.4rem; font-size: 0.82rem; font-weight: 700; color: var(--navy); letter-spacing: 0.02em; padding-top: 0.5rem; }
 .cross-link-card .card-arrow i { font-size: 18px; transition: transform 300ms ease; }
-.cross-link-card:hover .card-arrow i { transform: translateX(4px); color: var(--gold); }
+.cross-link-card:hover .card-arrow i { transform: translateX(4px); color: var(--xlink-ui); }
+/* Destination color-coding — each cross-link card wears the accent of the page it LINKS TO (AI Ingestion links to 1DocStop). Values on white per spec §C. */
+.cross-link-card.dest-1docstop { --xlink-ui: #2E7DB5; --xlink-ink: #2A6FA0; }
 .cross-link-framework { display: inline-flex; align-items: center; gap: 0.4rem; font-size: 0.9rem; font-weight: 700; color: var(--navy); letter-spacing: 0.02em; position: relative; }
-.cross-link-framework::after { content: ''; position: absolute; bottom: -3px; left: 0; width: 100%; height: 2px; background: var(--gold); transform: scaleX(0); transform-origin: left; transition: transform 300ms ease; }
-.cross-link-framework:hover { color: var(--gold); }
+.cross-link-framework::after { content: ''; position: absolute; bottom: -3px; left: 0; width: 100%; height: 2px; background: var(--accent); transform: scaleX(0); transform-origin: left; transition: transform 300ms ease; }
+.cross-link-framework:hover { color: var(--accent); }
 .cross-link-framework:hover::after { transform: scaleX(1); }
 
 
@@ -510,8 +564,13 @@
 
 <!-- ============================================================
      PAGE HERO — two-column with transformation-field animation
+     TOP-GRADIENT variant: mint top wash + reactive navy dot field + white animation card
      ============================================================ -->
 <section class="page-hero">
+  <!-- Mouse-reactive navy dot field (interactive). Painted above the gradient background but
+       below .container. JS draws the resting grid and displaces dots near the cursor.
+       Ported verbatim from services-scanning-topgradient.html. -->
+  <canvas class="hero-dotfield" id="heroDotField" aria-hidden="true"></canvas>
   <div class="container">
     <div class="page-hero-grid">
       <div class="page-hero-copy">
@@ -527,7 +586,7 @@
         <p class="lead">Decades of paper and digital records sit in agency archives &mdash; uncatalogued, unsearchable, untouched. Our AI ingestion tool reads each record, classifies it, and indexes it into your SharePoint environment. The archive becomes a searchable foundation. Configured inside the Microsoft 365 license you already own.</p>
       </div>
 
-      <div class="hero-story" id="heroStory" role="img" aria-label="Animation: an unstructured field of document glyphs at the left drifts inward, passes through a translucent gold AI processing column where one document is highlighted and tagged with a metadata pill, and emerges on the right organized into a clean indexed grid inside a Microsoft 365 tenant boundary.">
+      <div class="hero-story" id="heroStory" role="img" aria-label="Animation: an unstructured field of document glyphs at the left drifts inward, passes through a translucent green AI processing column where one document is highlighted and tagged with a metadata pill, and emerges on the right organized into a clean indexed grid inside a Microsoft 365 tenant boundary.">
         <div class="hero-story-frame">
           <svg class="hero-story-svg" viewBox="0 0 600 360" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
             <defs>
@@ -559,48 +618,47 @@
 
               <!-- LEFT THIRD — Substrate document glyphs (drift as a group via CSS).
                    16 documents at scattered positions and rotations, all using the
-                   .ti-doc styling (lighter navy, opacity treatment per Cole's
-                   constraint #3 — no third color, opacity carries unsorted state). -->
+                   .ti-doc styling. On white: muted gray-navy chips. -->
               <g id="tiSubstrate" aria-hidden="true">
                 <!-- Column 1 -->
                 <g transform="translate(40,40) rotate(-12)">
-                  <rect width="22" height="28" rx="1.5" class="ti-doc" fill="rgba(255,255,255,0.10)" stroke-width="1"/>
-                  <path d="M 14 0 L 14 8 L 22 8" fill="none" stroke="rgba(197,205,216,0.55)" stroke-width="1"/>
+                  <rect width="22" height="28" rx="1.5" class="ti-doc"/>
+                  <path d="M 14 0 L 14 8 L 22 8" fill="none" stroke="rgba(124,136,150,0.6)" stroke-width="1"/>
                   <line x1="4" y1="13" x2="17" y2="13" class="ti-doc-line"/>
                   <line x1="4" y1="17" x2="14" y2="17" class="ti-doc-line"/>
                   <line x1="4" y1="21" x2="17" y2="21" class="ti-doc-line"/>
                 </g>
                 <g transform="translate(70,90) rotate(8)">
                   <rect width="22" height="28" rx="1.5" class="ti-doc"/>
-                  <path d="M 14 0 L 14 8 L 22 8" fill="none" stroke="rgba(197,205,216,0.55)" stroke-width="1"/>
+                  <path d="M 14 0 L 14 8 L 22 8" fill="none" stroke="rgba(124,136,150,0.6)" stroke-width="1"/>
                   <line x1="4" y1="13" x2="17" y2="13" class="ti-doc-line"/>
                   <line x1="4" y1="17" x2="14" y2="17" class="ti-doc-line"/>
                   <line x1="4" y1="21" x2="17" y2="21" class="ti-doc-line"/>
                 </g>
                 <g transform="translate(30,140) rotate(-6)">
                   <rect width="22" height="28" rx="1.5" class="ti-doc"/>
-                  <path d="M 14 0 L 14 8 L 22 8" fill="none" stroke="rgba(197,205,216,0.55)" stroke-width="1"/>
+                  <path d="M 14 0 L 14 8 L 22 8" fill="none" stroke="rgba(124,136,150,0.6)" stroke-width="1"/>
                   <line x1="4" y1="13" x2="17" y2="13" class="ti-doc-line"/>
                   <line x1="4" y1="17" x2="14" y2="17" class="ti-doc-line"/>
                   <line x1="4" y1="21" x2="17" y2="21" class="ti-doc-line"/>
                 </g>
                 <g transform="translate(75,190) rotate(15)">
                   <rect width="22" height="28" rx="1.5" class="ti-doc"/>
-                  <path d="M 14 0 L 14 8 L 22 8" fill="none" stroke="rgba(197,205,216,0.55)" stroke-width="1"/>
+                  <path d="M 14 0 L 14 8 L 22 8" fill="none" stroke="rgba(124,136,150,0.6)" stroke-width="1"/>
                   <line x1="4" y1="13" x2="17" y2="13" class="ti-doc-line"/>
                   <line x1="4" y1="17" x2="14" y2="17" class="ti-doc-line"/>
                   <line x1="4" y1="21" x2="17" y2="21" class="ti-doc-line"/>
                 </g>
                 <g transform="translate(45,235) rotate(-10)">
                   <rect width="22" height="28" rx="1.5" class="ti-doc"/>
-                  <path d="M 14 0 L 14 8 L 22 8" fill="none" stroke="rgba(197,205,216,0.55)" stroke-width="1"/>
+                  <path d="M 14 0 L 14 8 L 22 8" fill="none" stroke="rgba(124,136,150,0.6)" stroke-width="1"/>
                   <line x1="4" y1="13" x2="17" y2="13" class="ti-doc-line"/>
                   <line x1="4" y1="17" x2="14" y2="17" class="ti-doc-line"/>
                   <line x1="4" y1="21" x2="17" y2="21" class="ti-doc-line"/>
                 </g>
                 <g transform="translate(80,290) rotate(5)">
                   <rect width="22" height="28" rx="1.5" class="ti-doc"/>
-                  <path d="M 14 0 L 14 8 L 22 8" fill="none" stroke="rgba(197,205,216,0.55)" stroke-width="1"/>
+                  <path d="M 14 0 L 14 8 L 22 8" fill="none" stroke="rgba(124,136,150,0.6)" stroke-width="1"/>
                   <line x1="4" y1="13" x2="17" y2="13" class="ti-doc-line"/>
                   <line x1="4" y1="17" x2="14" y2="17" class="ti-doc-line"/>
                   <line x1="4" y1="21" x2="17" y2="21" class="ti-doc-line"/>
@@ -609,35 +667,35 @@
                 <!-- Column 2 (deeper into left third) -->
                 <g transform="translate(120,55) rotate(11)">
                   <rect width="22" height="28" rx="1.5" class="ti-doc"/>
-                  <path d="M 14 0 L 14 8 L 22 8" fill="none" stroke="rgba(197,205,216,0.55)" stroke-width="1"/>
+                  <path d="M 14 0 L 14 8 L 22 8" fill="none" stroke="rgba(124,136,150,0.6)" stroke-width="1"/>
                   <line x1="4" y1="13" x2="17" y2="13" class="ti-doc-line"/>
                   <line x1="4" y1="17" x2="14" y2="17" class="ti-doc-line"/>
                   <line x1="4" y1="21" x2="17" y2="21" class="ti-doc-line"/>
                 </g>
                 <g transform="translate(150,110) rotate(-15)">
                   <rect width="22" height="28" rx="1.5" class="ti-doc"/>
-                  <path d="M 14 0 L 14 8 L 22 8" fill="none" stroke="rgba(197,205,216,0.55)" stroke-width="1"/>
+                  <path d="M 14 0 L 14 8 L 22 8" fill="none" stroke="rgba(124,136,150,0.6)" stroke-width="1"/>
                   <line x1="4" y1="13" x2="17" y2="13" class="ti-doc-line"/>
                   <line x1="4" y1="17" x2="14" y2="17" class="ti-doc-line"/>
                   <line x1="4" y1="21" x2="17" y2="21" class="ti-doc-line"/>
                 </g>
                 <g transform="translate(125,170) rotate(7)">
                   <rect width="22" height="28" rx="1.5" class="ti-doc"/>
-                  <path d="M 14 0 L 14 8 L 22 8" fill="none" stroke="rgba(197,205,216,0.55)" stroke-width="1"/>
+                  <path d="M 14 0 L 14 8 L 22 8" fill="none" stroke="rgba(124,136,150,0.6)" stroke-width="1"/>
                   <line x1="4" y1="13" x2="17" y2="13" class="ti-doc-line"/>
                   <line x1="4" y1="17" x2="14" y2="17" class="ti-doc-line"/>
                   <line x1="4" y1="21" x2="17" y2="21" class="ti-doc-line"/>
                 </g>
                 <g transform="translate(155,220) rotate(-8)">
                   <rect width="22" height="28" rx="1.5" class="ti-doc"/>
-                  <path d="M 14 0 L 14 8 L 22 8" fill="none" stroke="rgba(197,205,216,0.55)" stroke-width="1"/>
+                  <path d="M 14 0 L 14 8 L 22 8" fill="none" stroke="rgba(124,136,150,0.6)" stroke-width="1"/>
                   <line x1="4" y1="13" x2="17" y2="13" class="ti-doc-line"/>
                   <line x1="4" y1="17" x2="14" y2="17" class="ti-doc-line"/>
                   <line x1="4" y1="21" x2="17" y2="21" class="ti-doc-line"/>
                 </g>
                 <g transform="translate(130,275) rotate(13)">
                   <rect width="22" height="28" rx="1.5" class="ti-doc"/>
-                  <path d="M 14 0 L 14 8 L 22 8" fill="none" stroke="rgba(197,205,216,0.55)" stroke-width="1"/>
+                  <path d="M 14 0 L 14 8 L 22 8" fill="none" stroke="rgba(124,136,150,0.6)" stroke-width="1"/>
                   <line x1="4" y1="13" x2="17" y2="13" class="ti-doc-line"/>
                   <line x1="4" y1="17" x2="14" y2="17" class="ti-doc-line"/>
                   <line x1="4" y1="21" x2="17" y2="21" class="ti-doc-line"/>
@@ -646,40 +704,40 @@
                 <!-- Column 3 (close to AI column entry) — slightly fewer, sparser -->
                 <g transform="translate(185,75) rotate(-9)">
                   <rect width="22" height="28" rx="1.5" class="ti-doc"/>
-                  <path d="M 14 0 L 14 8 L 22 8" fill="none" stroke="rgba(197,205,216,0.55)" stroke-width="1"/>
+                  <path d="M 14 0 L 14 8 L 22 8" fill="none" stroke="rgba(124,136,150,0.6)" stroke-width="1"/>
                   <line x1="4" y1="13" x2="17" y2="13" class="ti-doc-line"/>
                   <line x1="4" y1="17" x2="14" y2="17" class="ti-doc-line"/>
                   <line x1="4" y1="21" x2="17" y2="21" class="ti-doc-line"/>
                 </g>
                 <g transform="translate(180,135) rotate(6)">
                   <rect width="22" height="28" rx="1.5" class="ti-doc"/>
-                  <path d="M 14 0 L 14 8 L 22 8" fill="none" stroke="rgba(197,205,216,0.55)" stroke-width="1"/>
+                  <path d="M 14 0 L 14 8 L 22 8" fill="none" stroke="rgba(124,136,150,0.6)" stroke-width="1"/>
                   <line x1="4" y1="13" x2="17" y2="13" class="ti-doc-line"/>
                   <line x1="4" y1="17" x2="14" y2="17" class="ti-doc-line"/>
                   <line x1="4" y1="21" x2="17" y2="21" class="ti-doc-line"/>
                 </g>
                 <g transform="translate(190,200) rotate(-14)">
                   <rect width="22" height="28" rx="1.5" class="ti-doc"/>
-                  <path d="M 14 0 L 14 8 L 22 8" fill="none" stroke="rgba(197,205,216,0.55)" stroke-width="1"/>
+                  <path d="M 14 0 L 14 8 L 22 8" fill="none" stroke="rgba(124,136,150,0.6)" stroke-width="1"/>
                   <line x1="4" y1="13" x2="17" y2="13" class="ti-doc-line"/>
                   <line x1="4" y1="17" x2="14" y2="17" class="ti-doc-line"/>
                   <line x1="4" y1="21" x2="17" y2="21" class="ti-doc-line"/>
                 </g>
                 <g transform="translate(175,255) rotate(10)">
                   <rect width="22" height="28" rx="1.5" class="ti-doc"/>
-                  <path d="M 14 0 L 14 8 L 22 8" fill="none" stroke="rgba(197,205,216,0.55)" stroke-width="1"/>
+                  <path d="M 14 0 L 14 8 L 22 8" fill="none" stroke="rgba(124,136,150,0.6)" stroke-width="1"/>
                   <line x1="4" y1="13" x2="17" y2="13" class="ti-doc-line"/>
                   <line x1="4" y1="17" x2="14" y2="17" class="ti-doc-line"/>
                   <line x1="4" y1="21" x2="17" y2="21" class="ti-doc-line"/>
                 </g>
 
-                <!-- Substrate label (subtle, low-opacity) -->
-                <text class="ti-tenant-label" x="110" y="338" style="fill: rgba(197,205,216,0.45);">Unstructured Archive</text>
+                <!-- Substrate label (subtle) — gray on white -->
+                <text class="ti-tenant-label" x="110" y="338" style="fill: rgba(124,136,150,0.6);">Unstructured Archive</text>
               </g>
 
               <!-- MIDDLE THIRD — AI column.
-                   Translucent gold vertical bar with subtle pulse animation (CSS).
-                   Cole's constraint #3: gold only, no third color. -->
+                   Translucent green vertical bar with subtle pulse animation (CSS).
+                   On white: 0.12 green fill + SOLID --accent stroke (highest-risk element). -->
               <g aria-hidden="true">
                 <!-- AI column body -->
                 <rect class="ti-ai-col" x="260" y="40" width="80" height="280" rx="8"/>
@@ -687,75 +745,66 @@
                 <rect class="ti-ai-col-pulse" x="260" y="40" width="80" height="280" rx="8"/>
                 <!-- AI label at top of column -->
                 <text class="ti-ai-label" x="300" y="62">AI</text>
-                <!-- Vertical "scanning lines" inside column for texture -->
-                <line x1="270" y1="100" x2="330" y2="100" stroke="rgba(229,166,48,0.20)" stroke-width="0.8" stroke-dasharray="3 4"/>
-                <line x1="270" y1="160" x2="330" y2="160" stroke="rgba(229,166,48,0.20)" stroke-width="0.8" stroke-dasharray="3 4"/>
-                <line x1="270" y1="220" x2="330" y2="220" stroke="rgba(229,166,48,0.20)" stroke-width="0.8" stroke-dasharray="3 4"/>
-                <line x1="270" y1="280" x2="330" y2="280" stroke="rgba(229,166,48,0.20)" stroke-width="0.8" stroke-dasharray="3 4"/>
+                <!-- Vertical "scanning lines" inside column for texture — bumped alpha for white -->
+                <line x1="270" y1="100" x2="330" y2="100" stroke="rgba(61,184,122,0.45)" stroke-width="0.8" stroke-dasharray="3 4"/>
+                <line x1="270" y1="160" x2="330" y2="160" stroke="rgba(61,184,122,0.45)" stroke-width="0.8" stroke-dasharray="3 4"/>
+                <line x1="270" y1="220" x2="330" y2="220" stroke="rgba(61,184,122,0.45)" stroke-width="0.8" stroke-dasharray="3 4"/>
+                <line x1="270" y1="280" x2="330" y2="280" stroke="rgba(61,184,122,0.45)" stroke-width="0.8" stroke-dasharray="3 4"/>
               </g>
 
               <!-- Focal document — animated by JS each frame.
-                   Moves left→right across viewBox x: 220 → 380, y: 166 (center band).
-                   Style changes: substrate-state (left of col) → focal (gold outline,
-                   in col) → indexed (settled gold, right of col). -->
+                   On white: SOLID white fill + SOLID green outline (white-on-white fix). -->
               <g id="tiFocalGroup" transform="translate(220,166) rotate(0)">
                 <rect id="tiFocalRect" x="0" y="0" width="22" height="28" rx="1.5"
-                      fill="rgba(255,255,255,0.18)" stroke="rgba(229,166,48,0.85)" stroke-width="1.6"/>
-                <path d="M 14 0 L 14 8 L 22 8" fill="none" stroke="rgba(229,166,48,0.85)" stroke-width="1.4"/>
-                <line x1="4" y1="13" x2="17" y2="13" stroke="rgba(229,166,48,0.85)" stroke-width="1"/>
-                <line x1="4" y1="17" x2="14" y2="17" stroke="rgba(229,166,48,0.85)" stroke-width="1"/>
-                <line x1="4" y1="21" x2="17" y2="21" stroke="rgba(229,166,48,0.85)" stroke-width="1"/>
+                      fill="#FFFFFF" stroke="#3DB87A" stroke-width="1.6"/>
+                <path d="M 14 0 L 14 8 L 22 8" fill="none" stroke="#3DB87A" stroke-width="1.4"/>
+                <line x1="4" y1="13" x2="17" y2="13" stroke="rgba(61,184,122,0.95)" stroke-width="1"/>
+                <line x1="4" y1="17" x2="14" y2="17" stroke="rgba(61,184,122,0.95)" stroke-width="1"/>
+                <line x1="4" y1="21" x2="17" y2="21" stroke="rgba(61,184,122,0.95)" stroke-width="1"/>
               </g>
 
               <!-- Metadata pill — appears beside focal doc while inside AI column.
-                   JS toggles opacity (0 → 1) when focal doc is in column band.
-                   Position: just to the right of focal doc; sized by JS to fit text. -->
+                   KEEP deep-navy chip with green text (the ONE intentional dark element). -->
               <g id="tiPillGroup" transform="translate(330,168)" opacity="0">
                 <rect id="tiPillRect" class="ti-pill" x="0" y="0" width="60" height="14" rx="7" opacity="1"/>
                 <text id="tiPillText" class="ti-pill-text" x="6" y="10" opacity="1">type: invoice</text>
               </g>
 
               <!-- RIGHT THIRD — M365 tenant boundary + indexed grid.
-                   Constraint #3 holds: navy + gold only. The settled docs use a
-                   gold-tinted treatment (rgba 229,166,48,0.10 fill) to read as
-                   "indexed," differentiated from substrate via opacity/saturation. -->
+                   On white: navy dashed tenant boundary; settled docs = 0.12 green fill +
+                   SOLID --accent stroke (the green payoff grid). -->
               <g aria-hidden="true">
-                <!-- M365 tenant boundary — 1px navy hairline dashed rect, rounded corners.
-                     Same visual vocabulary as the SharePoint ERMS hero tenant boundary. -->
+                <!-- M365 tenant boundary — navy hairline dashed rect -->
                 <rect class="ti-tenant" x="400" y="40" width="180" height="280" rx="10"/>
                 <text class="ti-tenant-label" x="490" y="58">Microsoft 365 Tenant</text>
 
-                <!-- 4x4 indexed grid of settled documents.
-                     Each slot 30x36 with 8px gap, starting at x=415 y=70.
-                     Grid spans: 4 cols * 30 + 3 * 8 = 144px wide, 4 rows * 36 + 3 * 8 = 168px tall.
-                     Centered horizontally in tenant boundary (400+180=580, midpoint 490).
-                     Grid starts at x = 490 - 72 = 418. -->
+                <!-- 4x4 indexed grid of settled documents. -->
 
                 <!-- Row 1 -->
                 <g transform="translate(418,80)">
                   <rect width="22" height="28" rx="1.5" class="ti-doc-settled"/>
-                  <path d="M 14 0 L 14 8 L 22 8" fill="none" stroke="rgba(229,166,48,0.70)" stroke-width="1"/>
+                  <path d="M 14 0 L 14 8 L 22 8" fill="none" stroke="#3DB87A" stroke-width="1"/>
                   <line x1="4" y1="13" x2="17" y2="13" class="ti-doc-settled-line"/>
                   <line x1="4" y1="17" x2="14" y2="17" class="ti-doc-settled-line"/>
                   <line x1="4" y1="21" x2="17" y2="21" class="ti-doc-settled-line"/>
                 </g>
                 <g transform="translate(456,80)">
                   <rect width="22" height="28" rx="1.5" class="ti-doc-settled"/>
-                  <path d="M 14 0 L 14 8 L 22 8" fill="none" stroke="rgba(229,166,48,0.70)" stroke-width="1"/>
+                  <path d="M 14 0 L 14 8 L 22 8" fill="none" stroke="#3DB87A" stroke-width="1"/>
                   <line x1="4" y1="13" x2="17" y2="13" class="ti-doc-settled-line"/>
                   <line x1="4" y1="17" x2="14" y2="17" class="ti-doc-settled-line"/>
                   <line x1="4" y1="21" x2="17" y2="21" class="ti-doc-settled-line"/>
                 </g>
                 <g transform="translate(494,80)">
                   <rect width="22" height="28" rx="1.5" class="ti-doc-settled"/>
-                  <path d="M 14 0 L 14 8 L 22 8" fill="none" stroke="rgba(229,166,48,0.70)" stroke-width="1"/>
+                  <path d="M 14 0 L 14 8 L 22 8" fill="none" stroke="#3DB87A" stroke-width="1"/>
                   <line x1="4" y1="13" x2="17" y2="13" class="ti-doc-settled-line"/>
                   <line x1="4" y1="17" x2="14" y2="17" class="ti-doc-settled-line"/>
                   <line x1="4" y1="21" x2="17" y2="21" class="ti-doc-settled-line"/>
                 </g>
                 <g transform="translate(532,80)">
                   <rect width="22" height="28" rx="1.5" class="ti-doc-settled"/>
-                  <path d="M 14 0 L 14 8 L 22 8" fill="none" stroke="rgba(229,166,48,0.70)" stroke-width="1"/>
+                  <path d="M 14 0 L 14 8 L 22 8" fill="none" stroke="#3DB87A" stroke-width="1"/>
                   <line x1="4" y1="13" x2="17" y2="13" class="ti-doc-settled-line"/>
                   <line x1="4" y1="17" x2="14" y2="17" class="ti-doc-settled-line"/>
                   <line x1="4" y1="21" x2="17" y2="21" class="ti-doc-settled-line"/>
@@ -764,28 +813,28 @@
                 <!-- Row 2 -->
                 <g transform="translate(418,130)">
                   <rect width="22" height="28" rx="1.5" class="ti-doc-settled"/>
-                  <path d="M 14 0 L 14 8 L 22 8" fill="none" stroke="rgba(229,166,48,0.70)" stroke-width="1"/>
+                  <path d="M 14 0 L 14 8 L 22 8" fill="none" stroke="#3DB87A" stroke-width="1"/>
                   <line x1="4" y1="13" x2="17" y2="13" class="ti-doc-settled-line"/>
                   <line x1="4" y1="17" x2="14" y2="17" class="ti-doc-settled-line"/>
                   <line x1="4" y1="21" x2="17" y2="21" class="ti-doc-settled-line"/>
                 </g>
                 <g transform="translate(456,130)">
                   <rect width="22" height="28" rx="1.5" class="ti-doc-settled"/>
-                  <path d="M 14 0 L 14 8 L 22 8" fill="none" stroke="rgba(229,166,48,0.70)" stroke-width="1"/>
+                  <path d="M 14 0 L 14 8 L 22 8" fill="none" stroke="#3DB87A" stroke-width="1"/>
                   <line x1="4" y1="13" x2="17" y2="13" class="ti-doc-settled-line"/>
                   <line x1="4" y1="17" x2="14" y2="17" class="ti-doc-settled-line"/>
                   <line x1="4" y1="21" x2="17" y2="21" class="ti-doc-settled-line"/>
                 </g>
                 <g transform="translate(494,130)">
                   <rect width="22" height="28" rx="1.5" class="ti-doc-settled"/>
-                  <path d="M 14 0 L 14 8 L 22 8" fill="none" stroke="rgba(229,166,48,0.70)" stroke-width="1"/>
+                  <path d="M 14 0 L 14 8 L 22 8" fill="none" stroke="#3DB87A" stroke-width="1"/>
                   <line x1="4" y1="13" x2="17" y2="13" class="ti-doc-settled-line"/>
                   <line x1="4" y1="17" x2="14" y2="17" class="ti-doc-settled-line"/>
                   <line x1="4" y1="21" x2="17" y2="21" class="ti-doc-settled-line"/>
                 </g>
                 <g transform="translate(532,130)">
                   <rect width="22" height="28" rx="1.5" class="ti-doc-settled"/>
-                  <path d="M 14 0 L 14 8 L 22 8" fill="none" stroke="rgba(229,166,48,0.70)" stroke-width="1"/>
+                  <path d="M 14 0 L 14 8 L 22 8" fill="none" stroke="#3DB87A" stroke-width="1"/>
                   <line x1="4" y1="13" x2="17" y2="13" class="ti-doc-settled-line"/>
                   <line x1="4" y1="17" x2="14" y2="17" class="ti-doc-settled-line"/>
                   <line x1="4" y1="21" x2="17" y2="21" class="ti-doc-settled-line"/>
@@ -794,28 +843,28 @@
                 <!-- Row 3 -->
                 <g transform="translate(418,180)">
                   <rect width="22" height="28" rx="1.5" class="ti-doc-settled"/>
-                  <path d="M 14 0 L 14 8 L 22 8" fill="none" stroke="rgba(229,166,48,0.70)" stroke-width="1"/>
+                  <path d="M 14 0 L 14 8 L 22 8" fill="none" stroke="#3DB87A" stroke-width="1"/>
                   <line x1="4" y1="13" x2="17" y2="13" class="ti-doc-settled-line"/>
                   <line x1="4" y1="17" x2="14" y2="17" class="ti-doc-settled-line"/>
                   <line x1="4" y1="21" x2="17" y2="21" class="ti-doc-settled-line"/>
                 </g>
                 <g transform="translate(456,180)">
                   <rect width="22" height="28" rx="1.5" class="ti-doc-settled"/>
-                  <path d="M 14 0 L 14 8 L 22 8" fill="none" stroke="rgba(229,166,48,0.70)" stroke-width="1"/>
+                  <path d="M 14 0 L 14 8 L 22 8" fill="none" stroke="#3DB87A" stroke-width="1"/>
                   <line x1="4" y1="13" x2="17" y2="13" class="ti-doc-settled-line"/>
                   <line x1="4" y1="17" x2="14" y2="17" class="ti-doc-settled-line"/>
                   <line x1="4" y1="21" x2="17" y2="21" class="ti-doc-settled-line"/>
                 </g>
                 <g transform="translate(494,180)">
                   <rect width="22" height="28" rx="1.5" class="ti-doc-settled"/>
-                  <path d="M 14 0 L 14 8 L 22 8" fill="none" stroke="rgba(229,166,48,0.70)" stroke-width="1"/>
+                  <path d="M 14 0 L 14 8 L 22 8" fill="none" stroke="#3DB87A" stroke-width="1"/>
                   <line x1="4" y1="13" x2="17" y2="13" class="ti-doc-settled-line"/>
                   <line x1="4" y1="17" x2="14" y2="17" class="ti-doc-settled-line"/>
                   <line x1="4" y1="21" x2="17" y2="21" class="ti-doc-settled-line"/>
                 </g>
                 <g transform="translate(532,180)">
                   <rect width="22" height="28" rx="1.5" class="ti-doc-settled"/>
-                  <path d="M 14 0 L 14 8 L 22 8" fill="none" stroke="rgba(229,166,48,0.70)" stroke-width="1"/>
+                  <path d="M 14 0 L 14 8 L 22 8" fill="none" stroke="#3DB87A" stroke-width="1"/>
                   <line x1="4" y1="13" x2="17" y2="13" class="ti-doc-settled-line"/>
                   <line x1="4" y1="17" x2="14" y2="17" class="ti-doc-settled-line"/>
                   <line x1="4" y1="21" x2="17" y2="21" class="ti-doc-settled-line"/>
@@ -824,85 +873,78 @@
                 <!-- Row 4 -->
                 <g transform="translate(418,230)">
                   <rect width="22" height="28" rx="1.5" class="ti-doc-settled"/>
-                  <path d="M 14 0 L 14 8 L 22 8" fill="none" stroke="rgba(229,166,48,0.70)" stroke-width="1"/>
+                  <path d="M 14 0 L 14 8 L 22 8" fill="none" stroke="#3DB87A" stroke-width="1"/>
                   <line x1="4" y1="13" x2="17" y2="13" class="ti-doc-settled-line"/>
                   <line x1="4" y1="17" x2="14" y2="17" class="ti-doc-settled-line"/>
                   <line x1="4" y1="21" x2="17" y2="21" class="ti-doc-settled-line"/>
                 </g>
                 <g transform="translate(456,230)">
                   <rect width="22" height="28" rx="1.5" class="ti-doc-settled"/>
-                  <path d="M 14 0 L 14 8 L 22 8" fill="none" stroke="rgba(229,166,48,0.70)" stroke-width="1"/>
+                  <path d="M 14 0 L 14 8 L 22 8" fill="none" stroke="#3DB87A" stroke-width="1"/>
                   <line x1="4" y1="13" x2="17" y2="13" class="ti-doc-settled-line"/>
                   <line x1="4" y1="17" x2="14" y2="17" class="ti-doc-settled-line"/>
                   <line x1="4" y1="21" x2="17" y2="21" class="ti-doc-settled-line"/>
                 </g>
                 <g transform="translate(494,230)">
                   <rect width="22" height="28" rx="1.5" class="ti-doc-settled"/>
-                  <path d="M 14 0 L 14 8 L 22 8" fill="none" stroke="rgba(229,166,48,0.70)" stroke-width="1"/>
+                  <path d="M 14 0 L 14 8 L 22 8" fill="none" stroke="#3DB87A" stroke-width="1"/>
                   <line x1="4" y1="13" x2="17" y2="13" class="ti-doc-settled-line"/>
                   <line x1="4" y1="17" x2="14" y2="17" class="ti-doc-settled-line"/>
                   <line x1="4" y1="21" x2="17" y2="21" class="ti-doc-settled-line"/>
                 </g>
                 <g transform="translate(532,230)">
                   <rect width="22" height="28" rx="1.5" class="ti-doc-settled"/>
-                  <path d="M 14 0 L 14 8 L 22 8" fill="none" stroke="rgba(229,166,48,0.70)" stroke-width="1"/>
+                  <path d="M 14 0 L 14 8 L 22 8" fill="none" stroke="#3DB87A" stroke-width="1"/>
                   <line x1="4" y1="13" x2="17" y2="13" class="ti-doc-settled-line"/>
                   <line x1="4" y1="17" x2="14" y2="17" class="ti-doc-settled-line"/>
                   <line x1="4" y1="21" x2="17" y2="21" class="ti-doc-settled-line"/>
                 </g>
 
-                <!-- "Indexed Grid" sublabel at bottom of tenant -->
-                <text class="ti-tenant-label" x="490" y="308" style="fill: rgba(229,166,48,0.65);">Indexed</text>
+                <!-- "Indexed" sublabel at bottom of tenant — green ink -->
+                <text class="ti-tenant-label" x="490" y="308" style="fill: #2E8E5C;">Indexed</text>
               </g>
 
               <!-- Last-settled focal ring — JS positions this over a grid slot when
-                   each focal doc completes. It sits ON TOP of the grid documents. -->
+                   each focal doc completes. Sits ON TOP of the grid documents. -->
               <rect id="tiSettledRing" class="ti-settled-ring" x="416" y="78" width="26" height="32" rx="3"/>
 
             </g>
 
             <!-- STATIC SCENE — shown only under prefers-reduced-motion.
-                 Renders all three stages simultaneously: substrate (already in
-                 LIVE STAGE), focal doc fixed mid-column, pill visible, grid
-                 fully populated, last-settled ring on first grid slot. The
-                 LIVE STAGE's substrate documents serve dual purpose (visible
-                 in both states); only #tiLiveStage is display:none under reduced
-                 motion via CSS — so we must duplicate the substrate here too. -->
+                 Renders all three stages simultaneously. -->
             <g id="tiStaticScene">
-              <!-- For reduced motion: redraw the entire scene as a still composite.
-                   We rely on CSS to swap visibility (#tiLiveStage hidden, this shown). -->
 
               <!-- Substrate (static positions, no group animation) -->
               <g>
-                <g transform="translate(40,40) rotate(-12)"><rect width="22" height="28" rx="1.5" class="ti-doc"/><path d="M 14 0 L 14 8 L 22 8" fill="none" stroke="rgba(197,205,216,0.55)" stroke-width="1"/><line x1="4" y1="13" x2="17" y2="13" class="ti-doc-line"/><line x1="4" y1="17" x2="14" y2="17" class="ti-doc-line"/><line x1="4" y1="21" x2="17" y2="21" class="ti-doc-line"/></g>
-                <g transform="translate(70,90) rotate(8)"><rect width="22" height="28" rx="1.5" class="ti-doc"/><path d="M 14 0 L 14 8 L 22 8" fill="none" stroke="rgba(197,205,216,0.55)" stroke-width="1"/><line x1="4" y1="13" x2="17" y2="13" class="ti-doc-line"/><line x1="4" y1="17" x2="14" y2="17" class="ti-doc-line"/><line x1="4" y1="21" x2="17" y2="21" class="ti-doc-line"/></g>
-                <g transform="translate(30,140) rotate(-6)"><rect width="22" height="28" rx="1.5" class="ti-doc"/><path d="M 14 0 L 14 8 L 22 8" fill="none" stroke="rgba(197,205,216,0.55)" stroke-width="1"/><line x1="4" y1="13" x2="17" y2="13" class="ti-doc-line"/><line x1="4" y1="17" x2="14" y2="17" class="ti-doc-line"/><line x1="4" y1="21" x2="17" y2="21" class="ti-doc-line"/></g>
-                <g transform="translate(75,190) rotate(15)"><rect width="22" height="28" rx="1.5" class="ti-doc"/><path d="M 14 0 L 14 8 L 22 8" fill="none" stroke="rgba(197,205,216,0.55)" stroke-width="1"/><line x1="4" y1="13" x2="17" y2="13" class="ti-doc-line"/><line x1="4" y1="17" x2="14" y2="17" class="ti-doc-line"/><line x1="4" y1="21" x2="17" y2="21" class="ti-doc-line"/></g>
-                <g transform="translate(120,55) rotate(11)"><rect width="22" height="28" rx="1.5" class="ti-doc"/><path d="M 14 0 L 14 8 L 22 8" fill="none" stroke="rgba(197,205,216,0.55)" stroke-width="1"/><line x1="4" y1="13" x2="17" y2="13" class="ti-doc-line"/><line x1="4" y1="17" x2="14" y2="17" class="ti-doc-line"/><line x1="4" y1="21" x2="17" y2="21" class="ti-doc-line"/></g>
-                <g transform="translate(150,170) rotate(7)"><rect width="22" height="28" rx="1.5" class="ti-doc"/><path d="M 14 0 L 14 8 L 22 8" fill="none" stroke="rgba(197,205,216,0.55)" stroke-width="1"/><line x1="4" y1="13" x2="17" y2="13" class="ti-doc-line"/><line x1="4" y1="17" x2="14" y2="17" class="ti-doc-line"/><line x1="4" y1="21" x2="17" y2="21" class="ti-doc-line"/></g>
-                <g transform="translate(185,75) rotate(-9)"><rect width="22" height="28" rx="1.5" class="ti-doc"/><path d="M 14 0 L 14 8 L 22 8" fill="none" stroke="rgba(197,205,216,0.55)" stroke-width="1"/><line x1="4" y1="13" x2="17" y2="13" class="ti-doc-line"/><line x1="4" y1="17" x2="14" y2="17" class="ti-doc-line"/><line x1="4" y1="21" x2="17" y2="21" class="ti-doc-line"/></g>
-                <g transform="translate(180,230) rotate(6)"><rect width="22" height="28" rx="1.5" class="ti-doc"/><path d="M 14 0 L 14 8 L 22 8" fill="none" stroke="rgba(197,205,216,0.55)" stroke-width="1"/><line x1="4" y1="13" x2="17" y2="13" class="ti-doc-line"/><line x1="4" y1="17" x2="14" y2="17" class="ti-doc-line"/><line x1="4" y1="21" x2="17" y2="21" class="ti-doc-line"/></g>
-                <text class="ti-tenant-label" x="110" y="338" style="fill: rgba(197,205,216,0.45);">Unstructured Archive</text>
+                <g transform="translate(40,40) rotate(-12)"><rect width="22" height="28" rx="1.5" class="ti-doc"/><path d="M 14 0 L 14 8 L 22 8" fill="none" stroke="rgba(124,136,150,0.6)" stroke-width="1"/><line x1="4" y1="13" x2="17" y2="13" class="ti-doc-line"/><line x1="4" y1="17" x2="14" y2="17" class="ti-doc-line"/><line x1="4" y1="21" x2="17" y2="21" class="ti-doc-line"/></g>
+                <g transform="translate(70,90) rotate(8)"><rect width="22" height="28" rx="1.5" class="ti-doc"/><path d="M 14 0 L 14 8 L 22 8" fill="none" stroke="rgba(124,136,150,0.6)" stroke-width="1"/><line x1="4" y1="13" x2="17" y2="13" class="ti-doc-line"/><line x1="4" y1="17" x2="14" y2="17" class="ti-doc-line"/><line x1="4" y1="21" x2="17" y2="21" class="ti-doc-line"/></g>
+                <g transform="translate(30,140) rotate(-6)"><rect width="22" height="28" rx="1.5" class="ti-doc"/><path d="M 14 0 L 14 8 L 22 8" fill="none" stroke="rgba(124,136,150,0.6)" stroke-width="1"/><line x1="4" y1="13" x2="17" y2="13" class="ti-doc-line"/><line x1="4" y1="17" x2="14" y2="17" class="ti-doc-line"/><line x1="4" y1="21" x2="17" y2="21" class="ti-doc-line"/></g>
+                <g transform="translate(75,190) rotate(15)"><rect width="22" height="28" rx="1.5" class="ti-doc"/><path d="M 14 0 L 14 8 L 22 8" fill="none" stroke="rgba(124,136,150,0.6)" stroke-width="1"/><line x1="4" y1="13" x2="17" y2="13" class="ti-doc-line"/><line x1="4" y1="17" x2="14" y2="17" class="ti-doc-line"/><line x1="4" y1="21" x2="17" y2="21" class="ti-doc-line"/></g>
+                <g transform="translate(120,55) rotate(11)"><rect width="22" height="28" rx="1.5" class="ti-doc"/><path d="M 14 0 L 14 8 L 22 8" fill="none" stroke="rgba(124,136,150,0.6)" stroke-width="1"/><line x1="4" y1="13" x2="17" y2="13" class="ti-doc-line"/><line x1="4" y1="17" x2="14" y2="17" class="ti-doc-line"/><line x1="4" y1="21" x2="17" y2="21" class="ti-doc-line"/></g>
+                <g transform="translate(150,170) rotate(7)"><rect width="22" height="28" rx="1.5" class="ti-doc"/><path d="M 14 0 L 14 8 L 22 8" fill="none" stroke="rgba(124,136,150,0.6)" stroke-width="1"/><line x1="4" y1="13" x2="17" y2="13" class="ti-doc-line"/><line x1="4" y1="17" x2="14" y2="17" class="ti-doc-line"/><line x1="4" y1="21" x2="17" y2="21" class="ti-doc-line"/></g>
+                <g transform="translate(185,75) rotate(-9)"><rect width="22" height="28" rx="1.5" class="ti-doc"/><path d="M 14 0 L 14 8 L 22 8" fill="none" stroke="rgba(124,136,150,0.6)" stroke-width="1"/><line x1="4" y1="13" x2="17" y2="13" class="ti-doc-line"/><line x1="4" y1="17" x2="14" y2="17" class="ti-doc-line"/><line x1="4" y1="21" x2="17" y2="21" class="ti-doc-line"/></g>
+                <g transform="translate(180,230) rotate(6)"><rect width="22" height="28" rx="1.5" class="ti-doc"/><path d="M 14 0 L 14 8 L 22 8" fill="none" stroke="rgba(124,136,150,0.6)" stroke-width="1"/><line x1="4" y1="13" x2="17" y2="13" class="ti-doc-line"/><line x1="4" y1="17" x2="14" y2="17" class="ti-doc-line"/><line x1="4" y1="21" x2="17" y2="21" class="ti-doc-line"/></g>
+                <text class="ti-tenant-label" x="110" y="338" style="fill: rgba(124,136,150,0.6);">Unstructured Archive</text>
               </g>
 
               <!-- AI column (static, no pulse) -->
               <rect class="ti-ai-col" x="260" y="40" width="80" height="280" rx="8"/>
               <text class="ti-ai-label" x="300" y="62">AI</text>
-              <line x1="270" y1="100" x2="330" y2="100" stroke="rgba(229,166,48,0.20)" stroke-width="0.8" stroke-dasharray="3 4"/>
-              <line x1="270" y1="160" x2="330" y2="160" stroke="rgba(229,166,48,0.20)" stroke-width="0.8" stroke-dasharray="3 4"/>
-              <line x1="270" y1="220" x2="330" y2="220" stroke="rgba(229,166,48,0.20)" stroke-width="0.8" stroke-dasharray="3 4"/>
-              <line x1="270" y1="280" x2="330" y2="280" stroke="rgba(229,166,48,0.20)" stroke-width="0.8" stroke-dasharray="3 4"/>
+              <line x1="270" y1="100" x2="330" y2="100" stroke="rgba(61,184,122,0.45)" stroke-width="0.8" stroke-dasharray="3 4"/>
+              <line x1="270" y1="160" x2="330" y2="160" stroke="rgba(61,184,122,0.45)" stroke-width="0.8" stroke-dasharray="3 4"/>
+              <line x1="270" y1="220" x2="330" y2="220" stroke="rgba(61,184,122,0.45)" stroke-width="0.8" stroke-dasharray="3 4"/>
+              <line x1="270" y1="280" x2="330" y2="280" stroke="rgba(61,184,122,0.45)" stroke-width="0.8" stroke-dasharray="3 4"/>
 
-              <!-- Focal doc fixed mid-column -->
+              <!-- Focal doc fixed mid-column — solid white + green outline -->
               <g transform="translate(289,166)">
-                <rect width="22" height="28" rx="1.5" fill="rgba(255,255,255,0.18)" stroke="rgba(229,166,48,0.85)" stroke-width="1.6"/>
-                <path d="M 14 0 L 14 8 L 22 8" fill="none" stroke="rgba(229,166,48,0.85)" stroke-width="1.4"/>
-                <line x1="4" y1="13" x2="17" y2="13" stroke="rgba(229,166,48,0.85)" stroke-width="1"/>
-                <line x1="4" y1="17" x2="14" y2="17" stroke="rgba(229,166,48,0.85)" stroke-width="1"/>
-                <line x1="4" y1="21" x2="17" y2="21" stroke="rgba(229,166,48,0.85)" stroke-width="1"/>
+                <rect width="22" height="28" rx="1.5" fill="#FFFFFF" stroke="#3DB87A" stroke-width="1.6"/>
+                <path d="M 14 0 L 14 8 L 22 8" fill="none" stroke="#3DB87A" stroke-width="1.4"/>
+                <line x1="4" y1="13" x2="17" y2="13" stroke="rgba(61,184,122,0.95)" stroke-width="1"/>
+                <line x1="4" y1="17" x2="14" y2="17" stroke="rgba(61,184,122,0.95)" stroke-width="1"/>
+                <line x1="4" y1="21" x2="17" y2="21" stroke="rgba(61,184,122,0.95)" stroke-width="1"/>
               </g>
 
-              <!-- Metadata pill (visible in static) -->
+              <!-- Metadata pill (visible in static) — deep-navy chip -->
               <g transform="translate(330,168)">
                 <rect class="ti-pill" x="0" y="0" width="60" height="14" rx="7" opacity="1"/>
                 <text class="ti-pill-text" x="6" y="10" opacity="1">type: invoice</text>
@@ -911,24 +953,23 @@
               <!-- Tenant boundary + 4x4 indexed grid (full populated) -->
               <rect class="ti-tenant" x="400" y="40" width="180" height="280" rx="10"/>
               <text class="ti-tenant-label" x="490" y="58">Microsoft 365 Tenant</text>
-              <!-- Grid (same as live) -->
-              <g transform="translate(418,80)"><rect width="22" height="28" rx="1.5" class="ti-doc-settled"/><path d="M 14 0 L 14 8 L 22 8" fill="none" stroke="rgba(229,166,48,0.70)" stroke-width="1"/><line x1="4" y1="13" x2="17" y2="13" class="ti-doc-settled-line"/><line x1="4" y1="17" x2="14" y2="17" class="ti-doc-settled-line"/><line x1="4" y1="21" x2="17" y2="21" class="ti-doc-settled-line"/></g>
-              <g transform="translate(456,80)"><rect width="22" height="28" rx="1.5" class="ti-doc-settled"/><path d="M 14 0 L 14 8 L 22 8" fill="none" stroke="rgba(229,166,48,0.70)" stroke-width="1"/><line x1="4" y1="13" x2="17" y2="13" class="ti-doc-settled-line"/><line x1="4" y1="17" x2="14" y2="17" class="ti-doc-settled-line"/><line x1="4" y1="21" x2="17" y2="21" class="ti-doc-settled-line"/></g>
-              <g transform="translate(494,80)"><rect width="22" height="28" rx="1.5" class="ti-doc-settled"/><path d="M 14 0 L 14 8 L 22 8" fill="none" stroke="rgba(229,166,48,0.70)" stroke-width="1"/><line x1="4" y1="13" x2="17" y2="13" class="ti-doc-settled-line"/><line x1="4" y1="17" x2="14" y2="17" class="ti-doc-settled-line"/><line x1="4" y1="21" x2="17" y2="21" class="ti-doc-settled-line"/></g>
-              <g transform="translate(532,80)"><rect width="22" height="28" rx="1.5" class="ti-doc-settled"/><path d="M 14 0 L 14 8 L 22 8" fill="none" stroke="rgba(229,166,48,0.70)" stroke-width="1"/><line x1="4" y1="13" x2="17" y2="13" class="ti-doc-settled-line"/><line x1="4" y1="17" x2="14" y2="17" class="ti-doc-settled-line"/><line x1="4" y1="21" x2="17" y2="21" class="ti-doc-settled-line"/></g>
-              <g transform="translate(418,130)"><rect width="22" height="28" rx="1.5" class="ti-doc-settled"/><path d="M 14 0 L 14 8 L 22 8" fill="none" stroke="rgba(229,166,48,0.70)" stroke-width="1"/><line x1="4" y1="13" x2="17" y2="13" class="ti-doc-settled-line"/><line x1="4" y1="17" x2="14" y2="17" class="ti-doc-settled-line"/><line x1="4" y1="21" x2="17" y2="21" class="ti-doc-settled-line"/></g>
-              <g transform="translate(456,130)"><rect width="22" height="28" rx="1.5" class="ti-doc-settled"/><path d="M 14 0 L 14 8 L 22 8" fill="none" stroke="rgba(229,166,48,0.70)" stroke-width="1"/><line x1="4" y1="13" x2="17" y2="13" class="ti-doc-settled-line"/><line x1="4" y1="17" x2="14" y2="17" class="ti-doc-settled-line"/><line x1="4" y1="21" x2="17" y2="21" class="ti-doc-settled-line"/></g>
-              <g transform="translate(494,130)"><rect width="22" height="28" rx="1.5" class="ti-doc-settled"/><path d="M 14 0 L 14 8 L 22 8" fill="none" stroke="rgba(229,166,48,0.70)" stroke-width="1"/><line x1="4" y1="13" x2="17" y2="13" class="ti-doc-settled-line"/><line x1="4" y1="17" x2="14" y2="17" class="ti-doc-settled-line"/><line x1="4" y1="21" x2="17" y2="21" class="ti-doc-settled-line"/></g>
-              <g transform="translate(532,130)"><rect width="22" height="28" rx="1.5" class="ti-doc-settled"/><path d="M 14 0 L 14 8 L 22 8" fill="none" stroke="rgba(229,166,48,0.70)" stroke-width="1"/><line x1="4" y1="13" x2="17" y2="13" class="ti-doc-settled-line"/><line x1="4" y1="17" x2="14" y2="17" class="ti-doc-settled-line"/><line x1="4" y1="21" x2="17" y2="21" class="ti-doc-settled-line"/></g>
-              <g transform="translate(418,180)"><rect width="22" height="28" rx="1.5" class="ti-doc-settled"/><path d="M 14 0 L 14 8 L 22 8" fill="none" stroke="rgba(229,166,48,0.70)" stroke-width="1"/><line x1="4" y1="13" x2="17" y2="13" class="ti-doc-settled-line"/><line x1="4" y1="17" x2="14" y2="17" class="ti-doc-settled-line"/><line x1="4" y1="21" x2="17" y2="21" class="ti-doc-settled-line"/></g>
-              <g transform="translate(456,180)"><rect width="22" height="28" rx="1.5" class="ti-doc-settled"/><path d="M 14 0 L 14 8 L 22 8" fill="none" stroke="rgba(229,166,48,0.70)" stroke-width="1"/><line x1="4" y1="13" x2="17" y2="13" class="ti-doc-settled-line"/><line x1="4" y1="17" x2="14" y2="17" class="ti-doc-settled-line"/><line x1="4" y1="21" x2="17" y2="21" class="ti-doc-settled-line"/></g>
-              <g transform="translate(494,180)"><rect width="22" height="28" rx="1.5" class="ti-doc-settled"/><path d="M 14 0 L 14 8 L 22 8" fill="none" stroke="rgba(229,166,48,0.70)" stroke-width="1"/><line x1="4" y1="13" x2="17" y2="13" class="ti-doc-settled-line"/><line x1="4" y1="17" x2="14" y2="17" class="ti-doc-settled-line"/><line x1="4" y1="21" x2="17" y2="21" class="ti-doc-settled-line"/></g>
-              <g transform="translate(532,180)"><rect width="22" height="28" rx="1.5" class="ti-doc-settled"/><path d="M 14 0 L 14 8 L 22 8" fill="none" stroke="rgba(229,166,48,0.70)" stroke-width="1"/><line x1="4" y1="13" x2="17" y2="13" class="ti-doc-settled-line"/><line x1="4" y1="17" x2="14" y2="17" class="ti-doc-settled-line"/><line x1="4" y1="21" x2="17" y2="21" class="ti-doc-settled-line"/></g>
-              <g transform="translate(418,230)"><rect width="22" height="28" rx="1.5" class="ti-doc-settled"/><path d="M 14 0 L 14 8 L 22 8" fill="none" stroke="rgba(229,166,48,0.70)" stroke-width="1"/><line x1="4" y1="13" x2="17" y2="13" class="ti-doc-settled-line"/><line x1="4" y1="17" x2="14" y2="17" class="ti-doc-settled-line"/><line x1="4" y1="21" x2="17" y2="21" class="ti-doc-settled-line"/></g>
-              <g transform="translate(456,230)"><rect width="22" height="28" rx="1.5" class="ti-doc-settled"/><path d="M 14 0 L 14 8 L 22 8" fill="none" stroke="rgba(229,166,48,0.70)" stroke-width="1"/><line x1="4" y1="13" x2="17" y2="13" class="ti-doc-settled-line"/><line x1="4" y1="17" x2="14" y2="17" class="ti-doc-settled-line"/><line x1="4" y1="21" x2="17" y2="21" class="ti-doc-settled-line"/></g>
-              <g transform="translate(494,230)"><rect width="22" height="28" rx="1.5" class="ti-doc-settled"/><path d="M 14 0 L 14 8 L 22 8" fill="none" stroke="rgba(229,166,48,0.70)" stroke-width="1"/><line x1="4" y1="13" x2="17" y2="13" class="ti-doc-settled-line"/><line x1="4" y1="17" x2="14" y2="17" class="ti-doc-settled-line"/><line x1="4" y1="21" x2="17" y2="21" class="ti-doc-settled-line"/></g>
-              <g transform="translate(532,230)"><rect width="22" height="28" rx="1.5" class="ti-doc-settled"/><path d="M 14 0 L 14 8 L 22 8" fill="none" stroke="rgba(229,166,48,0.70)" stroke-width="1"/><line x1="4" y1="13" x2="17" y2="13" class="ti-doc-settled-line"/><line x1="4" y1="17" x2="14" y2="17" class="ti-doc-settled-line"/><line x1="4" y1="21" x2="17" y2="21" class="ti-doc-settled-line"/></g>
-              <text class="ti-tenant-label" x="490" y="308" style="fill: rgba(229,166,48,0.65);">Indexed</text>
+              <g transform="translate(418,80)"><rect width="22" height="28" rx="1.5" class="ti-doc-settled"/><path d="M 14 0 L 14 8 L 22 8" fill="none" stroke="#3DB87A" stroke-width="1"/><line x1="4" y1="13" x2="17" y2="13" class="ti-doc-settled-line"/><line x1="4" y1="17" x2="14" y2="17" class="ti-doc-settled-line"/><line x1="4" y1="21" x2="17" y2="21" class="ti-doc-settled-line"/></g>
+              <g transform="translate(456,80)"><rect width="22" height="28" rx="1.5" class="ti-doc-settled"/><path d="M 14 0 L 14 8 L 22 8" fill="none" stroke="#3DB87A" stroke-width="1"/><line x1="4" y1="13" x2="17" y2="13" class="ti-doc-settled-line"/><line x1="4" y1="17" x2="14" y2="17" class="ti-doc-settled-line"/><line x1="4" y1="21" x2="17" y2="21" class="ti-doc-settled-line"/></g>
+              <g transform="translate(494,80)"><rect width="22" height="28" rx="1.5" class="ti-doc-settled"/><path d="M 14 0 L 14 8 L 22 8" fill="none" stroke="#3DB87A" stroke-width="1"/><line x1="4" y1="13" x2="17" y2="13" class="ti-doc-settled-line"/><line x1="4" y1="17" x2="14" y2="17" class="ti-doc-settled-line"/><line x1="4" y1="21" x2="17" y2="21" class="ti-doc-settled-line"/></g>
+              <g transform="translate(532,80)"><rect width="22" height="28" rx="1.5" class="ti-doc-settled"/><path d="M 14 0 L 14 8 L 22 8" fill="none" stroke="#3DB87A" stroke-width="1"/><line x1="4" y1="13" x2="17" y2="13" class="ti-doc-settled-line"/><line x1="4" y1="17" x2="14" y2="17" class="ti-doc-settled-line"/><line x1="4" y1="21" x2="17" y2="21" class="ti-doc-settled-line"/></g>
+              <g transform="translate(418,130)"><rect width="22" height="28" rx="1.5" class="ti-doc-settled"/><path d="M 14 0 L 14 8 L 22 8" fill="none" stroke="#3DB87A" stroke-width="1"/><line x1="4" y1="13" x2="17" y2="13" class="ti-doc-settled-line"/><line x1="4" y1="17" x2="14" y2="17" class="ti-doc-settled-line"/><line x1="4" y1="21" x2="17" y2="21" class="ti-doc-settled-line"/></g>
+              <g transform="translate(456,130)"><rect width="22" height="28" rx="1.5" class="ti-doc-settled"/><path d="M 14 0 L 14 8 L 22 8" fill="none" stroke="#3DB87A" stroke-width="1"/><line x1="4" y1="13" x2="17" y2="13" class="ti-doc-settled-line"/><line x1="4" y1="17" x2="14" y2="17" class="ti-doc-settled-line"/><line x1="4" y1="21" x2="17" y2="21" class="ti-doc-settled-line"/></g>
+              <g transform="translate(494,130)"><rect width="22" height="28" rx="1.5" class="ti-doc-settled"/><path d="M 14 0 L 14 8 L 22 8" fill="none" stroke="#3DB87A" stroke-width="1"/><line x1="4" y1="13" x2="17" y2="13" class="ti-doc-settled-line"/><line x1="4" y1="17" x2="14" y2="17" class="ti-doc-settled-line"/><line x1="4" y1="21" x2="17" y2="21" class="ti-doc-settled-line"/></g>
+              <g transform="translate(532,130)"><rect width="22" height="28" rx="1.5" class="ti-doc-settled"/><path d="M 14 0 L 14 8 L 22 8" fill="none" stroke="#3DB87A" stroke-width="1"/><line x1="4" y1="13" x2="17" y2="13" class="ti-doc-settled-line"/><line x1="4" y1="17" x2="14" y2="17" class="ti-doc-settled-line"/><line x1="4" y1="21" x2="17" y2="21" class="ti-doc-settled-line"/></g>
+              <g transform="translate(418,180)"><rect width="22" height="28" rx="1.5" class="ti-doc-settled"/><path d="M 14 0 L 14 8 L 22 8" fill="none" stroke="#3DB87A" stroke-width="1"/><line x1="4" y1="13" x2="17" y2="13" class="ti-doc-settled-line"/><line x1="4" y1="17" x2="14" y2="17" class="ti-doc-settled-line"/><line x1="4" y1="21" x2="17" y2="21" class="ti-doc-settled-line"/></g>
+              <g transform="translate(456,180)"><rect width="22" height="28" rx="1.5" class="ti-doc-settled"/><path d="M 14 0 L 14 8 L 22 8" fill="none" stroke="#3DB87A" stroke-width="1"/><line x1="4" y1="13" x2="17" y2="13" class="ti-doc-settled-line"/><line x1="4" y1="17" x2="14" y2="17" class="ti-doc-settled-line"/><line x1="4" y1="21" x2="17" y2="21" class="ti-doc-settled-line"/></g>
+              <g transform="translate(494,180)"><rect width="22" height="28" rx="1.5" class="ti-doc-settled"/><path d="M 14 0 L 14 8 L 22 8" fill="none" stroke="#3DB87A" stroke-width="1"/><line x1="4" y1="13" x2="17" y2="13" class="ti-doc-settled-line"/><line x1="4" y1="17" x2="14" y2="17" class="ti-doc-settled-line"/><line x1="4" y1="21" x2="17" y2="21" class="ti-doc-settled-line"/></g>
+              <g transform="translate(532,180)"><rect width="22" height="28" rx="1.5" class="ti-doc-settled"/><path d="M 14 0 L 14 8 L 22 8" fill="none" stroke="#3DB87A" stroke-width="1"/><line x1="4" y1="13" x2="17" y2="13" class="ti-doc-settled-line"/><line x1="4" y1="17" x2="14" y2="17" class="ti-doc-settled-line"/><line x1="4" y1="21" x2="17" y2="21" class="ti-doc-settled-line"/></g>
+              <g transform="translate(418,230)"><rect width="22" height="28" rx="1.5" class="ti-doc-settled"/><path d="M 14 0 L 14 8 L 22 8" fill="none" stroke="#3DB87A" stroke-width="1"/><line x1="4" y1="13" x2="17" y2="13" class="ti-doc-settled-line"/><line x1="4" y1="17" x2="14" y2="17" class="ti-doc-settled-line"/><line x1="4" y1="21" x2="17" y2="21" class="ti-doc-settled-line"/></g>
+              <g transform="translate(456,230)"><rect width="22" height="28" rx="1.5" class="ti-doc-settled"/><path d="M 14 0 L 14 8 L 22 8" fill="none" stroke="#3DB87A" stroke-width="1"/><line x1="4" y1="13" x2="17" y2="13" class="ti-doc-settled-line"/><line x1="4" y1="17" x2="14" y2="17" class="ti-doc-settled-line"/><line x1="4" y1="21" x2="17" y2="21" class="ti-doc-settled-line"/></g>
+              <g transform="translate(494,230)"><rect width="22" height="28" rx="1.5" class="ti-doc-settled"/><path d="M 14 0 L 14 8 L 22 8" fill="none" stroke="#3DB87A" stroke-width="1"/><line x1="4" y1="13" x2="17" y2="13" class="ti-doc-settled-line"/><line x1="4" y1="17" x2="14" y2="17" class="ti-doc-settled-line"/><line x1="4" y1="21" x2="17" y2="21" class="ti-doc-settled-line"/></g>
+              <g transform="translate(532,230)"><rect width="22" height="28" rx="1.5" class="ti-doc-settled"/><path d="M 14 0 L 14 8 L 22 8" fill="none" stroke="#3DB87A" stroke-width="1"/><line x1="4" y1="13" x2="17" y2="13" class="ti-doc-settled-line"/><line x1="4" y1="17" x2="14" y2="17" class="ti-doc-settled-line"/><line x1="4" y1="21" x2="17" y2="21" class="ti-doc-settled-line"/></g>
+              <text class="ti-tenant-label" x="490" y="308" style="fill: #2E8E5C;">Indexed</text>
 
               <!-- Last-settled focal ring on first grid slot -->
               <rect class="ti-settled-ring" x="416" y="78" width="26" height="32" rx="3" opacity="1"/>
@@ -1058,12 +1099,6 @@
 <!-- ============================================================
      SECTION 5 — CROSS-LINK
      Phase B (2026-05-29): Cross-phase link to 1DocStop (Unify).
-     AI Ingestion (Scale) → 1DocStop (Unify) is an approved
-     cross-phase routing per the locked plan — answers the natural
-     question "where do my ingested records live?" Single-card
-     .is-single layout (Scale phase currently has only this one
-     subpage, so no sibling intra-phase card; the cross-phase
-     1DocStop card centers at STANDARD card width).
      ============================================================ -->
 <section class="cross-link" aria-labelledby="cross-link-heading">
   <div class="container">
@@ -1073,7 +1108,7 @@
     </div>
 
     <div class="cross-link-grid is-single">
-      <a href="services-1docstop.html" class="cross-link-card">
+      <a href="services-1docstop.html" class="cross-link-card dest-1docstop">
         <span class="card-eyebrow">Unify</span>
         <h3>1DocStop</h3>
         <p>Where do your ingested records live? See 1DocStop.</p>
@@ -1210,27 +1245,184 @@
   var prefersReducedMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   // ============================================================
+  // MOUSE-REACTIVE DOT FIELD (interactive, 2026-06-18)
+  // PORTED VERBATIM from services-scanning-topgradient.html.
+  // Replaces the old static ::after dot tile. A <canvas> renders the SAME resting
+  // look as the old CSS tile — navy dots rgba(37,66,107,0.10), ~1px radius, 24px grid
+  // — but each dot can displace individually, which a CSS background tile cannot do.
+  //
+  // Interaction model:
+  // - Each dot has a HOME (grid) position and a current (rendered) position.
+  // - On pointermove the pointer's hero-relative coords are stored.
+  // - Per frame: any dot within RADIUS (~120px) of the pointer is pushed AWAY
+  //   from it (soft repel), strongest at the center and easing to zero at the
+  //   radius edge via a smooth cubic falloff; max push capped (~14px).
+  // - Every dot eases back toward its home each frame (spring-like return).
+  // - rAF loop runs only while the pointer is active OR while any dot is still
+  //   settling; it idles when fully at rest.
+  // - ResizeObserver (with a window-resize fallback) rebuilds the grid + DPR.
+  //
+  // Guards: prefers-reduced-motion and touch / no-hover devices paint the
+  // static grid ONCE (identical to the old tile) and wire NO listeners.
+  // ============================================================
+  (function() {
+    var hero = document.querySelector('.page-hero');
+    var canvas = document.getElementById('heroDotField');
+    if (!hero || !canvas || !canvas.getContext) return;
+    var ctx = canvas.getContext('2d');
+
+    // Resting look — matched 1:1 to the old ::after tile.
+    var GRID = 24;                 // px spacing (was background-size: 24px)
+    var DOT_R = 1;                 // px radius (was 1px dots)
+    var DOT_COLOR = 'rgba(37,66,107,0.10)';  // navy at low alpha (was the tile color)
+
+    // Interaction tuning — subtle/premium repel.
+    var RADIUS = 120;              // px influence radius around the pointer
+    var MAX_PUSH = 14;             // px max displacement at the pointer center
+    var EASE = 0.14;              // per-frame return toward home (spring stiffness)
+    var EPSILON = 0.05;          // settle threshold to idle the loop
+
+    var dots = [];                 // { hx, hy, x, y }  home + current
+    var dpr = 1;
+    var pointerX = -9999, pointerY = -9999;
+    var pointerActive = false;
+    var rafId = null;
+
+    var canHover = !window.matchMedia || window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+    var interactive = !prefersReducedMotion && canHover;
+
+    // Build the dot grid for the current hero size; reset current pos to home.
+    function buildGrid(w, h) {
+      dots.length = 0;
+      // Inset the grid by half a cell so it reads centered like the CSS tile.
+      var startX = GRID / 2, startY = GRID / 2;
+      for (var y = startY; y < h; y += GRID) {
+        for (var x = startX; x < w; x += GRID) {
+          dots.push({ hx: x, hy: y, x: x, y: y });
+        }
+      }
+    }
+
+    // Draw the current dot positions (single pass).
+    function draw(w, h) {
+      ctx.clearRect(0, 0, w, h);
+      ctx.fillStyle = DOT_COLOR;
+      for (var i = 0; i < dots.length; i++) {
+        var d = dots[i];
+        ctx.beginPath();
+        ctx.arc(d.x, d.y, DOT_R, 0, Math.PI * 2);
+        ctx.fill();
+      }
+    }
+
+    // Size the canvas to the hero, account for devicePixelRatio, rebuild grid, repaint.
+    function resize() {
+      var rect = hero.getBoundingClientRect();
+      var w = Math.max(1, Math.round(rect.width));
+      var h = Math.max(1, Math.round(rect.height));
+      dpr = Math.min(window.devicePixelRatio || 1, 2);  // cap DPR for perf
+      canvas.width = w * dpr;
+      canvas.height = h * dpr;
+      canvas.style.width = w + 'px';
+      canvas.style.height = h + 'px';
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      buildGrid(w, h);
+      draw(w, h);   // paint the static resting grid immediately (no layout shift, no FOUC)
+    }
+
+    // Smooth cubic falloff: 1 at center → 0 at edge.
+    function falloff(t) { var u = 1 - t; return u * u * u; }
+
+    function loop() {
+      var rect = hero.getBoundingClientRect();
+      var w = rect.width, h = rect.height;
+      var moving = false;
+      var r2 = RADIUS * RADIUS;
+
+      for (var i = 0; i < dots.length; i++) {
+        var d = dots[i];
+        var tx = d.hx, ty = d.hy;   // target defaults to home
+
+        if (pointerActive) {
+          var dx = d.hx - pointerX;
+          var dy = d.hy - pointerY;
+          var dist2 = dx * dx + dy * dy;
+          if (dist2 < r2) {
+            var dist = Math.sqrt(dist2) || 0.0001;
+            var push = falloff(dist / RADIUS) * MAX_PUSH;
+            // Repel: push dot outward, away from the pointer, along the radial.
+            tx = d.hx + (dx / dist) * push;
+            ty = d.hy + (dy / dist) * push;
+          }
+        }
+
+        // Ease current position toward the target (toward push pos, or back home).
+        d.x += (tx - d.x) * EASE;
+        d.y += (ty - d.y) * EASE;
+
+        if (Math.abs(d.x - tx) > EPSILON || Math.abs(d.y - ty) > EPSILON) moving = true;
+      }
+
+      draw(w, h);
+
+      // Keep running while the pointer is active or while dots are still settling.
+      if (pointerActive || moving) {
+        rafId = window.requestAnimationFrame(loop);
+      } else {
+        rafId = null;
+        draw(w, h);   // final crisp resting frame
+      }
+    }
+
+    function ensureLoop() {
+      if (rafId === null) rafId = window.requestAnimationFrame(loop);
+    }
+
+    // Initial sizing + static paint (runs for ALL cases, including reduced-motion/touch).
+    resize();
+
+    // Track resize for both interactive and static cases (canvas must follow hero size).
+    if ('ResizeObserver' in window) {
+      var ro = new ResizeObserver(function() { resize(); });
+      ro.observe(hero);
+    } else {
+      window.addEventListener('resize', resize, { passive: true });
+    }
+
+    // No interaction on reduced-motion / touch / no-hover — leave the static grid as-is.
+    if (!interactive) return;
+
+    hero.addEventListener('pointermove', function(e) {
+      if (e.pointerType === 'touch') return;   // ignore touch contacts
+      var rect = hero.getBoundingClientRect();
+      pointerX = e.clientX - rect.left;
+      pointerY = e.clientY - rect.top;
+      pointerActive = true;
+      ensureLoop();
+    }, { passive: true });
+
+    hero.addEventListener('pointerenter', function(e) {
+      if (e.pointerType === 'touch') return;
+      pointerActive = true;
+      ensureLoop();
+    });
+
+    hero.addEventListener('pointerleave', function() {
+      pointerActive = false;   // dots ease back home; loop runs until settled, then idles
+      ensureLoop();
+    });
+  })();
+
+  // ============================================================
   // HERO ANIMATION — Transformation Field (12s cycle)
   //
-  // Cole's 4 non-negotiable constraints:
-  //   1. Element density: at any moment, exactly 4 focal points are
-  //      animating — AI column pulse (CSS), focal doc (JS), pill (JS),
-  //      last-settled ring (JS). The 16 substrate documents drift as
-  //      a single group (one CSS animation on the parent <g>).
-  //   2. Icon vocabulary: hero substrate + focal docs all share the
-  //      ph-file-text silhouette; Step 01 "Read" uses ph-file-text too.
-  //   3. Color discipline: only navy + gold rendered. State separation
-  //      is opacity/saturation, never a new hue.
+  // Cole's 4 non-negotiable constraints (preserved):
+  //   1. Element density: at any moment, exactly 4 focal points are animating.
+  //   2. Icon vocabulary: hero substrate + focal docs share the ph-file-text silhouette.
+  //   3. Single accent + opacity carries state (now ON WHITE — see white-card CSS).
   //   4. Reduced motion: static composite via #tiStaticScene (CSS swap).
   //
-  // The focal cycle is ONE JS rAF loop driving 3 elements:
-  //   - tiFocalGroup transform (x position, rotation)
-  //   - tiPillGroup opacity (visible only while focal is inside col)
-  //   - tiSettledRing opacity + transform (lands on a grid slot after
-  //     focal exits, lingers until next focal lands)
-  //
-  // 4 focal passes per 12s cycle — one every 3s, each pass 3s long with
-  // visible overlap (next pass starts while ring of prev still showing).
+  // The focal cycle is ONE JS rAF loop driving tiFocalGroup, tiPillGroup, tiSettledRing.
   // ============================================================
   var heroStory   = document.getElementById('heroStory');
   var focalGroup  = document.getElementById('tiFocalGroup');
@@ -1243,8 +1435,6 @@
   }
 
   // Grid slot positions (4x4) — match the static markup above.
-  // Each slot is positioned by the top-left of its 22x28 doc; the ring
-  // is 26x32 with 2px inset margin so it surrounds the doc.
   var GRID_SLOTS = [
     { x: 416, y: 78  }, { x: 454, y: 78  }, { x: 492, y: 78  }, { x: 530, y: 78  },
     { x: 416, y: 128 }, { x: 454, y: 128 }, { x: 492, y: 128 }, { x: 530, y: 128 },
@@ -1253,7 +1443,6 @@
   ];
 
   // Metadata pill labels — cycle through 4 distinct categories.
-  // Stays in passive-instrumental voice (no anthropomorphism).
   var PILL_LABELS = [
     'type: invoice',
     'retention: 7yr',
@@ -1266,20 +1455,12 @@
     var CYCLE_MS   = 12000;  // full loop length
     var FOCAL_DUR  = 3000;   // one focal pass: 3 seconds
     var PASSES     = 4;      // 4 focal passes per cycle
-    // Within a single focal pass (0..1 normalized progress):
-    //   0.00..0.20  approach AI column from left   (substrate → column entry)
-    //   0.20..0.55  inside AI column, pill visible (focal in middle band)
-    //   0.55..0.85  exit AI column to right, fade to indexed state
-    //   0.85..1.00  land in grid slot, settled ring appears
 
     function smoothstep(a, b, t) {
       var x = Math.max(0, Math.min(1, (t - a) / (b - a)));
       return x * x * (3 - 2 * x);
     }
 
-    // Start position varies per pass — small random-feeling offset within
-    // the right edge of substrate field (x: 200..220, y: 120..220).
-    // Endpoints are deterministic so the focal lands cleanly in the grid.
     var PASS_STARTS = [
       { x: 218, y: 130 },
       { x: 210, y: 200 },
@@ -1287,9 +1468,6 @@
       { x: 215, y: 240 }
     ];
 
-    // Each pass deposits the focal doc into a different grid slot.
-    // We use the top-left 4 slots (rows 1+2) so the ring is always
-    // visible above the fold within the SVG viewBox.
     var PASS_SLOTS = [0, 1, 4, 5];
 
     var rafId = null;
@@ -1298,52 +1476,40 @@
     var pauseStart = 0;
     var startedAt = null;
 
-    // Track pill + ring state to avoid redundant writes
     var lastPillOpacity = -1;
     var lastRingOpacity = -1;
     var lastPillLabel   = -1;
     var lastRingSlot    = -1;
     var pillTextEl = document.getElementById('tiPillText');
 
-    function setOpacityIfChanged(el, current, next) {
-      if (current === next) return current;
-      el.setAttribute('opacity', next);
-      return next;
-    }
-
     function tick(timestamp) {
       if (paused) { rafId = null; return; }
       if (startedAt === null) startedAt = timestamp;
       var elapsed = (timestamp - startedAt - pausedAccum) % CYCLE_MS;
 
-      // Determine which pass we're in, and the local progress within that pass.
       var passIdx = Math.floor(elapsed / FOCAL_DUR) % PASSES;
       var passT   = (elapsed - passIdx * FOCAL_DUR) / FOCAL_DUR;   // 0..1
 
       var start = PASS_STARTS[passIdx];
       var slotIdx = PASS_SLOTS[passIdx];
       var endSlot = GRID_SLOTS[slotIdx];
-      // Focal endpoint inside the grid slot — the slot ring is at slot.x,
-      // and the doc itself centers within. Doc top-left = slot.x + 2, slot.y + 2.
       var endX = endSlot.x + 2;
       var endY = endSlot.y + 2;
 
-      // Waypoints — drives focal x/y/rotation per stage
       var x, y, rot;
 
       if (passT < 0.20) {
-        // Stage A: substrate edge → AI column entry (column left edge at x=260, mid-band y=166)
+        // Stage A: substrate edge → AI column entry
         var a = passT / 0.20;
         var ea = smoothstep(0, 1, a);
         x = start.x + (260 - start.x) * ea;
         y = start.y + (166 - start.y) * ea;
-        // Substrate docs have random rotations; focal straightens as it enters column
         rot = -8 + 8 * ea;   // -8° → 0°
       } else if (passT < 0.55) {
         // Stage B: inside AI column — drift gently from left edge to right edge
         var b = (passT - 0.20) / 0.35;
         var eb = smoothstep(0, 1, b);
-        x = 260 + (318 - 260) * eb;   // 260 → ~318 (column right edge ~340 - doc width 22 = 318)
+        x = 260 + (318 - 260) * eb;
         y = 166;
         rot = 0;
       } else if (passT < 0.85) {
@@ -1363,8 +1529,7 @@
       focalGroup.setAttribute('transform',
         'translate(' + x.toFixed(1) + ',' + y.toFixed(1) + ') rotate(' + rot.toFixed(1) + ')');
 
-      // Pill — visible while focal is INSIDE AI column (passT 0.20..0.55, with fade in/out edges).
-      // Position: anchored to focal doc x + 30 (just to right of doc).
+      // Pill — visible while focal is INSIDE AI column (passT 0.20..0.55, with fade edges).
       var pillOp;
       if (passT < 0.18 || passT > 0.62) {
         pillOp = 0;
@@ -1390,19 +1555,14 @@
         lastPillOpacity = pillOp;
       }
 
-      // Settled ring — appears when focal lands (passT >= 0.85), persists until
-      // 0.20 into the NEXT pass (when the new focal enters the column).
-      // We render the ring on the slot of the CURRENT pass once Stage D engages,
-      // OR on the slot of the PREVIOUS pass during Stage A of the new pass.
+      // Settled ring — appears when focal lands; persists into Stage A of next pass.
       var ringOp = 0;
       var ringSlotIdx = slotIdx;
       if (passT >= 0.85) {
-        // Lingering on current pass's slot
-        ringOp = (passT - 0.85) / 0.05;   // quick fade-in
+        ringOp = (passT - 0.85) / 0.05;
         ringOp = Math.min(1, ringOp);
         ringSlotIdx = slotIdx;
       } else if (passT < 0.20) {
-        // First fifth of new pass — ring still showing on PREVIOUS pass's slot
         var prevPass = (passIdx - 1 + PASSES) % PASSES;
         ringSlotIdx = PASS_SLOTS[prevPass];
         ringOp = 1 - smoothstep(0, 0.20, passT);

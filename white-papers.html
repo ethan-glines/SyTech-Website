@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>SyTech Solutions — About</title>
-<meta name="description" content="A different kind of records partner since 2000. SyTech builds records management inside the cloud public agencies already own — services, not licenses. 25+ years, 4,579 active cloud clients, 10.7M records under management."/>
+<title>SyTech Solutions — White Papers</title>
+<meta name="description" content="Free guides on records management, scanning, and digital transformation. Download SyTech white papers on archive scanning, Microsoft 365, 1DocStop, OneForm, and more."/>
 <link rel="stylesheet" href="assets/css/sytech-shared.css">
 <style>
 /* Page-specific :root vars (extras beyond the 8 shared in sytech-shared.css) */
@@ -43,160 +43,74 @@
 /* ========== CONTENT SECTIONS ========== */
 .section { padding: 5rem 0; }
 .section.alt { background: var(--light); }
-.section h2 {
-  font-size: clamp(1.6rem, 2.6vw, 2.2rem); font-weight: 700;
-  line-height: 1.2; margin-bottom: 1rem; letter-spacing: -0.01em;
-  color: var(--navy);
-}
-.section .section-eyebrow {
+.section .group-eyebrow {
   display: inline-block; font-size: 0.7rem; font-weight: 700;
   letter-spacing: 0.18em; text-transform: uppercase;
-  color: var(--gold); margin-bottom: 0.75rem;
+  color: var(--gold); margin-bottom: 1.25rem;
 }
-.section p { font-size: 1.05rem; line-height: 1.8; color: var(--text-body); margin-bottom: 1.25rem; }
-.section .lead-row { max-width: 820px; margin-bottom: 2.5rem; }
+.section .group-eyebrow:not(:first-child) { margin-top: 3rem; }
 
-/* ===== Differentiators grid (migrated from why-sytech, verbatim) ===== */
-.diff-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; margin-top: 2rem; }
-.diff-card { background: var(--white); padding: 2rem; border-radius: 10px; border: 1px solid #E3E9EF; box-shadow: 0 2px 8px rgba(37, 66, 107, 0.04); transition: transform 0.3s ease, box-shadow 0.3s ease; position: relative; overflow: hidden; }
-.diff-card::before { content: ''; position: absolute; top: 0; left: 0; width: 4px; height: 100%; background: var(--gold); }
-.diff-card:hover { transform: translateY(-4px); box-shadow: 0 8px 24px rgba(37, 66, 107, 0.10); }
-.diff-card .num { display: block; font-size: 0.7rem; font-weight: 700; letter-spacing: 0.16em; color: var(--gold); margin-bottom: 0.75rem; }
-.diff-card h3 { font-size: 1.2rem; font-weight: 700; margin-bottom: 0.75rem; color: var(--navy); }
-.diff-card p { font-size: 0.95rem; line-height: 1.7; color: var(--text-body); margin: 0; }
-
-/* ===== POV (Anti-SaaS Callout) Section (migrated from why-sytech, verbatim) ===== */
-.pov-section { padding: 5rem 0; background: var(--deep-navy); color: var(--white); position: relative; overflow: hidden; }
-.pov-section::after {
-  content: ''; position: absolute; inset: 0;
-  background-image: radial-gradient(rgba(255,255,255,0.04) 1px, transparent 1px);
-  background-size: 24px 24px; pointer-events: none;
+/* ========== WHITEPAPER GRID ========== */
+.wp-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.5rem;
 }
-.pov-inner { max-width: 920px; margin: 0 auto; position: relative; z-index: 1; }
-.pov-section .section-eyebrow {
-  display: inline-block; font-size: 0.7rem; font-weight: 700;
-  letter-spacing: 0.18em; text-transform: uppercase;
-  color: var(--gold); margin-bottom: 1.5rem;
+.wp-card {
+  background: var(--white);
+  border: 1px solid #E3E9EF;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(37, 66, 107, 0.04);
+  padding: 1.75rem;
+  display: flex; flex-direction: column;
+  transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+  position: relative; overflow: hidden;
 }
-.pov-headline {
-  font-size: clamp(1.6rem, 3.2vw, 2.4rem); font-weight: 700;
-  line-height: 1.25; letter-spacing: -0.01em;
-  color: var(--white); margin-bottom: 1.5rem;
-  padding-bottom: 1.5rem;
-  border-bottom: 2px solid var(--gold);
-  max-width: 760px;
+.wp-card::before {
+  content: ''; position: absolute; top: 0; left: 0;
+  width: 4px; height: 100%; background: var(--gold);
 }
-.pov-body {
-  font-size: 1.05rem; line-height: 1.8;
-  color: rgba(255,255,255,0.85); max-width: 760px; margin: 0;
+.wp-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px rgba(37, 66, 107, 0.10);
+  border-color: rgba(229,166,48,0.45);
 }
-
-/* ===== FAQ Accordion (migrated from why-sytech, verbatim) ===== */
-.faq-section { padding: 5rem 0; background: var(--white); }
-.faq-section .section-eyebrow { display: inline-block; font-size: 0.7rem; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; color: var(--gold); margin-bottom: 0.75rem; }
-.faq-section h2 { font-size: clamp(1.6rem, 2.6vw, 2.2rem); font-weight: 700; line-height: 1.2; margin-bottom: 1rem; letter-spacing: -0.01em; color: var(--navy); }
-.faq-list { margin-top: 2.5rem; max-width: 920px; }
-.faq-item {
-  background: var(--white); border: 1px solid #E3E9EF; border-radius: 8px;
-  margin-bottom: 0.85rem; overflow: hidden;
-  transition: box-shadow 0.25s ease, border-color 0.25s ease;
+.wp-icon {
+  width: 44px; height: 44px; border-radius: 9px;
+  background: var(--gold-soft);
+  display: flex; align-items: center; justify-content: center;
+  margin-bottom: 1.1rem; flex-shrink: 0;
 }
-.faq-item:hover { border-color: rgba(229,166,48,0.45); box-shadow: 0 4px 16px rgba(37,66,107,0.06); }
-.faq-item[open] { border-color: var(--gold); box-shadow: 0 4px 16px rgba(37,66,107,0.08); }
-.faq-question {
-  display: flex; justify-content: space-between; align-items: center;
-  padding: 1.25rem 1.5rem; cursor: pointer;
-  font-weight: 700; font-size: 1.02rem; color: var(--navy);
-  list-style: none;
-  transition: background 0.2s ease;
+.wp-icon svg { width: 24px; height: 24px; display: block; }
+.wp-card h2 {
+  font-size: 1.1rem; font-weight: 700; color: var(--navy);
+  line-height: 1.3; margin-bottom: 0.5rem; letter-spacing: -0.005em;
 }
-.faq-question::-webkit-details-marker { display: none; }
-.faq-question:focus-visible { outline: 2px solid var(--gold); outline-offset: -2px; }
-.faq-question:hover { background: rgba(229,166,48,0.04); }
-.faq-icon {
-  flex-shrink: 0; margin-left: 1rem;
-  width: 22px; height: 22px; position: relative;
-  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+.wp-meta {
+  font-size: 0.78rem; color: var(--text-body);
+  letter-spacing: 0.02em; margin-bottom: 1.5rem;
 }
-.faq-icon::before, .faq-icon::after {
-  content: ''; position: absolute; background: var(--gold);
-  border-radius: 1px;
-  transition: opacity 0.25s ease;
+.wp-meta .dot { color: var(--gold); margin: 0 0.4rem; }
+.wp-card .wp-foot { margin-top: auto; }
+.btn-download {
+  display: inline-flex; align-items: center; gap: 0.55rem;
+  padding: 0.7rem 1.35rem;
+  background: var(--navy); color: var(--white);
+  font-size: 0.85rem; font-weight: 700; border-radius: 6px;
+  text-decoration: none; transition: all 0.3s; letter-spacing: 0.01em;
 }
-.faq-icon::before { left: 50%; top: 4px; bottom: 4px; width: 2px; transform: translateX(-50%); }
-.faq-icon::after  { top: 50%; left: 4px; right: 4px; height: 2px; transform: translateY(-50%); }
-.faq-item[open] .faq-icon { transform: rotate(180deg); }
-.faq-item[open] .faq-icon::before { opacity: 0; }
-.faq-answer {
-  padding: 0 1.5rem 1.5rem 1.5rem;
-  font-size: 0.97rem; line-height: 1.75; color: var(--text-body);
-}
-.faq-answer p { margin: 0; }
-@media (prefers-reduced-motion: reduce) {
-  .faq-item, .faq-icon, .faq-icon::before, .faq-icon::after { transition: none !important; }
-}
-
-/* ===== Trust doorway link row ===== */
-.trust-doorway { padding: 3rem 0; background: var(--light); }
-.trust-doorway .doorway-inner { max-width: 820px; }
-.trust-doorway p { font-size: 1.05rem; line-height: 1.75; color: var(--text-body); margin: 0; }
-.trust-doorway a.doorway-link {
-  display: inline-block; margin-top: 0.5rem;
-  font-size: 1.02rem; font-weight: 700; color: var(--navy);
-  border-bottom: 2px solid var(--gold); padding-bottom: 2px;
-  transition: color 0.2s ease;
-}
-.trust-doorway a.doorway-link:hover { color: var(--gold); }
-
-/* ===== Our Story — feature grid + stats ===== */
-.feature-grid {
-  display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 1.5rem; margin-top: 2rem;
-}
-.feature-card {
-  background: var(--white); padding: 2rem; border-radius: 10px;
-  border: 1px solid #E3E9EF; box-shadow: 0 2px 8px rgba(37, 66, 107, 0.04);
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-}
-.section.alt .feature-card { background: var(--white); }
-.feature-card:hover { transform: translateY(-4px); box-shadow: 0 8px 24px rgba(37, 66, 107, 0.10); }
-.feature-card h3 {
-  font-size: 1.15rem; font-weight: 700; margin-bottom: 0.75rem; color: var(--navy);
-}
-.feature-card .num {
-  display: inline-block; font-size: 0.75rem; font-weight: 700;
-  letter-spacing: 0.12em; color: var(--gold); margin-bottom: 0.6rem;
-}
-.feature-card p { font-size: 0.95rem; line-height: 1.7; color: var(--text-body); margin: 0; }
-
-.stats-row {
-  display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-  gap: 1.5rem; margin-top: 2.5rem; padding-top: 2.5rem;
-  border-top: 1px solid rgba(37,66,107,0.10);
-}
-.stat-block { text-align: center; }
-.stat-block .num {
-  display: block; font-size: clamp(2rem, 3vw, 2.6rem); font-weight: 700;
-  color: var(--navy); line-height: 1;
-}
-.stat-block .num span { color: var(--gold); }
-.stat-block .label { font-size: 0.8rem; color: var(--text-body); margin-top: 0.5rem; letter-spacing: 0.04em; }
-
-/* CTA strip */
-.cta-strip { background: var(--deep-navy); padding: 4rem 0; color: var(--white); text-align: center; }
-.cta-strip h2 { color: var(--white); font-size: clamp(1.5rem, 2.4vw, 2rem); margin-bottom: 1rem; }
-.cta-strip p { color: rgba(255,255,255,0.75); max-width: 600px; margin: 0 auto 1.75rem; }
-.btn-primary {
-  display: inline-block; padding: 0.85rem 2rem;
+.btn-download:hover {
   background: var(--gold); color: var(--deep-navy);
-  font-size: 0.95rem; font-weight: 700; border-radius: 6px;
-  text-decoration: none; transition: all 0.3s; border: none; cursor: pointer;
+  transform: translateY(-2px); box-shadow: 0 6px 18px rgba(37,66,107,0.20);
 }
-.btn-primary:hover { background: #d4952a; transform: translateY(-2px); box-shadow: 0 6px 20px rgba(229,166,48,0.35); }
+.btn-download svg { width: 15px; height: 15px; flex-shrink: 0; }
 
 @media (max-width: 900px) {
   .page-hero { padding: 9rem 0 4rem; }
-  .section, .pov-section, .faq-section { padding: 3.5rem 0; }
+  .section { padding: 3.5rem 0; }
+}
+@media (max-width: 520px) {
+  .wp-grid { grid-template-columns: 1fr; }
 }
 </style>
 </head>
@@ -239,7 +153,7 @@
     </a>
     <ul class="nav-links" id="navLinks">
       <li><a href="index.html">Home</a></li>
-      <li><a href="about.html" aria-current="page">About</a></li>
+      <li><a href="about.html">About</a></li>
       <li class="nav-has-mega">
         <a href="services.html" class="nav-mega-trigger" aria-haspopup="true" aria-expanded="false">
           Services
@@ -286,7 +200,7 @@
       </li>
       <li><a href="who-we-serve.html">Who We Serve</a></li>
       <li class="nav-has-mega nav-has-mega--compact">
-        <a href="white-papers.html" class="nav-mega-trigger" aria-haspopup="true" aria-expanded="false">
+        <a href="white-papers.html" class="nav-mega-trigger" aria-haspopup="true" aria-expanded="false" aria-current="true">
           Resources
           <svg class="nav-mega-chevron" width="10" height="10" aria-hidden="true" viewBox="0 0 10 10">
             <path d="M1 3.5L5 7.5L9 3.5" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
@@ -295,7 +209,7 @@
         <div class="mega mega--compact" role="region" aria-label="Resources">
           <div class="mega-inner">
             <ul class="mega-simple-list" role="list">
-              <li><a href="white-papers.html">White Papers</a></li>
+              <li><a href="white-papers.html" aria-current="page">White Papers</a></li>
               <li><a href="downloads.html">Downloads</a></li>
             </ul>
           </div>
@@ -313,194 +227,160 @@
 <main id="main">
 
 <!-- ============================================================
-     HERO — merged why-led hero (Reed item #1; "Since 2000" override)
+     HERO — White Papers (brand-neutral navy + gold)
      ============================================================ -->
 <section class="page-hero">
   <div class="container">
-    <span class="eyebrow">About SyTech</span>
-    <h1>A Different Kind of Records Partner. <span>Since 2000.</span></h1>
-    <p class="lead">Most vendors sell public agencies another platform to license and maintain. Since 2000, SyTech has done the opposite. We build records management inside the cloud you already own, so you pay for the work, not someone else's software. Below is what makes that approach different, and how we got here.</p>
+    <span class="eyebrow">Resources</span>
+    <h1>White Papers</h1>
+    <p class="lead">Free guides on records management, scanning, and digital transformation.</p>
   </div>
 </section>
 
 <!-- ============================================================
-     WHY US — Differentiators (migrated from why-sytech Block 2, verbatim)
+     WHITEPAPER LIBRARY — 9 cards, grouped (Scanning / 1DocStop / Platform)
      ============================================================ -->
-<section class="section">
-  <div class="container">
-    <span class="section-eyebrow">Why SyTech</span>
-    <h2>What Makes SyTech Different.</h2>
-    <p class="lead-row">Public agencies have plenty of options for records and forms software. SyTech's approach is structured around five core differentiators that change the economics, security posture, and long-term flexibility of every engagement.</p>
-    <div class="diff-grid">
-      <div class="diff-card">
-        <span class="num">01 — PLATFORM APPROACH</span>
-        <h3>No New Software Required</h3>
-        <p>SyTech builds inside Microsoft 365 and Google Workspace — platforms your agency already owns and funds. There is no new app to procure, license, or maintain.</p>
-      </div>
-      <div class="diff-card">
-        <span class="num">02 — DATA SOVEREIGNTY</span>
-        <h3>Your Data Stays in Your Cloud</h3>
-        <p>No vendor-controlled servers. Your records, forms, and workflows live in your agency's own cloud tenant. Your security policies govern your data — always.</p>
-      </div>
-      <div class="diff-card">
-        <span class="num">03 — SERVICES MODEL</span>
-        <h3>Services, Not Licenses</h3>
-        <p>SyTech is a partnership, not a subscription. We combine connective tools with hands-on implementation, workflow configuration, and ongoing support — structured around outcomes, not seat counts.</p>
-      </div>
-      <div class="diff-card">
-        <span class="num">04 — FUTURE-PROOF</span>
-        <h3>Native AI and Automation</h3>
-        <p>Because we build inside your existing cloud, you get native access to Microsoft Copilot, Power Automate, and Azure capabilities — no vendor add-ons, no custom integrations to maintain.</p>
-      </div>
-      <div class="diff-card">
-        <span class="num">05 — PROVEN AT SCALE</span>
-        <h3>25+ Years of Experience</h3>
-        <p>Twenty-five years of public sector records work, at every scale, from single districts to statewide departments. Thousands of active cloud clients and millions of records under management. We have not just done this before. We have done it bigger.</p>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- ============================================================
-     POV CALLOUT (migrated from why-sytech Block 4, verbatim)
-     ============================================================ -->
-<section class="pov-section" aria-label="Our point of view">
-  <div class="container">
-    <div class="pov-inner">
-      <span class="section-eyebrow">Our Point of View</span>
-      <h2 class="pov-headline">Your records shouldn't be locked behind someone else's license.</h2>
-      <p class="pov-body">For 25 years, we have watched agencies spend budget on annual software fees only to find their records buried inside platforms they don't control. Our approach is the opposite. We build records management inside the cloud platforms your agency already owns and funds — Microsoft 365, Google Workspace. The software vendor changes. The contract ends. Your records stay where they belong: in your tenant, under your governance, accessible on your terms.</p>
-    </div>
-  </div>
-</section>
-
-<!-- ============================================================
-     FAQ — objection handling (migrated from why-sytech Block 10, verbatim)
-     ============================================================ -->
-<section class="faq-section" aria-label="Frequently asked questions">
-  <div class="container">
-    <span class="section-eyebrow">Questions We Often Hear</span>
-    <h2>Questions Worth Asking Before You Buy More Software.</h2>
-    <div class="faq-list">
-      <details class="faq-item">
-        <summary class="faq-question">
-          <span>Do we need to license another platform to modernize our records?</span>
-          <span class="faq-icon" aria-hidden="true"></span>
-        </summary>
-        <div class="faq-answer">
-          <p>No. SyTech builds inside the cloud platforms your agency already owns — Microsoft 365 or Google Workspace. There is no new app to procure, no additional license to fund, no second login for your staff to manage. The capability is already in your tenant. We turn it on and configure it around how your team actually works.</p>
-        </div>
-      </details>
-      <details class="faq-item">
-        <summary class="faq-question">
-          <span>We already have a document management system. Why change?</span>
-          <span class="faq-icon" aria-hidden="true"></span>
-        </summary>
-        <div class="faq-answer">
-          <p>Most agencies are paying annual fees on systems that were built for a different era — closed platforms that don't connect to the cloud tools your staff use every day. We move your data out of those systems and into open cloud platforms, then build records management around the licenses you already fund. The result: one platform, lower recurring cost, full data portability.</p>
-        </div>
-      </details>
-      <details class="faq-item">
-        <summary class="faq-question">
-          <span>Can we really build records management inside Microsoft 365 or Google?</span>
-          <span class="faq-icon" aria-hidden="true"></span>
-        </summary>
-        <div class="faq-answer">
-          <p>Yes — and most agencies have no idea their current cloud subscription already supports it. Microsoft 365 and Google Workspace are not just productivity tools; they are extensible records and data platforms. The capability is there. What is usually missing is the implementation work, governance setup, and workflow configuration. That is the work we do.</p>
-        </div>
-      </details>
-      <details class="faq-item">
-        <summary class="faq-question">
-          <span>What are best practices for our records and data going forward?</span>
-          <span class="faq-icon" aria-hidden="true"></span>
-        </summary>
-        <div class="faq-answer">
-          <p>Move information into open, extensible cloud platforms. Avoid closed, hierarchical software that forces your processes to match its structure. Build retention, security, and workflow around your agency — not around a vendor's product roadmap. The cloud you already own can do all of this. Most agencies just need a partner who has done it across 4,579 cloud clients.</p>
-        </div>
-      </details>
-    </div>
-  </div>
-</section>
-
-<!-- ============================================================
-     TRUST DOORWAY (Reed item #2) — link to Trust & Security
-     ============================================================ -->
-<section class="trust-doorway" aria-label="Trust and security">
-  <div class="container">
-    <div class="doorway-inner">
-      <p>Security and compliance get their own page, with the cameras, agreements, and certificates spelled out.</p>
-      <a href="trust-security.html" class="doorway-link">See our Trust &amp; Security posture &rarr;</a>
-    </div>
-  </div>
-</section>
-
-<!-- ============================================================
-     OUR STORY — existing About narrative (kept intact, moved below the why case)
-     ============================================================ -->
-<section class="section">
-  <div class="container">
-    <div class="lead-row">
-      <span class="section-eyebrow">Our Story</span>
-      <h2>From Paper to Cloud, One Agency at a Time.</h2>
-      <p>Since 2000, SyTech has provided digital transformation services for hundreds of public agencies across California — school districts, county offices, statewide departments. We have never been in the business of reselling proprietary software. From the start, our work has been to help agencies move their records and data into open, extensible cloud platforms — and to spend their budgets on outcomes instead of licenses.</p>
-      <p>Twenty-five years later, that approach has produced 4,579 active cloud clients, 10.7 million records under management, and a client roster that includes some of the largest public agencies in the state.</p>
-    </div>
-    <div class="stats-row">
-      <div class="stat-block"><div class="num">25<span>+</span></div><div class="label">Years in Public Sector</div></div>
-      <div class="stat-block"><div class="num">4,579</div><div class="label">Active Cloud Clients</div></div>
-      <div class="stat-block"><div class="num">10.7<span>M</span></div><div class="label">Managed Records</div></div>
-      <div class="stat-block"><div class="num">256</div><div class="label">Cloud Solutions</div></div>
-    </div>
-  </div>
-</section>
-
 <section class="section alt">
   <div class="container">
-    <div class="lead-row">
-      <span class="section-eyebrow">A Cloud-First Practice — Since 2002</span>
-      <h2>We Built Our First Cloud Deployment Before "Cloud" Was the Word for It.</h2>
-      <p>In 2002, we built our first native cloud records management solution for Stockton Unified School District — years before the rest of the industry moved off on-premise servers. That early bet shaped everything that followed.</p>
-      <p>Since then, we have built thousands of cloud-based records and data services for public agencies across California, including Los Angeles County, the California Department of Child Support Services, the California Department of Natural Resources, and Yolo County District Attorney's Office. Open cloud was the right path then. It is the only path now.</p>
+
+    <!-- Group 1: Scanning -->
+    <span class="group-eyebrow">Scanning</span>
+    <div class="wp-grid">
+      <article class="wp-card">
+        <div class="wp-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" stroke="#E5A630" stroke-width="1.6" stroke-linejoin="round"/><path d="M14 2v6h6" stroke="#E5A630" stroke-width="1.6" stroke-linejoin="round"/></svg>
+        </div>
+        <h2>Archive Scanning</h2>
+        <p class="wp-meta">PDF <span class="dot" aria-hidden="true">&middot;</span> 347 KB</p>
+        <div class="wp-foot">
+          <a class="btn-download" href="https://sytechmedia.blob.core.windows.net/assets/Archive_Scanning.pdf" target="_blank" rel="noopener">
+            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M12 3v12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M7 10.5 12 15.5l5-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M4 19h16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+            Download PDF
+          </a>
+        </div>
+      </article>
+
+      <article class="wp-card">
+        <div class="wp-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" stroke="#E5A630" stroke-width="1.6" stroke-linejoin="round"/><path d="M14 2v6h6" stroke="#E5A630" stroke-width="1.6" stroke-linejoin="round"/></svg>
+        </div>
+        <h2>Large Format Scanning</h2>
+        <p class="wp-meta">PDF <span class="dot" aria-hidden="true">&middot;</span> 310 KB</p>
+        <div class="wp-foot">
+          <a class="btn-download" href="https://sytechmedia.blob.core.windows.net/assets/Large_Format_Scanning.pdf" target="_blank" rel="noopener">
+            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M12 3v12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M7 10.5 12 15.5l5-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M4 19h16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+            Download PDF
+          </a>
+        </div>
+      </article>
+
+      <article class="wp-card">
+        <div class="wp-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" stroke="#E5A630" stroke-width="1.6" stroke-linejoin="round"/><path d="M14 2v6h6" stroke="#E5A630" stroke-width="1.6" stroke-linejoin="round"/></svg>
+        </div>
+        <h2>Scan on Demand</h2>
+        <p class="wp-meta">PDF <span class="dot" aria-hidden="true">&middot;</span> 385 KB</p>
+        <div class="wp-foot">
+          <a class="btn-download" href="https://sytechmedia.blob.core.windows.net/assets/Scan_on_Demand.pdf" target="_blank" rel="noopener">
+            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M12 3v12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M7 10.5 12 15.5l5-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M4 19h16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+            Download PDF
+          </a>
+        </div>
+      </article>
     </div>
-  </div>
-</section>
 
-<section class="section">
-  <div class="container">
-    <span class="section-eyebrow">How We Are Built</span>
-    <h2>Two Teams, One Mission.</h2>
-    <p class="lead-row">SyTech is structured around two internal teams that work together to deliver every engagement. One handles the hands-on work of moving information. The other builds the systems that make that information useful for years to come.</p>
-    <div class="feature-grid">
-      <div class="feature-card">
-        <span class="num">01 — Services Team</span>
-        <h3>Hands-On Records Work</h3>
-        <p>Our Services Team handles the heavy lifting: scanning, structuring, and migrating information from paper and legacy systems into modern cloud platforms. They are the practitioners who turn clutter into compliant, indexed records.</p>
-      </div>
-      <div class="feature-card">
-        <span class="num">02 — Development Team</span>
-        <h3>Cloud-Native Tools</h3>
-        <p>Our Development Team builds scalable tools that replace outdated software, using the cloud platforms our clients already own. Forms, workflows, and automation that live inside Microsoft 365 or Google Workspace, not on a vendor server.</p>
-      </div>
+    <!-- Group 2: Products -->
+    <span class="group-eyebrow">Products</span>
+    <div class="wp-grid">
+      <article class="wp-card">
+        <div class="wp-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" stroke="#E5A630" stroke-width="1.6" stroke-linejoin="round"/><path d="M14 2v6h6" stroke="#E5A630" stroke-width="1.6" stroke-linejoin="round"/></svg>
+        </div>
+        <h2>1DocStop Features</h2>
+        <p class="wp-meta">PDF <span class="dot" aria-hidden="true">&middot;</span> 316 KB</p>
+        <div class="wp-foot">
+          <a class="btn-download" href="https://sytechmedia.blob.core.windows.net/assets/1DocStop_Features.pdf" target="_blank" rel="noopener">
+            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M12 3v12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M7 10.5 12 15.5l5-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M4 19h16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+            Download PDF
+          </a>
+        </div>
+      </article>
+
+      <article class="wp-card">
+        <div class="wp-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" stroke="#E5A630" stroke-width="1.6" stroke-linejoin="round"/><path d="M14 2v6h6" stroke="#E5A630" stroke-width="1.6" stroke-linejoin="round"/></svg>
+        </div>
+        <h2>1DocStop Security</h2>
+        <p class="wp-meta">PDF <span class="dot" aria-hidden="true">&middot;</span> 418 KB</p>
+        <div class="wp-foot">
+          <a class="btn-download" href="https://sytechmedia.blob.core.windows.net/assets/1DocStop_Security.pdf" target="_blank" rel="noopener">
+            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M12 3v12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M7 10.5 12 15.5l5-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M4 19h16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+            Download PDF
+          </a>
+        </div>
+      </article>
+
+      <article class="wp-card">
+        <div class="wp-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" stroke="#E5A630" stroke-width="1.6" stroke-linejoin="round"/><path d="M14 2v6h6" stroke="#E5A630" stroke-width="1.6" stroke-linejoin="round"/></svg>
+        </div>
+        <h2>OneForm Features</h2>
+        <p class="wp-meta">PDF <span class="dot" aria-hidden="true">&middot;</span> 316 KB</p>
+        <div class="wp-foot">
+          <a class="btn-download" href="https://sytechmedia.blob.core.windows.net/assets/OneForm.pdf" target="_blank" rel="noopener">
+            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M12 3v12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M7 10.5 12 15.5l5-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M4 19h16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+            Download PDF
+          </a>
+        </div>
+      </article>
     </div>
-  </div>
-</section>
 
-<section class="section alt">
-  <div class="container">
-    <span class="section-eyebrow">Our Mission</span>
-    <h2>From Complexity to Clarity.</h2>
-    <p class="lead-row">SyTech delivers practical, future-ready services that reduce complexity, lower costs, and help public agencies work smarter. Through our proven approach, Organize. Unify. Scale., we help organizations move confidently toward the future of open cloud, automation, and AI.</p>
-  </div>
-</section>
+    <!-- Group 3: Platform & Compliance -->
+    <span class="group-eyebrow">Platform &amp; Compliance</span>
+    <div class="wp-grid">
+      <article class="wp-card">
+        <div class="wp-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" stroke="#E5A630" stroke-width="1.6" stroke-linejoin="round"/><path d="M14 2v6h6" stroke="#E5A630" stroke-width="1.6" stroke-linejoin="round"/></svg>
+        </div>
+        <h2>Microsoft 365</h2>
+        <p class="wp-meta">PDF <span class="dot" aria-hidden="true">&middot;</span> 3.5 MB</p>
+        <div class="wp-foot">
+          <a class="btn-download" href="https://sytechmedia.blob.core.windows.net/assets/Microsoft365.pdf" target="_blank" rel="noopener">
+            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M12 3v12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M7 10.5 12 15.5l5-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M4 19h16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+            Download PDF
+          </a>
+        </div>
+      </article>
 
-<!-- ============================================================
-     ONE CTA STRIP (collapsed from About + why-sytech)
-     ============================================================ -->
-<section class="cta-strip">
-  <div class="container">
-    <h2>Let's Start With an Assessment.</h2>
-    <p>Every engagement begins with a conversation. We learn where you are, what is working, and what is not — then map a clear path forward.</p>
-    <a href="contact.html" class="btn-primary">Request a Free Assessment</a>
+      <article class="wp-card">
+        <div class="wp-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" stroke="#E5A630" stroke-width="1.6" stroke-linejoin="round"/><path d="M14 2v6h6" stroke="#E5A630" stroke-width="1.6" stroke-linejoin="round"/></svg>
+        </div>
+        <h2>eSCARS</h2>
+        <p class="wp-meta">PDF <span class="dot" aria-hidden="true">&middot;</span> 437 KB</p>
+        <div class="wp-foot">
+          <a class="btn-download" href="https://sytechmedia.blob.core.windows.net/assets/eScars.pdf" target="_blank" rel="noopener">
+            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M12 3v12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M7 10.5 12 15.5l5-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M4 19h16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+            Download PDF
+          </a>
+        </div>
+      </article>
+
+      <article class="wp-card">
+        <div class="wp-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" stroke="#E5A630" stroke-width="1.6" stroke-linejoin="round"/><path d="M14 2v6h6" stroke="#E5A630" stroke-width="1.6" stroke-linejoin="round"/></svg>
+        </div>
+        <h2>SyTech Facility</h2>
+        <p class="wp-meta">PDF <span class="dot" aria-hidden="true">&middot;</span> 388 KB</p>
+        <div class="wp-foot">
+          <a class="btn-download" href="https://sytechmedia.blob.core.windows.net/assets/SyTech_Facility.pdf" target="_blank" rel="noopener">
+            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M12 3v12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M7 10.5 12 15.5l5-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M4 19h16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+            Download PDF
+          </a>
+        </div>
+      </article>
+    </div>
+
   </div>
 </section>
 

@@ -50,8 +50,8 @@
   overflow: hidden;
   color: var(--navy); /* dark text treatment — top is a pale teal wash, not solid teal */
   background: linear-gradient(180deg,
-      rgba(26,110,120,0.46)  0%,    /* SHIPPED top alpha 0.46 (LOWERED from 0.52 for navy h1 AA) — soft teal wash over --light (navy ~4.89:1) */
-      rgba(26,110,120,0.16) 40%,    /* second stop scaled 0.18→0.16 with the top so the fade stays proportional */
+      rgba(46,125,181,0.52)  0%,    /* STEEL BLUE top alpha 0.52 (matches 1DocStop verbatim) — soft steel-blue wash over --light, navy h1 clears AA */
+      rgba(46,125,181,0.18) 40%,    /* second stop 0.18 (matches 1DocStop) so the fade stays proportional */
       var(--light)          75%,    /* #F5F5F5 — into the light canvas */
       var(--white)         100%);   /* #FFFFFF — white floor at the very bottom of the hero */
 }
@@ -84,12 +84,12 @@
    small-text AA (4.5:1) on the 0.46 teal top tint. #0B4148 (11,65,72) measures ~4.81:1 on that
    tint, clearing small-text AA, while staying in the teal hue family (NOT navy). This is the
    teal equivalent of the copper template's deepened #6E3318 eyebrow. */
-.page-hero .eyebrow { display: inline-block; font-size: 0.7rem; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; color: #0B4148; margin-bottom: 1rem; }
+.page-hero .eyebrow { display: inline-block; font-size: 0.7rem; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; color: #1D456A; margin-bottom: 1rem; }
 .page-hero h1 { font-size: clamp(2rem, 4.5vw, 3.2rem); font-weight: 700; line-height: 1.15; margin-bottom: 1.25rem; letter-spacing: -0.01em; color: var(--navy); }
 /* h1 highlight span — the colored POP word. On the 0.46 teal top the lighthero's --accent-ink
    #1A6E78 reaches only ~2.54:1 (FAILS 3:1 large), so the span darkens to #0F525A (15,82,90) =
    ~3.77:1 → PASS 3:1 large at the 32px+ bold h1 size. Deep teal, stays in the teal family. */
-.page-hero h1 span { color: #0F525A; }
+.page-hero h1 span { color: #235880; }
 .page-hero p.lead { font-size: 1.1rem; line-height: 1.7; color: var(--text-body); }
 
 /* Breadcrumb — light-version accent treatment (KEPT from the lighthero per Cole's carry-over):
@@ -98,7 +98,7 @@
 .breadcrumb { margin-bottom: 1.25rem; }
 .breadcrumb ol { list-style: none; padding: 0; margin: 0; display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: center; font-size: 0.8rem; }
 .breadcrumb li { display: inline-flex; align-items: center; gap: 0.5rem; color: var(--text-body); }
-.breadcrumb li + li::before { content: '\203A'; color: var(--accent); font-size: 0.95rem; line-height: 1; padding-right: 0.25rem; }
+.breadcrumb li + li::before { content: '\203A'; color: #1D456A; font-size: 0.95rem; line-height: 1; padding-right: 0.25rem; }
 .breadcrumb a { color: var(--text-body); transition: color 0.2s ease; }
 .breadcrumb a:hover { color: var(--accent); }
 .breadcrumb [aria-current="page"] { color: var(--navy); font-weight: 700; }
@@ -642,6 +642,22 @@
         </div>
       </li>
       <li><a href="who-we-serve.html">Who We Serve</a></li>
+      <li class="nav-has-mega nav-has-mega--compact">
+        <a href="white-papers.html" class="nav-mega-trigger" aria-haspopup="true" aria-expanded="false">
+          Resources
+          <svg class="nav-mega-chevron" width="10" height="10" aria-hidden="true" viewBox="0 0 10 10">
+            <path d="M1 3.5L5 7.5L9 3.5" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </a>
+        <div class="mega mega--compact" role="region" aria-label="Resources">
+          <div class="mega-inner">
+            <ul class="mega-simple-list" role="list">
+              <li><a href="white-papers.html">White Papers</a></li>
+              <li><a href="downloads.html">Downloads</a></li>
+            </ul>
+          </div>
+        </div>
+      </li>
       <li><a href="contact.html">Contact</a></li>
     </ul>
     <button class="nav-hamburger" id="navHamburger" aria-label="Toggle menu" aria-expanded="false"><span></span><span></span><span></span></button>
@@ -1247,6 +1263,8 @@
           <li><a href="about.html">About</a></li>
           <li><a href="services.html">Services</a></li>
           <li><a href="who-we-serve.html">Who We Serve</a></li>
+          <li><a href="white-papers.html">White Papers</a></li>
+          <li><a href="downloads.html">Downloads</a></li>
           <li><a href="contact.html">Contact</a></li>
         </ul>
       </div>
@@ -1282,52 +1300,57 @@
      Desktop reveal is pure CSS (:hover + :focus-within).
      ------------------------------------------------------- */
   (function() {
-    var trigger = document.querySelector('.nav-mega-trigger');
-    if (!trigger) return;
-    var megaLi = trigger.closest('.nav-has-mega');
-    var chevron = trigger.querySelector('.nav-mega-chevron');
+    var triggers = document.querySelectorAll('.nav-mega-trigger');
+    if (!triggers.length) return;
     var mqMobile = window.matchMedia('(max-width: 1024px)');
 
-    trigger.addEventListener('click', function(e) {
-      if (!mqMobile.matches) return;
-      var clickedChevron = chevron && (e.target === chevron || chevron.contains(e.target));
-      if (!clickedChevron) return;
-      e.preventDefault();
-      var isOpen = megaLi.classList.toggle('is-open');
-      trigger.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
-    });
+    Array.prototype.forEach.call(triggers, function(trigger) {
+      var megaLi = trigger.closest('.nav-has-mega');
+      var chevron = trigger.querySelector('.nav-mega-chevron');
 
-    megaLi.addEventListener('mouseenter', function() {
-      if (mqMobile.matches) return;
-      trigger.setAttribute('aria-expanded', 'true');
-    });
-    megaLi.addEventListener('mouseleave', function() {
-      if (mqMobile.matches) return;
-      trigger.setAttribute('aria-expanded', 'false');
-    });
-    megaLi.addEventListener('focusin', function() {
-      if (mqMobile.matches) return;
-      trigger.setAttribute('aria-expanded', 'true');
-    });
-    megaLi.addEventListener('focusout', function(e) {
-      if (mqMobile.matches) return;
-      if (!megaLi.contains(e.relatedTarget)) {
+      trigger.addEventListener('click', function(e) {
+        if (!mqMobile.matches) return;
+        var clickedChevron = chevron && (e.target === chevron || chevron.contains(e.target));
+        if (!clickedChevron) return;
+        e.preventDefault();
+        var isOpen = megaLi.classList.toggle('is-open');
+        trigger.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+      });
+
+      megaLi.addEventListener('mouseenter', function() {
+        if (mqMobile.matches) return;
+        trigger.setAttribute('aria-expanded', 'true');
+      });
+      megaLi.addEventListener('mouseleave', function() {
+        if (mqMobile.matches) return;
         trigger.setAttribute('aria-expanded', 'false');
-      }
+      });
+      megaLi.addEventListener('focusin', function() {
+        if (mqMobile.matches) return;
+        trigger.setAttribute('aria-expanded', 'true');
+      });
+      megaLi.addEventListener('focusout', function(e) {
+        if (mqMobile.matches) return;
+        if (!megaLi.contains(e.relatedTarget)) {
+          trigger.setAttribute('aria-expanded', 'false');
+        }
+      });
+
+      document.addEventListener('keydown', function(e) {
+        if (e.key !== 'Escape') return;
+        if (megaLi.classList.contains('is-open') || trigger.getAttribute('aria-expanded') === 'true') {
+          megaLi.classList.remove('is-open');
+          trigger.setAttribute('aria-expanded', 'false');
+          trigger.focus();
+        }
+      });
     });
 
     mqMobile.addEventListener('change', function() {
-      megaLi.classList.remove('is-open');
-      trigger.setAttribute('aria-expanded', 'false');
-    });
-
-    document.addEventListener('keydown', function(e) {
-      if (e.key !== 'Escape') return;
-      if (megaLi.classList.contains('is-open') || trigger.getAttribute('aria-expanded') === 'true') {
-        megaLi.classList.remove('is-open');
+      Array.prototype.forEach.call(triggers, function(trigger) {
+        trigger.closest('.nav-has-mega').classList.remove('is-open');
         trigger.setAttribute('aria-expanded', 'false');
-        trigger.focus();
-      }
+      });
     });
   })();
 

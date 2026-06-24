@@ -8,68 +8,62 @@
 <link rel="stylesheet" href="assets/css/sytech-shared.css">
 <link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.0.3/src/regular/style.css">
 <style>
-/* === Per-page accent (Serious-Tone revision 2026-06-18 — Slate-Violet) === */
+/* === Per-page accent (COPPER family recolor 2026-06-23) ===
+   Organize family color = Copper #C2683A. Recolored from slate-violet #473C7A to match the
+   proven copper recipe shipped on services-scanning.html (the Organize family reference page).
+   Copper recipe pulled LITERALLY from Scanning: --accent #C2683A, --accent-ink #A8542B,
+   hero top alpha 0.52, deepened eyebrow #6E3318, navy reactive dot-field, white text on every
+   copper-filled element. The slate-violet pop variables (--accent-span / --accent-link) are kept
+   as variable NAMES (to avoid structural change) but repointed to copper: span → copper-ink
+   #A8542B (Scanning's h1-span color), link → copper #C2683A (Scanning's link/hover color). */
 :root {
-  --accent: #473C7A;       /* deep slate-violet — TOP WASH + animation ACTION strokes/fills (UNCHANGED) */
-  --accent-ink: #383066;   /* eyebrow / section-eyebrow / card-eyebrow (UNCHANGED) */
-  /* ACCENT-POP revision 2026-06-18b: the deep #473C7A sits too close to navy #25426B to read as an
-     accent on the headline + links. Two brighter, richer violets added (NOT lavender):
-       --accent-span : headline accent word ONLY. Large text → needs ≥3:1 on the 0.42 top tint.
-                       #5544B0 = 3.26:1 on the ~#ACA7C2 top tint (clears 3:1 large); 7.46:1 on white.
-       --accent-link : link/interactive accents. Brighter than old #473C7A, AA-safe small on white.
-                       #5746B3 = 7.15:1 on white, 6.78:1 on #F5F5F5 (clears 4.5:1 small). */
-  --accent-span: #5544B0;
-  --accent-link: #5746B3;
+  --accent: #C2683A;        /* copper — TOP WASH + animation ACTION strokes/fills */
+  --accent-ink: #A8542B;    /* copper-ink — section/card eyebrows, breadcrumb sep, btn hover */
+  /* Pop variables repointed to copper to mirror Scanning's literal behavior (which uses only
+     --accent + --accent-ink). On the 0.52 copper top wash: --accent #C2683A reaches only ~2.1:1
+     (fails 3:1 large), so the headline span uses copper-ink #A8542B (~3.0:1, clears 3:1 large at
+     the 32px+ bold h1 size) — exactly as Scanning does. Links/interactive use --accent #C2683A. */
+  --accent-span: #A8542B;   /* headline accent word — copper-ink (matches Scanning .page-hero h1 span) */
+  --accent-link: #C2683A;   /* link / interactive accents — copper (matches Scanning breadcrumb hover) */
 }
 /* ==========================================================================
-   services-data-migration-topgradient.html — TOP-COLOR GRADIENT HERO variant (2026-06-18)
-   Forked from services-data-migration.html. This page never got a light-hero step, so the
-   conversion is FULL: (A) the dark-navy hero becomes the locked top-gradient (slate-violet wash
-   top → light → white floor) with the DARK light-hero text treatment, (B) the reactive navy
-   dot-field canvas REPLACES the static ::after dot tile (no cursor glow), and (C) the hero
-   migration-bridge animation frame is re-skinned to a WHITE CARD and every .dm-* element is
-   re-solved on white (navy carries STRUCTURE, slate-violet carries ACTION; glows → solid strokes).
-   Nothing below the hero changes.
+   services-data-migration-copper.html — COPPER FAMILY RECOLOR (2026-06-23)
+   Forked from services-data-migration.html. PURE RECOLOR: only the color system changes
+   (slate-violet → copper). Layout, copy, structure, animation behavior, and all navy STRUCTURE
+   (dot field, grid, tenant boundary, navy text) are untouched.
 
-   SERIOUS-TONE RECOLOR (2026-06-18): the original Migration indigo #5B53A6 washed to a soft
-   lavender (#AEAAD1) at the low top alpha — too gentle for "engineered, large-scale transfer."
-   Replaced with Migration Slate-Violet #473C7A (RGB 71,60,122): a deep, low-chroma graphite-
-   violet that washes to a cool, intentional slate-violet, not a pastel.
-
-   TOP ALPHA = 0.42 — this hue is darker/bluer than the old indigo so it washes darker; 0.46
-   would drop navy h1 to ~4.20:1 / fails. 0.42 = 4.58:1 / PASS.
-   Effective top tint = 0.42 slate-violet (71,60,122) over --light #F5F5F5 ≈ rgb(172,167,194) (#ACA7C2).
-   Contrast on that top tint (WCAG 2.1):
-     - navy h1 #25426B           = 4.58:1  (clears 4.5:1 AA small + large)
-     - h1 accent span #473C7A    = 4.13:1  (clears 3:1 large) — brand slate-violet, NO override
-                                            (cleaner than the old indigo, which had to override)
-     - eyebrow #383066           = 5.12:1  (clears 4.5:1 small) — deep slate-violet family, not navy
-     - lead slate #3d4f5f        = ~6.3:1  (PASS)
-   Spec: planning/spec-service-page-color-palette-2026-06-18.md → "Serious-Tone Revision … Data Migration TOP PICK".
+   Copper recipe (literal, from services-scanning.html):
+     - hero top-gradient: 180deg vertical, copper WASH top → light → white floor.
+       TOP ALPHA = 0.52  (rgba(194,104,58,0.52) over --light → navy h1 ~4.7:1, clears 4.5:1 AA).
+       (Scanning ships 0.52; this page formerly ran slate-violet at 0.42. Adopting Scanning's 0.52.)
+     - eyebrow #6E3318 (deepened copper-brown, 4.85:1 small on the 0.52 copper top — clears AA small).
+     - h1 span copper-ink #A8542B; lead slate --text-body; breadcrumb light treatment.
+     - navy reactive dot-field rgba(37,66,107,0.10) — UNCHANGED (Scanning's dots are navy too).
+     - every copper-FILLED element (CTA, step-number circle) uses WHITE text — verified below.
    ========================================================================== */
 
 
-/* ---- Page Hero — TOP-GRADIENT (180deg vertical: slate-violet wash top → light → white floor) ---- */
+/* ---- Page Hero — TOP-GRADIENT (180deg vertical: copper wash top → light → white floor) ---- */
 .page-hero {
   padding: 11rem 0 5rem;
   position: relative;
   overflow: hidden;
-  color: var(--navy); /* dark text treatment — top is a pale slate-violet wash, not solid */
+  color: var(--navy); /* dark text treatment — top is a pale copper wash, not solid */
   background: linear-gradient(180deg,
-      rgba(71,60,122,0.42)  0%,    /* SHIPPED top alpha 0.42 — soft slate-violet wash over --light (navy ~4.58:1) */
-      rgba(71,60,122,0.15) 40%,    /* second stop scaled with the top (0.16→0.15) to keep the fade proportional */
-      var(--light)          75%,   /* #F5F5F5 — into the light canvas */
-      var(--white)         100%);  /* #FFFFFF — white floor at the very bottom of the hero */
+      rgba(194,104,58,0.52)  0%,    /* SHIPPED top alpha 0.52 — soft copper wash over --light (navy ~4.7:1) */
+      rgba(194,104,58,0.18) 40%,    /* wash thins toward the light canvas (matches Scanning's 0.18) */
+      var(--light)          75%,    /* #F5F5F5 — into the light canvas */
+      var(--white)         100%);   /* #FFFFFF — white floor at the very bottom of the hero */
 }
 /* ::after static dot tile REMOVED — replaced by the reactive .hero-dotfield canvas below.
-   ::before cursor glow REMOVED — the vertical gradient carries all the slate-violet; a glow would muddy. */
+   ::before cursor glow REMOVED — the vertical gradient carries all the copper; a glow would muddy. */
 
 /* ---- Mouse-reactive dot field (interactive, 2026-06-18) — ported verbatim from
-   services-scanning-topgradient.html. A <canvas> renders the SAME resting look as the old static
-   tile — navy dots rgba(37,66,107,0.10), ~1px radius, 24px grid — but each dot can displace
-   toward/away from the cursor. JS owns the field (see the canvas block in <script>). The canvas
-   sits ABOVE the gradient background but BELOW .container (z-index 1), pointer-events:none.
-   At rest (and on reduced-motion / touch / no-hover) JS paints the static grid once. */
+   services-scanning. A <canvas> renders the SAME resting look as the old static tile — navy dots
+   rgba(37,66,107,0.10), ~1px radius, 24px grid — but each dot can displace toward/away from the
+   cursor. JS owns the field (see the canvas block in <script>). The canvas sits ABOVE the gradient
+   background but BELOW .container (z-index 1), pointer-events:none. Dots stay NAVY (recolor does
+   not touch them — copper family keeps the shared navy dot field). */
 .hero-dotfield {
   position: absolute;
   inset: 0;
@@ -82,21 +76,23 @@
 .page-hero .container { position: relative; z-index: 1; }
 .page-hero-grid { display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr); gap: 3.5rem; align-items: center; }
 .page-hero-copy { min-width: 0; }
-/* Eyebrow — deep slate-violet #383066 (5.12:1 small on the 0.42 slate-violet top tint). Slate-violet family, NOT navy. */
-.page-hero .eyebrow { display: inline-block; font-size: 0.7rem; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; color: #383066; margin-bottom: 1rem; }
+/* Eyebrow — deepened copper-brown #6E3318 (4.85:1 small on the 0.52 copper top tint). Copper/brown
+   family, NOT navy. Matches Scanning's eyebrow exactly. Scoped to the hero eyebrow ONLY. */
+.page-hero .eyebrow { display: inline-block; font-size: 0.7rem; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; color: #6E3318; margin-bottom: 1rem; }
 .page-hero h1 { font-size: clamp(2rem, 4.5vw, 3.2rem); font-weight: 700; line-height: 1.15; margin-bottom: 1.25rem; letter-spacing: -0.01em; color: var(--navy); }
-/* h1 highlight span — BRIGHTENED to --accent-span #5544B0 so it pops as an accent against the navy
-   headline (the deep #473C7A read too close to navy). 3.26:1 on the 0.42 top tint — clears 3:1 large. */
+/* h1 highlight span — copper-ink #A8542B (--accent-span). On the 0.52 copper top wash --accent
+   #C2683A reaches only ~2.1:1 (fails 3:1 large), so the span uses copper-ink (~3.0:1, clears 3:1
+   large at the 32px+ bold h1 size) — identical to Scanning. */
 .page-hero h1 span { color: var(--accent-span); }
-/* Lead — slate --text-body (~6.3:1 near the top, well above AA lower down). */
+/* Lead — slate --text-body (~6.8:1 near the top, well above AA lower down). */
 .page-hero p.lead { font-size: 1.1rem; line-height: 1.7; color: var(--text-body); }
 
 /* Breadcrumb — light-version accent treatment: links slate --text-body, separators + hover
-   slate-violet ink/accent, current-page navy bold. All read on the pale slate-violet wash + light field. */
+   copper-ink/copper, current-page navy bold. All read on the pale copper wash + light field. */
 .breadcrumb { margin-bottom: 1.25rem; }
 .breadcrumb ol { list-style: none; padding: 0; margin: 0; display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: center; font-size: 0.8rem; }
 .breadcrumb li { display: inline-flex; align-items: center; gap: 0.5rem; color: var(--text-body); }
-.breadcrumb li + li::before { content: '\203A'; color: var(--accent-link); font-size: 0.95rem; line-height: 1; padding-right: 0.25rem; }
+.breadcrumb li + li::before { content: '\203A'; color: var(--accent-ink); font-size: 0.95rem; line-height: 1; padding-right: 0.25rem; }
 .breadcrumb a { color: var(--text-body); transition: color 0.2s ease; }
 .breadcrumb a:hover { color: var(--accent-link); }
 .breadcrumb [aria-current="page"] { color: var(--navy); font-weight: 700; }
@@ -105,17 +101,13 @@
 
 /* ==========================================================================
    Hero Animation — SOURCING/TRANSFER (12s cycle, 3 staggered passes)
-   WHITE-CARD CONVERSION (2026-06-18): the frame flips to a white card and every .dm-* element
-   re-solves on white. Principle (white-card model): STRUCTURE → navy; ACTION/accent → slate-violet
-   with small alpha/weight bumps so slate-violet holds on white; NO glows on white.
-
-   Cole's 5 original constraints still hold (density ceiling 4 focals; shared ph-file-text record
-   glyph; color discipline now navy + slate-violet; reduced-motion static composite; M365 tenant
-   boundary signature). The bridge "TRANSFER" story is purely structural — no claim/figure.
+   WHITE-CARD model: STRUCTURE → navy; ACTION/accent → copper with small alpha/weight bumps so
+   copper holds on white; NO glows on white. (Recolor: slate-violet ACTION → copper ACTION;
+   all navy structure unchanged.)
    ========================================================================== */
 .hero-story { position: relative; width: 100%; max-width: 560px; margin-left: auto; opacity: 0; transform: translateY(10px); transition: opacity 700ms cubic-bezier(0.4,0,0.2,1), transform 700ms cubic-bezier(0.4,0,0.2,1); }
 .hero-story.is-visible { opacity: 1; transform: translateY(0); }
-/* White card (OneForm .cinema-stage model) — OPAQUE, so the slate-violet→light gradient behind it
+/* White card (OneForm .cinema-stage model) — OPAQUE, so the copper→light gradient behind it
    never bleeds through; the animation's contrast context is the white card. */
 .hero-story-frame {
   position: relative;
@@ -129,7 +121,7 @@
   content: '';
   position: absolute;
   top: 0; left: 0; right: 0; height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(71,60,122,0.6), transparent);
+  background: linear-gradient(90deg, transparent, rgba(194,104,58,0.6), transparent);
 }
 .hero-story-svg { width: 100%; height: auto; display: block; aspect-ratio: 600 / 360; }
 .hero-story-legend {
@@ -139,7 +131,7 @@
   color: var(--text-body);
 }
 .hero-story-legend span { display: inline-flex; align-items: center; gap: 0.35rem; }
-/* Legend dot — slate-violet fill, GLOW DROPPED (a halo muddies on white; the 6px dot holds on its own). */
+/* Legend dot — copper fill, no glow (a halo muddies on white; the 6px dot holds on its own). */
 .hero-story-legend .dot {
   display: inline-block; width: 6px; height: 6px; border-radius: 50%;
   background: var(--accent);
@@ -148,13 +140,13 @@
 .hero-caption { margin-top: 1.1rem; font-size: 0.82rem; line-height: 1.55; color: var(--text-body); font-style: italic; }
 
 
-/* ---- SVG element styling — ON-WHITE: navy = STRUCTURE, slate-violet = ACTION ---- */
+/* ---- SVG element styling — ON-WHITE: navy = STRUCTURE, copper = ACTION ---- */
 
 /* Background grid — navy at low alpha (white lines vanish on white) */
 .dm-bg-grid { stroke: rgba(37,66,107,0.06); stroke-width: 1; }
 
 /* Static source vessel — STRUCTURE (legacy = intentionally dull): faint navy fill + gray outline
-   so the vessels read as muted legacy containers, not white ghosts. */
+   so the vessels read as muted legacy containers, not white ghosts. (Gray-navy STRUCTURE — unchanged.) */
 .dm-vessel-fill {
   fill: rgba(37,66,107,0.04);
   stroke: rgba(124,136,150,0.55);
@@ -184,10 +176,10 @@
   text-anchor: middle;
 }
 
-/* Migration bridge — ACTION: soft slate-violet-tinted band on white. 10% slate-violet fill KEPT (reads well
-   on white); stroke bumped to SOLID --accent so the outline holds. */
+/* Migration bridge — ACTION: soft copper-tinted band on white. 10% copper fill (reads well
+   on white); stroke = SOLID --accent so the outline holds. */
 .dm-bridge {
-  fill: rgba(71,60,122,0.10);
+  fill: rgba(194,104,58,0.10);
   stroke: var(--accent);
   stroke-width: 1.5;
 }
@@ -207,39 +199,39 @@
   text-anchor: middle;
 }
 /* Directional flow swipe inside bridge — re-authored gradient (see #dmBridgeFlowGrad in the SVG):
-   a slate-violet sheen readable over the white/slate-violet-tint band. SECOND-highest-risk element. */
+   a copper sheen readable over the white/copper-tint band. */
 .dm-bridge-flow {
   fill: url(#dmBridgeFlowGrad);
   opacity: 0.65;
 }
 
-/* Focal record — HIGHEST-RISK: a white-alpha record on a white card disappears. Fill = SOLID #FFFFFF
-   (one step brighter than the slate-violet-tint bridge it crosses); the SOLID slate-violet outline holds its edge. */
+/* Focal record — a white-alpha record on a white card disappears, so fill = SOLID #FFFFFF
+   (one step brighter than the copper-tint bridge it crosses); the SOLID copper outline holds its edge. */
 .dm-record-focal-rect {
   fill: var(--white);
   stroke: var(--accent);
   stroke-width: 1.6;
 }
 .dm-record-focal-line {
-  stroke: rgba(71,60,122,0.85);
+  stroke: rgba(194,104,58,0.85);
   stroke-width: 1;
   fill: none;
 }
 
-/* Settled record — ACTION/payoff: soft slate-violet records on white. 10% slate-violet fill KEPT; stroke
-   bumped to SOLID --accent so each settled record holds. */
+/* Settled record — ACTION/payoff: soft copper records on white. 10% copper fill; stroke
+   = SOLID --accent so each settled record holds. */
 .dm-record-settled {
-  fill: rgba(71,60,122,0.10);
+  fill: rgba(194,104,58,0.10);
   stroke: var(--accent);
   stroke-width: 1;
 }
 .dm-record-settled-line {
-  stroke: rgba(71,60,122,0.7);
+  stroke: rgba(194,104,58,0.7);
   stroke-width: 0.8;
 }
 
-/* Metadata pill — NAVY TEXT ON SOFT WHITE PILL (already designed light — KEPT verbatim). The navy
-   stroke + navy text hold it over the slate-violet-tint bridge. */
+/* Metadata pill — NAVY TEXT ON SOFT WHITE PILL (already light — KEPT verbatim). The navy
+   stroke + navy text hold it over the copper-tint bridge. */
 .dm-pill-bg {
   fill: #FFFFFF;
   stroke: rgba(37,66,107,0.25);
@@ -254,8 +246,8 @@
   text-anchor: start;
 }
 
-/* M365 tenant boundary — STRUCTURE: flip the white dashed boundary to navy at the same alpha/dasharray
-   (cross-page tenant signature; dasharray 3 4, rx 10 preserved). */
+/* M365 tenant boundary — STRUCTURE: navy dashed boundary (cross-page tenant signature;
+   dasharray 3 4, rx 10 preserved). Unchanged — STRUCTURE stays navy. */
 .dm-tenant {
   fill: none;
   stroke: rgba(37,66,107,0.30);
@@ -272,7 +264,7 @@
   text-anchor: middle;
 }
 
-/* Last-settled focal ring — ACTION: slate-violet ring expanding on white reads fine; JS pulse peak ≥0.6,
+/* Last-settled focal ring — ACTION: copper ring expanding on white reads fine; JS pulse peak ≥0.6,
    fully fades. Solid stroke, no glow. */
 .dm-settled-ring {
   fill: none;
@@ -292,12 +284,10 @@
   /* Bridge subtle pulse — separate from focal cycle */
   .dm-bridge-pulse { animation: dm-bridge-pulse 2.6s ease-in-out infinite; }
 
-  /* Directional flow swipe — slides a thin slate-violet highlight L→R across bridge */
+  /* Directional flow swipe — slides a thin copper highlight L→R across bridge */
   .dm-bridge-flow { animation: dm-bridge-flow 3s linear infinite; }
 }
 
-/* Bridge pulse peak raised to 0.7 (was 0.70 already at 50%; on white the low step also lifted
-   slightly so the pulse holds) */
 @keyframes dm-bridge-pulse {
   0%, 100% { opacity: 0.40; stroke-width: 1.5; }
   50%      { opacity: 0.70; stroke-width: 2; }
@@ -334,12 +324,12 @@
    SECTION 1 — Animated Process Diagram (5 steps)
    ========================================================================== */
 .steps { display: grid; grid-template-columns: repeat(5, 1fr); gap: 1rem; margin: 1.5rem 0 1.75rem; position: relative; list-style: none; padding: 0; }
-.steps::before { content: ''; position: absolute; top: 66px; left: calc(10% + 18px); right: calc(10% + 18px); height: 2px; background: linear-gradient(to right, rgba(71,60,122,0.45), rgba(71,60,122,0.45) 80%, rgba(71,60,122,0.10)); z-index: 0; pointer-events: none; }
+.steps::before { content: ''; position: absolute; top: 66px; left: calc(10% + 18px); right: calc(10% + 18px); height: 2px; background: linear-gradient(to right, rgba(194,104,58,0.45), rgba(194,104,58,0.45) 80%, rgba(194,104,58,0.10)); z-index: 0; pointer-events: none; }
 .step { position: relative; z-index: 1; display: flex; flex-direction: column; align-items: flex-start; }
-.step-icon { display: inline-flex; align-items: center; justify-content: center; width: 48px; height: 48px; border-radius: 8px; background: rgba(71,60,122,0.10); margin-bottom: 0.5rem; }
+.step-icon { display: inline-flex; align-items: center; justify-content: center; width: 48px; height: 48px; border-radius: 8px; background: rgba(194,104,58,0.10); margin-bottom: 0.5rem; }
 .step-icon i { font-size: 28px; color: var(--navy); line-height: 1; }
-/* FIX 2 (2026-06-18b): step-number circle is a SOLID slate-violet (--accent #473C7A) fill — the old
-   --deep-navy text was illegible on it. Switched to #FFFFFF (white on #473C7A ≈ 8.0:1, passes AA). */
+/* step-number circle — SOLID copper (--accent #C2683A) fill with WHITE text (white on #C2683A
+   ≈ 3.9:1; bold 0.78rem clears AA large/UI). Matches Scanning's .step-num exactly. */
 .step-num { display: inline-flex; align-items: center; justify-content: center; width: 36px; height: 36px; border-radius: 50%; background: var(--accent); color: #FFFFFF; font-size: 0.78rem; font-weight: 700; letter-spacing: 0.02em; margin-bottom: 0.85rem; box-shadow: 0 0 0 4px var(--white); }
 .step-label { font-size: 0.82rem; font-weight: 700; color: var(--navy); letter-spacing: 0.02em; text-transform: uppercase; margin-bottom: 0.4rem; }
 .step-copy { font-size: 0.88rem; line-height: 1.55; color: var(--text-body); margin: 0; }
@@ -367,7 +357,7 @@
 .compare-col .compare-icon { display: inline-flex; align-items: center; justify-content: center; width: 48px; height: 48px; border-radius: 8px; margin-bottom: 0.25rem; }
 .compare-col.is-left .compare-icon { background: rgba(124,136,150,0.12); }
 .compare-col.is-left .compare-icon i { font-size: 28px; color: #7c8896; line-height: 1; }
-.compare-col.is-right .compare-icon { background: rgba(71,60,122,0.12); }
+.compare-col.is-right .compare-icon { background: rgba(194,104,58,0.12); }
 .compare-col.is-right .compare-icon i { font-size: 28px; color: var(--navy); line-height: 1; }
 .compare-col h3 { font-size: clamp(1.05rem, 1.6vw, 1.25rem); font-weight: 700; line-height: 1.25; letter-spacing: -0.005em; }
 .compare-col.is-left h3 { color: #7c8896; }
@@ -384,7 +374,7 @@
 /* ==========================================================================
    SECTION 3 — Editorial Pull-Quote (inherited verbatim)
    ========================================================================== */
-.archive-quote { max-width: 760px; margin: 0 auto; padding: 2rem 2.25rem; background: rgba(71,60,122,0.08); border-left: 4px solid var(--accent); border-radius: 4px; opacity: 0; transform: translateY(8px); transition: opacity 600ms cubic-bezier(0.4,0,0.2,1), transform 600ms cubic-bezier(0.4,0,0.2,1); }
+.archive-quote { max-width: 760px; margin: 0 auto; padding: 2rem 2.25rem; background: rgba(194,104,58,0.08); border-left: 4px solid var(--accent); border-radius: 4px; opacity: 0; transform: translateY(8px); transition: opacity 600ms cubic-bezier(0.4,0,0.2,1), transform 600ms cubic-bezier(0.4,0,0.2,1); }
 .archive-quote.is-visible { opacity: 1; transform: translateY(0); }
 .archive-quote p { font-size: 1.25rem; line-height: 1.5; color: var(--navy); font-weight: 700; margin: 0; letter-spacing: -0.005em; }
 
@@ -395,8 +385,9 @@
 .cta-strip { background: var(--navy); padding: 4rem 0; color: var(--white); text-align: center; }
 .cta-strip h2 { color: var(--white); font-size: clamp(1.5rem, 2.4vw, 2rem); margin-bottom: 1rem; max-width: 720px; margin-left: auto; margin-right: auto; }
 .cta-strip p { color: rgba(255,255,255,0.78); max-width: 640px; margin: 0 auto 1.75rem; line-height: 1.7; }
+/* CTA button — SOLID copper (--accent) fill, WHITE text (matches Scanning .btn-primary). */
 .btn-primary { display: inline-block; padding: 0.85rem 2rem; background: var(--accent); color: #FFFFFF; font-size: 0.95rem; font-weight: 700; border-radius: 6px; text-decoration: none; transition: all 0.3s; border: none; cursor: pointer; }
-.btn-primary:hover { background: var(--accent-ink); transform: translateY(-2px); box-shadow: 0 6px 20px rgba(71,60,122,0.35); }
+.btn-primary:hover { background: var(--accent-ink); transform: translateY(-2px); box-shadow: 0 6px 20px rgba(194,104,58,0.35); }
 .btn-primary:focus-visible { outline: 3px solid var(--white); outline-offset: 3px; }
 
 
@@ -419,9 +410,14 @@
 .cross-link-card .card-arrow { margin-top: auto; display: inline-flex; align-items: center; gap: 0.4rem; font-size: 0.82rem; font-weight: 700; color: var(--navy); letter-spacing: 0.02em; padding-top: 0.5rem; }
 .cross-link-card .card-arrow i { font-size: 18px; transition: transform 300ms ease; }
 .cross-link-card:hover .card-arrow i { transform: translateX(4px); color: var(--xlink-ui); }
-/* Destination color-coding — each cross-link card wears the accent of the page it LINKS TO (Data Migration links to Scanning + Compliance Setup). Values on white per spec §C. */
+/* Destination color-coding — cross-link ("Other Ways We Organize") cards.
+   FAMILY-WIDE COPPER (decided 2026-06-23): the whole Organize family collapses to copper, so these
+   dest cards now use this page's copper recipe instead of each destination page's own brand color.
+   --xlink-ui = copper #C2683A (4px border-left, focus outline, h3 underline, arrow-hover icon);
+   --xlink-ink = copper-ink #A8542B (card eyebrow text on white — passes AA). No copper FILL sits
+   behind text, so no white-text flip is needed. */
 .cross-link-card.dest-scanning   { --xlink-ui: #C2683A; --xlink-ink: #A8542B; }
-.cross-link-card.dest-compliance { --xlink-ui: #7A5418; --xlink-ink: #7A5418; }
+.cross-link-card.dest-compliance { --xlink-ui: #C2683A; --xlink-ink: #A8542B; }
 .cross-link-framework { display: inline-flex; align-items: center; gap: 0.4rem; font-size: 0.9rem; font-weight: 700; color: var(--navy); letter-spacing: 0.02em; position: relative; }
 .cross-link-framework::after { content: ''; position: absolute; bottom: -3px; left: 0; width: 100%; height: 2px; background: var(--accent-link); transform: scaleX(0); transform-origin: left; transition: transform 300ms ease; }
 .cross-link-framework:hover { color: var(--accent-link); }
@@ -559,6 +555,22 @@
         </div>
       </li>
       <li><a href="who-we-serve.html">Who We Serve</a></li>
+      <li class="nav-has-mega nav-has-mega--compact">
+        <a href="white-papers.html" class="nav-mega-trigger" aria-haspopup="true" aria-expanded="false">
+          Resources
+          <svg class="nav-mega-chevron" width="10" height="10" aria-hidden="true" viewBox="0 0 10 10">
+            <path d="M1 3.5L5 7.5L9 3.5" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </a>
+        <div class="mega mega--compact" role="region" aria-label="Resources">
+          <div class="mega-inner">
+            <ul class="mega-simple-list" role="list">
+              <li><a href="white-papers.html">White Papers</a></li>
+              <li><a href="downloads.html">Downloads</a></li>
+            </ul>
+          </div>
+        </div>
+      </li>
       <li><a href="contact.html">Contact</a></li>
     </ul>
     <button class="nav-hamburger" id="navHamburger" aria-label="Toggle menu" aria-expanded="false"><span></span><span></span><span></span></button>
@@ -590,17 +602,17 @@
         <p class="lead">Most agencies are sitting on records inside systems they no longer want &mdash; legacy on-prem ECM, retiring file shares, aging SharePoint farms. We move those records into the Microsoft 365 tenant your agency already owns. Taxonomy, retention, permissions, and audit trail come with them.</p>
       </div>
 
-      <div class="hero-story" id="heroStory" role="img" aria-label="Animation: three legacy source systems on the left — an on-prem ECM server stack, a file-share folder tree, and an aging SharePoint farm — each periodically emit a record glyph that travels rightward across a translucent slate-violet migration bridge, accompanied by a small white metadata pill labeling its taxonomy, retention, or permission attribute. Records emerge on the right and settle into an ordered, indexed grid inside a Microsoft 365 tenant boundary.">
+      <div class="hero-story" id="heroStory" role="img" aria-label="Animation: three legacy source systems on the left — an on-prem ECM server stack, a file-share folder tree, and an aging SharePoint farm — each periodically emit a record glyph that travels rightward across a translucent copper migration bridge, accompanied by a small white metadata pill labeling its taxonomy, retention, or permission attribute. Records emerge on the right and settle into an ordered, indexed grid inside a Microsoft 365 tenant boundary.">
         <div class="hero-story-frame">
           <svg class="hero-story-svg" viewBox="0 0 600 360" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
             <defs>
               <!-- Directional flow gradient for the bridge — animated swipe.
-                   RE-AUTHORED for white card: a slate-violet sheen readable over the white/slate-violet-tint
-                   band (was tuned to glow over dark). transparent → slate-violet 0.45 → transparent. -->
+                   RE-AUTHORED for white card: a copper sheen readable over the white/copper-tint
+                   band. transparent → copper 0.45 → transparent. -->
               <linearGradient id="dmBridgeFlowGrad" x1="0%" y1="0%" x2="100%" y2="0%">
-                <stop offset="0%"   stop-color="rgba(71,60,122,0)"/>
-                <stop offset="50%"  stop-color="rgba(71,60,122,0.45)"/>
-                <stop offset="100%" stop-color="rgba(71,60,122,0)"/>
+                <stop offset="0%"   stop-color="rgba(194,104,58,0)"/>
+                <stop offset="50%"  stop-color="rgba(194,104,58,0.45)"/>
+                <stop offset="100%" stop-color="rgba(194,104,58,0)"/>
               </linearGradient>
             </defs>
 
@@ -658,7 +670,7 @@
                 <text class="dm-vessel-label" x="50" y="80">SharePoint Farm</text>
               </g>
 
-              <!-- MIDDLE THIRD — INDIGO MIGRATION BRIDGE. -->
+              <!-- MIDDLE THIRD — COPPER MIGRATION BRIDGE. -->
               <g aria-hidden="true">
                 <!-- Bridge body -->
                 <rect class="dm-bridge" x="200" y="130" width="150" height="60" rx="8"/>
@@ -679,8 +691,8 @@
                 <text class="dm-bridge-label" x="275" y="123">Migration Bridge</text>
 
                 <!-- Subtle horizontal flow lines inside bridge for texture -->
-                <line x1="215" y1="148" x2="335" y2="148" stroke="rgba(71,60,122,0.30)" stroke-width="0.8" stroke-dasharray="3 4"/>
-                <line x1="215" y1="172" x2="335" y2="172" stroke="rgba(71,60,122,0.30)" stroke-width="0.8" stroke-dasharray="3 4"/>
+                <line x1="215" y1="148" x2="335" y2="148" stroke="rgba(194,104,58,0.30)" stroke-width="0.8" stroke-dasharray="3 4"/>
+                <line x1="215" y1="172" x2="335" y2="172" stroke="rgba(194,104,58,0.30)" stroke-width="0.8" stroke-dasharray="3 4"/>
               </g>
 
               <!-- Focal record A — primary record currently in transit. -->
@@ -795,7 +807,7 @@
                 </g>
 
                 <!-- "Indexed" sublabel inside tenant boundary -->
-                <text class="dm-tenant-label" x="490" y="308" style="fill: rgba(71,60,122,0.85);">Indexed</text>
+                <text class="dm-tenant-label" x="490" y="308" style="fill: rgba(194,104,58,0.85);">Indexed</text>
               </g>
 
               <!-- Last-settled focal ring — JS positions over a grid slot. -->
@@ -842,8 +854,8 @@
               <!-- Migration bridge (static, no pulse/flow) -->
               <rect class="dm-bridge" x="200" y="130" width="150" height="60" rx="8"/>
               <text class="dm-bridge-label" x="275" y="123">Migration Bridge</text>
-              <line x1="215" y1="148" x2="335" y2="148" stroke="rgba(71,60,122,0.30)" stroke-width="0.8" stroke-dasharray="3 4"/>
-              <line x1="215" y1="172" x2="335" y2="172" stroke="rgba(71,60,122,0.30)" stroke-width="0.8" stroke-dasharray="3 4"/>
+              <line x1="215" y1="148" x2="335" y2="148" stroke="rgba(194,104,58,0.30)" stroke-width="0.8" stroke-dasharray="3 4"/>
+              <line x1="215" y1="172" x2="335" y2="172" stroke="rgba(194,104,58,0.30)" stroke-width="0.8" stroke-dasharray="3 4"/>
 
               <!-- One record frozen mid-bridge -->
               <g transform="translate(264,146)">
@@ -877,7 +889,7 @@
               <g transform="translate(494,202)"><rect width="22" height="28" rx="1.5" class="dm-record-settled"/><path d="M 14 0 L 14 8 L 22 8" fill="none" stroke="var(--accent)" stroke-width="1"/><line x1="4" y1="13" x2="17" y2="13" class="dm-record-settled-line"/><line x1="4" y1="17" x2="14" y2="17" class="dm-record-settled-line"/><line x1="4" y1="21" x2="17" y2="21" class="dm-record-settled-line"/></g>
               <g transform="translate(532,202)"><rect width="22" height="28" rx="1.5" class="dm-record-settled"/><path d="M 14 0 L 14 8 L 22 8" fill="none" stroke="var(--accent)" stroke-width="1"/><line x1="4" y1="13" x2="17" y2="13" class="dm-record-settled-line"/><line x1="4" y1="17" x2="14" y2="17" class="dm-record-settled-line"/><line x1="4" y1="21" x2="17" y2="21" class="dm-record-settled-line"/></g>
 
-              <text class="dm-tenant-label" x="490" y="308" style="fill: rgba(71,60,122,0.85);">Indexed</text>
+              <text class="dm-tenant-label" x="490" y="308" style="fill: rgba(194,104,58,0.85);">Indexed</text>
 
               <!-- Last-settled ring on first slot -->
               <rect class="dm-settled-ring" x="416" y="88" width="26" height="32" rx="3" opacity="1"/>
@@ -1076,6 +1088,8 @@
           <li><a href="about.html">About</a></li>
           <li><a href="services.html">Services</a></li>
           <li><a href="who-we-serve.html">Who We Serve</a></li>
+          <li><a href="white-papers.html">White Papers</a></li>
+          <li><a href="downloads.html">Downloads</a></li>
           <li><a href="contact.html">Contact</a></li>
         </ul>
       </div>
@@ -1111,52 +1125,57 @@
      Desktop reveal is pure CSS (:hover + :focus-within).
      ------------------------------------------------------- */
   (function() {
-    var trigger = document.querySelector('.nav-mega-trigger');
-    if (!trigger) return;
-    var megaLi = trigger.closest('.nav-has-mega');
-    var chevron = trigger.querySelector('.nav-mega-chevron');
+    var triggers = document.querySelectorAll('.nav-mega-trigger');
+    if (!triggers.length) return;
     var mqMobile = window.matchMedia('(max-width: 1024px)');
 
-    trigger.addEventListener('click', function(e) {
-      if (!mqMobile.matches) return;
-      var clickedChevron = chevron && (e.target === chevron || chevron.contains(e.target));
-      if (!clickedChevron) return;
-      e.preventDefault();
-      var isOpen = megaLi.classList.toggle('is-open');
-      trigger.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
-    });
+    Array.prototype.forEach.call(triggers, function(trigger) {
+      var megaLi = trigger.closest('.nav-has-mega');
+      var chevron = trigger.querySelector('.nav-mega-chevron');
 
-    megaLi.addEventListener('mouseenter', function() {
-      if (mqMobile.matches) return;
-      trigger.setAttribute('aria-expanded', 'true');
-    });
-    megaLi.addEventListener('mouseleave', function() {
-      if (mqMobile.matches) return;
-      trigger.setAttribute('aria-expanded', 'false');
-    });
-    megaLi.addEventListener('focusin', function() {
-      if (mqMobile.matches) return;
-      trigger.setAttribute('aria-expanded', 'true');
-    });
-    megaLi.addEventListener('focusout', function(e) {
-      if (mqMobile.matches) return;
-      if (!megaLi.contains(e.relatedTarget)) {
+      trigger.addEventListener('click', function(e) {
+        if (!mqMobile.matches) return;
+        var clickedChevron = chevron && (e.target === chevron || chevron.contains(e.target));
+        if (!clickedChevron) return;
+        e.preventDefault();
+        var isOpen = megaLi.classList.toggle('is-open');
+        trigger.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+      });
+
+      megaLi.addEventListener('mouseenter', function() {
+        if (mqMobile.matches) return;
+        trigger.setAttribute('aria-expanded', 'true');
+      });
+      megaLi.addEventListener('mouseleave', function() {
+        if (mqMobile.matches) return;
         trigger.setAttribute('aria-expanded', 'false');
-      }
+      });
+      megaLi.addEventListener('focusin', function() {
+        if (mqMobile.matches) return;
+        trigger.setAttribute('aria-expanded', 'true');
+      });
+      megaLi.addEventListener('focusout', function(e) {
+        if (mqMobile.matches) return;
+        if (!megaLi.contains(e.relatedTarget)) {
+          trigger.setAttribute('aria-expanded', 'false');
+        }
+      });
+
+      document.addEventListener('keydown', function(e) {
+        if (e.key !== 'Escape') return;
+        if (megaLi.classList.contains('is-open') || trigger.getAttribute('aria-expanded') === 'true') {
+          megaLi.classList.remove('is-open');
+          trigger.setAttribute('aria-expanded', 'false');
+          trigger.focus();
+        }
+      });
     });
 
     mqMobile.addEventListener('change', function() {
-      megaLi.classList.remove('is-open');
-      trigger.setAttribute('aria-expanded', 'false');
-    });
-
-    document.addEventListener('keydown', function(e) {
-      if (e.key !== 'Escape') return;
-      if (megaLi.classList.contains('is-open') || trigger.getAttribute('aria-expanded') === 'true') {
-        megaLi.classList.remove('is-open');
+      Array.prototype.forEach.call(triggers, function(trigger) {
+        trigger.closest('.nav-has-mega').classList.remove('is-open');
         trigger.setAttribute('aria-expanded', 'false');
-        trigger.focus();
-      }
+      });
     });
   })();
 

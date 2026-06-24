@@ -360,11 +360,77 @@ a { color: inherit; text-decoration: none; }
   width: 100%;
 }
 
+/* ==========================================================================
+   COMPACT DROPDOWN (Resources) — reuses .nav-has-mega / .mega mechanism.
+   Same trigger, chevron, reveal transitions, mobile accordion, reduced-motion
+   handling as the Services mega-menu; only the panel width + inner list differ.
+   ========================================================================== */
+.mega.mega--compact {
+  /* Narrow, left-aligned panel anchored under the trigger (not a full
+     centered mega-strip). A 2-link menu doesn't need 960px of width. */
+  left: 0;
+  transform: translateX(0) translateY(-4px);
+  width: max-content;
+  min-width: 200px;
+}
+.nav-has-mega--compact:hover .mega.mega--compact,
+.nav-has-mega--compact:focus-within .mega.mega--compact,
+.nav-has-mega--compact.is-open .mega.mega--compact {
+  transform: translateX(0) translateY(0);
+}
+.mega--compact .mega-inner {
+  padding: 0.5rem;
+}
+.mega-simple-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.mega-simple-list li {
+  margin: 0;
+  padding: 0;
+}
+.mega-simple-list a {
+  display: block;
+  padding: 0.6rem 1rem;
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--navy);
+  text-decoration: none;
+  border-left: 3px solid transparent;
+  border-radius: 0 4px 4px 0;
+  white-space: nowrap;
+  transition: color 0.2s ease,
+              background-color 0.2s ease,
+              border-left-color 0.2s ease;
+}
+.mega-simple-list a::after { display: none; }   /* override .nav-links a::after */
+.mega-simple-list a:hover,
+.mega-simple-list a:focus-visible {
+  color: var(--gold);
+  background: rgba(229, 166, 48, 0.06);
+  border-left-color: var(--gold);
+}
+.mega-simple-list a:focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: 2px;
+}
+/* Active subpage marker (aria-current="page" inside the compact dropdown). */
+.mega-simple-list a[aria-current="page"] {
+  color: var(--navy);
+  background: rgba(229, 166, 48, 0.06);
+  border-left-color: var(--gold);
+}
+.mega-simple-list a[aria-current="page"]:hover {
+  color: var(--gold);
+}
+
 /* Reduced-motion: skip the transition; show/hide instantly. */
 @media (prefers-reduced-motion: reduce) {
   .mega,
   .mega-cols,
   .mega-col-list a,
+  .mega-simple-list a,
   .nav-mega-chevron,
   .mega-overview-link .arrow {
     transition: none !important;
@@ -490,6 +556,30 @@ a { color: inherit; text-decoration: none; }
   }
   .mega-overview-link {
     margin-top: 0.5rem;
+  }
+
+  /* Compact (Resources) dropdown on mobile: drop the desktop narrow/left
+     anchoring so it behaves as a full-width inline accordion like the mega. */
+  .mega.mega--compact {
+    width: 100%;
+    min-width: 0;
+    transform: none;
+  }
+  .nav-has-mega--compact:hover .mega.mega--compact,
+  .nav-has-mega--compact:focus-within .mega.mega--compact {
+    transform: none;
+  }
+  .nav-has-mega--compact.is-open .mega.mega--compact {
+    transform: none;
+  }
+  .mega--compact .mega-inner {
+    padding: 0.5rem 2rem 1rem;
+  }
+  .mega-simple-list a {
+    padding: 0.65rem 0.75rem;
+    font-size: 0.95rem;
+    border-bottom: none;     /* override inherited .nav-links a border */
+    white-space: normal;
   }
 }
 

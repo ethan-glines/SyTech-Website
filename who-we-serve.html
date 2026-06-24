@@ -234,6 +234,22 @@
         </div>
       </li>
       <li><a href="who-we-serve.html" aria-current="page">Who We Serve</a></li>
+      <li class="nav-has-mega nav-has-mega--compact">
+        <a href="white-papers.html" class="nav-mega-trigger" aria-haspopup="true" aria-expanded="false">
+          Resources
+          <svg class="nav-mega-chevron" width="10" height="10" aria-hidden="true" viewBox="0 0 10 10">
+            <path d="M1 3.5L5 7.5L9 3.5" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </a>
+        <div class="mega mega--compact" role="region" aria-label="Resources">
+          <div class="mega-inner">
+            <ul class="mega-simple-list" role="list">
+              <li><a href="white-papers.html">White Papers</a></li>
+              <li><a href="downloads.html">Downloads</a></li>
+            </ul>
+          </div>
+        </div>
+      </li>
       <li><a href="contact.html">Contact</a></li>
     </ul>
     <button class="nav-hamburger" id="navHamburger" aria-label="Toggle menu" aria-expanded="false"><span></span><span></span><span></span></button>
@@ -487,6 +503,8 @@
           <li><a href="about.html">About</a></li>
           <li><a href="services.html">Services</a></li>
           <li><a href="who-we-serve.html">Who We Serve</a></li>
+          <li><a href="white-papers.html">White Papers</a></li>
+          <li><a href="downloads.html">Downloads</a></li>
           <li><a href="contact.html">Contact</a></li>
         </ul>
       </div>
@@ -520,52 +538,57 @@
      Desktop reveal is pure CSS (:hover + :focus-within).
      ------------------------------------------------------- */
   (function() {
-    var trigger = document.querySelector('.nav-mega-trigger');
-    if (!trigger) return;
-    var megaLi = trigger.closest('.nav-has-mega');
-    var chevron = trigger.querySelector('.nav-mega-chevron');
+    var triggers = document.querySelectorAll('.nav-mega-trigger');
+    if (!triggers.length) return;
     var mqMobile = window.matchMedia('(max-width: 1024px)');
 
-    trigger.addEventListener('click', function(e) {
-      if (!mqMobile.matches) return;
-      var clickedChevron = chevron && (e.target === chevron || chevron.contains(e.target));
-      if (!clickedChevron) return;
-      e.preventDefault();
-      var isOpen = megaLi.classList.toggle('is-open');
-      trigger.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
-    });
+    Array.prototype.forEach.call(triggers, function(trigger) {
+      var megaLi = trigger.closest('.nav-has-mega');
+      var chevron = trigger.querySelector('.nav-mega-chevron');
 
-    megaLi.addEventListener('mouseenter', function() {
-      if (mqMobile.matches) return;
-      trigger.setAttribute('aria-expanded', 'true');
-    });
-    megaLi.addEventListener('mouseleave', function() {
-      if (mqMobile.matches) return;
-      trigger.setAttribute('aria-expanded', 'false');
-    });
-    megaLi.addEventListener('focusin', function() {
-      if (mqMobile.matches) return;
-      trigger.setAttribute('aria-expanded', 'true');
-    });
-    megaLi.addEventListener('focusout', function(e) {
-      if (mqMobile.matches) return;
-      if (!megaLi.contains(e.relatedTarget)) {
+      trigger.addEventListener('click', function(e) {
+        if (!mqMobile.matches) return;
+        var clickedChevron = chevron && (e.target === chevron || chevron.contains(e.target));
+        if (!clickedChevron) return;
+        e.preventDefault();
+        var isOpen = megaLi.classList.toggle('is-open');
+        trigger.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+      });
+
+      megaLi.addEventListener('mouseenter', function() {
+        if (mqMobile.matches) return;
+        trigger.setAttribute('aria-expanded', 'true');
+      });
+      megaLi.addEventListener('mouseleave', function() {
+        if (mqMobile.matches) return;
         trigger.setAttribute('aria-expanded', 'false');
-      }
+      });
+      megaLi.addEventListener('focusin', function() {
+        if (mqMobile.matches) return;
+        trigger.setAttribute('aria-expanded', 'true');
+      });
+      megaLi.addEventListener('focusout', function(e) {
+        if (mqMobile.matches) return;
+        if (!megaLi.contains(e.relatedTarget)) {
+          trigger.setAttribute('aria-expanded', 'false');
+        }
+      });
+
+      document.addEventListener('keydown', function(e) {
+        if (e.key !== 'Escape') return;
+        if (megaLi.classList.contains('is-open') || trigger.getAttribute('aria-expanded') === 'true') {
+          megaLi.classList.remove('is-open');
+          trigger.setAttribute('aria-expanded', 'false');
+          trigger.focus();
+        }
+      });
     });
 
     mqMobile.addEventListener('change', function() {
-      megaLi.classList.remove('is-open');
-      trigger.setAttribute('aria-expanded', 'false');
-    });
-
-    document.addEventListener('keydown', function(e) {
-      if (e.key !== 'Escape') return;
-      if (megaLi.classList.contains('is-open') || trigger.getAttribute('aria-expanded') === 'true') {
-        megaLi.classList.remove('is-open');
+      Array.prototype.forEach.call(triggers, function(trigger) {
+        trigger.closest('.nav-has-mega').classList.remove('is-open');
         trigger.setAttribute('aria-expanded', 'false');
-        trigger.focus();
-      }
+      });
     });
   })();
 })();

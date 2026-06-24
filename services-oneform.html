@@ -37,10 +37,23 @@ body {
 }
 .container { max-width: 1140px; margin: 0 auto; padding: 0 2rem; }
 
-/* ---- Hero ---- */
+/* ---- Hero ----
+   UNIFY-FAMILY STEEL-BLUE TOP-GRADIENT (2026-06-23)
+   ONLY the hero BACKGROUND changes — the shared Unify-family signal that 1DocStop
+   + SharePoint ERMS now carry. Recipe pulled VERBATIM from services-1docstop.html
+   .page-hero: a 180deg vertical wash, translucent steel-blue (#2E7DB5, RGB 46,125,181)
+   at the top fading straight down to the light canvas then white floor.
+   Steel-blue stops kept byte-for-byte from 1DocStop; only the light/white floor tokens
+   are mapped to OneForm's own scale (--canvas #F4F8FB ≈ 1DocStop's --light; --white).
+   This REPLACES the old flat 170deg canvas→white→canvas wash. Everything else on the
+   page (CTAs, hero animation, badge pill, body sections) stays OneForm AZURE #29b7ea. */
 .hero {
   padding: 9.5rem 0 6rem;
-  background: linear-gradient(170deg, var(--canvas) 0%, var(--white) 50%, var(--canvas) 100%);
+  background: linear-gradient(180deg,
+      rgba(46,125,181,0.52)  0%,    /* steel-blue wash top (navy h1 ~5:1) — Unify-family signal */
+      rgba(46,125,181,0.18) 40%,    /* wash thins toward the light canvas */
+      var(--canvas)         75%,    /* #F4F8FB — into OneForm's light canvas */
+      var(--white)         100%);   /* #FFFFFF — white floor at the bottom of the hero */
   position: relative; overflow: hidden;
 }
 .hero::before {
@@ -51,15 +64,38 @@ body {
 }
 .hero-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; align-items: center; }
 
+/* White "window" behind the wordmark + amber eyebrow (2026-06-23).
+   The hero sits on a steel-blue gradient wash, which washes out the azure "one" and the
+   amber tag. Instead of recoloring them, both are wrapped in a clean white card so they
+   read on white. Hugs its content (fit-content / inline-block), top-left of the hero,
+   above the h1 — it never spans full width or reaches the headline / hero animation. */
+.hero-logo-window {
+  display: inline-block; width: fit-content; max-width: 100%;
+  background: #FFFFFF;
+  border: 1px solid rgba(37,66,107,0.06);
+  border-radius: 14px;
+  padding: 1.1rem 1.5rem;
+  margin-bottom: 1.75rem;
+  box-shadow: 0 10px 30px rgba(37,66,107,0.12), 0 1px 3px rgba(37,66,107,0.06);
+}
+
 /* OneForm wordmark + tagline block (replaces text-only hero-badge) */
 .hero-badge-block {
   display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;
-  margin-bottom: 1.75rem;
+  margin-bottom: 0; /* spacing now lives on .hero-logo-window */
 }
 .oneform-wordmark {
   height: 36px; width: auto; display: block;
   flex-shrink: 0;
 }
+/* HERO wordmark colors (inlined SVG only). Scoped to .hero so the change can NEVER
+   leak to the nav/footer (which use the SyTech logo, not this wordmark) or to other
+   pages' heroes (which still load the azure asset oneform-wordmark.svg via <img>).
+   "FORM" = navy; "one" = AZURE (matches the shared asset). Both sit on a white card
+   (.hero-logo-window) so they read with contrast against the steel-blue hero wash —
+   the WHITE "one" treatment was reverted (2026-06-23, Ethan's call). */
+.hero .ofwm-hero .ofwm-form { fill: #1a2c42; }   /* "FORM" stays navy */
+.hero .ofwm-hero .ofwm-one  { fill: #2bb8eb; }   /* "one" → azure (shared-asset azure) */
 .hero-badge-tag {
   display: inline-block; padding: 0.375rem 1rem;
   background: rgba(232,168,56,0.1); color: var(--gold);
@@ -67,6 +103,7 @@ body {
   text-transform: uppercase; border-radius: 50px;
 }
 @media (max-width: 600px) {
+  .hero-logo-window { padding: 0.9rem 1.1rem; border-radius: 12px; }
   .hero-badge-block { gap: 0.75rem; }
   .oneform-wordmark { height: 30px; }
   .hero-badge-tag { font-size: 0.7rem; padding: 0.3rem 0.85rem; }
@@ -76,7 +113,11 @@ body {
   font-size: clamp(2.5rem, 5vw, 3.5rem); font-weight: 700;
   line-height: 1.15; color: var(--navy); margin-bottom: 1.5rem;
 }
-.hero h1 span { color: var(--azure); }
+/* Hero h1 pop-word: azure #29b7ea FAILS AA on the new steel-blue wash (both are
+   mid-light blues ~1.2:1). Overridden to 1DocStop's darkened steel-blue ink #235880
+   (3:1 large PASS on the 0.52 wash). This is the ONLY azure→steel-blue swap on the
+   page, and it is scoped to the hero headline span only — azure stays everywhere else. */
+.hero h1 span { color: #235880; }
 .hero-sub {
   font-size: 1.125rem; color: var(--text-body);
   line-height: 1.7; max-width: 520px; margin-bottom: 2.5rem;
@@ -1593,6 +1634,22 @@ body {
         </div>
       </li>
       <li><a href="who-we-serve.html">Who We Serve</a></li>
+      <li class="nav-has-mega nav-has-mega--compact">
+        <a href="white-papers.html" class="nav-mega-trigger" aria-haspopup="true" aria-expanded="false">
+          Resources
+          <svg class="nav-mega-chevron" width="10" height="10" aria-hidden="true" viewBox="0 0 10 10">
+            <path d="M1 3.5L5 7.5L9 3.5" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </a>
+        <div class="mega mega--compact" role="region" aria-label="Resources">
+          <div class="mega-inner">
+            <ul class="mega-simple-list" role="list">
+              <li><a href="white-papers.html">White Papers</a></li>
+              <li><a href="downloads.html">Downloads</a></li>
+            </ul>
+          </div>
+        </div>
+      </li>
       <li><a href="contact.html">Contact</a></li>
     </ul>
     <button class="nav-hamburger" id="navHamburger" aria-label="Toggle menu" aria-expanded="false"><span></span><span></span><span></span></button>
@@ -1607,9 +1664,19 @@ body {
 <div class="container">
 <div class="hero-grid">
 <div>
+<!-- White "window" wraps the wordmark + amber eyebrow so both read on white against the
+     steel-blue hero wash (2026-06-23). Hugs its content; sits above the h1. -->
+<div class="hero-logo-window">
 <div class="hero-badge-block">
-<img src="assets/oneform-wordmark.svg" alt="OneForm" class="oneform-wordmark">
+<!-- HERO oneFORM wordmark — INLINED (was <img src="assets/oneform-wordmark.svg">) so the
+     "one" fill can be scoped inside .hero. The shared SVG asset stays azure for every other
+     page's hero; the nav + footer use the SyTech logo, NOT this wordmark, so they are
+     untouched. "FORM" stays navy (.ofwm-form). "one" → AZURE #2bb8eb (.ofwm-one) — the white
+     window now provides the contrast (the earlier WHITE "one" was reverted). Paths are
+     byte-for-byte the same as the asset file. -->
+<svg class="oneform-wordmark ofwm-hero" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 849.09 172.38" role="img" aria-label="OneForm"><title>OneForm</title><path class="ofwm-form" d="M849.09,128.67c-3.5-.56-24,1.54-24-1.9v-43.59c-7.28,7.61-11.72,18.65-17.88,26.97-.81,1.09-1.19,2.49-2.94,2.08l-20.87-30.32v46.75h-22.74V44.02h23.37c2.79,0,18.44,31.03,20.23,31.6,2.36.75,1.69-.94,2.17-1.65,2.75-4.11,16.16-28.81,17.65-29.67,3.04-1.76,20.11.74,25.01-.27v84.66Z"/><path class="ofwm-form" d="M628.02,129.94h-18.95c-49.22-10.69-45.71-82.63,4.37-87.24,57.77-5.31,69.08,73.22,14.58,87.24ZM613.78,64.53c-22.33,4.1-20.35,41.33.94,43.95,34.32,4.23,32.17-50.03-.94-43.95Z"/><path class="ofwm-form" d="M722.14,44.02c30.46,3.61,38.09,41.46,10.71,54.99l18.97,29.67h-25.9c-2.91,0-13.71-22.62-17.06-24.63-2.57-1.54-7.12-.29-10.1-.64v25.27h-22.11c-.13,0-1.89-1.76-1.89-1.9V45.91c0-.13,1.76-1.9,1.89-1.9,13.73,0,32.48-1.54,45.48,0ZM698.76,84.45h18.32c10.89,0,9.97-18.95,2.53-18.95h-20.84v18.95Z"/><path class="ofwm-form" d="M566.12,44.02v21.48h-42.95v12.64h39.16v20.22h-39.16v30.32h-22.11c-.13,0-1.89-1.76-1.89-1.9V45.91c0-.13,1.76-1.9,1.89-1.9h65.06Z"/><path class="ofwm-one" d="M101.05-.19c21.89,3.91,40.19,10.74,56.64,26.01,1.53,1.42,1.53,3.75,3.26,3.95V6.47l58.8.55v19.42c4.66-3.17,7.9-8.1,12.3-11.56,28.18-22.16,71.49-15.25,86.99,18.19,10.24-13.85,24.19-24.13,40.76-29.12,5.78-1.74,11.81-2.18,17.48-4.15h16.64c5.48,1.75,11.29,2.11,16.88,3.65,27.68,7.58,46.39,28.79,53.58,56.26,1.62,6.19,1.9,12.8,3.87,18.87v23.3h-109.83c5.12,27.26,35.76,32.95,57.7,20.55,5.32-3.01,8.54-7.37,13.88-9.43,2.02.06,28.22,22.07,30.52,26.06-30.67,42.46-100.26,43.26-136.49,7.21v22.75c0,.12-1.55,1.66-1.66,1.66h-55.47c-.12,0-1.66-1.55-1.66-1.66V60.84h-46.04c-1.33,0-15.51,10.35-18.3,11.65v26.08h17.2c.12,0,1.66,1.55,1.66,1.66v68.8c0,.12-1.55,1.66-1.66,1.66h-55.47c-.12,0-1.66-1.55-1.66-1.66v-26.08c-40.32,42.4-116.62,38.86-148.01-12.29C5.84,119.09,2.79,107.31.1,94.13c.21-3.65-.3-7.46,0-11.1C3.23,44.86,27.89,14.31,64.7,3.96L83.3-.19h17.75ZM413.9,71.94c-4.57-38.57-51.35-38.36-56.58,0h56.58ZM84.12,50.01c-39.66,6.21-34.61,77.95,11.82,72.84,44.16-4.85,37.71-80.59-11.82-72.84Z"/><path class="ofwm-one" d="M468.26,78.59c-1.97-6.07-2.25-12.69-3.87-18.87-7.19-27.47-25.9-48.68-53.58-56.26-5.59-1.53-11.4-1.9-16.88-3.65h-16.64c-5.67,1.97-11.7,2.41-17.48,4.15-16.57,4.98-30.52,15.27-40.76,29.12-1.21-2.62-2.62-5.06-4.15-7.35-15.05,16.76-31.68,32.08-49.65,45.72v97.58c0,.12,1.55,1.66,1.66,1.66h55.47c.12,0,1.66-1.55,1.66-1.66v-22.75c36.23,36.05,105.82,35.25,136.49-7.21-2.3-3.99-28.49-26-30.52-26.06-5.34,2.06-8.56,6.43-13.88,9.43-21.95,12.41-52.58,6.71-57.7-20.54h109.83v-23.31ZM357.32,71.94c5.23-38.36,52.01-38.57,56.58,0h-56.58ZM219.75,100.77v68.26c0,.12-1.55,1.66-1.66,1.66h-55.47c-.12,0-1.66-1.55-1.66-1.66v-26.08c-37.15,39.06-104.84,39.13-139.81-1.1,10.09.87,20.3,1.31,30.62,1.31,60.8,0,118.02-15.35,167.99-42.39Z"/><path class="ofwm-one" d="M265.24,84.09c68-.92,135.13-5.47,201.18-13.49-.62-3.64-1.11-7.33-2.04-10.88-7.19-27.47-25.9-48.68-53.58-56.26-5.59-1.53-11.4-1.9-16.88-3.65h-16.64c-5.67,1.97-11.7,2.41-17.48,4.15-16.57,4.98-30.52,15.27-40.76,29.12C303.54-.37,260.23-7.28,232.05,14.89c-4.4,3.46-7.64,8.39-12.3,11.56V7.02l-58.8-.55v23.3c-1.73-.2-1.74-2.53-3.26-3.95C141.24,10.56,122.94,3.72,101.05-.19h-17.75l-18.6,4.15C32.44,13.03,9.51,37.63,2.23,69.27c18.68,2.38,37.44,4.47,56.29,6.29,2.84-12.58,11.32-23.31,25.61-25.55,24.35-3.81,38.28,12.56,40.91,30.77,25.16,1.53,50.45,2.56,75.86,3.08v-11.37c2.79-1.3,16.98-11.65,18.3-11.65h46.04v23.24ZM413.9,71.94h-56.58c5.23-38.36,52.01-38.57,56.58,0Z"/></svg>
 <span class="hero-badge-tag">E-Forms — Built on the Systems You Already Own</span>
+</div>
 </div>
 <h1>From Paper to <span>eForms.</span></h1>
 <p class="hero-sub">Public agencies across California face the same challenge — forms trapped in paper, or locked inside e-form software that doesn't connect to anything. OneForm replaces both with seamless, scalable eForms inside the cloud you already own.</p>
@@ -2503,6 +2570,8 @@ Need help with records migration, legacy digitization, or broader modernization?
           <li><a href="about.html">About</a></li>
           <li><a href="services.html">Services</a></li>
           <li><a href="who-we-serve.html">Who We Serve</a></li>
+          <li><a href="white-papers.html">White Papers</a></li>
+          <li><a href="downloads.html">Downloads</a></li>
           <li><a href="contact.html">Contact</a></li>
         </ul>
       </div>
@@ -2539,52 +2608,57 @@ Need help with records migration, legacy digitization, or broader modernization?
      Desktop reveal is pure CSS (:hover + :focus-within).
      ------------------------------------------------------- */
   (function() {
-    var trigger = document.querySelector('.nav-mega-trigger');
-    if (!trigger) return;
-    var megaLi = trigger.closest('.nav-has-mega');
-    var chevron = trigger.querySelector('.nav-mega-chevron');
+    var triggers = document.querySelectorAll('.nav-mega-trigger');
+    if (!triggers.length) return;
     var mqMobile = window.matchMedia('(max-width: 1024px)');
 
-    trigger.addEventListener('click', function(e) {
-      if (!mqMobile.matches) return;
-      var clickedChevron = chevron && (e.target === chevron || chevron.contains(e.target));
-      if (!clickedChevron) return;
-      e.preventDefault();
-      var isOpen = megaLi.classList.toggle('is-open');
-      trigger.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
-    });
+    Array.prototype.forEach.call(triggers, function(trigger) {
+      var megaLi = trigger.closest('.nav-has-mega');
+      var chevron = trigger.querySelector('.nav-mega-chevron');
 
-    megaLi.addEventListener('mouseenter', function() {
-      if (mqMobile.matches) return;
-      trigger.setAttribute('aria-expanded', 'true');
-    });
-    megaLi.addEventListener('mouseleave', function() {
-      if (mqMobile.matches) return;
-      trigger.setAttribute('aria-expanded', 'false');
-    });
-    megaLi.addEventListener('focusin', function() {
-      if (mqMobile.matches) return;
-      trigger.setAttribute('aria-expanded', 'true');
-    });
-    megaLi.addEventListener('focusout', function(e) {
-      if (mqMobile.matches) return;
-      if (!megaLi.contains(e.relatedTarget)) {
+      trigger.addEventListener('click', function(e) {
+        if (!mqMobile.matches) return;
+        var clickedChevron = chevron && (e.target === chevron || chevron.contains(e.target));
+        if (!clickedChevron) return;
+        e.preventDefault();
+        var isOpen = megaLi.classList.toggle('is-open');
+        trigger.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+      });
+
+      megaLi.addEventListener('mouseenter', function() {
+        if (mqMobile.matches) return;
+        trigger.setAttribute('aria-expanded', 'true');
+      });
+      megaLi.addEventListener('mouseleave', function() {
+        if (mqMobile.matches) return;
         trigger.setAttribute('aria-expanded', 'false');
-      }
+      });
+      megaLi.addEventListener('focusin', function() {
+        if (mqMobile.matches) return;
+        trigger.setAttribute('aria-expanded', 'true');
+      });
+      megaLi.addEventListener('focusout', function(e) {
+        if (mqMobile.matches) return;
+        if (!megaLi.contains(e.relatedTarget)) {
+          trigger.setAttribute('aria-expanded', 'false');
+        }
+      });
+
+      document.addEventListener('keydown', function(e) {
+        if (e.key !== 'Escape') return;
+        if (megaLi.classList.contains('is-open') || trigger.getAttribute('aria-expanded') === 'true') {
+          megaLi.classList.remove('is-open');
+          trigger.setAttribute('aria-expanded', 'false');
+          trigger.focus();
+        }
+      });
     });
 
     mqMobile.addEventListener('change', function() {
-      megaLi.classList.remove('is-open');
-      trigger.setAttribute('aria-expanded', 'false');
-    });
-
-    document.addEventListener('keydown', function(e) {
-      if (e.key !== 'Escape') return;
-      if (megaLi.classList.contains('is-open') || trigger.getAttribute('aria-expanded') === 'true') {
-        megaLi.classList.remove('is-open');
+      Array.prototype.forEach.call(triggers, function(trigger) {
+        trigger.closest('.nav-has-mega').classList.remove('is-open');
         trigger.setAttribute('aria-expanded', 'false');
-        trigger.focus();
-      }
+      });
     });
   })();
 })();

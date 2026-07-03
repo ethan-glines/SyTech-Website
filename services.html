@@ -33,12 +33,16 @@
 .cap-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem; }
 /* Batch 3 (2026-05-21): .cap-card is now a clickable <a> linking to its subpage. */
 .cap-card { background: rgba(255,255,255,0.04); padding: 2rem; border-radius: 10px; border: 1px solid rgba(255,255,255,0.08); text-decoration: none; color: inherit; display: block; transition: transform 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease; }
+@media (hover: hover) and (pointer: fine) {
 .cap-card:hover { transform: translateY(-2px); border-color: rgba(229,166,48,0.4); box-shadow: 0 8px 24px rgba(0,0,0,0.20); }
+}
 .cap-card:focus-visible { outline: 3px solid var(--gold); outline-offset: 3px; }
 .cap-card h3 { color: var(--gold); font-size: 1rem; font-weight: 700; margin-bottom: 0.6rem; letter-spacing: 0.02em; }
 .cap-card p { color: rgba(255,255,255,0.75); font-size: 0.92rem; line-height: 1.65; margin: 0; }
 .cap-card .arrow { color: var(--gold); margin-left: 0.4rem; transition: transform 0.3s; display: inline-block; }
+@media (hover: hover) and (pointer: fine) {
 .cap-card:hover .arrow { transform: translateX(4px); }
+}
 /* Batch 3 (2026-05-21): grid reduced from 5 to 3 cards at desktop. Mid breakpoints unchanged. */
 @media (min-width: 1100px) { .cap-grid { grid-template-columns: repeat(3, 1fr); gap: 2rem; } }
 @media (max-width: 1099px) and (min-width: 760px) { .cap-grid { grid-template-columns: repeat(3, 1fr); } }
@@ -68,7 +72,9 @@
   transition: all 0.3s;
 }
 .archive-teaser-link .arrow { display: inline-block; transition: transform 0.3s; }
+@media (hover: hover) and (pointer: fine) {
 .archive-teaser-link:hover .arrow { transform: translateX(4px); }
+}
 .archive-teaser-link:focus-visible { outline: 3px solid var(--gold); outline-offset: 3px; }
 
 /* Batch 3 (2026-05-21): Phase-Subpage Roster (Pattern A — NEW).
@@ -94,9 +100,11 @@
   color: inherit;
   transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
+@media (hover: hover) and (pointer: fine) {
 .phase-roster-card:hover {
   transform: translateY(-1px);
   box-shadow: 0 4px 12px rgba(37,66,107,0.06);
+}
 }
 .phase-roster-card:focus-visible { outline: 3px solid var(--gold); outline-offset: 3px; }
 .phase-roster-eyebrow {
@@ -156,8 +164,10 @@
   .phase-roster.is-visible .phase-roster-card:not(.phase-roster-card--empty):nth-child(2) { transition-delay: 80ms; }
   .phase-roster.is-visible .phase-roster-card:not(.phase-roster-card--empty):nth-child(3) { transition-delay: 160ms; }
   /* Re-apply hover transform separate from the initial entrance (hover overrides translateY) */
-  .phase-roster.is-visible .phase-roster-card:not(.phase-roster-card--empty):hover {
-    transform: translateY(-1px);
+  @media (hover: hover) and (pointer: fine) {
+    .phase-roster.is-visible .phase-roster-card:not(.phase-roster-card--empty):hover {
+      transform: translateY(-1px);
+    }
   }
 }
 @media (max-width: 760px) {
@@ -549,15 +559,24 @@
     var triggers = document.querySelectorAll('.nav-mega-trigger');
     if (!triggers.length) return;
     var mqMobile = window.matchMedia('(max-width: 1024px)');
+    // Condensed desktop band (1025-1440px). Ceiling MUST match the CSS
+    // media query in assets/css/sytech-shared.css (media queries can't read a JS var).
+    var mqBand = window.matchMedia('(min-width: 1025px) and (max-width: 1440px)');
 
     Array.prototype.forEach.call(triggers, function(trigger) {
       var megaLi = trigger.closest('.nav-has-mega');
       var chevron = trigger.querySelector('.nav-mega-chevron');
 
       trigger.addEventListener('click', function(e) {
+        // Condensed desktop band: Services collapses to a plain link that
+        // jumps to the homepage service tiles (its dropdown is CSS-hidden).
+        // Skip Resources (.nav-has-mega--compact), which keeps its dropdown.
+        if (mqBand.matches && !megaLi.classList.contains('nav-has-mega--compact')) {
+          e.preventDefault();
+          window.location.href = 'index.html#service-tiles';
+          return;
+        }
         if (!mqMobile.matches) return;
-        var clickedChevron = chevron && (e.target === chevron || chevron.contains(e.target));
-        if (!clickedChevron) return;
         e.preventDefault();
         var isOpen = megaLi.classList.toggle('is-open');
         trigger.setAttribute('aria-expanded', isOpen ? 'true' : 'false');

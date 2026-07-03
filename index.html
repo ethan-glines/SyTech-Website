@@ -22,6 +22,12 @@
   --navy-soft: rgba(37, 66, 107, 0.07);
 }
 
+/* Reserve the scrollbar gutter at ALL times so the stepped-framework's
+   body-lock pin (position:fixed, which removes the vertical scrollbar)
+   causes NO horizontal layout shift on engage/release. macOS/iOS overlay
+   scrollbars reserve nothing anyway, so this is a no-op there. Page-scoped. */
+html { scrollbar-gutter: stable; }
+
 
 /* ============================================================
    HERO SECTION (preserved from v2)
@@ -49,6 +55,16 @@
   align-items: center; position: relative; z-index: 1;
 }
 .hero-copy { color: var(--white); }
+/* Hero eyebrow (v7 EGUSD repositioning) — gold uppercase, matches site eyebrow treatment */
+.hero-copy .hero-eyebrow {
+  display: block;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: 1rem;
+}
 .hero-copy h1 {
   font-size: clamp(2rem, 4.5vw, 3.2rem); font-weight: 700;
   line-height: 1.15; margin-bottom: 1.25rem;
@@ -396,7 +412,592 @@
   background: transparent;
 }
 .wave-divider svg { display: block; width: 100%; }
-.wave-divider.hero-to-frame svg { height: 80px; }
+
+
+/* ============================================================
+   CHALLENGE BAND — full band, DARK navy gradient (v7 EGUSD)
+   Light->dark flip (sits under Forms Reveal). Same dark family as
+   the CTA band. De-accusatory; fragmented chip grid + closing turn.
+   NAMESPACED under .challenge-band — does not touch shared CSS.
+   ============================================================ */
+.challenge-band {
+  position: relative;
+  background: linear-gradient(170deg, var(--navy) 0%, var(--deep-navy) 100%);
+  padding: 6rem 0;
+  overflow: hidden;
+}
+.challenge-band::before {
+  content: ''; position: absolute; inset: 0;
+  background-image: radial-gradient(rgba(255,255,255,0.03) 1px, transparent 1px);
+  background-size: 20px 20px;
+  pointer-events: none;
+}
+.challenge-band .container { position: relative; z-index: 1; }
+
+.cb-header {
+  text-align: center;
+  max-width: 760px;
+  margin: 0 auto;
+}
+.cb-eyebrow {
+  display: block;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: 0.9rem;
+}
+.cb-headline {
+  font-size: clamp(1.6rem, 2.8vw, 2.2rem);
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: -0.01em;
+  color: var(--white);
+  max-width: 720px;
+  margin: 0 auto;
+}
+.cb-headline .cb-headline-key { color: var(--gold); }
+
+/* Fragment grid — must FEEL fragmented, not a tidy row */
+.cb-fragments {
+  list-style: none;
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  justify-items: center;
+  align-items: center;
+  column-gap: 1rem;
+  row-gap: 2.5rem;
+  max-width: 920px;
+  margin: 3rem auto 3.5rem;
+  padding: 0;
+}
+.cb-frag {
+  /* --x0/--y0/--r0 = off-screen side-entry START (slides in from L/R).
+     --x1/--y1/--r1 = mismatched END (scattered resting position in grid).
+     --status = per-chip muted fault hue; --glow = per-chip dot glow (45% alpha).
+     Per-chip values + surface/size overrides live in the nth-child block. */
+  --x0: 0px;  --y0: 6px;  --r0: 0deg;
+  --x1: 0px;  --y1: 0px;  --r1: 0deg;
+  --status: #B5564C;
+  --glow: rgba(181, 86, 76, 0.45);
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.7rem 1.1rem;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(197, 205, 216, 0.16);   /* soft-white hairline, NOT gold */
+  border-radius: 8px;
+  transform: translate(var(--x0), var(--y0)) rotate(var(--r0));
+}
+/* Left status bar — muted fault hue, consistent on every chip (only hue differs) */
+.cb-frag::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 6px;
+  bottom: 6px;
+  width: 3px;
+  border-radius: 2px;
+  background: var(--status);
+  opacity: 0.9;
+  pointer-events: none;
+}
+.cb-frag svg {
+  flex: 0 0 auto;
+  display: block;
+  color: var(--soft-white);   /* icons NOT gold */
+}
+.cb-frag span {
+  font-size: 0.95rem;
+  font-weight: 700;
+  line-height: 1.25;
+  color: var(--soft-white);   /* #C5CDD8, NOT pure white */
+}
+/* MISMATCHED TILES — each chip deliberately differs in size, padding,
+   surface treatment and corner radius, and DRIFTS from a near-aligned
+   start (--x0/--y0/--r0) out to a scattered resting transform
+   (--x1/--y1/--r1). No connecting lines; no gold (withheld). */
+
+/* 1 — solid fill, tight padding, standard radius | LEFT entry | #B5564C */
+.cb-frag:nth-child(1) {
+  padding: 0.6rem 0.95rem;
+  border-color: rgba(181, 86, 76, 0.42);
+  --status: #B5564C;
+  --glow: rgba(181, 86, 76, 0.45);
+  grid-row: 1; grid-column: 1 / span 2;
+  --x0: -62vw; --y0: -6px; --r0: -5deg;
+  --x1: -16px; --y1: -6px; --r1: -2.6deg;
+}
+/* 2 — OUTLINE only, pill radius, roomy padding, larger text | RIGHT entry | #A85A38 */
+.cb-frag:nth-child(2) {
+  padding: 0.95rem 1.5rem;
+  background: transparent;
+  border-color: rgba(168, 90, 56, 0.42);
+  border-radius: 8px;
+  --status: #A85A38;
+  --glow: rgba(168, 90, 56, 0.45);
+  grid-row: 1; grid-column: 3 / span 2;
+  --x0: 62vw;  --y0: 12px;  --r0: 4deg;
+  --x1: 6px;   --y1: 12px;  --r1: 1.8deg;
+}
+/* status bar flush with the rounded-rect edge, uniform with the other chips */
+.cb-frag:nth-child(2)::before { left: 0; }
+.cb-frag:nth-child(2) span { font-size: 1.02rem; }
+/* 3 — heavier solid fill, SHARP corners, medium padding | RIGHT entry | #B0704A */
+.cb-frag:nth-child(3) {
+  padding: 0.8rem 1.15rem;
+  background: rgba(255, 255, 255, 0.085);
+  border-color: rgba(176, 112, 74, 0.42);
+  border-radius: 8px;
+  --status: #B0704A;
+  --glow: rgba(176, 112, 74, 0.45);
+  grid-row: 1; grid-column: 5 / span 2;
+  --x0: 62vw;  --y0: -8px;  --r0: -3.5deg;
+  --x1: 18px;  --y1: -8px;  --r1: -1.4deg;
+}
+/* 4 — OUTLINE only, standard radius, compact text | LEFT entry | #9E6F66 */
+.cb-frag:nth-child(4) {
+  padding: 0.65rem 1rem;
+  background: transparent;
+  border-color: rgba(158, 111, 102, 0.46);
+  border-radius: 8px;
+  --status: #9E6F66;
+  --glow: rgba(158, 111, 102, 0.45);
+  grid-row: 2; grid-column: 2 / span 2;
+  --x0: -62vw; --y0: 10px;  --r0: 4.5deg;
+  --x1: -30px; --y1: 10px;  --r1: 2.4deg;
+}
+.cb-frag:nth-child(4) span { font-size: 0.88rem; }
+/* 5 — solid fill, soft-large radius, wide padding | RIGHT entry | #A65E63 */
+.cb-frag:nth-child(5) {
+  padding: 0.85rem 1.35rem;
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(166, 94, 99, 0.42);
+  border-radius: 8px;
+  --status: #A65E63;
+  --glow: rgba(166, 94, 99, 0.45);
+  grid-row: 2; grid-column: 4 / span 2;
+  --x0: 62vw;  --y0: -12px; --r0: 1.6deg;
+  --x1: -8px;  --y1: -12px; --r1: 1.6deg;
+}
+
+/* Closing line — the "turn" */
+.cb-closing {
+  max-width: 680px;
+  margin: 0 auto;
+  text-align: center;
+}
+.cb-closing .cb-closing-lead {
+  position: relative;
+  font-size: clamp(1.05rem, 1.6vw, 1.2rem);
+  font-weight: 400;
+  line-height: 1.5;
+  color: var(--soft-white);
+  display: block;
+  /* Gold top hairline is drawn by ::before (scaleX from left) so it can
+     animate left->right as the "relief" beat — contained, centered, max 520px. */
+  padding-top: 1.5rem;
+  max-width: 520px;
+  margin: 0 auto;
+}
+.cb-closing .cb-closing-lead::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background: var(--gold);
+  transform: scaleX(1);              /* default / no-JS: hairline fully drawn */
+  transform-origin: left center;
+}
+.cb-closing-turn {
+  display: block;
+  margin-top: 0.5rem;
+  font-size: clamp(1.15rem, 1.9vw, 1.4rem);
+  font-weight: 700;
+  line-height: 1.4;
+  color: var(--white);   /* brightest/heaviest text in the band */
+}
+
+/* Challenge Band animation (single-fire, gated for reduced motion).
+   Static scatter transforms live on .cb-frag; the reveal animates an
+   inner .cb-frag-inner wrapper (translateY) + opacity on .cb-frag so the
+   scatter transform is never overridden. */
+.cb-frag-inner { display: inline-flex; align-items: center; gap: 0.6rem; }
+/* Static status dot (no animation) — leads the inner row, inherits --status/--glow */
+.cb-frag-inner::before {
+  content: '';
+  flex: 0 0 auto;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--status);
+  margin-right: 2px;
+  box-shadow: 0 0 6px var(--glow);
+}
+
+/* ============================================================
+   "THREE FAULTS, ONE PATCHWORK" — fault-signal LAYER (v7 EGUSD)
+   Three diagnostic treatments layered OVER the existing dot / float /
+   per-chip --status color system (entrance slide-in, grid, ambient
+   float, tinted borders + status bar ALL keep working). Gold stays
+   withheld; text + icons stay soft-white. Uniquely-named keyframes
+   (cbFaultPulse / cbStuckSpin / cbCharge) so nothing collides.
+   ============================================================ */
+
+/* T1 — fault-light breathing pulse: the dot swells to full fault color +
+   glow, then dims to ~40% / faint glow. ~0.4Hz slow loop = WCAG-safe (a
+   breath, NOT a flash). Applied to chips 1,2,4,5; chip 3's dot is the
+   spinner below. Per-chip duration/delay (in the no-preference block)
+   desyncs them like a rack of mismatched warning LEDs. */
+@keyframes cbFaultPulse {
+  0%, 100% { opacity: 0.4; box-shadow: 0 0 2px var(--glow); }
+  50%      { opacity: 1;   box-shadow: 0 0 9px var(--glow), 0 0 3px var(--glow); }
+}
+/* T2 — indeterminate "stuck" spinner: rotates forever, never completes. */
+@keyframes cbStuckSpin { to { transform: rotate(360deg); } }
+/* T3 — recurring-charge glyph: soft pulse, like a charge hitting again. */
+@keyframes cbCharge {
+  0%, 100% { opacity: 0.55; transform: scale(1);    }
+  50%      { opacity: 1;    transform: scale(1.12); }
+}
+
+/* T2 STRUCTURE — chip 3 ("Disconnected workflows"): replace the status dot
+   with a thin INDETERMINATE ring spinner (~9px, 1.5px ring, ~90deg visible
+   arc in the chip's --status hue). Same left slot + margin as the dot so
+   text/layout never shift. Rotation lives in the no-preference block; this
+   is just the static ring structure (so reduced-motion can freeze it). */
+.challenge-band .cb-frag:nth-child(3) .cb-frag-inner::before {
+  width: 9px;
+  height: 9px;
+  box-sizing: border-box;
+  background: transparent;
+  border: 1.5px solid transparent;
+  border-top-color: var(--status);
+  border-radius: 50%;
+  box-shadow: none;
+  margin-right: 2px;
+}
+
+/* T3 STRUCTURE — chip 5 ("A stack of separate subscriptions"): KEEPS its
+   breathing dot AND gains a compact recurring-cost signal after the label —
+   a renew-loop glyph + a LIVE, continuously CLIMBING dollar counter (the
+   "money meter that never stops"). The figure is ILLUSTRATIVE only (NO real
+   number) — a small lowercase "illustrative" cue under the counter keeps it
+   honest on a government page. .cb-cost-amt is ONE clean node a client-
+   confirmed figure could replace later with minimal change (drop the JS,
+   set the text). Tinted in chip 5's muted fault hue; monospaced + tabular
+   so climbing digits never shift layout. Glyph pulse lives in the
+   no-preference block; the JS climb is in-view-gated (see scripts). */
+.challenge-band .cb-frag:nth-child(5) .cb-cost {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.34rem;
+  margin-left: 0.5rem;
+  flex: 0 0 auto;
+}
+.challenge-band .cb-frag:nth-child(5) .cb-cost-glyph {
+  width: 13px;
+  height: 13px;
+  flex: 0 0 auto;
+  color: var(--status);   /* fault hue, NOT gold/soft-white */
+}
+/* Counter + cue stacked so the tiny "illustrative" label sits under the $ */
+.challenge-band .cb-frag:nth-child(5) .cb-cost-meter {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: flex-start;
+  line-height: 1;
+}
+.challenge-band .cb-frag:nth-child(5) .cb-cost-amt {
+  display: inline-block;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  line-height: 1;
+  color: var(--status);   /* muted fault hue, NOT soft-white */
+  /* tabular figures + monospace = climbing digits do NOT cause jitter */
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum" 1;
+}
+/* Quiet "illustrative" cue — visible but understated; states no factual claim */
+.challenge-band .cb-frag:nth-child(5) .cb-cost-illus {
+  margin-top: 2px;
+  font-size: 0.5rem;
+  font-weight: 600;
+  line-height: 1;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(197, 205, 216, 0.5);   /* dimmed soft-white, low emphasis */
+}
+
+/* ============================================================
+   FAULT TOOLTIP LAYER (v7 EGUSD) — hover/focus/tap comment per chip
+   A small navy popup fades+rises ABOVE the hovered chip with a short
+   fault message. Color-matched: a 3px LEFT accent in THAT chip's
+   --status hue; text stays soft-white (the accent carries the fault
+   hue, the message stays legible for AA). Layered ON TOP — does NOT
+   touch the slide-in / grid / float / dot / spinner / cost treatments.
+
+   CLIPPING: .challenge-band keeps overflow:hidden (load-bearing for the
+   ±62vw slide-in). Every chip has ample vertical room ABOVE it inside
+   the band (header sits above the top row; a 2.5rem row-gap sits above
+   the bottom row), so ALL tooltips sit ABOVE with a downward caret and
+   none reach the band's top edge — no chip needs to flip below. The
+   hovered/focused/open chip is raised (z-index) so its tooltip paints
+   above sibling chips (each chip has its own transform stacking ctx).
+   Tooltips are position:absolute (out of flow) + visibility:hidden when
+   closed, so they never shift chip layout. Uniquely namespaced. */
+.cb-tip {
+  position: absolute;
+  bottom: calc(100% + 9px);
+  left: 50%;
+  transform: translateX(-50%) translateY(4px);
+  z-index: 5;
+  white-space: nowrap;
+  padding: 0.42rem 0.72rem;
+  background: #0e1b2e;                       /* deep navy, sits above the band */
+  color: var(--soft-white);                  /* legible message, NOT the fault hue */
+  border: 1px solid rgba(255, 255, 255, 0.10);
+  border-left: 3px solid var(--status);      /* color-matched to THIS chip's fault hue */
+  border-radius: 6px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  line-height: 1.2;
+  letter-spacing: 0.01em;
+  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.45);
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;                      /* never intercepts; layout never shifts */
+  transition: opacity 140ms ease-out,
+              transform 140ms ease-out,
+              visibility 0s linear 140ms;
+}
+/* Down-caret pointing at the chip, in the tooltip's navy */
+.cb-tip::after {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 5px solid transparent;
+  border-top-color: #0e1b2e;
+}
+/* Reveal on hover, keyboard focus, or tap-toggle (.is-open). Raise the
+   chip so its tooltip clears sibling chips' stacking contexts. */
+.challenge-band .cb-frag:hover,
+.challenge-band .cb-frag:focus,
+.challenge-band .cb-frag:focus-within,
+.challenge-band .cb-frag.is-open { z-index: 6; }
+.challenge-band .cb-frag:hover .cb-tip,
+.challenge-band .cb-frag:focus .cb-tip,
+.challenge-band .cb-frag:focus-within .cb-tip,
+.challenge-band .cb-frag.is-open .cb-tip {
+  opacity: 1;
+  visibility: visible;
+  transform: translateX(-50%) translateY(0);
+  transition: opacity 140ms ease-out,
+              transform 140ms ease-out,
+              visibility 0s;
+}
+/* Intentional, on-brand focus ring (gold is withheld in this band) */
+.challenge-band .cb-frag:focus-visible {
+  outline: 2px solid var(--soft-white);
+  outline-offset: 3px;
+}
+/* Reduced motion: tooltip appears instantly, correctly positioned, no rise/fade */
+@media (prefers-reduced-motion: reduce) {
+  .challenge-band .cb-tip {
+    transition: none;
+    transform: translateX(-50%);
+  }
+  .challenge-band .cb-frag:hover .cb-tip,
+  .challenge-band .cb-frag:focus .cb-tip,
+  .challenge-band .cb-frag:focus-within .cb-tip,
+  .challenge-band .cb-frag.is-open .cb-tip {
+    transform: translateX(-50%);
+  }
+}
+
+/* ---- Ambient continuous drift (v7) ----
+   After the single-fire drift-apart entrance settles, each chip's INNER
+   wrapper runs a slow, independent float loop (tiny bob + a hair of
+   rotation). This is a SECOND transform layer: the scatter transform
+   stays on .cb-frag, the float lives on .cb-frag-inner, so they never
+   collide. Amplitude <=4px / rotation <=1deg, ~6-10s periods, each chip
+   desynced via a unique keyframe + delay so the cluster feels loose and
+   "never quite settled" — barely-there ambient life, NOT bouncing.
+   Uniquely namespaced (cbFloatA..cbFloatE) so they cannot collide. */
+@keyframes cbFloatA {
+  0%   { transform: translateY(0)     rotate(0deg);    }
+  50%  { transform: translateY(-3px)  rotate(-0.6deg); }
+  100% { transform: translateY(0)     rotate(0deg);    }
+}
+@keyframes cbFloatB {
+  0%   { transform: translateY(0)     rotate(0deg);   }
+  50%  { transform: translateY(4px)   rotate(0.8deg); }
+  100% { transform: translateY(0)     rotate(0deg);   }
+}
+@keyframes cbFloatC {
+  0%   { transform: translateY(0)      rotate(0deg);    }
+  50%  { transform: translateY(-2.5px) rotate(0.5deg);  }
+  100% { transform: translateY(0)      rotate(0deg);    }
+}
+@keyframes cbFloatD {
+  0%   { transform: translateY(0)     rotate(0deg);  }
+  50%  { transform: translateY(3.5px) rotate(-1deg); }
+  100% { transform: translateY(0)     rotate(0deg);  }
+}
+@keyframes cbFloatE {
+  0%   { transform: translateY(0)    rotate(0deg);    }
+  50%  { transform: translateY(-2px) rotate(0.7deg);  }
+  100% { transform: translateY(0)    rotate(0deg);    }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .challenge-band .cb-header {
+    opacity: 0;
+    transform: translateY(12px);
+    transition: opacity 500ms cubic-bezier(0.4, 0, 0.2, 1) 0ms,
+                transform 500ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;
+  }
+  .challenge-band.is-revealed .cb-header {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  /* Tiles start clustered/aligned (start transform + opacity 0), then
+     DRIFT OUT to their mismatched resting transform on reveal. Calm
+     single-fire ease, no loop, no bounce. */
+  .challenge-band .cb-frag {
+    opacity: 0;
+  }
+  .challenge-band.is-revealed .cb-frag {
+    opacity: 1;
+    transform: translate(var(--x1), var(--y1)) rotate(var(--r1));
+    transition: opacity 520ms ease-out,
+                transform 880ms cubic-bezier(0.22, 0.61, 0.36, 1);
+    will-change: transform;
+  }
+  .challenge-band.is-revealed .cb-frag:nth-child(1) { transition-delay: 0ms; }
+  .challenge-band.is-revealed .cb-frag:nth-child(2) { transition-delay: 90ms; }
+  .challenge-band.is-revealed .cb-frag:nth-child(3) { transition-delay: 180ms; }
+  .challenge-band.is-revealed .cb-frag:nth-child(4) { transition-delay: 270ms; }
+  .challenge-band.is-revealed .cb-frag:nth-child(5) { transition-delay: 360ms; }
+
+  /* Ambient continuous drift — begins AFTER the entrance settles (last chip
+     starts at 360ms + ~760ms transition ~= 1.12s). Each chip desynced via a
+     unique keyframe + offset delay so the cluster never sits still. The float
+     runs on .cb-frag-inner so the parent's scatter transform is untouched. */
+  .challenge-band.is-revealed .cb-frag:nth-child(1) .cb-frag-inner { animation: cbFloatA 7s   ease-in-out 1.40s infinite; }
+  .challenge-band.is-revealed .cb-frag:nth-child(2) .cb-frag-inner { animation: cbFloatB 9s   ease-in-out 1.70s infinite; }
+  .challenge-band.is-revealed .cb-frag:nth-child(3) .cb-frag-inner { animation: cbFloatC 8s   ease-in-out 1.50s infinite; }
+  .challenge-band.is-revealed .cb-frag:nth-child(4) .cb-frag-inner { animation: cbFloatD 10s  ease-in-out 1.90s infinite; }
+  .challenge-band.is-revealed .cb-frag:nth-child(5) .cb-frag-inner { animation: cbFloatE 6.5s ease-in-out 1.60s infinite; }
+
+  /* Closing line fades in last: ~280ms after the final chip starts (360ms) */
+  .challenge-band .cb-closing {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  .challenge-band.is-revealed .cb-closing {
+    opacity: 1;
+    transform: translateY(0);
+    transition: opacity 600ms ease-out 640ms,
+                transform 600ms ease-out 640ms;
+  }
+  /* Gold hairline draws left->right (scaleX 0 -> 1, origin left) as the
+     FINAL "relief" beat — lands after the closing copy has faded/risen in,
+     so gold arrives last, as resolution after the patchwork. */
+  .challenge-band .cb-closing .cb-closing-lead::before {
+    transform: scaleX(0);
+  }
+  .challenge-band.is-revealed .cb-closing .cb-closing-lead::before {
+    transform: scaleX(1);
+    transition: transform 700ms cubic-bezier(0.22, 0.61, 0.36, 1) 980ms;
+  }
+
+  /* ---- THREE FAULTS — motion layer (only with motion allowed) ----
+     T1: breathing fault pulse on the status dots (chips 1,2,4,5),
+     DESYNCED by period + delay so they blink like mismatched warning
+     LEDs (none green). Chip 3's dot is the spinner, so it's skipped. */
+  .challenge-band .cb-frag:nth-child(1) .cb-frag-inner::before { animation: cbFaultPulse 2.3s ease-in-out 0s    infinite; }
+  .challenge-band .cb-frag:nth-child(2) .cb-frag-inner::before { animation: cbFaultPulse 2.7s ease-in-out 0.4s  infinite; }
+  .challenge-band .cb-frag:nth-child(4) .cb-frag-inner::before { animation: cbFaultPulse 2.5s ease-in-out 0.7s  infinite; }
+  .challenge-band .cb-frag:nth-child(5) .cb-frag-inner::before { animation: cbFaultPulse 2.9s ease-in-out 1.1s  infinite; }
+  /* T2: chip 3 spinner rotates forever (linear, never completes). */
+  .challenge-band .cb-frag:nth-child(3) .cb-frag-inner::before { animation: cbStuckSpin 0.9s linear infinite; }
+  /* T3: chip 5 recurring-charge glyph softly pulses (~3s, charge re-hitting). */
+  .challenge-band .cb-frag:nth-child(5) .cb-cost-glyph { animation: cbCharge 3s ease-in-out infinite; }
+}
+/* Reduced motion: final state instantly; static scatter still applies; hairline full */
+@media (prefers-reduced-motion: reduce) {
+  .challenge-band .cb-header,
+  .challenge-band .cb-frag,
+  .challenge-band .cb-frag-inner,
+  .challenge-band .cb-closing {
+    opacity: 1;
+  }
+  .challenge-band .cb-header,
+  .challenge-band .cb-frag-inner,
+  .challenge-band .cb-closing {
+    transform: none;
+  }
+  /* end state: tiles shown in their final scattered/mismatched positions;
+     NO ambient float (inner stays still), gold hairline fully drawn. */
+  .challenge-band .cb-frag {
+    transform: translate(var(--x1), var(--y1)) rotate(var(--r1));
+  }
+  .challenge-band .cb-frag-inner { animation: none; }
+  .challenge-band .cb-closing .cb-closing-lead::before { transform: scaleX(1); }
+
+  /* THREE FAULTS — reduced motion: every treatment reads "error" while
+     STATIC. T1 dots: stay lit at full fault color + glow (base style),
+     no pulse. T2 spinner: freeze as a broken ~3/4 arc (still reads
+     stuck/incomplete), no rotation. T3: glyph + "$███/mo" shown static. */
+  .challenge-band .cb-frag-inner::before,
+  .challenge-band .cb-frag:nth-child(5) .cb-cost-glyph {
+    animation: none;
+    opacity: 1;
+  }
+  .challenge-band .cb-frag:nth-child(3) .cb-frag-inner::before {
+    border-top-color: var(--status);
+    border-right-color: var(--status);
+    border-bottom-color: var(--status);
+    border-left-color: transparent;   /* one gap = broken ~3/4 arc */
+    transform: rotate(45deg);
+  }
+}
+
+@media (max-width: 900px) {
+  .challenge-band .cb-headline { font-size: clamp(1.5rem, 4.5vw, 1.9rem); }
+  /* Single column; drop the 6-col grid placement so chips stack */
+  .cb-fragments { grid-template-columns: 1fr; row-gap: 0.95rem; }
+  .challenge-band .cb-frag:nth-child(1),
+  .challenge-band .cb-frag:nth-child(2),
+  .challenge-band .cb-frag:nth-child(3),
+  .challenge-band .cb-frag:nth-child(4),
+  .challenge-band .cb-frag:nth-child(5) {
+    grid-column: auto;
+    grid-row: auto;
+  }
+  /* Reduced resting jitter for the stacked column (--y1:0 so rows never collide);
+     side-entry --x0 (±62vw) stays — chips still slide in, clipped by overflow:hidden */
+  .challenge-band .cb-frag:nth-child(1) { --x1: -6px; --y1: 0; --r1: -2deg; }
+  .challenge-band .cb-frag:nth-child(2) { --x1: 4px;  --y1: 0; --r1: 1.4deg; }
+  .challenge-band .cb-frag:nth-child(3) { --x1: 6px;  --y1: 0; --r1: -1.2deg; }
+  .challenge-band .cb-frag:nth-child(4) { --x1: -6px; --y1: 0; --r1: 2deg; }
+  .challenge-band .cb-frag:nth-child(5) { --x1: 4px;  --y1: 0; --r1: 1.4deg; }
+}
+@media (max-width: 600px) {
+  .challenge-band { padding: 4rem 0; }
+  .cb-fragments { row-gap: 0.85rem; }
+  /* per-chip resting jitter inherited from the <=900 stacked-column block */
+  .cb-closing-turn { font-size: clamp(1.05rem, 5vw, 1.25rem); }
+}
 
 
 /* ============================================================
@@ -405,13 +1006,18 @@
    Panel 1: white background, 16 chaos lines tangled, hero text
    Panels 2-4: dark gradient, single amber line, blue dots, step text
    ============================================================ */
+/* PINNED MODEL (stepped engine): the section is exactly 100vh and is held
+   in place by a HARD scroll-lock (JS sets <body> position:fixed) — NOT by a
+   tall wrapper + sticky scrub. So the wrapper no longer consumes a 600vh
+   scroll range; the sections before/after it flow normally. (Mobile + reduced
+   override this to height:auto vertical stack — see the media query below.) */
 .frame-wrapper {
   position: relative; width: 100%;
-  height: 600vh;
-  overflow: clip;
+  height: 100vh;
+  overflow: hidden;
 }
 .frame-sticky {
-  position: sticky; top: 0; height: 100vh;
+  position: relative; height: 100vh;
   display: block; overflow: hidden;
 }
 .frame-track {
@@ -466,9 +1072,9 @@
 
 /* Amber line group — fades/reveals as user transitions panel 1 -> 2 */
 .amber-group {
-  /* opacity controlled by JS for emerge effect */
+  /* opacity controlled by JS for emerge effect (prototype cinematic timing) */
   opacity: 0;
-  transition: opacity 0.5s ease;
+  transition: opacity 0.55s ease;
 }
 .amber-group.revealed { opacity: 1; }
 
@@ -486,9 +1092,10 @@
   width: 0; height: 0;   /* zero-size anchor; children center on this point */
   opacity: 0;
   transform: scale(0.55);
-  /* 0.35s fade-in, tied to the moment the amber line's mask edge
-     crosses the dot's gap. Toggled by JS via .active class. */
-  transition: opacity 0.35s ease-out, transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  /* Slower, graceful settle (prototype values) so the dot lands AS the
+     cinematic glide comes to rest; keeps the gentle spring overshoot.
+     Toggled by JS via .active class. */
+  transition: opacity 0.7s ease-out, transform 0.85s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 .dot-group.active { opacity: 1; transform: scale(1); }
 
@@ -556,8 +1163,10 @@
   font-family: Tahoma, 'Segoe UI', Arial, sans-serif;
   font-weight: 700;
   opacity: 0;
-  transition: opacity 0.7s ease, transform 0.7s ease;
-  transform: translateY(12px);
+  /* Long, eased fade/rise (prototype values) so incoming text "lands"
+     softly AS the glide settles. */
+  transition: opacity 1.1s ease, transform 1.45s cubic-bezier(0.16, 1, 0.3, 1);
+  transform: translateY(16px);
   pointer-events: none;
   user-select: none;
 }
@@ -582,8 +1191,9 @@
   width: 15%;        /* % of 400vw track = ~60vw on viewport — tighter, balanced wrap */
   max-width: none;
   text-align: center;
-  /* Initial state: center the block, then offset 12px down for fade-up reveal */
-  transform: translate(-50%, calc(-50% + 12px));
+  /* Initial state: center the block, then offset 16px down for fade-up reveal
+     (prototype value — matches .frame-text-block translateY(16px)). */
+  transform: translate(-50%, calc(-50% + 16px));
 }
 .text-hero.revealed {
   /* Revealed state: keep centering, drop the 12px offset so the fade-up lands clean */
@@ -609,6 +1219,15 @@
   /* Subtle white halo (Option A) — knocks the chaos lines back behind
      each letter without painting an obvious background box. The lines
      still feel present in the composition. */
+  text-shadow: 0 0 4px rgba(255,255,255,1), 0 0 8px rgba(255,255,255,0.9);
+}
+/* Framework intro 2nd line (v7 EGUSD) — subordinate to headline */
+.text-hero .subline {
+  font-size: clamp(14px, 1.6vh, 22px);
+  font-weight: 400;
+  color: var(--text-body);
+  margin-top: clamp(10px, 1.4vh, 16px);
+  display: block;
   text-shadow: 0 0 4px rgba(255,255,255,1), 0 0 8px rgba(255,255,255,0.9);
 }
 
@@ -677,12 +1296,43 @@
   position: relative;
 }
 
+/* ---- Scroll-to-continue affordance (stepped engine) ----
+   Namespaced .frame-scroll-hint (renamed from the prototype's generic
+   .scroll-hint to avoid any cross-page collision). Shown by the JS hint
+   poll only at a settled, engaged, pre-final pause. .on-light = navy copy
+   over the white panel-1 (steps 0-1); default = gold copy over the dark
+   gradient. Lives inside .frame-sticky (the stage). */
+.frame-scroll-hint {
+  position: absolute; left: 50%; bottom: 4vh; transform: translateX(-50%);
+  z-index: 6; pointer-events: none;
+  display: flex; flex-direction: column; align-items: center; gap: 6px;
+  font-size: 12px; letter-spacing: 0.22em; text-transform: uppercase;
+  font-weight: 700; color: var(--gold);
+  opacity: 0; transition: opacity 0.5s ease;
+  text-shadow: 0 1px 6px rgba(0,0,0,0.35);
+}
+.frame-scroll-hint.on-light { color: var(--navy); text-shadow: 0 0 6px rgba(255,255,255,0.9); }
+.frame-scroll-hint.is-visible { opacity: 0.92; }
+.frame-scroll-hint .chev {
+  width: 16px; height: 16px;
+  border-right: 2px solid currentColor; border-bottom: 2px solid currentColor;
+  transform: rotate(45deg); animation: frameHintBob 1.7s ease-in-out infinite;
+}
+@keyframes frameHintBob {
+  0%,100% { transform: rotate(45deg) translate(0,0); opacity: 0.55; }
+  50%     { transform: rotate(45deg) translate(3px,3px); opacity: 1; }
+}
+
 
 /* ============================================================
-   FRAMEWORK SECTION — Mobile Stack (under 900px)
+   FRAMEWORK SECTION — Mobile Stack (under 900px) + Reduced-motion
    Stack panels vertically; amber rotates to vertical connector.
+   The reduced-motion branch (OR'd into this query) makes the SAME
+   vertical stack the fallback at ANY width when the user prefers
+   reduced motion — so the stepped hijack is fully skipped and v7's
+   OWN fallback (not the prototype's .rm-fallback cards) is reused.
    ============================================================ */
-@media (max-width: 900px) {
+@media (max-width: 900px), (prefers-reduced-motion: reduce) {
   .frame-wrapper {
     height: auto !important;
     overflow: visible;
@@ -703,7 +1353,8 @@
   .frame-bg-white,
   .frame-bg-gradient,
   .dots-layer,
-  .frame-text-layer {
+  .frame-text-layer,
+  .frame-scroll-hint {
     display: none;
   }
   .frame-panels {
@@ -739,6 +1390,14 @@
     line-height: 1.15;
     letter-spacing: -0.005em;
     margin-bottom: 1rem;
+    display: block;
+  }
+  /* Framework intro 2nd line mirrored on mobile (v7 EGUSD) */
+  .mobile-text-block .subline {
+    font-size: 1rem;
+    font-weight: 400;
+    color: var(--text-body);
+    margin: -0.5rem 0 1rem;
     display: block;
   }
   .mobile-text-block .body {
@@ -809,8 +1468,10 @@
     bottom: 4rem;
   }
 }
-/* Desktop: hide the mobile-only in-panel text */
-@media (min-width: 901px) {
+/* Desktop (motion OK): hide the mobile-only in-panel text. Scoped with
+   prefers-reduced-motion:no-preference so reduced-motion desktop users —
+   who fall back to the vertical stack above — still SEE the stacked text. */
+@media (min-width: 901px) and (prefers-reduced-motion: no-preference) {
   .mobile-text-block { display: none; }
 }
 
@@ -847,10 +1508,14 @@
   max-width: 100%; max-height: 100%; width: auto; height: auto; object-fit: contain;
   filter: grayscale(100%); opacity: 0.55; transition: filter 0.3s ease, opacity 0.3s ease;
 }
-.proof-logo:hover img { filter: grayscale(0%); opacity: 1; }
+@media (hover: hover) and (pointer: fine) {
+  .proof-logo:hover img { filter: grayscale(0%); opacity: 1; }
+}
 /* Per-logo optical nudges — match who-we-serve tuning */
 .proof-logo img[src*="dgs"]       { opacity: 0.72; }   /* light-gray wordmark — legibility bump */
-.proof-logo:hover img[src*="dgs"] { opacity: 1; }
+@media (hover: hover) and (pointer: fine) {
+  .proof-logo:hover img[src*="dgs"] { opacity: 1; }
+}
 
 .proof-stats {
   display: grid; grid-template-columns: repeat(4, 1fr); gap: 2rem;
@@ -979,9 +1644,7 @@
   background: var(--white);
 }
 
-/* --- Section intro (eyebrow + H2) — matches the page's other section headers.
-   PLACEHOLDER COPY: "OUR SERVICES" eyebrow + heading are stand-ins for
-   Reed/Ethan to refine. Structure/style are final; words are not. --- */
+/* --- Section intro (eyebrow + H2) — matches the page's other section headers. --- */
 .svc-tiles-intro {
   text-align: center;
   max-width: 640px;
@@ -1002,6 +1665,16 @@
   line-height: 1.18;
   color: var(--navy);
   margin: 0;
+}
+/* Sub-line under the H2 (v7 EGUSD repositioning). "Organize, Unify, Scale"
+   stays plain (no gold). NAMESPACED — scoped to this section. */
+.svc-tiles-subline {
+  font-size: 1rem;
+  font-weight: 400;
+  line-height: 1.6;
+  color: var(--text-body);
+  max-width: 560px;
+  margin: 1rem auto 0;
 }
 
 /* === Component wrapper (was .tile-grid in the prototype) ===
@@ -1089,7 +1762,9 @@
   transition: transform 0.6s cubic-bezier(0.25,0.46,0.45,0.94);
   transform-style: preserve-3d;
 }
-.svc-tiles-section .tile-link:hover .tile-flip,
+@media (hover: hover) and (pointer: fine) {
+  .svc-tiles-section .tile-link:hover .tile-flip { transform: rotateY(180deg); }
+}
 .svc-tiles-section .tile-link.flipped .tile-flip { transform: rotateY(180deg); }
 
 .svc-tiles-section .tile-front,
@@ -1260,6 +1935,59 @@
   .svc-tiles-section .tile-link.flipped .tile-back { opacity: 1; }
 }
 
+/* === Batch 3 (touch / non-hover): STATIC STACKED CARD — no flip ===
+   Ethan's decision: on touch devices there is no flip (no hover, no tap-flip).
+   The two flip faces are laid back into normal document flow as ONE coherent
+   card — the white logo "stage" becomes the header, the navy back (description +
+   gold "Learn more →") becomes the body — so every tile reads fully with zero
+   interaction and a single tap still follows the <a href>. The 3D geometry
+   (preserve-3d, absolute faces, aspect-ratio flip box) is neutralized here and
+   therefore lives ONLY where (hover:hover) and (pointer:fine) match.
+   Placed AFTER the reduced-motion block ON PURPOSE: a touch device that ALSO
+   requests reduced motion must not inherit that block's `.tile-back{opacity:0}`
+   crossfade start-state (it would hide the card body), so opacity is reset to 1
+   here (equal specificity, later source wins). Grid stretch (align-items) plus
+   `.tile-back{flex:1}` equalizes sibling heights where they sit side-by-side. */
+@media (hover: none), (pointer: coarse) {
+  .svc-tiles-section .tile-link {
+    aspect-ratio: auto;
+    min-height: 160px;
+    display: flex;
+    flex-direction: column;
+  }
+  .svc-tiles-section .tile-flip {
+    position: relative;
+    height: auto;
+    flex: 1 1 auto;
+    display: flex;
+    flex-direction: column;
+    transform: none !important;
+    transform-style: flat;
+  }
+  /* neutralize the teach-once wiggle on touch (match the wiggle rule's specificity) */
+  .svc-tiles-section .tile-link.wiggle .tile-flip { animation: none; }
+  .svc-tiles-section .tile-front,
+  .svc-tiles-section .tile-back {
+    position: relative;
+    inset: auto;
+    transform: none !important;
+    opacity: 1;
+    backface-visibility: visible;
+    -webkit-backface-visibility: visible;
+    border-radius: 0;
+  }
+  .svc-tiles-section .tile-front {
+    flex: 0 0 auto;
+    border-radius: var(--tile-radius) var(--tile-radius) 0 0;
+  }
+  .svc-tiles-section .tile-back {
+    flex: 1 1 auto;
+    border-radius: 0 0 var(--tile-radius) var(--tile-radius);
+  }
+  .svc-tiles-section .tile-logo { height: auto; }
+  .svc-tiles-section .tile-nudge { display: none; }
+}
+
 /* === Responsive: 3-up -> 2-up tablet -> 1-up mobile ===
    WIDTH/HEIGHT FIX (v7.1): every breakpoint caps the COLUMN track at --tile-cap
    (minmax(0, var(--tile-cap))) so a cell can never grow wider than the cap and the
@@ -1334,12 +2062,6 @@
 
 <a class="skip-link" href="#main">Skip to main content</a>
 
-<!-- ============================================================
-     NAVIGATION (OneForm-style two-layer SVG header)
-     - White header shape: filled rect that drops down on the right
-       into a curved cutaway exposing the page behind.
-     - Gold underline curve: traces the bottom of the white shape.
-     ============================================================ -->
 <nav class="nav" id="nav" role="navigation" aria-label="Primary navigation">
   <div class="nav-shape" aria-hidden="true">
     <!-- White header shape -->
@@ -1448,7 +2170,6 @@
   </div>
 </nav>
 
-
 <!-- ============================================================
      HERO SECTION
      ============================================================ -->
@@ -1456,8 +2177,9 @@
   <div class="container">
     <div class="hero-grid">
       <div class="hero-copy">
+        <span class="hero-eyebrow">Records &amp; Data Modernization for Public Agencies</span>
         <h1>Records Management<br/>Problems <span>Solved.</span></h1>
-        <p>We help public agencies organize, unify, and scale their records using the cloud they already own.</p>
+        <p>More than forms. For 25+ years we've helped public agencies modernize records, workflows, and data inside the cloud they already own, without another standalone system to buy.</p>
         <div class="hero-ctas">
           <a href="contact.html" class="btn-primary">Request a Free Assessment</a>
           <a href="services.html" class="btn-secondary">See How It Works</a>
@@ -1467,11 +2189,6 @@
         <div class="cinema-stage" aria-label="Animated graphic: documents are scanned, centralized in Microsoft 365 or Google Workspace, and reported live">
           <div class="cinema-chrome">
             <span></span><span></span><span></span>
-            <!-- Microsoft/Google platform toggle: chrome-mounted, always
-                 visible across all 3 stages. State persists across the
-                 cycle. Click anywhere during Stage 1 or 3 silently sets
-                 state; Stage 2 reflects the current state when it next plays.
-                 Default: Microsoft. -->
             <button type="button" id="chromeToggle" class="chrome-toggle"
                     role="switch" aria-checked="false"
                     aria-label="Toggle between Microsoft 365 and Google Workspace">
@@ -1483,53 +2200,10 @@
             </button>
           </div>
 
-          <!-- Animated layer (desktop + tablet, motion permitted) -->
           <div class="cinema-canvas" id="cinemaCanvas" aria-hidden="true">
             <svg id="cinemaSvg" viewBox="0 0 480 324" preserveAspectRatio="xMidYMid meet"
                  xmlns="http://www.w3.org/2000/svg"
                  xmlns:xhtml="http://www.w3.org/1999/xhtml">
-
-              <!-- ============================================================
-                   LAYOUT MAP — v3.3 (scanner with feeding papers)
-                   ------------------------------------------------------------
-                   Cloud emoji visual center: (240, 70)
-                     → connector horizontal segments run at y=70 (cloud
-                       vertical center), and BOTH extend inward to x=240 so
-                       they visually meet at the cloud's center point.
-                   Organize box: (30,165) 130x130
-                     → scanner body: x=60..130, y=235..265 (sheet-fed style)
-                     → scanner input slot at top edge, y=235
-                     → token spawn point: (95, 235) — top of scanner slot,
-                       horizontally aligned with the connector at x=95
-                     → paper feed: top-down. Papers appear at y=205 and slide
-                       down 28px into the slot at y=233 over 1.0s of a 2.0s
-                       cycle, then fade out (consumed). Two paper elements
-                       stagger on the same 2.0s cycle (offset -1s) so the box
-                       always reads as feeding.
-                     → box-top anchor (95, 165) = left connector terminus
-                   Scale box: (320,165) 130x130 — counter at (330, 218)
-                     → box-top anchor (385, 165) = right connector terminus
-
-                   L-shaped connectors (meet at cloud center):
-                     Left:  (95,165) → up → (95,70)  → right → (240,70)
-                     Right: (240,70) → right → (385,70) → down → (385,165)
-
-                   Unified master path (#tokenPath, hidden) — single path
-                   used by getPointAtLength for the entire transit:
-                     (95,235) → (95,165) up out of scanner through box edge
-                     → (95,70) elbow → (240,70) cloud center → (385,70) elbow
-                     → (385,165) into-scale-box → (340,210)
-
-                   DRAW ORDER (bottom → top):
-                     1. defs
-                     2. connectors (dashed gold) — STATIC
-                     3. token stream group — MOVING (renders BELOW chrome)
-                     4. Organize region (box + paper + scan beam + label)
-                     5. Cloud emoji
-                     6. Platform identity (Microsoft/Google)
-                     7. Scale region (box + counter + sparkline + donut + bars)
-                   ============================================================ -->
-
               <defs>
                 <radialGradient id="tokenHalo" cx="50%" cy="50%" r="50%">
                   <stop offset="0%"   stop-color="#F1B14D" stop-opacity="0.55"/>
@@ -1543,26 +2217,9 @@
                     <feMergeNode in="SourceGraphic"/>
                   </feMerge>
                 </filter>
-
-                <!-- ============================================================
-                     UNIFIED MASTER PATH for token stream — v3.3 (token emerges
-                     from scanner top slot at x=95, y=235). Token rises
-                     STRAIGHT UP out of the scanner slot through the box edge
-                     and into the connector. Not rendered (no stroke/fill);
-                     JS uses getPointAtLength.
-                     Sequenced (all straight segments, sharp corners):
-                       (95,235) → (95,165)      STRAIGHT UP out of scanner top
-                       L (95,70)                STRAIGHT UP along left vertical
-                       L (240,70)               STRAIGHT RIGHT through cloud center
-                       L (385,70)               STRAIGHT RIGHT to right elbow
-                       L (385,165)              STRAIGHT DOWN into Scale box top
-                       L (340,210)              drop into scale dashboard interior
-                     ============================================================ -->
                 <path id="tokenPath"
                       d="M 95 235 L 95 165 L 95 70 L 240 70 L 385 70 L 385 165 L 340 210"
                       fill="none" stroke="none"/>
-
-                <!-- Reusable token symbol (halo + core + thin stroke). -->
                 <symbol id="tokenSymbol" overflow="visible">
                   <circle cx="0" cy="0" r="9" fill="url(#tokenHalo)" filter="url(#tokenGlow)"/>
                   <circle cx="0" cy="0" r="4" fill="#F1B14D"/>
@@ -1570,16 +2227,6 @@
                 </symbol>
               </defs>
 
-              <!-- ============================================================
-                   LAYER 1 — CONNECTOR LINES (dashed gold, STATIC) — v3.2
-                   L-shaped (stepped) paths that meet at the cloud's
-                   vertical center (240, 70). Both horizontal segments run
-                   at y=70 and extend inward all the way to x=240 — the
-                   cloud emoji (rendered later in the SVG painter's order)
-                   draws on top and hides the merge point behind the glyph.
-                   stroke-linejoin=miter renders a clean 90° on the dashed
-                   stroke at the (95,70) and (385,70) elbows.
-                   ============================================================ -->
               <g id="connectors">
                 <path id="connectorLeft"
                       d="M 95 165 L 95 70 L 240 70"
@@ -1595,29 +2242,12 @@
                       stroke-dasharray="4 4"/>
               </g>
 
-              <!-- ============================================================
-                   LAYER 2 — TOKEN STREAM
-                   JS appends <use href="#tokenSymbol"> elements here.
-                   This group renders BELOW the box/cloud layers below.
-                   ============================================================ -->
               <g id="tokenStream"></g>
 
-              <!-- ============================================================
-                   LAYER 3 — ORGANIZE BOX (left region)
-                   Renders ABOVE tokens so tokens disappear "into" the box
-                   edge when they spawn at the paper center.
-                   ============================================================ -->
               <g id="organizeRegion">
-                <!-- Box fill is now FULLY OPAQUE (v3.1) — tokens passing
-                     behind the box are completely hidden. Fill color is an
-                     interpolation of the chrome's 145deg gradient at this
-                     region's position so the box still reads as integrated
-                     with the chrome (not stark). -->
                 <rect x="30" y="165" width="130" height="130" rx="14" ry="14"
                       fill="#1c344e" fill-opacity="1"
                       stroke="#E5A630" stroke-width="1.5"/>
-
-                <!-- "01" gold tab -->
                 <g id="organize01Tab">
                   <rect x="42" y="178" width="12" height="14" rx="2" ry="2" fill="#E5A630"/>
                   <text x="48" y="188"
@@ -1627,8 +2257,6 @@
                         text-anchor="middle"
                         letter-spacing="0.3">01</text>
                 </g>
-
-                <!-- SCANNING label -->
                 <text id="organizeLabel" x="95" y="188"
                       fill="#E5A630"
                       font-family="Tahoma, 'Segoe UI', sans-serif"
@@ -1636,17 +2264,6 @@
                       letter-spacing="0.5"
                       text-anchor="middle"
                       style="text-transform: uppercase;">SCANNING</text>
-
-                <!-- ============================================================
-                     PAPER FEED — top-down sliding documents
-                     Each paper element is a stylized document outline.
-                     Resting position: y=205 (above the scanner slot at y=235).
-                     Animated translateY(0 → 28px) over 1.0s of a 2.0s cycle,
-                     then fades out (consumed by scanner). organizePaperB is
-                     offset by -1s so the two papers stagger and the box reads
-                     as "always feeding." Both papers are visually behind the
-                     scanner body (rendered before it in painter's order).
-                     ============================================================ -->
                 <g id="organizePaperA">
                   <rect x="84" y="205" width="22" height="22" rx="1.5" ry="1.5"
                         fill="#25426B" fill-opacity="0.55" stroke="#E5A630" stroke-width="0.6"/>
@@ -1663,52 +2280,27 @@
                   <line x1="87" y1="219" x2="103" y2="219" stroke="#FFFFFF" stroke-opacity="0.35" stroke-width="0.5"/>
                   <line x1="87" y1="223" x2="99"  y2="223" stroke="#FFFFFF" stroke-opacity="0.35" stroke-width="0.5"/>
                 </g>
-
-                <!-- ============================================================
-                     SCANNER — sheet-fed style, centered in box.
-                     Body: 70 wide × 30 tall, x=60..130, y=235..265.
-                     Top edge (input slot) at y=235 — paper enters here AND
-                     the glowing token emerges from here (x=95, y=235),
-                     aligning with the connector start at x=95.
-                     ============================================================ -->
                 <g id="organizeScannerBody">
-                  <!-- Scanner outer body — rounded rect, gold stroke, navy fill -->
                   <rect x="60" y="235" width="70" height="30" rx="4" ry="4"
                         fill="#1a2c42" fill-opacity="1"
                         stroke="#E5A630" stroke-width="1.2"/>
-                  <!-- Subtle top bevel highlight -->
                   <rect x="62" y="237" width="66" height="2" rx="1" ry="1"
                         fill="#E5A630" fill-opacity="0.18"/>
-                  <!-- Foot details (sheet-fed scanner stylization) -->
                   <rect x="66"  y="261" width="6" height="2" fill="#E5A630" fill-opacity="0.4"/>
                   <rect x="118" y="261" width="6" height="2" fill="#E5A630" fill-opacity="0.4"/>
-                  <!-- Small status indicator dot -->
                   <circle cx="122" cy="250" r="1.4" fill="#F1B14D" opacity="0.85"/>
                 </g>
-
-                <!-- Scanner input slot — darker horizontal bar at the top edge
-                     of the scanner body. Pulses brighter when paper finishes
-                     entering (every 2.0s). -->
                 <rect id="organizeScannerSlot"
                       x="68" y="234" width="54" height="2.5" rx="1.25" ry="1.25"
                       fill="#E5A630" opacity="0.55"/>
               </g>
 
-              <!-- ============================================================
-                   LAYER 4 — CLOUD EMOJI (Unify region)
-                   Renders ABOVE tokens so tokens passing through the cloud
-                   (between progress ~0.42 and ~0.58) are hidden — visible only
-                   on the connector arcs entering and exiting.
-                   ============================================================ -->
               <g id="cloudEmoji">
                 <foreignObject x="180" y="0" width="120" height="120">
                   <xhtml:div class="cloud-emoji-wrap" role="img" aria-label="cloud">&#9729;&#65039;</xhtml:div>
                 </foreignObject>
               </g>
 
-              <!-- ============================================================
-                   LAYER 5 — PLATFORM IDENTITY (Microsoft / Google)
-                   ============================================================ -->
               <g id="cloudPlatform">
                 <g id="platformMsLogo" transform="translate(232 124)">
                   <rect x="0" y="0"  width="7" height="7" fill="#F25022"/>
@@ -1722,7 +2314,6 @@
                       font-size="8" font-weight="700"
                       text-anchor="middle"
                       letter-spacing="0.2">Microsoft 365</text>
-
                 <g id="platformGoogleLogo">
                   <text x="240" y="139"
                         font-family="Tahoma, 'Segoe UI', sans-serif"
@@ -1740,48 +2331,33 @@
                       letter-spacing="0.2">Workspace</text>
               </g>
 
-              <!-- ============================================================
-                   LAYER 6 — SCALE BOX (right region)
-                   Renders ABOVE tokens so arriving tokens disappear "into" the
-                   dashboard chrome.
-                   ============================================================ -->
               <g id="scaleRegion">
-                <!-- Box fill is now FULLY OPAQUE (v3.1) — tokens passing
-                     behind the box are completely hidden. Same chrome-blend
-                     fill color as the Organize box for visual consistency. -->
                 <rect x="320" y="165" width="130" height="130" rx="14" ry="14"
                       fill="#1c344e" fill-opacity="1"
                       stroke="#E5A630" stroke-width="1.5"/>
-
                 <text x="330" y="188"
                       fill="#E5A630"
                       font-family="Tahoma, 'Segoe UI', sans-serif"
                       font-size="7.5" font-weight="700"
                       letter-spacing="0.5"
                       style="text-transform: uppercase;">OPERATIONS</text>
-
                 <g transform="translate(429 180) scale(0.039)">
                   <path d="M232,56V120a8,8,0,0,1-16,0V75.32l-83.59,83.59a8,8,0,0,1-11.32,0L96,123.32,21.66,197.66a8,8,0,0,1-11.32-11.32l80-80a8,8,0,0,1,11.32,0L126.06,142,202.69,64H168a8,8,0,0,1,0-16h64A8,8,0,0,1,232,56Z"
                         fill="#E5A630"/>
                 </g>
-
                 <line x1="330" y1="195" x2="440" y2="195"
                       stroke="#E5A630" stroke-width="0.5" opacity="0.3"/>
-
-                <!-- Counter — JS increments on each token arrival. -->
                 <text id="scaleCounter" x="330" y="218"
                       fill="#FFFFFF"
                       font-family="Tahoma, 'Segoe UI', sans-serif"
                       font-size="16" font-weight="700"
                       letter-spacing="-0.2">+0</text>
-
                 <text x="330" y="230"
                       fill="#FFFFFF" opacity="0.6"
                       font-family="Tahoma, 'Segoe UI', sans-serif"
                       font-size="5" font-weight="700"
                       letter-spacing="0.15"
                       style="text-transform: uppercase;">documents indexed today</text>
-
                 <g id="scaleSparkline" transform="translate(330 250)">
                   <path id="scaleSparklinePath"
                         d="M 0 14 L 20 12 L 38 13 L 56 8 L 76 5 L 96 1"
@@ -1790,7 +2366,6 @@
                         stroke-linecap="round" stroke-linejoin="round"/>
                   <circle id="scaleSparklineDot" cx="96" cy="1" r="1.8" fill="#F1B14D" opacity="0.95"/>
                 </g>
-
                 <g id="scaleDonut" transform="translate(425 277)">
                   <circle cx="0" cy="0" r="13"
                           fill="none"
@@ -1809,22 +2384,16 @@
                         text-anchor="middle"
                         letter-spacing="0">70%</text>
                 </g>
-
                 <g id="scaleMiniBars" transform="translate(332 282)">
                   <rect x="0"  y="-6"  width="3" height="6"  fill="#E5A630" opacity="0.85"/>
                   <rect x="5"  y="-10" width="3" height="10" fill="#E5A630" opacity="0.85"/>
                   <rect x="10" y="-14" width="3" height="14" fill="#E5A630" opacity="0.85"/>
                 </g>
               </g>
-
             </svg>
           </div>
-
         </div>
 
-        <!-- Cinema legend strip — persistent framework labels (Organize /
-             Unify / Scale). Active state is driven by JS in sync with the
-             zone timing on the 0 / 1.5 / 3.0s timeline. -->
         <div class="cinema-legend" id="cinemaLegend" aria-hidden="true">
           <div class="cinema-legend-col" data-zone="1">
             <span class="cinema-legend-num">01</span>
@@ -1846,15 +2415,79 @@
 
 <main id="main">
 
+<!-- Hero -> Challenge Band: clean straight dark-to-dark edge (wave divider removed) -->
+
 <!-- ============================================================
-     WAVE DIVIDER: Hero to Framework
+     CHALLENGE BAND — full band, DARK navy gradient (v7 EGUSD)
+     De-accusatory. Fragmented chip grid + closing "turn".
+     HARD EDGE below into Framework Panel 1 (no wave divider).
      ============================================================ -->
-<div class="wave-divider hero-to-frame">
-  <svg viewBox="0 0 1440 80" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
-    <path d="M0,0 Q360,70 720,40 Q1080,10 1440,50 L1440,80 L0,80 Z" fill="#FFFFFF"/>
-    <path d="M0,0 Q360,70 720,40 Q1080,10 1440,50" fill="none" stroke="#E5A630" stroke-width="2" opacity="0.4"/>
-  </svg>
-</div>
+<section class="challenge-band" aria-label="The challenge facing public agencies">
+  <div class="container">
+    <div class="cb-header">
+      <span class="cb-eyebrow">The Challenge Facing Public Agencies</span>
+      <h2 class="cb-headline">Most agencies are working across a <span class="cb-headline-key">patchwork of systems</span>.</h2>
+    </div>
+    <ul class="cb-fragments" role="list">
+      <li class="cb-frag" tabindex="0" aria-describedby="cb-tip-1">
+        <span class="cb-frag-inner">
+          <svg width="20" height="20" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><path d="M213.66,82.34l-56-56A8,8,0,0,0,152,24H56A16,16,0,0,0,40,40V216a16,16,0,0,0,16,16H200a16,16,0,0,0,16-16V88A8,8,0,0,0,213.66,82.34ZM160,51.31,188.69,80H160ZM200,216H56V40h88V88a8,8,0,0,0,8,8h48V216Z"/></svg>
+          <span>Paper processes</span>
+        </span>
+        <span class="cb-tip" role="tooltip" id="cb-tip-1">Slow and manual</span>
+      </li>
+      <li class="cb-frag" tabindex="0" aria-describedby="cb-tip-2">
+        <span class="cb-frag-inner">
+          <svg width="20" height="20" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><path d="M219.31,72,184,36.69A15.86,15.86,0,0,0,172.69,32H48A16,16,0,0,0,32,48V208a16,16,0,0,0,16,16H208a16,16,0,0,0,16-16V83.31A15.86,15.86,0,0,0,219.31,72ZM168,208H88V152h80Zm40,0H184V152a16,16,0,0,0-16-16H88a16,16,0,0,0-16,16v56H48V48H172.69L208,83.31ZM160,72a8,8,0,0,1-8,8H96a8,8,0,0,1,0-16h56A8,8,0,0,1,160,72Z"/></svg>
+          <span>Legacy records software</span>
+        </span>
+        <span class="cb-tip" role="tooltip" id="cb-tip-2">Constant errors</span>
+      </li>
+      <li class="cb-frag" tabindex="0" aria-describedby="cb-tip-3">
+        <span class="cb-frag-inner">
+          <svg width="20" height="20" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><path d="M229.66,98.34a8,8,0,0,1-11.32,0L208,88v40a16,16,0,0,1-16,16H128v40l10.34-10.34a8,8,0,0,1,11.32,11.32l-24,24a8,8,0,0,1-11.32,0l-24-24a8,8,0,0,1,11.32-11.32L112,208V144H48a16,16,0,0,1-16-16V88L21.66,98.34A8,8,0,0,1,10.34,87l24-24a8,8,0,0,1,11.32,0l24,24A8,8,0,0,1,58.34,98.34L48,88v40h64V72a8,8,0,0,1,16,0v56h64V88l-10.34,10.34A8,8,0,0,1,229.66,87l-24-24a8,8,0,0,1,0-11.32Z"/></svg>
+          <span>Disconnected workflows</span>
+        </span>
+        <span class="cb-tip" role="tooltip" id="cb-tip-3">Nothing connects</span>
+      </li>
+      <li class="cb-frag" tabindex="0" aria-describedby="cb-tip-4">
+        <span class="cb-frag-inner">
+          <svg width="20" height="20" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><path d="M232,224H216V120a8,8,0,0,0-8-8H144V40a8,8,0,0,0-11.58-7.16l-96,48A8,8,0,0,0,32,88V224H16a8,8,0,0,0,0,16H232a8,8,0,0,0,0-16ZM48,92.94l80-40v171H48ZM192,224H144V128h48ZM80,112v16a8,8,0,0,1-16,0V112a8,8,0,0,1,16,0Zm32,0v16a8,8,0,0,1-16,0V112a8,8,0,0,1,16,0Zm0,56v16a8,8,0,0,1-16,0V168a8,8,0,0,1,16,0Zm-32,0v16a8,8,0,0,1-16,0V168a8,8,0,0,1,16,0Z"/></svg>
+          <span>Departmental data silos</span>
+        </span>
+        <span class="cb-tip" role="tooltip" id="cb-tip-4">Records trapped here</span>
+      </li>
+      <li class="cb-frag" tabindex="0" aria-describedby="cb-tip-5">
+        <span class="cb-frag-inner">
+          <svg width="20" height="20" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><path d="M216,40H40A16,16,0,0,0,24,56V208a8,8,0,0,0,11.58,7.15L64,200.94l28.42,14.21a8,8,0,0,0,7.16,0L128,200.94l28.42,14.21a8,8,0,0,0,7.16,0L192,200.94l28.42,14.21A8,8,0,0,0,232,208V56A16,16,0,0,0,216,40Zm0,155.06-20.42-10.22a8,8,0,0,0-7.16,0L160,199.06l-28.42-14.22a8,8,0,0,0-7.16,0L96,199.06,67.58,184.84a8,8,0,0,0-7.16,0L40,195.06V56H216ZM72,96a8,8,0,0,1,8-8h96a8,8,0,0,1,0,16H80A8,8,0,0,1,72,96Zm0,40a8,8,0,0,1,8-8h96a8,8,0,0,1,0,16H80A8,8,0,0,1,72,136Z"/></svg>
+          <span>A stack of separate subscriptions</span>
+          <!-- T3: recurring-charge signal + LIVE climbing "money meter". The
+               counter (#cb-cost-counter) is ILLUSTRATIVE only — no real figure;
+               JS climbs it (in-view-gated). The static markup value ($1,200) is
+               also the reduced-motion / no-JS fallback. .cb-cost-amt is one clean
+               node a client-confirmed figure can replace later (drop the JS, set
+               the text). aria-hidden on the rapidly-changing number so it never
+               spams AT; .cb-cost carries the static aria-label. -->
+          <span class="cb-cost" role="img" aria-label="Subscription costs keep climbing (illustrative)">
+            <svg class="cb-cost-glyph" width="13" height="13" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><path d="M224,128a96,96,0,0,1-94.71,96H128A95.38,95.38,0,0,1,62.1,197.8a8,8,0,0,1,11-11.63A80,80,0,1,0,71.43,71.39a3.07,3.07,0,0,1-.26.25L44.59,96H72a8,8,0,0,1,0,16H24a8,8,0,0,1-8-8V56a8,8,0,0,1,16,0V85.8L60.25,60A96,96,0,0,1,224,128Z"/></svg>
+            <span class="cb-cost-meter">
+              <span class="cb-cost-amt" id="cb-cost-counter" aria-hidden="true">$1,200</span>
+              <span class="cb-cost-illus" aria-hidden="true">illustrative</span>
+            </span>
+          </span>
+        </span>
+        <span class="cb-tip" role="tooltip" id="cb-tip-5">Costs keep stacking</span>
+      </li>
+    </ul>
+    <p class="cb-closing">
+      <span class="cb-closing-lead">The hard part isn't buying more software.</span>
+      <span class="cb-closing-turn">It's finding a practical path from where you are today to where the technology is going.</span>
+    </p>
+  </div>
+</section>
+
+<!-- HARD EDGE below: Challenge Band (DARK) -> Framework Panel 1 (LIGHT).
+     No wave divider here (Ethan's locked decision). -->
 
 
 <!-- ============================================================
@@ -1872,7 +2505,6 @@
       <div class="frame-svg-canvas" aria-hidden="true">
         <svg viewBox="0 0 11885 1930" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
           <defs>
-            <!-- Reveal masks: one per chaos line, one for amber line -->
             <mask id="chaosMask1" maskUnits="userSpaceOnUse" x="0" y="0" width="11885" height="1930"><rect x="0" y="0" width="0" height="1930" fill="white"/></mask>
             <mask id="chaosMask2"  maskUnits="userSpaceOnUse" x="0" y="0" width="11885" height="1930"><rect x="0" y="0" width="0" height="1930" fill="white"/></mask>
             <mask id="chaosMask3"  maskUnits="userSpaceOnUse" x="0" y="0" width="11885" height="1930"><rect x="0" y="0" width="0" height="1930" fill="white"/></mask>
@@ -1892,11 +2524,6 @@
             <mask id="amberMask"   maskUnits="userSpaceOnUse" x="4569" y="0" width="7311" height="1930"><rect x="4569" y="0" width="0" height="1930" fill="white"/></mask>
           </defs>
 
-          <!-- 16 chaos lines (filled paths from Illustrator export, viewBox 0 0 11885 1930).
-               Rendered at full natural length with no clip/mask. Lines extend
-               rightward and visually merge into the amber line at ~X=4569,
-               with their natural endpoints falling at/before the Organize dot
-               at X=5064. Amber line + dots are unmasked. -->
           <g id="chaos-lines">
             <path class="chaos-path" mask="url(#chaosMask1)"  fill="#38b34a" d="M4469.94,908.32c-35.65-13.86-63.44-31.03-84.94-52.51-17.07-17.05-30.06-36.36-42.11-62.63-9.25-20.16-16.08-47-23.31-75.42-8.91-35.02-18.12-71.24-33.56-103.82-18.43-38.91-42.54-65.01-73.69-79.78-40.69-19.3-83.76-16.34-85.58-16.21-55.42,4.14-94.22,36.39-112.87,51.89-1.84,1.53-3.43,2.85-4.82,3.97-16.12,12.95-37.07,22.61-62.25,28.71-22.73,5.51-49.72,8.3-80.22,8.3h-.38c-57.92-.04-120.69-9.9-174.98-19.14-131.2-22.33-199.22-73.68-265.01-123.34-27.91-21.07-56.77-42.85-89.59-61.61-37.01-21.15-75.38-36.21-117.31-46.03-263.76-61.79-506.56,116.87-516.77,124.51-37.9,28.35-69.32,59-96.05,93.69-23.91,31.03-43.51,64.62-59.9,102.68-30.22,70.18-44.79,145.87-58.89,219.07-21.82,113.33-44.38,230.52-124.76,338.78-31.76,42.77-71.55,82.81-118.26,119.02-45.33,35.13-97.51,66.93-155.1,94.5-56.31,26.96-118,49.99-183.36,68.45-64.56,18.24-132.78,32.05-202.77,41.05-174.32,22.42-354.83,14.75-521.99-22.18-86.73-19.16-168.81-46.01-243.98-79.81-78.56-35.32-149.62-78.29-211.19-127.7-50.14-40.24-93.32-82.59-132-129.48-34.21-41.48-63.95-85.4-90.91-134.28-50.05-90.75-81.37-182.41-111.65-271.05-34.07-99.72-66.25-193.91-121.69-277.54-29.92-45.13-64.03-83.33-104.28-116.79-44.67-37.12-95.94-67.69-156.74-93.46-3-1.27-6.01-2.53-9.03-3.79v33.1c56.76,24.33,104.65,53,146.29,87.6,37.94,31.52,70.11,67.57,98.36,110.18,53.27,80.36,84.83,172.74,118.25,270.55,30.71,89.88,62.47,182.83,113.81,275.92,58.48,106.03,133.88,195.27,230.52,272.82,63.58,51.03,136.85,95.35,217.77,131.73,77.06,34.65,161.14,62.16,249.9,81.77,106.72,23.58,218.72,35.47,331.18,35.46,67.28,0,134.74-4.26,201.28-12.82,71.47-9.19,141.17-23.31,207.17-41.95,67.03-18.94,130.36-42.59,188.23-70.29,59.54-28.5,113.58-61.44,160.62-97.9,48.91-37.91,90.65-79.95,124.06-124.94,84.53-113.85,107.76-234.51,130.22-351.2,28.31-147.07,55.05-285.99,203.16-396.79,2.61-1.95,65-48.25,158.17-85.17,52.12-20.65,104.13-34.57,154.59-41.36,62.2-8.38,122.35-5.92,178.79,7.3,86.98,20.38,139.69,60.17,195.49,102.29,33.8,25.51,68.75,51.9,112.52,74.83,49.52,25.94,103.73,43.68,165.74,54.23,55.51,9.45,119.78,19.53,180.07,19.57h.41c72.07,0,124.92-14.31,161.55-43.73,1.59-1.27,3.35-2.74,5.22-4.29,17.45-14.51,49.95-41.52,95.62-44.93.36-.02,37.06-2.4,70.27,13.35,24.54,11.64,43.9,32.99,59.2,65.29,14.17,29.91,23.01,64.67,31.56,98.28,7.58,29.8,14.74,57.95,25.15,80.62,13.45,29.31,28.79,52.02,48.28,71.49,24.55,24.51,55.77,43.93,95.44,59.35,91.29,35.49,230.26,49.97,424.68,44.26v-30.5c-190.72,5.67-326.07-8.14-413.64-42.17Z"/>
             <path class="chaos-path" mask="url(#chaosMask2)"  fill="#aa70ae" d="M4696.48,958.54c-45.62,12.71-76.42,33.8-109.04,56.13l-3.43,2.34c-49.26,33.68-69.03,69.96-86.47,101.97-18.34,33.65-34.17,62.72-81.51,86.25-66.9,33.26-117.4,28.37-175.88,22.69-44.53-4.32-95-9.21-157.1,4.09-110.05,23.57-166.72,82.31-232.33,150.33-39.15,40.59-83.53,86.59-145.49,130.38-48.58,34.33-104.83,66.27-162.68,92.35-63.2,28.49-127.32,49.88-190.6,63.58-69.26,14.99-135.72,20.29-197.51,15.75-67.71-4.98-129.6-21.83-183.94-50.1-105.62-54.94-166.99-143.84-203.66-196.97-40.75-59.03-71.46-121.76-93.87-191.77-18.96-59.22-27.91-110.84-35.09-152.31-2.66-15.33-4.95-28.56-7.41-40.18-9.51-44.89-27.09-90.89-52.24-136.7-24.11-43.91-55.33-87.94-92.79-130.89-36.37-41.69-78.72-82.48-125.87-121.21-46.45-38.16-97.55-74.33-151.87-107.5-109.58-66.91-231.95-121.16-353.87-156.87-63.22-18.52-126.53-32.18-188.15-40.59-64.07-8.75-126.79-11.88-186.43-9.32-196.35,8.43-296.6,75.51-462.68,186.64-145.43,97.31-344.59,230.58-708.54,391.49-117.6,51.99-219.02,96.83-308.01,133.35v32.92c92.32-37.58,197.68-84.16,320.33-138.39,366.37-161.98,566.81-296.1,713.17-394.03,82.36-55.11,147.4-98.63,215.26-129.26,71.66-32.34,143.14-48.46,231.77-52.27,57.83-2.48,118.73.57,181,9.07,60.13,8.21,121.93,21.55,183.71,39.64,119.39,34.97,239.23,88.1,346.56,153.64,106.89,65.27,200.48,142.29,270.66,222.74,36.03,41.3,65.98,83.53,89.04,125.52,23.72,43.19,40.25,86.37,49.14,128.34,2.34,11.06,4.59,24.04,7.2,39.06,6.96,40.16,16.49,95.17,36.1,156.4,23.34,72.91,55.34,138.26,97.82,199.8,18.57,26.9,44,63.73,78.83,101.27,41.37,44.58,87.08,80.05,135.85,105.42,58.04,30.19,123.9,48.18,195.77,53.46,15.02,1.1,30.3,1.66,45.8,1.66,51.27,0,105.02-6.03,160.4-18.02,65.36-14.15,131.53-36.21,196.68-65.58,59.6-26.87,117.6-59.8,167.75-95.24,64.31-45.45,109.75-92.56,149.84-134.11,64.71-67.08,115.82-120.06,216.77-141.68,57.48-12.31,103.38-7.86,147.78-3.55,22.06,2.14,43.67,4.24,65.86,4.24,38.66,0,79.06-6.37,126.53-29.98,55.94-27.81,75.65-63.98,94.71-98.96,16.57-30.4,33.7-61.84,76.91-91.39l3.44-2.35c31.8-21.76,59.26-40.56,100.01-51.92,44.39-12.37,101.37-14.86,178.91-7.77v-30.61c-79.95-7.11-139.58-4.23-187.09,9.02Z"/>
@@ -1918,26 +2545,18 @@
 
           <!-- Amber Line group: dashed segments + curved arc -->
           <g id="amber-line" class="amber-group" mask="url(#amberMask)">
-            <!-- Dashed segments (3 dashes between dots, then a 4th leading right) -->
             <rect x="4569.83" y="940.05" width="86.99" height="49.89" fill="#f1b14d"/>
             <rect x="4656.82" y="940.05" width="247.82" height="49.89" fill="#f1b14d"/>
             <path d="M4977.12,990h-93.55c-13.81,0-25-11.19-25-25s11.19-25,25-25h93.55c13.81,0,25,11.19,25,25s-11.19,25-25,25Z" fill="#f1b14c"/>
             <path d="M7079.47,990h-1902.35c-13.81,0-25-11.19-25-25s11.19-25,25-25h1902.35c13.81,0,25,11.19,25,25s-11.19,25-25,25Z" fill="#f1b14c"/>
             <path d="M9181.82,990h-1902.35c-13.81,0-25-11.19-25-25s11.19-25,25-25h1902.35c13.81,0,25,11.19,25,25s-11.19,25-25,25Z" fill="#f1b14c"/>
-            <!-- Curved trailing path with descending arc -->
             <path d="M11880,320.16h-252.93c-199.69,0-396.94,52.28-570.42,151.18l-568.41,324.05c-165.95,94.61-354.63,144.61-545.65,144.61h-560.78c-13.81,0-25,11.19-25,25s11.19,25,25,25h560.78c199.69,0,396.94-52.28,570.42-151.18l568.41-324.05c165.95-94.61,354.63-144.61,545.65-144.61h252.93v-50Z" fill="#f1b14c"/>
           </g>
 
         </svg>
       </div>
 
-      <!-- Dots rendered as HTML divs (so they stay perfectly circular regardless
-           of the SVG canvas's non-uniform scaling). Positioned over the SVG canvas.
-           Each dot sits in the CENTER of one of the 3 dash gaps in the amber line:
-             Organize gap: viewBox x 4977.12 -> 5152.12 (center 5064.62)
-             Unify    gap: viewBox x 7079.47 -> 7254.47 (center 7166.97)
-             Scale    gap: viewBox x 9181.82 -> 9356.82 (center 9269.32)
-           Position % = (gap-center-x / 11885) * 400vw -->
+      <!-- Dots rendered as HTML divs -->
       <div class="dots-layer" aria-hidden="true">
         <div class="dot-group" id="dot-organize" style="left: 170.434vw; top: 50vh;">
           <span class="dot-halo dot-halo-outer"></span>
@@ -1962,35 +2581,30 @@
         </div>
       </div>
 
-      <!-- ===== LIVE HTML TEXT LAYER (desktop) =====
-           Replaces the previous external SVG <image> overlay. Each block
-           is positioned by % of the 400vw track (matching the chaos
-           lines' coordinate system) and sized via vh units (matching the
-           chaos canvas height). No aspect-ratio distortion — uses normal
-           font rendering. Hidden on mobile via @media; mobile uses the
-           in-panel .mobile-text-block fallback below. -->
+      <!-- ===== LIVE HTML TEXT LAYER (desktop) ===== -->
       <div class="frame-text-layer" aria-hidden="false">
-        <!-- Hero text (Panel 1): viewBox X 250-2150, Y 810-1040 -->
+        <!-- Hero text (Panel 1) — v7 EGUSD reframed intro -->
         <div class="frame-text-block text-hero" id="textHero">
           <span class="eyebrow">Organize. Unify. Scale.</span>
-          <span class="headline">Our framework for turning records<br>chaos into lasting clarity.</span>
+          <span class="headline">How we think about modernization.</span>
+          <span class="subline">Modernize one piece at a time, not all at once.</span>
         </div>
 
-        <!-- Step 1 / Organize (Panel 2): viewBox X 4500-5500 -->
+        <!-- Step 1 / Organize (Panel 2) -->
         <div class="frame-text-block text-step organize" id="textOrganize">
           <span class="eyebrow">Step 1 / Organize</span>
           <span class="headline">See What You Actually Have</span>
-          <span class="body">We scan, structure, and index your legacy records &mdash; paper and digital &mdash; so nothing stays buried and everything becomes visible.</span>
+          <span class="body">We scan, structure, and index your legacy records, paper and digital, so nothing stays buried and everything becomes visible.</span>
         </div>
 
-        <!-- Step 2 / Unify (Panel 3): viewBox X 6600-7600 -->
+        <!-- Step 2 / Unify (Panel 3) -->
         <div class="frame-text-block text-step unify" id="textUnify">
           <span class="eyebrow">Step 2 / Unify</span>
           <span class="headline">One Ecosystem. One Login.</span>
           <span class="body">Your organized records move into the cloud platform you already own. Forms, workflows, and data connect in a single place. No new software.</span>
         </div>
 
-        <!-- Step 3 / Scale (Panel 4): viewBox X 8700-9700 -->
+        <!-- Step 3 / Scale (Panel 4) -->
         <div class="frame-text-block text-step scale" id="textScale">
           <span class="eyebrow">Step 3 / Scale</span>
           <span class="headline">Activate What You Already Fund</span>
@@ -1998,16 +2612,14 @@
         </div>
       </div>
 
-      <!-- Panels: layout containers for the dark/light backgrounds and
-           mobile text fallback. Desktop text lives in .frame-text-layer
-           above; on mobile (max-width:900px) the layer is hidden and the
-           per-panel .mobile-text-block is shown instead. -->
+      <!-- Panels: layout containers + mobile text fallback -->
       <div class="frame-panels">
         <!-- Panel 1: Hero (white bg) -->
         <div class="frame-panel frame-panel-hero" data-panel-index="0">
           <div class="mobile-text-block">
             <span class="eyebrow">Organize. Unify. Scale.</span>
-            <span class="headline">Our framework for turning records chaos into lasting clarity.</span>
+            <span class="headline">How we think about modernization.</span>
+            <span class="subline">Modernize one piece at a time, not all at once.</span>
           </div>
         </div>
 
@@ -2016,7 +2628,7 @@
           <div class="mobile-text-block">
             <span class="eyebrow">Step 1 / Organize</span>
             <span class="headline">See What You Actually Have</span>
-            <span class="body">We scan, structure, and index your legacy records &mdash; paper and digital &mdash; so nothing stays buried and everything becomes visible.</span>
+            <span class="body">We scan, structure, and index your legacy records, paper and digital, so nothing stays buried and everything becomes visible.</span>
           </div>
         </div>
 
@@ -2039,6 +2651,12 @@
         </div>
       </div>
 
+    </div>
+
+    <!-- Scroll-to-continue affordance (stepped engine; namespaced) -->
+    <div class="frame-scroll-hint" id="frameScrollHint" aria-hidden="true">
+      <span class="label">Scroll to continue</span>
+      <span class="chev"></span>
     </div>
   </div>
 </section>
@@ -2092,27 +2710,17 @@
   </div>
 </section>
 
-
 <!-- ============================================================
      SERVICE TILE GRID — EXPERIMENTAL SECTION (v7 fork only)
-     ============================================================
-     Browsable flip-tile expression of the 7 services in 3 pillars
-     (Organize / Unify / Scale). Component ported verbatim from
-     prototypes/service-tiles-prototype.html; CSS + JS scoped to this
-     fork only (see the scoped <style> block above + <script> below).
-     Placed directly below the stats strip per Ethan's request. NOTE:
-     this is a separate, more browsable expression than the hero
-     Organize/Unify/Scale scroll section above — intentional, not a dup.
-     Tiles link to the real service pages.
      ============================================================ -->
 <section class="svc-tiles-section" id="service-tiles" aria-label="SyTech services, grouped by pillar">
   <div class="container">
 
-    <!-- Section intro. PLACEHOLDER COPY — eyebrow + heading are stand-ins
-         for Reed/Ethan to refine. Structure/style are final, words are not. -->
+    <!-- Section intro — v7 EGUSD "connective tools" repositioning -->
     <div class="svc-tiles-intro fade-up">
-      <span class="svc-tiles-eyebrow">Our Services</span>
-      <h2 class="svc-tiles-heading">Everything we do, grouped the way we work</h2>
+      <span class="svc-tiles-eyebrow">Connective Tools, Not More Silos</span>
+      <h2 class="svc-tiles-heading">Everything we do connects what you already own.</h2>
+      <p class="svc-tiles-subline">Grouped the way we work: Organize, Unify, Scale.</p>
     </div>
 
     <div class="tile-grid fade-up">
@@ -2384,7 +2992,6 @@
   </div>
 </section>
 
-
 <!-- ============================================================
      CTA SECTION
      ============================================================ -->
@@ -2392,7 +2999,7 @@
   <div class="container">
     <div class="cta-inner fade-up">
       <h2>Let's Start With an Assessment.</h2>
-      <p>Every engagement begins with a conversation. We learn where you are, what is working, and what is not &mdash; then map a clear path forward.</p>
+      <p>Every engagement begins with a conversation. We learn where you are, what is working, and what is not, then map a clear path forward.</p>
       <a href="mailto:support@sytechsolutions.com?subject=Assessment%20Request" class="btn-primary">Request a Free Assessment</a>
       <div class="cta-reassurance">No commitment required. We have been doing this for over 25 years.</div>
     </div>
@@ -2458,7 +3065,6 @@
   </div>
 </footer>
 
-
 <!-- ============================================================
      JAVASCRIPT
      ============================================================ -->
@@ -2468,9 +3074,6 @@
 
   /* -------------------------------------------------------
      NAV: Scroll-tied background swap + hamburger toggle
-     (OneForm-style: .scrolled adds white bg + shadow.
-      nav-shape (white shape + amber curve) stays fully
-      visible at all scroll positions.)
      ------------------------------------------------------- */
   var nav = document.getElementById('nav');
   var navHamburger = document.getElementById('navHamburger');
@@ -2492,23 +3095,33 @@
     /* -------------------------------------------------------
        MEGA-MENU (Batch 4) — mobile tap toggle + aria sync.
        Desktop reveal is pure CSS (:hover + :focus-within).
-       Registered BEFORE linkEls.forEach so the chevron-tap handler
-       runs first; linkEls handler then checks e.defaultPrevented
-       to skip closing the hamburger on chevron tap.
+       Registered BEFORE linkEls.forEach so this trigger-row handler
+       runs first; on mobile any tap on the trigger row toggles the
+       accordion and preventDefault's, so the linkEls handler then
+       checks e.defaultPrevented and skips closing the hamburger.
        ------------------------------------------------------- */
     (function() {
       var triggers = document.querySelectorAll('.nav-mega-trigger');
       if (!triggers.length) return;
       var mqMobile = window.matchMedia('(max-width: 1024px)');
+      // Condensed desktop band (1025-1440px). Ceiling MUST match the CSS
+      // media query in assets/css/sytech-shared.css (media queries can't read a JS var).
+      var mqBand = window.matchMedia('(min-width: 1025px) and (max-width: 1440px)');
 
       Array.prototype.forEach.call(triggers, function(trigger) {
         var megaLi = trigger.closest('.nav-has-mega');
         var chevron = trigger.querySelector('.nav-mega-chevron');
 
         trigger.addEventListener('click', function(e) {
+          // Condensed desktop band: Services collapses to a plain link that
+          // jumps to the homepage service tiles (its dropdown is CSS-hidden).
+          // Skip Resources (.nav-has-mega--compact), which keeps its dropdown.
+          if (mqBand.matches && !megaLi.classList.contains('nav-has-mega--compact')) {
+            e.preventDefault();
+            window.location.href = 'index.html#service-tiles';
+            return;
+          }
           if (!mqMobile.matches) return;
-          var clickedChevron = chevron && (e.target === chevron || chevron.contains(e.target));
-          if (!clickedChevron) return;
           e.preventDefault();
           var isOpen = megaLi.classList.toggle('is-open');
           trigger.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
@@ -2552,8 +3165,8 @@
     })();
 
     // Close menu when any nav link is clicked.
-    // EXCEPTION: chevron tap on the mega trigger preventDefault's its event
-    // (it's toggling the accordion, not navigating). Skip the close in that case.
+    // EXCEPTION: on mobile, any tap on the mega trigger row preventDefault's
+    // its event (it's toggling the accordion, not navigating). Skip the close then.
     var linkEls = navLinks.querySelectorAll('a');
     linkEls.forEach(function(link) {
       link.addEventListener('click', function(e) {
@@ -2568,24 +3181,9 @@
 
   /* -------------------------------------------------------
      HERO ANIMATION: v3 Unified Data-Flow — Continuous Token Stream
-     - One unified master path (#tokenPath in <defs>) carries each
-       token from Organize → cloud → Scale.
-     - Token pool: each token = { el, progress, bornAt }.
-     - Spawn cadence: SPAWN_INTERVAL ms between births.
-     - Per-token transit time: TRANSIT_MS ms, linear progress.
-     - On arrival (progress ≥ 1): token removed, counter += step.
-     - Pre-populated on load with N tokens at evenly spaced progress
-       values so the stream looks "already flowing" from frame 1.
-
-     NOTE: This IIFE intentionally uses local var `prefersReducedMotion`
-     (NOT `prefersReduced`) so it cannot shadow the outer framework-
-     section `prefersReduced` that lives at the parent IIFE scope.
-     The framework section's chaos→clarity animation depends on that
-     outer declaration (CLAUDE.md operating lesson, 2026-05-22).
      ------------------------------------------------------- */
   (function () {
 
-    /* ---------------- Platform toggle ---------------- */
     var chromeToggle  = document.getElementById('chromeToggle');
     if (!chromeToggle) return;
     var labelMs       = chromeToggle.querySelector('.chrome-toggle-label-ms');
@@ -2602,10 +3200,6 @@
     }
     chromeToggle.addEventListener('click', doPlatformToggle);
 
-    /* ---------------- Reduced motion / mobile gate ----------------
-       Local var name `prefersReducedMotion` is intentionally distinct
-       from the outer parent IIFE's `prefersReduced` so there is no
-       shadowing under strict mode. */
     var prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     var isNarrow             = window.matchMedia('(max-width: 600px)').matches;
     var staticMode           = prefersReducedMotion || isNarrow;
@@ -2618,7 +3212,6 @@
       return;
     }
 
-    /* ---------------- Refs & path metrics ---------------- */
     var SVG_NS       = 'http://www.w3.org/2000/svg';
     var XLINK_NS     = 'http://www.w3.org/1999/xlink';
     var tokenPath    = document.getElementById('tokenPath');
@@ -2626,18 +3219,14 @@
     if (!tokenPath || !tokenStream || !counterEl) return;
     var totalLen     = tokenPath.getTotalLength();
 
-    /* ---------------- Stream tuning ---------------- */
-    var TRANSIT_MS      = 8000;   // per-token total transit time
-    var SPAWN_INTERVAL  = 2000;   // ms between new token spawns
-    var COUNTER_STEP    = 1;      // increment per token arrival
-    var COUNTER_RESET   = 9999;   // soft cap; resets to keep digits stable
+    var TRANSIT_MS      = 8000;
+    var SPAWN_INTERVAL  = 2000;
+    var COUNTER_STEP    = 1;
+    var COUNTER_RESET   = 9999;
 
-    /* Initial distribution: pre-populate with 4 tokens so the stream
-       is already flowing at frame 1 (steady state = TRANSIT_MS / SPAWN_INTERVAL = 4). */
     var INITIAL_PROGRESS = [0.10, 0.35, 0.60, 0.85];
 
-    /* ---------------- Token pool ---------------- */
-    var tokens = [];    // { el, progress, bornAt }
+    var tokens = [];
     var counter = 0;
 
     function makeTokenEl() {
@@ -2658,7 +3247,6 @@
 
     function spawnToken(initialProgress, nowTs) {
       var el = makeTokenEl();
-      // bornAt is set such that (now - bornAt) / TRANSIT_MS == initialProgress.
       var bornAt = nowTs - initialProgress * TRANSIT_MS;
       tokens.push({
         el: el,
@@ -2679,29 +3267,21 @@
       counterEl.textContent = '+' + fmt(counter);
     }
 
-    /* ---------------- Bootstrapping ---------------- */
     var startTs = performance.now();
-    // Pre-populate with distributed tokens so the stream looks established.
     for (var i = 0; i < INITIAL_PROGRESS.length; i++) {
       spawnToken(INITIAL_PROGRESS[i], startTs);
     }
-    // Seed counter with a baseline so the dashboard reads "live system".
     counter = 1247;
     counterEl.textContent = '+' + fmt(counter);
 
-    // Schedule the first new spawn at t=1000ms (when the first paper visibly
-    // finishes feeding into the scanner — see organizePaperFeed @50% keyframe).
     var nextSpawnAt = startTs + 1000;
 
-    /* ---------------- Main rAF loop ---------------- */
     function frame(now) {
-      // Spawn cadence
       while (now >= nextSpawnAt) {
         spawnToken(0, nextSpawnAt);
         nextSpawnAt += SPAWN_INTERVAL;
       }
 
-      // Update every token in the pool
       for (var i = tokens.length - 1; i >= 0; i--) {
         var t = tokens[i];
         t.progress = (now - t.bornAt) / TRANSIT_MS;
@@ -2721,300 +3301,540 @@
   })();
 
 
-  /* (Legacy v2 hero IIFE removed — v3 token-stream runtime above
-     replaces it. See source/hero-animation-v3-prototype.html.) */
-
-
   var prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   /* -------------------------------------------------------
-     FRAMEWORK SECTION (v4) — Horizontal scroll + chaos reveal
+     CHALLENGE BAND — single-fire reveal (v7 EGUSD)
+     Adds .is-revealed once when the element scrolls into view.
+     CSS handles all timing/stagger; reduced motion shows final state.
+     Challenge Band observes the section at 25% visibility per spec.
      ------------------------------------------------------- */
-  var frameWrapper = document.querySelector('.frame-wrapper');
-  var frameTrack   = document.getElementById('frameTrack');
-  var framePanels  = document.querySelectorAll('.frame-panel');
-  var amberGroup   = document.querySelector('.amber-group');
-  var amberMaskRect= document.querySelector('#amberMask rect');
-  var dotGroups    = document.querySelectorAll('.dot-group');
-  // Live HTML text blocks (replaced the previous external SVG <image> overlays).
-  var textHero     = document.getElementById('textHero');
-  var textOrganize = document.getElementById('textOrganize');
-  var textUnify    = document.getElementById('textUnify');
-  var textScale    = document.getElementById('textScale');
-  var isMobile     = window.innerWidth <= 900;
+  (function() {
+    function singleFire(targetSel, revealSel, threshold) {
+      var target = document.querySelector(targetSel);
+      if (!target) return;
+      var revealEl = revealSel ? target.closest(revealSel) : target;
+      if (!revealEl) revealEl = target;
+      if (prefersReduced || !('IntersectionObserver' in window)) {
+        revealEl.classList.add('is-revealed');
+        return;
+      }
+      var io = new IntersectionObserver(function(entries) {
+        entries.forEach(function(entry) {
+          if (entry.isIntersecting) {
+            revealEl.classList.add('is-revealed');
+            io.unobserve(entry.target);
+          }
+        });
+      }, { threshold: threshold });
+      io.observe(target);
+    }
+    // Challenge Band: observe the section at 25%
+    singleFire('.challenge-band', null, 0.25);
+  })();
 
-  // Get all 16 chaos mask rects
-  var chaosMaskRects = [];
-  for (var i = 1; i <= 16; i++) {
-    var m = document.getElementById('chaosMask' + i);
-    chaosMaskRects.push(m ? m.querySelector('rect') : null);
-  }
+  /* -------------------------------------------------------
+     CHALLENGE BAND — chip 5 illustrative "money meter" (v7 EGUSD)
+     A continuously CLIMBING dollar counter in chip 5's recurring-cost
+     node. ILLUSTRATIVE only (no real figure) — the markup also carries
+     a quiet "illustrative" cue. Runs ONLY while the band is in view
+     (IntersectionObserver start/stop) so it never burns cycles off-
+     screen; resumes when scrolled back in. aria-hidden, so the rapid
+     updates never spam screen readers (the .cb-cost node keeps a static
+     aria-label). Reduced motion: do nothing — the static $1,200 already
+     in the markup stays. Self-contained / namespaced — does NOT touch
+     the slide-in, grid, ambient float, breathing dots, chip-3 spinner,
+     tooltips, or any other section.
+     ------------------------------------------------------- */
+  (function () {
+    var el = document.getElementById('cb-cost-counter');
+    var band = document.querySelector('.challenge-band');
+    if (!el || !band) return;
+    // Reduced motion: leave the static $1,200, never tick.
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
 
-  // Per-line stagger timings: random start offsets + speed multipliers
-  // for the chaotic reveal feel (each line draws at its own pace).
-  // start: 0..0.10 (when within the panel-1 reveal window the line begins)
-  // speed: 0.5..1.8 (lower = slower draw, higher = quicker draw)
-  var chaosTimings = [
-    { start: 0.00, speed: 1.50 }, // 1  Green
-    { start: 0.04, speed: 0.70 }, // 2  Light Purple
-    { start: 0.02, speed: 1.80 }, // 3  Grey
-    { start: 0.07, speed: 0.85 }, // 4  Pink
-    { start: 0.01, speed: 1.30 }, // 5  Light Red
-    { start: 0.05, speed: 0.65 }, // 6  Purple
-    { start: 0.00, speed: 1.95 }, // 7  Sky Blue
-    { start: 0.08, speed: 0.95 }, // 8  Tan
-    { start: 0.03, speed: 1.40 }, // 9  2nd Orange
-    { start: 0.06, speed: 0.55 }, // 10 Orange
-    { start: 0.02, speed: 1.65 }, // 11 Blue
-    { start: 0.09, speed: 0.80 }, // 12 Dark Red
-    { start: 0.00, speed: 1.10 }, // 13 Dark Blue
-    { start: 0.04, speed: 0.75 }, // 14 Light Green
-    { start: 0.07, speed: 1.55 }, // 15 Peach
-    { start: 0.01, speed: 0.90 }  // 16 Light Blue
-  ];
+    var value = 1200;           // tasteful start; climbs, never resets/stops
+    var timer = null;
+    function fmt(n) { return '$' + n.toLocaleString('en-US'); }   // leading $ + commas
+    function tick() {
+      value += 1 + Math.floor(Math.random() * 3);   // +$1..3 per tick = steady, not frantic
+      el.textContent = fmt(value);
+    }
+    function start() {
+      if (timer) return;
+      timer = setInterval(tick, 90);   // ~22 ticks/s, ~+$44/s average
+    }
+    function stop() {
+      if (timer) { clearInterval(timer); timer = null; }
+    }
+    if ('IntersectionObserver' in window) {
+      var io = new IntersectionObserver(function (entries) {
+        entries.forEach(function (entry) {
+          if (entry.isIntersecting) { start(); } else { stop(); }
+        });
+      }, { threshold: 0.15 });
+      io.observe(band);
+    } else {
+      start();   // no IO support: just run
+    }
+  })();
 
-  // ViewBox constants for the unified SVG canvas
-  var VB_WIDTH = 11885;
-  var VB_HEIGHT = 1930;
-  // Amber line spans from x=4569 to x=11880 in viewBox units
-  var AMBER_START_X = 4569;
-  var AMBER_END_X = 11880;
-  var AMBER_FULL_WIDTH = AMBER_END_X - AMBER_START_X; // 7311
+  /* -------------------------------------------------------
+     CHALLENGE BAND — fault tooltips: touch tap-to-toggle.
+     Desktop relies on CSS :hover / :focus / :focus-within (no JS needed).
+     On no-hover (touch) devices, tapping a chip toggles its tooltip and
+     closes the others; tapping outside closes all. Namespaced, additive —
+     does not touch slide-in / float / spinner / cost behavior.
+     ------------------------------------------------------- */
+  (function () {
+    var band = document.querySelector('.challenge-band');
+    if (!band) return;
+    var frags = band.querySelectorAll('.cb-frag');
+    if (!frags.length) return;
+    var coarse = window.matchMedia('(hover: none)');
+    function closeAll(except) {
+      frags.forEach(function (f) { if (f !== except) f.classList.remove('is-open'); });
+    }
+    frags.forEach(function (frag) {
+      frag.addEventListener('click', function (e) {
+        if (!coarse.matches) return;          // desktop: hover/focus handle it
+        e.preventDefault();
+        var open = frag.classList.contains('is-open');
+        closeAll(frag);
+        frag.classList.toggle('is-open', !open);
+      });
+    });
+    document.addEventListener('click', function (e) {
+      if (!coarse.matches) return;
+      if (!e.target.closest('.cb-frag')) closeAll(null);
+    });
+  })();
 
-  // ---- Amber line: scroll-locked choreography keypoints ----
-  // The 3 dash gaps in the amber line (centers, viewBox x):
-  //   Organize gap = 5064.62  (between segments 4977.12 and 5152.12)
-  //   Unify    gap = 7166.97  (between segments 7079.47 and 7254.47)
-  //   Scale    gap = 9269.32  (between segments 9181.82 and 9356.82)
-  // Mask widths (relative to AMBER_START_X = 4569) needed to "arrive at" each gap:
-  var GAP_ORGANIZE_X = 5064.62;
-  var GAP_UNIFY_X    = 7166.97;
-  var GAP_SCALE_X    = 9269.32;
-  var MASK_W_ORGANIZE = GAP_ORGANIZE_X - AMBER_START_X; //  495.62
-  var MASK_W_UNIFY    = GAP_UNIFY_X    - AMBER_START_X; // 2597.97
-  var MASK_W_SCALE    = GAP_SCALE_X    - AMBER_START_X; // 4700.32
-  var MASK_W_FULL     = AMBER_FULL_WIDTH;                // 7311
 
-  // Scroll-progress keypoints — calibrated so each dot lands at SCREEN
-  // CENTER (50vw) at the moment the amber line arrives at it. The track
-  // slides left at -300vw * P, so for a dot at track-x X (vw), its screen
-  // position is X - (300 * P). Solving for screen-center 50vw:
-  //   P_center = (X - 50) / 300
-  // Dot x positions (vw): Organize 170.434, Unify 241.196, Scale 311.953
-  //   Organize -> P = (170.434 - 50)/300 = 0.4014
-  //   Unify    -> P = (241.196 - 50)/300 = 0.6373
-  //   Scale    -> P = (311.953 - 50)/300 = 0.8732
-  // Line begins drawing at P=0.20 (slightly earlier than panel-2 entry
-  // at 0.25, so the draw-in feels natural before Organize lands center).
-  var AMBER_KEYS = [
-    { p: 0.20, w: 0 },                  // line starts
-    { p: 0.40, w: MASK_W_ORGANIZE },    // Organize dot at screen center
-    { p: 0.64, w: MASK_W_UNIFY },       // Unify dot at screen center
-    { p: 0.87, w: MASK_W_SCALE },       // Scale dot at screen center
-    { p: 1.00, w: MASK_W_FULL }         // arc completes
-  ];
+  /* -------------------------------------------------------
+     FRAMEWORK SECTION — STEPPED, TRIGGERED PLAYBACK ENGINE
+     Ported from planning/prototype-chaos-stepped-scroll/
+     chaos-stepped-scroll-prototype.html. Replaces the old
+     scroll-scrub drive with a forward-only, gesture-triggered,
+     scroll-LOCKED step engine: Step1 chaos draws in, Step2 Organize,
+     Step3 Unify, Step4 Scale glide, then release.
 
-  // Smooth-step easing applied within each segment so transitions don't feel
-  // robotically linear at the keypoints, but the keypoints themselves are exact.
-  function smoothstep(t) { return t * t * (3 - 2 * t); }
+     Wired to v7's REAL element ids (#services / #frameTrack /
+     #amberMask rect / dot-organize|unify|scale / textHero|Organize|
+     Unify|Scale / chaosMask1..16 / .amber-group). All coordinate
+     constants (VB 11885, amber start 4569, gaps 5064.62 / 7166.97,
+     end 11880; dot anchors 170.434 / 241.196 / 311.953 vw) MATCH the
+     prototype exactly — only the container CLASS mapping differs
+     (.frame-wrapper#services / .frame-sticky vs the prototype's
+     .pin-section / .frame-stage).
 
-  // Returns the amber mask width (viewBox units) for any scroll progress p.
-  function maskWidthForProgress(p) {
-    if (p <= AMBER_KEYS[0].p) return 0;
-    if (p >= AMBER_KEYS[AMBER_KEYS.length - 1].p) return MASK_W_FULL;
-    for (var i = 0; i < AMBER_KEYS.length - 1; i++) {
-      var a = AMBER_KEYS[i], b = AMBER_KEYS[i + 1];
-      if (p >= a.p && p <= b.p) {
-        var localT = (p - a.p) / (b.p - a.p);
-        var eased = smoothstep(localT);
-        return a.w + (b.w - a.w) * eased;
+     Self-contained IIFE — none of its locals leak into the page scope.
+     The dev-only "Step N/4" readout from the prototype is OMITTED.
+     Reduced-motion + small screens skip the hijack entirely; v7's OWN
+     vertical-stack CSS fallback renders in normal flow.
+     ------------------------------------------------------- */
+  (function () {
+    'use strict';
+
+    /* ---- TUNABLE FEEL PARAMETERS (prototype values, unchanged) ---- */
+    var STEP_DUR        = 3000;  // ms — each cinematic glide (steps 2-4). Step 1 uses CHAOS_LINES.
+    var STEP_COOLDOWN   = 520;   // ms — input lock AFTER a step settles
+    var ENGAGE_COOLDOWN = 480;   // ms — input lock right after the pin engages (swallows momentum fling)
+    var FWD_THRESHOLD   = 4;     // wheel deltaY past which a forward gesture counts
+    var UP_THRESHOLD    = 8;     // wheel -deltaY past which we release the pin upward
+    var TOUCH_FWD       = 34;    // px swipe-up to advance one step
+    var TOUCH_UP        = 28;    // px swipe-down to release upward
+    var REARM_IDLE      = 160;   // ms — forward wheel stream must go idle this long before the next step re-arms
+    var DOT_TEXT_AT     = 0.6;   // fraction through a glide when the incoming dot/text fades in
+
+    // easeInOutCubic — gentle ramp, sustained middle, long soft decel. Steps 2-4 only.
+    function ease(t) {
+      if (t >= 1) return 1;
+      if (t <= 0) return 0;
+      return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+    }
+
+    /* ---- STEP 1 — CHAOS LINE DRAW-IN (own multi-speed clock) ---- */
+    var CHAOS_LINES = [
+      { dur: 4200, delay: 120, ease: 'easeOut'     }, //  0
+      { dur: 2600, delay:   0, ease: 'easeOutQuad' }, //  1  (fast)
+      { dur: 4400, delay: 240, ease: 'linear'      }, //  2
+      { dur: 3400, delay:  80, ease: 'easeOut'     }, //  3
+      { dur: 4200, delay: 320, ease: 'easeOutQuad' }, //  4
+      { dur: 2900, delay:  40, ease: 'linear'      }, //  5  (fast)
+      { dur: 4500, delay: 180, ease: 'easeOut'     }, //  6  (slowest dur)
+      { dur: 3800, delay:   0, ease: 'easeOutExpo' }, //  7
+      { dur: 4300, delay: 420, ease: 'linear'      }, //  8
+      { dur: 2500, delay:  60, ease: 'easeOut'     }, //  9  (fastest)
+      { dur: 4100, delay: 200, ease: 'easeOutQuad' }, // 10
+      { dur: 3200, delay: 360, ease: 'linear'      }, // 11
+      { dur: 4400, delay: 100, ease: 'easeOut'     }, // 12
+      { dur: 4400, delay: 500, ease: 'linear'      }, // 13  (latest finish)
+      { dur: 3000, delay: 140, ease: 'easeOutQuad' }, // 14
+      { dur: 4000, delay: 280, ease: 'easeOut'     }  // 15
+    ];
+    var CHAOS_EASE = {
+      linear:      function (t) { return t; },
+      easeOut:     function (t) { return 1 - Math.pow(1 - t, 3); },
+      easeOutQuad: function (t) { return 1 - (1 - t) * (1 - t); },
+      easeOutExpo: function (t) { return t >= 1 ? 1 : 1 - Math.pow(2, -10 * t); }
+    };
+    // BACKGROUND-finish time = slowest line (delay + dur). Does NOT gate the ready state.
+    var CHAOS_TOTAL = (function () {
+      var m = 0;
+      for (var ci = 0; ci < CHAOS_LINES.length; ci++) {
+        var end = CHAOS_LINES[ci].delay + CHAOS_LINES[ci].dur;
+        if (end > m) m = end;
+      }
+      return m;
+    })();
+    // READY GATE — Step 1 becomes "settled / ready" at this time, DECOUPLED from CHAOS_TOTAL.
+    var CHAOS_READY_AT = 1500;
+
+    /* ---- ELEMENT REFS (v7 ids) ---- */
+    var pinSection   = document.getElementById('services');     // .frame-wrapper section (now 100vh)
+    var frameTrack   = document.getElementById('frameTrack');
+    var amberGroup   = document.querySelector('.amber-group');
+    var amberMaskRect= document.querySelector('#amberMask rect');
+    var scrollHint   = document.getElementById('frameScrollHint');
+    var textHero     = document.getElementById('textHero');
+    var textOrganize = document.getElementById('textOrganize');
+    var textUnify    = document.getElementById('textUnify');
+    var textScale    = document.getElementById('textScale');
+    var dotOrganize  = document.getElementById('dot-organize');
+    var dotUnify     = document.getElementById('dot-unify');
+    var dotScale     = document.getElementById('dot-scale');
+
+    if (!pinSection || !frameTrack) return; // section absent -> nothing to drive
+
+    var chaosMaskRects = [];
+    for (var i = 1; i <= 16; i++) {
+      var mk = document.getElementById('chaosMask' + i);
+      chaosMaskRects.push(mk ? mk.querySelector('rect') : null);
+    }
+
+    /* ---- COORDINATE CONSTANTS (identical to v7's old drive + prototype) ---- */
+    var VB_WIDTH = 11885;
+    var AMBER_START_X   = 4569;
+    var GAP_ORGANIZE_X  = 5064.62;
+    var GAP_UNIFY_X     = 7166.97;
+    var AMBER_END_X     = 11880;
+    var MASK_W_ORGANIZE = GAP_ORGANIZE_X - AMBER_START_X; // ~495.62
+    var MASK_W_UNIFY    = GAP_UNIFY_X    - AMBER_START_X; // ~2597.97
+    var MASK_W_FULL     = AMBER_END_X    - AMBER_START_X; // ~7311
+
+    // translateX (vw) centring each anchor: trackX = 50 - anchorLeft_vw.
+    // anchors: Organize 170.434vw, Unify 241.196vw, Scale 311.953vw.
+    var STEPS = [
+      { trackX: 0,          amberW: 0 },                         // 0: origin (hero only)
+      { trackX: 0,          amberW: 0,           chaos: true },  // 1: chaos draws in
+      { trackX: -120.434,   amberW: MASK_W_ORGANIZE },           // 2: Organize
+      { trackX: -191.196,   amberW: MASK_W_UNIFY },              // 3: Unify
+      { trackX: -261.953,   amberW: MASK_W_FULL }                // 4: Scale (full resolve)
+    ];
+
+    /* ---- RUNTIME STATE ---- */
+    var currentStep      = 0;
+    var isAnimating      = false;
+    var cooldownUntil    = 0;
+    var engaged          = false;
+    var completedForward = false;
+    var pinnedY          = 0;
+    var scrollLocked     = false;   // true while <body> is position:fixed (hard pin)
+    var rafId            = null;    // rAF handle for the Step 2-4 cinematic glide
+    var chaosRafId       = null;    // SEPARATE rAF handle for the Step-1 chaos draw
+    var touchStartY      = 0;
+    var armed            = true;    // forward GESTURE GATE; consumed on fire, re-arms on input SETTLE
+    var lastFwdWheelTime = -1e9;
+    var anim             = { trackX: 0, amberW: 0 };
+    var reduced          = false;
+    var hintShown        = false;   // mirrors the hint's .is-visible class
+    var hintOnLight      = false;   // mirrors the hint's .on-light class
+    var hintRafId        = null;    // SEPARATE rAF handle for the always-on hint poll
+
+    /* ---- VISUAL HELPERS ---- */
+    function setTrack(x) { frameTrack.style.transform = 'translateX(' + x + 'vw)'; }
+    function setAmber(w) { if (amberMaskRect) amberMaskRect.setAttribute('width', w); }
+    function chaosFull() { for (var k = 0; k < 16; k++) if (chaosMaskRects[k]) chaosMaskRects[k].setAttribute('width', VB_WIDTH); }
+
+    // STEP 1 driver — each line on its own rAF clock (own dur/delay/ease) on chaosRafId.
+    // Fires onComplete (settleStep) ONCE at CHAOS_READY_AT; keeps drawing slow tails in the
+    // background until CHAOS_TOTAL, then chaosFull() snaps any remainder and stops the loop.
+    function runChaosDraw(onComplete) {
+      var start = performance.now();
+      var settledFired = false;
+      function frame(now) {
+        var elapsed = now - start;
+        for (var k = 0; k < 16; k++) {
+          var r = chaosMaskRects[k]; if (!r) continue;
+          var cfg = CHAOS_LINES[k] || { dur: STEP_DUR, delay: 0, ease: 'easeOut' };
+          var lt = (elapsed - cfg.delay) / cfg.dur;
+          if (lt < 0) lt = 0; else if (lt > 1) lt = 1;
+          var efn = CHAOS_EASE[cfg.ease] || CHAOS_EASE.easeOut;
+          r.setAttribute('width', VB_WIDTH * efn(lt));
+        }
+        if (!settledFired && elapsed >= CHAOS_READY_AT) {
+          settledFired = true;
+          onComplete();          // settleStep -> isAnimating=false, cooldown, re-arm gate
+        }
+        if (elapsed < CHAOS_TOTAL) {
+          chaosRafId = requestAnimationFrame(frame);
+        } else {
+          chaosFull();
+          chaosRafId = null;
+        }
+      }
+      chaosRafId = requestAnimationFrame(frame);
+    }
+
+    function revealStage(step) {
+      if (step === 2) { dotOrganize.classList.add('active'); textOrganize.classList.add('revealed'); }
+      else if (step === 3) { dotUnify.classList.add('active'); textUnify.classList.add('revealed'); }
+      else if (step === 4) { dotScale.classList.add('active'); textScale.classList.add('revealed'); }
+    }
+
+    /* ---- DECLARATIVE HINT VISIBILITY — single source of truth ----
+       Always-running poll derives the scroll-to-continue hint's class state from
+       runtime STATE every frame, so the hint is correct on EVERY path (including the
+       Step-1 chaos draw -> Step 2 handoff). Classes mutate only when the desired state
+       differs, so the 0.5s opacity transition never restarts. */
+    function updateHint() {
+      var shouldShow = engaged && !isAnimating && !completedForward &&
+                       currentStep < 4 && performance.now() >= cooldownUntil;
+      if (shouldShow !== hintShown) {
+        hintShown = shouldShow;
+        if (scrollHint) scrollHint.classList.toggle('is-visible', shouldShow);
+      }
+      var onLight = currentStep <= 1; // navy copy over the white panel-1 (steps 0-1)
+      if (onLight !== hintOnLight) {
+        hintOnLight = onLight;
+        if (scrollHint) scrollHint.classList.toggle('on-light', onLight);
       }
     }
-    return 0;
-  }
-
-  function setupFrame() {
-    isMobile = window.innerWidth <= 900;
-
-    if (isMobile) {
-      // Mobile: stack panels, no horizontal scroll, no SVG
-      frameWrapper.style.height = 'auto';
-      frameTrack.style.transform = 'none';
-      framePanels.forEach(function(p) { p.classList.add('active'); });
-      // Reveal nothing on the SVG (it's display:none on mobile)
-      return;
+    function tickHint() {
+      updateHint();
+      hintRafId = requestAnimationFrame(tickHint); // runs for the life of the page (cheap)
     }
 
-    // Desktop: use the full 600vh wrapper for scroll runway
-    frameWrapper.style.height = '600vh';
-  }
-
-  // Easing: ease-in for first 12% of scroll to soften the entry
-  function easeProgress(t) {
-    if (t < 0.12) {
-      var n = t / 0.12;
-      return 0.12 * (n * n);
+    /* ---- STEP ENGINE ---- */
+    function canForward() {
+      return engaged && !isAnimating && !completedForward &&
+             currentStep < 4 && performance.now() >= cooldownUntil;
     }
-    return t;
-  }
 
-  // Smooth scroll progress with lerp
-  var currentProgress = 0;
-  var lerpFactor = 0.13;
+    // SHARED POST-STEP SETTLE — single source of truth for any step coming to rest.
+    // Both the Step-1 chaos draw and the Step 2-4 glide call THIS, so completion can't drift.
+    function settleStep() {
+      revealStage(currentStep);            // show this step's dot + text (no-op for Step 1)
+      isAnimating = false;
+      cooldownUntil = performance.now() + STEP_COOLDOWN;
+      armed = false;                       // re-arms only on input SETTLE (see onWheel)
+      lastFwdWheelTime = performance.now();
+      if (currentStep >= 4) {
+        completeForward();                 // final step: release the pin
+      }
+      // Hint reappearance is governed by the declarative poll (updateHint).
+    }
 
-  function handleFrameScroll() {
-    if (isMobile) return;
+    function advanceStep() {
+      if (!canForward()) return;
+      armed = false;                       // consume this gesture
+      // Leaving Step 1 while its chaos visual is still drawing slow tails in the
+      // BACKGROUND (chaosRafId != null): cancel that loop + snap every line complete.
+      if (chaosRafId) { cancelAnimationFrame(chaosRafId); chaosRafId = null; chaosFull(); }
+      currentStep++;
+      isAnimating = true;
 
-    var rect = frameWrapper.getBoundingClientRect();
-    var scrollable = frameWrapper.offsetHeight - window.innerHeight;
-    var raw = Math.max(0, Math.min(1, -rect.top / scrollable));
+      var target = STEPS[currentStep];
 
-    if (rect.bottom < 0 || rect.top > window.innerHeight) return;
+      // STEP 1 — chaos draw runs on its OWN multi-speed clock; isAnimating is cleared
+      // by settleStep at CHAOS_READY_AT (~1.5s), NOT when the slowest line finishes.
+      if (target.chaos) {
+        runChaosDraw(settleStep);
+        return;
+      }
 
-    currentProgress += (raw - currentProgress) * lerpFactor;
-    if (Math.abs(raw - currentProgress) < 0.001) currentProgress = raw;
+      var fromX = anim.trackX, fromA = anim.amberW;
+      var toX = target.trackX, toA = target.amberW;
+      if (currentStep >= 2 && amberGroup) amberGroup.classList.add('revealed');
 
-    var eased = easeProgress(currentProgress);
+      var fired = false;
+      var start = performance.now();
 
-    // Horizontal slide: 4 panels = 400vw, translate 300vw worth at full progress
-    var maxTranslate = frameTrack.scrollWidth - window.innerWidth;
-    frameTrack.style.transform = 'translateX(' + (-eased * maxTranslate) + 'px)';
+      function frame(now) {
+        var t = (now - start) / STEP_DUR;
+        if (t > 1) t = 1;
+        var e = ease(t);
 
-    // Active panel detection (4 panels split into 0-0.25, 0.25-0.5, 0.5-0.75, 0.75-1)
-    var panelIndex = 0;
-    if (currentProgress >= 0.75) panelIndex = 3;
-    else if (currentProgress >= 0.5) panelIndex = 2;
-    else if (currentProgress >= 0.25) panelIndex = 1;
+        anim.trackX = fromX + (toX - fromX) * e;
+        anim.amberW = fromA + (toA - fromA) * e;
+        setTrack(anim.trackX);
+        setAmber(anim.amberW);
 
-    framePanels.forEach(function(panel, i) {
-      panel.classList.toggle('active', i <= panelIndex);
+        if (!fired && t >= DOT_TEXT_AT) { fired = true; revealStage(currentStep); }
+
+        if (t < 1) {
+          rafId = requestAnimationFrame(frame);
+        } else {
+          anim.trackX = toX; anim.amberW = toA; setTrack(toX); setAmber(toA);
+          settleStep();
+        }
+      }
+      rafId = requestAnimationFrame(frame);
+    }
+
+    function completeForward() {
+      completedForward = true;
+      engaged = false;        // release downward — native scroll flows to social proof
+      unlockScroll();         // drop the body lock + restore exact position
+    }
+
+    /* ---- PIN ENGAGE / RELEASE — HARD SCROLL LOCK ----
+       On engage <body> is position:fixed; top:-pinnedY so the page physically cannot
+       scroll (native momentum has nothing to fight = no shake). scrollbar-gutter:stable
+       (CSS) keeps width constant = no horizontal shift; the exact pre-lock position is
+       restored on release = no vertical jump. The site nav is position:fixed (viewport-
+       relative) and is a sibling of the locked content, so the body-lock does NOT move it. */
+    function lockScroll() {
+      if (scrollLocked) return;
+      var b = document.body;
+      b.style.position = 'fixed';
+      b.style.top      = (-pinnedY) + 'px';
+      b.style.left     = '0';
+      b.style.right    = '0';
+      b.style.width    = '100%';
+      scrollLocked = true;
+    }
+    function unlockScroll() {
+      if (!scrollLocked) return;
+      var b = document.body;
+      b.style.position = '';
+      b.style.top      = '';
+      b.style.left     = '';
+      b.style.right    = '';
+      b.style.width    = '';
+      scrollLocked = false;
+      // Restore the EXACT pre-lock position INSTANTLY. The shared CSS sets
+      // `html { scroll-behavior: smooth }` for nav anchors; without neutralizing it,
+      // clearing position:fixed snaps the doc to top then scrollTo glides back down
+      // (the owner-reported "bounce up then back down"). Force instant just for this
+      // restore, then put the prior scroll-behavior back so nav links stay smooth.
+      var de = document.documentElement;
+      var prevBehavior = de.style.scrollBehavior;
+      de.style.scrollBehavior = 'auto';
+      try {
+        window.scrollTo({ top: pinnedY, left: 0, behavior: 'instant' });
+      } catch (e) {
+        window.scrollTo(0, pinnedY); // older browsers: no options object
+      }
+      de.style.scrollBehavior = prevBehavior; // restore (smooth nav anchors unaffected)
+    }
+
+    function engage() {
+      if (engaged) return;
+      engaged = true;
+      // Lock at the ACTUAL current scroll offset so position:fixed moves nothing.
+      pinnedY = window.pageYOffset || document.documentElement.scrollTop || 0;
+      lockScroll();
+      cooldownUntil = performance.now() + ENGAGE_COOLDOWN; // swallow the entry fling
+      armed = true;
+      lastFwdWheelTime = performance.now();
+      if (currentStep === 0 && textHero) { textHero.classList.add('revealed'); }
+    }
+
+    function releaseUp() {
+      if (!engaged) return;
+      engaged = false;
+      // HARDENING: cancel an in-flight glide so a re-engage never finds the engine
+      // stuck "animating". currentStep is LEFT where it is (re-engage continues).
+      if (isAnimating) {
+        if (rafId) { cancelAnimationFrame(rafId); rafId = null; }
+        isAnimating = false;
+      }
+      // Stop a still-running Step-1 chaos draw and snap the lines complete.
+      if (chaosRafId) { cancelAnimationFrame(chaosRafId); chaosRafId = null; chaosFull(); }
+      unlockScroll();         // unlock + restore exact position; page scrolls freely upward
+    }
+
+    function onScroll() {
+      if (reduced) return;
+      if (engaged) return;            // locked: nothing can drift
+      if (completedForward) return;   // forward done -> never re-pins
+      var top = pinSection.getBoundingClientRect().top;
+      if (top <= 0 && currentStep < 4) engage();
+    }
+
+    /* ---- INPUT — wheel / touch / keyboard (forward-only triggered) ---- */
+    function onWheel(e) {
+      if (reduced || !engaged) return;          // not pinned -> native scroll
+      if (e.deltaY <= -UP_THRESHOLD) { releaseUp(); return; } // up-intent: release
+      e.preventDefault();                        // block native scroll while pinned
+      if (e.deltaY >= FWD_THRESHOLD) {
+        var now = performance.now();
+        // RE-ARM ON SETTLE: a continuous flick keeps the gap small (never re-arms mid-
+        // gesture, can't skip steps); a fresh down gesture arrives after REARM_IDLE idle.
+        if (!armed && (now - lastFwdWheelTime) >= REARM_IDLE) armed = true;
+        lastFwdWheelTime = now;
+        if (armed) advanceStep();                // advanceStep consumes `armed` on a real fire
+      }
+    }
+
+    function onTouchStart(e) { touchStartY = e.touches[0].clientY; armed = true; } // new touch = new gesture
+    function onTouchMove(e) {
+      if (reduced || !engaged) return;
+      var y = e.touches[0].clientY;
+      var dy = touchStartY - y;                  // +ve = swipe up = forward
+      if (dy <= -TOUCH_UP) { releaseUp(); return; }
+      e.preventDefault();
+      if (dy >= TOUCH_FWD) { touchStartY = y; if (armed) advanceStep(); } // one swipe = one step
+    }
+
+    function onKey(e) {
+      if (reduced || !engaged) return;
+      if (e.key === 'ArrowDown' || e.key === ' ' || e.key === 'Spacebar' || e.key === 'PageDown') {
+        e.preventDefault(); advanceStep();
+      } else if (e.key === 'ArrowUp' || e.key === 'PageUp') {
+        releaseUp();                             // let the browser scroll up natively
+      }
+    }
+
+    /* ---- REDUCED MOTION / SMALL SCREEN — no hijack at all ---- */
+    function evalReduced() {
+      var prefers = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      var small   = window.innerWidth <= 900;
+      return prefers || small;
+    }
+
+    function init() {
+      reduced = evalReduced();
+      if (reduced) {
+        // v7's OWN vertical-stack CSS fallback (mobile + reduced) renders in normal
+        // flow; attach no hijack handlers, snap nothing (the SVG/dots/text are display:none).
+        return;
+      }
+      window.addEventListener('scroll', onScroll, { passive: true });
+      window.addEventListener('wheel', onWheel, { passive: false });
+      window.addEventListener('touchstart', onTouchStart, { passive: true });
+      window.addEventListener('touchmove', onTouchMove, { passive: false });
+      window.addEventListener('keydown', onKey);
+      hintRafId = requestAnimationFrame(tickHint); // start the declarative hint poll
+      onScroll(); // in case the page loads already scrolled into the section
+    }
+
+    window.addEventListener('resize', function () {
+      // If motion preference / breakpoint flips to reduced after load, fall back cleanly.
+      if (!reduced && evalReduced()) {
+        reduced = true;
+        if (engaged) { engaged = false; unlockScroll(); } // drop the hard lock first
+        if (rafId) { cancelAnimationFrame(rafId); rafId = null; }
+        if (chaosRafId) { cancelAnimationFrame(chaosRafId); chaosRafId = null; }
+        isAnimating = false;
+      }
+      // While engaged the body is position:fixed; pinnedY stays authoritative (not recomputed).
     });
 
-    // ===== Chaos / amber / dot reveals (skipped if reduced motion) =====
-    if (!prefersReduced) {
-      // Chaos line reveal (panel 1 region: progress 0 to ~0.28)
-      var chaosWindow = 0.28;
-      chaosMaskRects.forEach(function(rect, idx) {
-        if (!rect) return;
-        var t = chaosTimings[idx];
-        var drawStart = t.start * chaosWindow;
-        var drawDuration = (chaosWindow - drawStart) / t.speed;
-        var drawEnd = Math.min(chaosWindow, drawStart + drawDuration);
-
-        var lineProgress = 0;
-        if (currentProgress >= drawStart && currentProgress <= drawEnd) {
-          lineProgress = (currentProgress - drawStart) / (drawEnd - drawStart);
-        } else if (currentProgress > drawEnd) {
-          lineProgress = 1;
-        }
-        rect.setAttribute('width', VB_WIDTH * lineProgress);
-      });
-
-      // ===== Amber line reveal — scroll-locked to panel boundaries =====
-      // The line "draws toward" each gap and arrives there exactly as the
-      // corresponding panel becomes fully active. Each dot fades in the
-      // moment the line's mask edge crosses that dot's gap center.
-      var maskWidth = maskWidthForProgress(currentProgress);
-      if (amberMaskRect) {
-        amberMaskRect.setAttribute('width', maskWidth);
-      }
-      // Group opacity: visible from the moment the line begins drawing
-      // (just before panel 2 enters) so the first stroke isn't a pop-in.
-      if (amberGroup) {
-        amberGroup.classList.toggle('revealed', currentProgress >= 0.18);
-      }
-
-      // ===== Dots fade in as the line ARRIVES at their gap =====
-      // Trigger thresholds = the mask widths required to reach each gap.
-      // A small lead (4 viewBox units) lets the dot start fading in just
-      // as the line tip touches the left edge of the gap, so by the time
-      // the mask reaches the gap center the dot has fully appeared.
-      // (Position-based — auto-adjusts to any AMBER_KEYS schedule.)
-      var DOT_LEAD = 4;
-      var dotMaskTriggers = [
-        MASK_W_ORGANIZE - DOT_LEAD,
-        MASK_W_UNIFY    - DOT_LEAD,
-        MASK_W_SCALE    - DOT_LEAD
-      ];
-      dotGroups.forEach(function(g, idx) {
-        g.classList.toggle('active', maskWidth >= dotMaskTriggers[idx]);
-      });
-
-      // ===== Live HTML text blocks — synced to the same triggers =====
-      // Hero text: visible early (during chaos reveal in panel 1).
-      // Step labels: same trigger as their dot (line arrives at gap center).
-      if (textHero) {
-        textHero.classList.toggle('revealed', currentProgress >= 0.04);
-      }
-      if (textOrganize) {
-        textOrganize.classList.toggle('revealed', maskWidth >= dotMaskTriggers[0]);
-      }
-      if (textUnify) {
-        textUnify.classList.toggle('revealed', maskWidth >= dotMaskTriggers[1]);
-      }
-      if (textScale) {
-        textScale.classList.toggle('revealed', maskWidth >= dotMaskTriggers[2]);
-      }
-    }
-  }
-
-  setupFrame();
-  window.addEventListener('resize', function() {
-    setupFrame();
-  });
-
-  // rAF loop driven by IntersectionObserver
-  var frameRafId = null;
-  var frameActive = false;
-
-  function startFrameLoop() {
-    if (!frameActive) {
-      frameActive = true;
-      frameLoop();
-    }
-  }
-  function stopFrameLoop() {
-    frameActive = false;
-    if (frameRafId) {
-      cancelAnimationFrame(frameRafId);
-      frameRafId = null;
-    }
-  }
-  function frameLoop() {
-    if (!frameActive) return;
-    handleFrameScroll();
-    frameRafId = requestAnimationFrame(frameLoop);
-  }
-
-  if ('IntersectionObserver' in window) {
-    var frameObserver = new IntersectionObserver(function(entries) {
-      entries.forEach(function(entry) {
-        if (entry.isIntersecting) {
-          startFrameLoop();
-        } else {
-          stopFrameLoop();
-          // Don't reset progress — let it persist so re-entry is smooth
-        }
-      });
-    }, { threshold: 0 });
-    frameObserver.observe(frameWrapper);
-  } else {
-    // Fallback: just always run
-    startFrameLoop();
-  }
-
-  // Reduced motion: skip the scroll-driven reveal, show end-state
-  if (prefersReduced) {
-    chaosMaskRects.forEach(function(r) { if (r) r.setAttribute('width', VB_WIDTH); });
-    if (amberMaskRect) amberMaskRect.setAttribute('width', AMBER_FULL_WIDTH);
-    if (amberGroup) amberGroup.classList.add('revealed');
-    dotGroups.forEach(function(g) { g.classList.add('active'); });
-    framePanels.forEach(function(p) { p.classList.add('active'); });
-    if (textHero)     textHero.classList.add('revealed');
-    if (textOrganize) textOrganize.classList.add('revealed');
-    if (textUnify)    textUnify.classList.add('revealed');
-    if (textScale)    textScale.classList.add('revealed');
-  }
+    init();
+  })();
 
 
   /* -------------------------------------------------------
@@ -3054,12 +3874,6 @@
 
 <!-- ============================================================
      SERVICE TILE GRID — interaction layer (v7 fork only)
-     Ported VERBATIM from the OneForm "Why OneForm" flip-card script.
-     Scoped to .svc-tiles-section .tile-link so it touches nothing else
-     on the page. Tiles use real .html hrefs, so the page's existing
-     a[href^="#"] smooth-scroll handler never intercepts them. On
-     desktop a click follows the link; on touch/narrow the first tap
-     flips and the "Learn more" link navigates on the second tap.
      ============================================================ -->
 <script>
   (function() {
@@ -3069,7 +3883,6 @@
     var firstCard = section.querySelector('#firstFlipCard');
     var flipCards = section.querySelectorAll('.tile-link');
 
-    // Stop the teach-once wiggle on the first card when ANY tile is hovered.
     if (firstCard) {
       flipCards.forEach(function(card) {
         card.addEventListener('mouseenter', function() {
@@ -3088,10 +3901,14 @@
       }
     }
 
+    // Batch 3: on touch / non-hover devices the tiles render as static stacked
+    // cards (all content visible), so we attach NO flip handlers at all — a tap
+    // falls straight through to the <a href>. Handlers only exist on hover+fine.
+    var isHoverDevice = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
     flipCards.forEach(function(card) {
+      if (!isHoverDevice) return;
       card.addEventListener('click', function(e) {
-        // Desktop pointer devices follow the link straight through.
-        if (window.innerWidth > 768 && !('ontouchstart' in window)) return;
+        if (window.matchMedia('(hover: hover) and (pointer: fine)').matches) return;
         e.preventDefault();
         flipHandler(card);
       });

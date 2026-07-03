@@ -443,6 +443,31 @@ a { color: inherit; text-decoration: none; }
 }
 
 
+/* ==========================================================================
+   CONDENSED DESKTOP BAND — narrow desktop windows that are still above the
+   1024px hamburger cutoff. CEILING = 1440px. This literal MUST stay in sync
+   with the mqBand matchMedia in every page's inline nav JS (CSS media queries
+   can't read a var(); keep the two 1440 literals adjacent in mind).
+   Two changes vs. wide desktop (>1440px):
+     (1) hide the "Request a Free Assessment" CTA to de-clutter the row;
+     (2) collapse the Services mega-menu to a plain link (its inline JS
+         redirects the click to index.html#service-tiles). The Resources
+         .mega--compact dropdown is only 2 items, so it is left fully intact.
+   The <=1024px hamburger/accordion block below is untouched by this band.
+   ========================================================================== */
+@media (min-width: 1025px) and (max-width: 1440px) {
+  /* (1) Hide the CTA in the band. */
+  .nav-cta { display: none; }
+
+  /* (2) Kill ONLY the Services dropdown: hide its panel + chevron so no
+     hover/focus-within reveal can fire and keyboard focus can't land in a
+     hidden menu. Scoped with :not(.nav-has-mega--compact) so the Resources
+     compact dropdown keeps its chevron + panel. */
+  .nav-has-mega:not(.nav-has-mega--compact) .mega { display: none; }
+  .nav-has-mega:not(.nav-has-mega--compact) .nav-mega-chevron { display: none; }
+}
+
+
 /* Nav collapses to hamburger at <=1024px (per OneForm reference) */
 @media (max-width: 1024px) {
   .nav {
@@ -535,27 +560,33 @@ a { color: inherit; text-decoration: none; }
   .mega::before { display: none; }   /* no hover bridge on mobile */
 
   .mega-inner {
-    padding: 1rem 2rem 1.5rem;
+    padding: 0.5rem 2rem 1rem;
   }
-  .mega-eyebrow {
-    margin-bottom: 1rem;
+  /* Mobile simplification: flatten the 3 phase columns (Organize / Unify /
+     Scale) into ONE compact single-column list. Hide the eyebrow, phase
+     headers and phase descriptions so the service links read as a single
+     indented list under the trigger. (Desktop mega is untouched — these
+     overrides live only in this <=1024px block.) */
+  .mega-eyebrow,
+  .mega-col-title,
+  .mega-col-desc {
+    display: none;
   }
   .mega-cols {
     grid-template-columns: 1fr;
-    gap: 1.5rem;
-    margin-bottom: 1rem;
-  }
-  .mega-col-desc {
-    padding-bottom: 0.6rem;
-    margin-bottom: 0.5rem;
+    gap: 0;
+    margin-bottom: 0.25rem;
   }
   .mega-col-list a {
-    padding: 0.65rem 0.75rem 0.65rem 0.75rem;
+    display: flex;
+    align-items: center;
+    min-height: 44px;        /* comfortable tap target */
+    padding: 0.55rem 0.75rem;
     border-bottom: none;     /* override the inherited .nav-links a border-bottom */
     font-size: 0.95rem;
   }
   .mega-overview-link {
-    margin-top: 0.5rem;
+    margin-top: 0.25rem;
   }
 
   /* Compact (Resources) dropdown on mobile: drop the desktop narrow/left
@@ -576,7 +607,10 @@ a { color: inherit; text-decoration: none; }
     padding: 0.5rem 2rem 1rem;
   }
   .mega-simple-list a {
-    padding: 0.65rem 0.75rem;
+    display: flex;
+    align-items: center;
+    min-height: 44px;        /* comfortable tap target */
+    padding: 0.55rem 0.75rem;
     font-size: 0.95rem;
     border-bottom: none;     /* override inherited .nav-links a border */
     white-space: normal;

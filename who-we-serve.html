@@ -4,10 +4,12 @@
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>SyTech Solutions — Who We Serve</title>
-<meta name="description" content="SyTech serves California school districts, county offices of education, and other public agencies — meeting them where they are, paper or already digital."/>
+<meta name="description" content="California's public agencies have trusted SyTech with over 100 million pages of records. We modernize school districts, county offices, and public agencies."/>
 <link rel="stylesheet" href="assets/css/sytech-shared.css">
+<!-- Three.js r147 for the Earth-Wrap hero photo globe (self-hosted from assets/ at promotion) -->
+<script src="assets/js/three.min.js"></script>
 <style>
-.page-hero { padding: 11rem 0 5rem; background: linear-gradient(175deg, var(--deep-navy) 0%, var(--navy) 60%, #2d5080 100%); position: relative; overflow: hidden; color: var(--white); }
+.page-hero { padding: 9.5rem 0 3rem; background: linear-gradient(175deg, var(--deep-navy) 0%, var(--navy) 60%, #2d5080 100%); position: relative; overflow: hidden; color: var(--white); }
 .page-hero::after { content: ''; position: absolute; inset: 0; background-image: radial-gradient(rgba(255,255,255,0.04) 1px, transparent 1px); background-size: 24px 24px; pointer-events: none; }
 .page-hero .eyebrow { display: inline-block; font-size: 0.7rem; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; color: var(--gold); margin-bottom: 1rem; }
 .page-hero h1 { font-size: clamp(2rem, 4.5vw, 3.2rem); font-weight: 700; line-height: 1.15; margin-bottom: 1.25rem; letter-spacing: -0.01em; }
@@ -40,12 +42,16 @@
 .logo-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 2.5rem 2rem; align-items: center; justify-items: center; max-width: 1080px; margin: 0 auto; }
 .logo-cell { width: 100%; max-width: 160px; height: 72px; display: flex; align-items: center; justify-content: center; padding: 0 0.5rem; }
 .logo-cell img { max-width: 100%; max-height: 100%; width: auto; height: auto; object-fit: contain; filter: grayscale(100%); opacity: 0.55; transition: filter 0.3s ease, opacity 0.3s ease; }
-.logo-cell:hover img { filter: grayscale(0%); opacity: 1; }
+@media (hover: hover) and (pointer: fine) {
+  .logo-cell:hover img { filter: grayscale(0%); opacity: 1; }
+}
 /* Per-logo optical nudges — equalize footprint across mixed aspect ratios + tune washed-out marks */
 .logo-cell img[src*="yolo_logo"] { max-height: 64%; }   /* near-square + heavy — shrink to sit uniformly */
 .logo-cell img[src*="cnra"]      { max-height: 78%; }   /* tall seal-style mark — size down */
 .logo-cell img[src*="dgs"]       { opacity: 0.72; }     /* light-gray wordmark — opacity bump for legibility (per spec §7.1) */
-.logo-cell:hover img[src*="dgs"] { opacity: 1; }
+@media (hover: hover) and (pointer: fine) {
+  .logo-cell:hover img[src*="dgs"] { opacity: 1; }
+}
 
 /* ===== Case Study Cards — ROOMY 2-column layout ===== */
 .case-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 2rem; margin-top: 2rem; }
@@ -72,7 +78,9 @@
 .case-metrics .metric .m-num { font-size: 0.95rem; font-weight: 700; color: var(--navy); letter-spacing: -0.01em; }
 .case-metrics .metric .m-label { font-size: 0.68rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--gold); }
 .section.alt .case-card { background: var(--white); }
-.case-card:hover { transform: translateY(-4px); box-shadow: 0 8px 24px rgba(37, 66, 107, 0.10); }
+@media (hover: hover) and (pointer: fine) {
+  .case-card:hover { transform: translateY(-4px); box-shadow: 0 8px 24px rgba(37, 66, 107, 0.10); }
+}
 .case-card .case-client {
   display: block; font-size: 0.7rem; font-weight: 700;
   letter-spacing: 0.16em; color: var(--gold); margin-bottom: 0.6rem;
@@ -145,11 +153,151 @@
 .btn-primary { display: inline-block; padding: 0.85rem 2rem; background: var(--gold); color: var(--deep-navy); font-size: 0.95rem; font-weight: 700; border-radius: 6px; text-decoration: none; transition: all 0.3s; border: none; cursor: pointer; }
 .btn-primary:hover { background: #d4952a; transform: translateY(-2px); box-shadow: 0 6px 20px rgba(229,166,48,0.35); }
 
+/* ============================================================
+   EARTH-WRAP SCALE HERO — two-column layout + graphic
+   Integrated ISOLATED from whoweserve-earthwrap-hero-prototype-v1.html.
+   Everything graphic-side is NAMESPACE-SCOPED under .hero-earth; nothing
+   here is added to the shared stylesheet. The dark-glass tokens are LOCAL
+   to .hero-earth so they cannot leak into shared CSS.
+   ============================================================ */
+
+/* Two-column hero: real page copy left (~57%), Earth graphic right (~43%).
+   Grid is layered onto the shared .container (max-width/margin/padding kept). */
+.page-hero .container {
+  display: grid;
+  grid-template-columns: minmax(0, 1.33fr) minmax(0, 1fr);
+  align-items: center;
+  gap: clamp(2rem, 5vw, 4.5rem);
+}
+.hero-copy { position: relative; z-index: 1; }
+.page-hero .hero-copy .lead { max-width: 46ch; } /* tighter measure inside the narrower column */
+
+/* Right column: graphic stage + REQUIRED methodology caption/kicker */
+.hero-graphic {
+  position: relative; z-index: 1;
+  display: flex; flex-direction: column; align-items: center;
+}
+.hero-graphic-caption {
+  margin: 1.25rem 0 0; max-width: 44ch; text-align: center;
+  font-size: 0.8rem; line-height: 1.6; color: #C5CDD8;
+}
+.hero-graphic-kicker {
+  margin: 0.75rem 0 0; max-width: 42ch; text-align: center;
+  font-size: 0.72rem; line-height: 1.5; color: rgba(197, 205, 216, 0.75);
+}
+
+/* ---- THE GRAPHIC — every rule scoped under .hero-earth ---- */
+.hero-earth {
+  /* dark-glass panel tokens (LOCAL here, NOT in shared CSS) */
+  --panel-fill: rgba(19, 39, 67, 0.85);        /* 85%-opaque navy carries the contrast */
+  --panel-border: rgba(255, 255, 255, 0.14);
+  --panel-border-top: rgba(255, 255, 255, 0.22);
+  --panel-shadow: 0 16px 40px rgba(0, 0, 0, 0.38);
+  --panel-inset: inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  --ew-gold: #E5A630;
+  --ew-soft: #C5CDD8;
+
+  position: relative;
+  width: min(400px, 100%);
+  aspect-ratio: 1 / 1;
+  margin: 0 auto;
+  /* Batch 4: lock text-selection/long-press-copy on the graphic itself — SVG poster
+     sphere, photo globe, trail, and the two callout cards (volume + badge). The
+     methodology caption/kicker below sit OUTSIDE .hero-earth and stay selectable
+     prose, as does the audience / case-study page content. Keep an arrow cursor. */
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+  cursor: default;
+}
+.hero-earth__stage { position: absolute; inset: 0; }
+.hero-earth__poster,
+.hero-earth__globe,
+.hero-earth__trail {
+  position: absolute; inset: 0; width: 100%; height: 100%; display: block;
+}
+/* photo globe starts hidden; JS fades it in over the SVG poster sphere on
+   texture load. If WebGL/texture never arrives it stays hidden and the SVG
+   poster sphere is what you see. */
+.hero-earth__globe { opacity: 0; transition: opacity 0.8s ease; }
+
+/* gold orbit line — restrained luminous halo */
+.hero-earth__trail-line {
+  filter: drop-shadow(0 0 6px rgba(229, 166, 48, 0.45));
+}
+
+/* --- dark-glass cards --- */
+.hero-earth__card {
+  position: absolute;
+  background: var(--panel-fill);
+  border: 1px solid var(--panel-border);
+  border-top-color: var(--panel-border-top);
+  border-radius: 14px;
+  box-shadow: var(--panel-shadow), var(--panel-inset);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);           /* pure polish; contrast comes from the fill */
+}
+
+/* Card A — Volume callout (visible throughout; number counts up) */
+.hero-earth__card--volume {
+  top: -13%; right: 0%;
+  padding: 16px 20px;
+  display: flex; flex-direction: column; gap: 3px;
+  animation: ewFloat 6s ease-in-out infinite;
+}
+.hero-earth__num {
+  font-size: 26px; font-weight: 700; letter-spacing: -0.02em;
+  color: #FFFFFF; font-variant-numeric: tabular-nums; line-height: 1.05;
+  white-space: nowrap;
+}
+.hero-earth__sub {
+  font-size: 12.5px; line-height: 1.35; color: var(--ew-soft);
+  max-width: 20ch;
+}
+
+/* Card B — Badge (the single gold accent among the cards; fades in on finish) */
+.hero-earth__card--badge {
+  bottom: 8%; left: -31%;
+  padding: 14px 18px;
+  display: flex; align-items: center; gap: 12px;
+  opacity: 1; transform: translateY(0);   /* default = finished poster (visible) */
+  transition: opacity 0.6s ease, transform 0.6s ease;
+}
+.hero-earth__card--badge.is-hidden { opacity: 0; transform: translateY(10px); }
+.hero-earth__badge-num {
+  font-size: 28px; font-weight: 700; color: var(--ew-gold);
+  letter-spacing: -0.01em; font-variant-numeric: tabular-nums; white-space: nowrap;
+}
+.hero-earth__badge-label {
+  font-size: 13px; line-height: 1.4; color: var(--ew-soft); max-width: 14ch;
+}
+
+@keyframes ewFloat { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-4px); } }
+
 @media (max-width: 900px) {
-  .page-hero { padding: 9rem 0 4rem; }
+  .page-hero { padding: 8rem 0 3rem; }
   .section { padding: 3.5rem 0; }
   .persona-grid { grid-template-columns: 1fr; gap: 1.5rem; }
   .compare-table { overflow-x: auto; }
+  /* Earth-Wrap hero stacks: copy on top, graphic (~340px) below */
+  .page-hero .container { grid-template-columns: 1fr; gap: 2.5rem; }
+  .hero-copy { order: 1; }
+  .hero-graphic { order: 2; }
+  .hero-earth { width: min(340px, 100%); }
+  .hero-earth__num { font-size: 22px; }
+  .hero-earth__badge-num { font-size: 24px; }
+  .hero-earth__sub { font-size: 12px; }
+  .hero-earth__badge-label { font-size: 12px; }
+  /* keep the floated cards on-stage at ≤900px — the desktop negative offsets
+     (top:-13% / left:-31%) would shove them off the ~340px stacked stage */
+  .hero-earth__card--volume { top: 4%; right: 2%; }
+  .hero-earth__card--badge  { bottom: 12%; left: 0%; }
+}
+
+/* Earth-Wrap hero: honor reduced-motion (land on the finished poster) */
+@media (prefers-reduced-motion: reduce) {
+  .hero-earth__card--volume { animation: none; }
+  .hero-earth__globe { transition: none; }
 }
 </style>
 </head>
@@ -261,9 +409,99 @@
 
 <section class="page-hero">
   <div class="container">
-    <span class="eyebrow">Who We Serve</span>
-    <h1>Built for the <span>Public Sector.</span></h1>
-    <p class="lead">SyTech serves California school districts, county offices of education, and other public agencies — from small departments to county-scale operations. We meet you where you are, whether that means paper file rooms or e-forms tools that have outgrown their usefulness.</p>
+
+    <!-- LEFT: real page hero copy (verbatim from the canonical page) -->
+    <div class="hero-copy">
+      <span class="eyebrow">Who We Serve</span>
+      <h1>Built for the <span>Public Sector.</span></h1>
+      <p class="lead">California's public agencies have trusted SyTech with over 100 million pages of their records. We serve school districts, county offices of education, and other public agencies — from small departments to county-scale operations. We meet you where you are, whether that means paper file rooms or e-forms tools that have outgrown their usefulness.</p>
+    </div>
+
+    <!-- RIGHT: Earth-Wrap Scale graphic — integrated ISOLATED from
+         whoweserve-earthwrap-hero-prototype-v1.html. All IDs are ew*-prefixed
+         (document-global-safe); classes are .hero-earth-scoped; JS is in an
+         IIFE before </body>. -->
+    <div class="hero-graphic">
+      <div class="hero-earth" id="ew-graphic" role="img"
+           aria-label="Scale diagram: over 100 million public-record pages entrusted to SyTech, laid end to end, reach about 70 percent of the way around Earth's equator.">
+        <div class="hero-earth__stage">
+
+          <!-- Layer 1: SVG poster sphere + cyan atmosphere halo (the no-WebGL globe) -->
+          <svg class="hero-earth__poster" viewBox="0 0 560 560" aria-hidden="true">
+            <defs>
+              <radialGradient id="ewGlobeShade" cx="36%" cy="30%" r="80%">
+                <stop offset="0%" stop-color="#2E5C9E"></stop>
+                <stop offset="55%" stop-color="#123663"></stop>
+                <stop offset="100%" stop-color="#081F3D"></stop>
+              </radialGradient>
+              <!-- Cole dark-mode atmosphere halo: bright cyan limb so the globe
+                   separates from the navy stage -->
+              <radialGradient id="ewGlobeGlow" cx="50%" cy="50%" r="50%">
+                <stop offset="0%"  stop-color="#5AA9E6" stop-opacity="0"></stop>
+                <stop offset="74%" stop-color="#5AA9E6" stop-opacity="0"></stop>
+                <stop offset="88%" stop-color="#7FC4F0" stop-opacity="0.55"></stop>
+                <stop offset="100%" stop-color="#7FC4F0" stop-opacity="0"></stop>
+              </radialGradient>
+            </defs>
+            <circle cx="280" cy="280" r="230" fill="url(#ewGlobeGlow)"></circle>
+            <circle cx="280" cy="280" r="176" fill="url(#ewGlobeShade)"></circle>
+          </svg>
+
+          <!-- Layer 2: Three.js photo globe (fades in over the SVG sphere) -->
+          <canvas class="hero-earth__globe" id="ew-canvas" width="1120" height="1120" aria-hidden="true"></canvas>
+
+          <!-- Layer 3: orbit trail + paper-sheet head marker
+               DEFAULT (no-JS) STATE = FINISHED POSTER:
+               trail drawn to the final arc, head marker at final position.
+               (These literal values correspond to TOTAL_PAGES = 100,000,000
+                i.e. FRACTION ~= 0.6972 -> 69.72 of pathLength 100.
+                If the drop-in constant changes AND JS is off, update these.) -->
+          <svg class="hero-earth__trail" viewBox="0 0 560 560" aria-hidden="true">
+            <g transform="rotate(-90 280 280)">
+              <!-- un-traveled guide track (dashed) -->
+              <circle cx="280" cy="280" r="206" fill="none"
+                      stroke="rgba(255,255,255,0.22)" stroke-width="1.5"
+                      stroke-dasharray="3 7" pathLength="100"></circle>
+              <!-- gold traveled trail -->
+              <circle class="hero-earth__trail-line" id="ew-trail" cx="280" cy="280" r="206"
+                      fill="none" stroke="#E5A630" stroke-width="5.5" stroke-linecap="round"
+                      pathLength="100" stroke-dasharray="69.72 100"></circle>
+              <!-- paper-sheet marker riding the trail head -->
+              <g id="ew-head" transform="translate(212.9 85.2) rotate(341.0)">
+                <path d="M -9.5 -12.5 L 4.5 -12.5 L 9.5 -7.5 L 9.5 12 L -9.5 12 Z" fill="#FFFFFF" stroke="#B9C6D8" stroke-width="0.8"></path>
+                <path d="M 4.5 -12.5 L 4.5 -7.5 L 9.5 -7.5 Z" fill="#DDE5EF" stroke="#B9C6D8" stroke-width="0.8" stroke-linejoin="round"></path>
+                <line x1="-6" y1="-7.5" x2="1.5" y2="-7.5" stroke="#8FA3BC" stroke-width="1.4" stroke-linecap="round"></line>
+                <line x1="-6" y1="-3.5" x2="6" y2="-3.5" stroke="#C9D4E3" stroke-width="1.1" stroke-linecap="round"></line>
+                <line x1="-6" y1="-0.5" x2="6" y2="-0.5" stroke="#C9D4E3" stroke-width="1.1" stroke-linecap="round"></line>
+                <line x1="-6" y1="2.5" x2="6" y2="2.5" stroke="#C9D4E3" stroke-width="1.1" stroke-linecap="round"></line>
+                <line x1="-6" y1="5.5" x2="2" y2="5.5" stroke="#C9D4E3" stroke-width="1.1" stroke-linecap="round"></line>
+                <!-- accent line -> brand gold -->
+                <line x1="-6" y1="8.5" x2="-1" y2="8.5" stroke="#E5A630" stroke-width="1.4" stroke-linecap="round"></line>
+              </g>
+            </g>
+          </svg>
+        </div>
+
+        <!-- Card A — Volume callout (default text = finished poster) -->
+        <div class="hero-earth__card hero-earth__card--volume">
+          <span class="hero-earth__num" id="ew-number">100,000,000+</span>
+          <span class="hero-earth__sub">Public-record pages entrusted to SyTech</span>
+        </div>
+
+        <!-- Card B — Badge (default = visible poster; JS hides then reveals on finish).
+             Text is written by JS (buildBadge) to stay number-agnostic. -->
+        <div class="hero-earth__card hero-earth__card--badge">
+          <span class="hero-earth__badge-num" id="ew-badge-num">70%</span>
+          <span class="hero-earth__badge-label" id="ew-badge-label">of the way around the equator</span>
+        </div>
+      </div>
+
+      <!-- REQUIRED methodology caption (the credibility). Text is tied to the
+           current TOTAL_PAGES figure; update if the drop-in constant changes. -->
+      <p class="hero-graphic-caption">Over 100 million standard 8.5&times;11 pages, laid end to end, run 17,000+ miles &mdash; about 70% of Earth's 24,901-mile equator. Pages, not records.</p>
+      <p class="hero-graphic-kicker">The public's records, entrusted to SyTech &mdash; at a scale you can see.</p>
+    </div>
+
   </div>
 </section>
 
@@ -541,15 +779,24 @@
     var triggers = document.querySelectorAll('.nav-mega-trigger');
     if (!triggers.length) return;
     var mqMobile = window.matchMedia('(max-width: 1024px)');
+    // Condensed desktop band (1025-1440px). Ceiling MUST match the CSS
+    // media query in assets/css/sytech-shared.css (media queries can't read a JS var).
+    var mqBand = window.matchMedia('(min-width: 1025px) and (max-width: 1440px)');
 
     Array.prototype.forEach.call(triggers, function(trigger) {
       var megaLi = trigger.closest('.nav-has-mega');
       var chevron = trigger.querySelector('.nav-mega-chevron');
 
       trigger.addEventListener('click', function(e) {
+        // Condensed desktop band: Services collapses to a plain link that
+        // jumps to the homepage service tiles (its dropdown is CSS-hidden).
+        // Skip Resources (.nav-has-mega--compact), which keeps its dropdown.
+        if (mqBand.matches && !megaLi.classList.contains('nav-has-mega--compact')) {
+          e.preventDefault();
+          window.location.href = 'index.html#service-tiles';
+          return;
+        }
         if (!mqMobile.matches) return;
-        var clickedChevron = chevron && (e.target === chevron || chevron.contains(e.target));
-        if (!clickedChevron) return;
         e.preventDefault();
         var isOpen = megaLi.classList.toggle('is-open');
         trigger.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
@@ -591,6 +838,195 @@
       });
     });
   })();
+})();
+</script>
+
+<!-- ============================================================
+     EARTH-WRAP SCALE HERO — graphic JS (integrated ISOLATED).
+     Self-contained IIFE: no globals written, no shared state with the
+     nav/mega-menu scripts above. Reads only window.THREE / window.matchMedia.
+     Ported verbatim from whoweserve-earthwrap-hero-prototype-v1.html.
+     ============================================================ -->
+<script>
+(function () {
+  'use strict';
+
+  /* ======================================================================
+     DROP-IN CONSTANT
+     The ONLY number to change on client confirm. All geometry, the count-up
+     target, the badge %, and the trail arc recompute from this line.
+     ====================================================================== */
+  var TOTAL_PAGES = 100000000; // 100,000,000
+  // CLIENT-CONFIRM: SyTech to provide the real figure AND its unit (pages vs.
+  // records). The methodology caption + aria-label also assume "pages"; if the
+  // figure changes, update the caption/aria copy too (they are hand-authored).
+
+  /* ----- Physical constants (fixed facts) ----- */
+  var PAGE_EDGE_IN = 11;      // an 8.5x11 page laid on its 11-inch edge
+  var EQUATOR_MI   = 24901;   // Earth's equatorial circumference (miles)
+  var IN_PER_MILE  = 63360;   // 5280 ft x 12 in
+
+  /* ----- Derived geometry (everything scales from TOTAL_PAGES) ----- */
+  var totalMiles   = (TOTAL_PAGES * PAGE_EDGE_IN) / IN_PER_MILE; // ~17,361 mi @ 100M
+  var FRACTION     = totalMiles / EQUATOR_MI;                    // ~0.6972 @ 100M (was hard-coded 0.697 in the prototype)
+  var drawFraction = Math.min(FRACTION, 1);                      // visual arc caps at ONE full wrap; badge carries the x-N multiple
+
+  /* ----- Feature detection ----- */
+  var prefersReduced = window.matchMedia &&
+    window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  /* ----- DOM refs ----- */
+  var trailPath  = document.getElementById('ew-trail');
+  var headGroup  = document.getElementById('ew-head');
+  var numberEl   = document.getElementById('ew-number');
+  var badgeNumEl = document.getElementById('ew-badge-num');
+  var badgeLblEl = document.getElementById('ew-badge-label');
+  var badgeCard  = document.querySelector('.hero-earth__card--badge');
+  var canvas     = document.getElementById('ew-canvas');
+
+  var fmt = function (n) { return Math.round(n).toLocaleString('en-US'); };
+
+  /* ----- Number-agnostic badge (handles both regimes) ----- */
+  function buildBadge() {
+    if (FRACTION < 1) {
+      // e.g. 70% / of the way around the equator
+      badgeNumEl.textContent = Math.round(FRACTION * 100) + '%';
+      badgeLblEl.textContent = 'of the way around the equator';
+    } else {
+      // >= one full wrap (a figure above ~143M pages) -> x-N.N times / around the equator
+      badgeNumEl.textContent = '×' + FRACTION.toFixed(1) + ' times';
+      badgeLblEl.textContent = 'around the equator';
+    }
+  }
+
+  /* ----- Single render function drives trail + head + count-up from p (0..1) ----- */
+  var R = 206;
+  function render(p) {
+    // trail arc
+    var covered = p * drawFraction * 100; // pathLength units
+    trailPath.setAttribute('stroke-dasharray', covered.toFixed(2) + ' 100');
+
+    // head marker point on the circle (arc length maps directly to angle)
+    var theta = p * drawFraction * 2 * Math.PI;
+    var hx = 280 + R * Math.cos(theta);
+    var hy = 280 + R * Math.sin(theta);
+    var deg = theta * 180 / Math.PI + 90; // tilt sheet along travel direction
+    headGroup.setAttribute('transform',
+      'translate(' + hx.toFixed(1) + ' ' + hy.toFixed(1) + ') rotate(' + deg.toFixed(1) + ')');
+
+    // count-up (hold on the trailing "+" at completion)
+    var pages = Math.round(p * TOTAL_PAGES);
+    numberEl.textContent = fmt(pages) + (p >= 1 ? '+' : '');
+  }
+
+  /* ----- Poster: the finished frame, immediately (reduced-motion / fallback) ----- */
+  function showPoster() {
+    render(1);
+    badgeCard.classList.remove('is-hidden'); // visible
+  }
+
+  /* ----- Play-once-and-HOLD animation (no loop, no auto-reset) ----- */
+  var DRAW = 4200; // ms
+  var start = null;
+  var raf = null;
+
+  function easeInOutCubic(x) {
+    return x < 0.5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2;
+  }
+
+  function tick(now) {
+    if (start === null) start = now;
+    var t = now - start;
+    if (t < DRAW) {
+      render(easeInOutCubic(t / DRAW));
+      raf = requestAnimationFrame(tick);
+    } else {
+      render(1);                              // settle on the finished frame
+      badgeCard.classList.remove('is-hidden'); // reveal badge, then HOLD forever
+    }
+  }
+
+  function startAnimation() {
+    render(0);                         // reset to blank (default DOM was the poster)
+    badgeCard.classList.add('is-hidden');
+    setTimeout(function () {
+      raf = requestAnimationFrame(tick);
+    }, 400);                           // ~0.4s delay before the single play
+  }
+
+  /* ----- Three.js photo globe (enhances the SVG poster sphere) ----- */
+  function initGlobe() {
+    if (prefersReduced || !canvas) return; // reduced-motion -> keep SVG poster sphere
+    var globeRaf, attempts = 0;
+
+    function tryInit() {
+      if (!window.THREE) {
+        if (attempts++ > 180) return;  // ~3s cap: CDN failed -> keep SVG poster sphere
+        globeRaf = requestAnimationFrame(tryInit);
+        return;
+      }
+      var THREE = window.THREE;
+
+      var renderer;
+      try {
+        renderer = new THREE.WebGLRenderer({ canvas: canvas, alpha: true, antialias: true });
+      } catch (e) {
+        return; // no WebGL -> SVG poster sphere stands in
+      }
+      renderer.setSize(1120, 1120, false);
+
+      // Orthographic camera in the SVG's 560-unit space (globe r=176 at center)
+      var cam = new THREE.OrthographicCamera(-280, 280, 280, -280, 0.1, 2000);
+      cam.position.z = 800;
+
+      var scene = new THREE.Scene();
+      scene.add(new THREE.AmbientLight(0xffffff, 0.55));
+      var sun = new THREE.DirectionalLight(0xffffff, 0.85);
+      sun.position.set(-260, 220, 500);
+      scene.add(sun);
+
+      var tilt = new THREE.Group();
+      tilt.rotation.z = 14 * Math.PI / 180; // gentle axial tilt
+      scene.add(tilt);
+
+      var loader = new THREE.TextureLoader();
+      loader.setCrossOrigin('anonymous');
+
+      var globe = new THREE.Mesh(
+        new THREE.SphereGeometry(176, 96, 96),
+        new THREE.MeshPhongMaterial({ shininess: 6 })
+      );
+      tilt.add(globe);
+
+      // daytime "soft" earth texture (matches original Claude Design prototype)
+      var tex = loader.load(
+        'assets/img/earth-day.jpg',
+        function () { canvas.style.opacity = '1'; },   // fade the photo globe in on load
+        undefined,
+        function () { canvas.style.opacity = '0'; }    // texture error -> keep SVG sphere
+      );
+      tex.anisotropy = renderer.capabilities.getMaxAnisotropy();
+      globe.material.map = tex;
+      globe.material.needsUpdate = true;
+
+      function spin() {
+        globe.rotation.y += 0.0012; // gentle auto-spin
+        renderer.render(scene, cam);
+        globeRaf = requestAnimationFrame(spin);
+      }
+      spin();
+    }
+    tryInit();
+  }
+
+  /* ----- Init ----- */
+  buildBadge();                 // always: keeps the badge label number-agnostic
+  if (prefersReduced) {
+    showPoster();               // finished frame immediately, no animation
+  } else {
+    startAnimation();           // reset to blank -> 0.4s delay -> play once -> hold
+  }
+  initGlobe();                  // independent WebGL enhancement
 })();
 </script>
 

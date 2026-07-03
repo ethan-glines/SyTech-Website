@@ -121,6 +121,14 @@
   border-radius: 14px;
   padding: 1.25rem 1rem 1rem;
   box-shadow: 0 20px 60px rgba(37,66,107,0.10), 0 1px 3px rgba(37,66,107,0.06);
+  /* Batch 4: lock text-selection/long-press-copy on the graphic frame (SVG diagram text +
+     stage legend); keep an arrow cursor. Clickable legend items keep cursor:pointer via
+     the more specific .hero-story-legend .hsl-item[role="button"] rule below. The
+     .hero-caption prose sits outside this frame and stays selectable. */
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+  cursor: default;
 }
 .hero-story-frame::before {
   content: '';
@@ -140,48 +148,252 @@
   display: inline-block; width: 6px; height: 6px; border-radius: 50%;
   background: var(--accent);
 }
+/* ==========================================================================
+   STAGE TIMELINE (2026-07-01, spec-scanning-hero-stage-timeline.md) — the copper
+   dot becomes a playhead that walks Paper → Scanning → Governed Record, bound into
+   the existing journey tl. One label lit at a time (active = navy/1; others slate/0.55).
+   All .hsl-* namespaced, named-prop transitions only. Legend stays FLAT (no .sl-plate).
+   ========================================================================== */
+.hero-story-legend { position: relative; padding-left: 0.5rem; } /* seat the leading marker; existing flex + font kept */
+.hero-story-legend .hsl-item { color: var(--text-body); opacity: 0.55; transition: color 220ms ease, opacity 220ms ease; }
+.hero-story-legend .hsl-item.is-active { color: var(--navy); opacity: 1; }
+/* CHANGE 2 (2026-07-02): the three labels are upgraded to stage controls in JS (journey branch only),
+   so this interactive affordance applies ONLY to the JS-added role="button" items — the reduced-motion /
+   no-GSAP fallback legend stays plain/decorative. Visual label styling is otherwise unchanged. */
+.hero-story-legend .hsl-item[role="button"] { cursor: pointer; }
+.hero-story-legend .hsl-item[role="button"]:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  border-radius: 3px;
+}
+/* The leading dot's ~0.35rem lead is ALREADY supplied by the existing
+   `.hero-story-legend span { gap: 0.35rem }` rule (the `.hsl-item`s are spans), so the
+   spec's `.hsl-item .dot { margin-right: 0.35rem }` is intentionally OMITTED — adding it
+   would DOUBLE the gap and break the byte-consistent rest state §1 requires. */
+/* floating traveling marker — hidden until the journey takes over */
+.hero-story-legend .hsl-marker {
+  display: none;
+  position: absolute; left: 0; top: 50%; margin-top: -3px; /* vertical-center a 6px dot WITHOUT translateY, so GSAP x can't fight it */
+  width: 6px; height: 6px; border-radius: 50%; background: var(--accent);
+  pointer-events: none;
+}
+/* journey mode: hide the inline dot, show the traveling marker */
+.hero-story-legend.is-animated .hsl-item .dot { display: none; }
+.hero-story-legend.is-animated .hsl-marker { display: block; }
 /* Caption — sits BELOW the white card, in the lower/light zone of the hero, so slate stays legible. */
 .hero-caption { margin-top: 1.1rem; font-size: 0.82rem; line-height: 1.55; color: var(--text-body); font-style: italic; }
 
-/* SVG styling — KEPT VERBATIM from the light version: the scene reads on the opaque WHITE card.
-   Navy carries structure; copper carries accents (small weight/alpha bumps so copper holds on white). */
-.hs-bg-grid { stroke: rgba(37,66,107,0.06); stroke-width: 1; }
-.hs-inbox { fill: rgba(37,66,107,0.04); stroke: rgba(37,66,107,0.22); stroke-width: 1; }
-.hs-inbox-label { fill: var(--navy); font-size: 9px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; font-family: Tahoma, 'Segoe UI', sans-serif; }
-.hs-scanner-body { fill: rgba(37,66,107,0.05); stroke: var(--accent); stroke-width: 1.5; }
-.hs-scanner-top { fill: rgba(37,66,107,0.08); stroke: var(--accent); stroke-width: 1.5; }
-.hs-scanner-slot { fill: rgba(37,66,107,0.45); }
-.hs-scanner-label { fill: var(--navy); font-size: 8px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; font-family: Tahoma, 'Segoe UI', sans-serif; text-anchor: middle; }
-.hs-scanner-light { fill: var(--accent); opacity: 1; }
-.hs-scanner-beam { stroke: var(--accent); stroke-width: 2.75; stroke-linecap: round; opacity: 0; }
-.hs-dotted-path { fill: none; stroke: var(--accent); stroke-width: 2; stroke-dasharray: 4 5; stroke-linecap: round; opacity: 0.9; }
-.hs-cloud-shape-group { transform-box: fill-box; transform-origin: center; }
-.hs-cloud { fill: rgba(194,104,58,0.10); stroke: var(--accent); stroke-width: 2; stroke-linejoin: round; }
-.hs-cloud-check { stroke: var(--accent); stroke-width: 2.2; fill: none; stroke-linecap: round; stroke-linejoin: round; }
-.hs-cloud-pulse { fill: none; stroke: var(--accent); stroke-width: 2; opacity: 0; }
+/* ==========================================================================
+   HERO SHOWPIECE — "The Scan-Line" (2026-07-01, spec-scanning-hero-showpiece.md)
+   Replaces the looping paper→scanner→cloud SVG inside .hero-story-frame ONLY.
+   A copper scan-line sweeps a single aged paper record ONCE; the analog page
+   resolves in its wake into a crisp, searchable, GOVERNED digital record, then a
+   navy frame draws — then HOLDS (no idle loop). (The small gold lock seal was
+   REMOVED 2026-07-01 at Ethan's call; do NOT restore it.)
+   ALL classes / keyframes are namespaced .sl-* so nothing leaks to shared CSS.
+   The DEFAULT rendered state is the resolved POSTER (reduced-motion / no-GSAP
+   fallback); GSAP resets to the start frame only when motion is allowed + loaded.
+   Navy = structure · Copper = the active transformation. (Gold note removed.)
+   ========================================================================== */
+/* Faint navy "system" grid backdrop */
+.sl-grid { stroke: rgba(37,66,107,0.06); stroke-width: 1; }
 
-/* Paper card visuals — colors driven via CSS custom props that propagate through <use> shadow tree.
-   KEPT VERBATIM: unscanned paper is pure white with a SOLID navy outline so it holds on the white card.
-   Scanned (cream + copper) state unchanged. */
-.hs-paper { transition: opacity 200ms ease; --paper-fill: #FFFFFF; --paper-stroke: #25426B; --paper-line: #25426B; --paper-line-opacity: 0.55; }
-.hs-paper.scanned { --paper-fill: #fcefd1; --paper-stroke: var(--accent); --paper-line: var(--accent); --paper-line-opacity: 0.7; }
+/* --- ANALOG "before" sheet (aged cream, tilted, grey typewriter ink) --- */
+.sl-sheet-analog { fill: #FCEFD1; stroke: rgba(37,66,107,0.25); stroke-width: 1; }
+.sl-typeline { stroke: #8A8578; stroke-width: 1.4; stroke-linecap: round; }
+.sl-coffee { fill: none; stroke: rgba(120,70,30,0.18); stroke-width: 2; }
+.sl-clip-glyph { fill: none; stroke: rgba(37,66,107,0.55); stroke-width: 1.4; stroke-linecap: round; stroke-linejoin: round; }
+.sl-note { fill: none; stroke: #6E6A60; stroke-width: 1.2; stroke-linecap: round; }
 
-/* Dotted path flow animation (subtle dash drift toward cloud) */
+/* --- DIGITAL "after" record (crisp white, upright, structured) --- */
+.sl-sheet-digital { fill: #FFFFFF; stroke: #25426B; stroke-width: 1; }
+.sl-header { fill: #25426B; }
+.sl-header-underline { fill: #C2683A; }
+.sl-header-glyph { fill: none; stroke: #FFFFFF; stroke-width: 1.3; stroke-linejoin: round; stroke-linecap: round; }
+.sl-header-label { fill: #FFFFFF; font-size: 8px; font-weight: 700; letter-spacing: 1.2px; font-family: Tahoma,'Segoe UI',sans-serif; }
+.sl-ocr-line { fill: rgba(37,66,107,0.78); }
+.sl-ocr-hit { fill: rgba(194,104,58,0.22); }
+.sl-chip-box { fill: rgba(194,104,58,0.12); stroke: #C2683A; stroke-width: 1; }
+.sl-chip-text { fill: #8A3E1C; font-size: 6px; font-weight: 700; letter-spacing: 0.2px; font-family: Tahoma,'Segoe UI',sans-serif; text-anchor: middle; }
+.sl-search-box { fill: #FFFFFF; stroke: #C2683A; stroke-width: 1.3; }
+.sl-search-glyph { fill: none; stroke: #C2683A; stroke-width: 1.4; stroke-linecap: round; }
+.sl-search-text { fill: #25426B; font-size: 9px; font-weight: 600; font-family: Tahoma,'Segoe UI',sans-serif; }
+.sl-search-caret { fill: #C2683A; font-size: 10px; font-weight: 400; font-family: Tahoma,'Segoe UI',sans-serif; }
+
+/* --- SCAN LINE (the copper light pass) --- */
+.sl-scan-glow { stroke: #C2683A; stroke-width: 3; stroke-linecap: round; }
+.sl-scan-core { stroke: #FFFFFF; stroke-width: 1; stroke-linecap: round; opacity: 0.9; }
+
+/* --- GOVERNED FRAME (navy bezel). GOLD LOCK SEAL REMOVED 2026-07-01 (Ethan's explicit
+   call — the graphic no longer carries the gold note; the copper hairline is unchanged;
+   do NOT restore the lock or its .sl-lock-* classes). --- */
+.sl-frame { fill: none; stroke: #25426B; stroke-width: 1.5; }
+
+/* DEFAULT = the resolved POSTER frame (also the reduced-motion / no-GSAP fallback).
+   These defaults are exactly what a JS/GSAP failure leaves on screen — never blank:
+   analog hidden + scan-line gone, while the reveal rect (SVG attr height=280),
+   frame stroke, chips, search query + highlight all render finished (no gold lock —
+   removed 2026-07-01).
+   GSAP resets these to the start frame at init only when motion is allowed. */
+.sl-analog { opacity: 0; }   /* analog hidden in the resolved poster */
+.sl-scan   { opacity: 0; }   /* scan-line gone in the resolved poster */
+
+/* Caret blink — the ONLY resting motion (spec §3, step 7); disabled on reduced motion. */
 @media (prefers-reduced-motion: no-preference) {
-  .hs-dotted-path { animation: hs-dash-drift 1.6s linear infinite; }
-  .hero-story.is-paused .hs-dotted-path { animation-play-state: paused; }
+  .sl-search-caret { animation: sl-caret-blink 1.05s steps(1) infinite; }
 }
-@keyframes hs-dash-drift {
-  from { stroke-dashoffset: 0; }
-  to   { stroke-dashoffset: -18; }
+@keyframes sl-caret-blink { 50% { opacity: 0; } }
+
+
+/* ==========================================================================
+   HERO SHOWPIECE — "MILLED MATERIAL" STACKED-DEPTH HOVER (2026-07-01)
+   spec-scanning-hero-stacked-hover.md. REPLACES the removed 3D perspective tilt.
+   At rest the card is the exact flat poster. On hover (only AFTER the scan journey
+   arms the card with .sl-armed) every meaningful object gains physical THICKNESS
+   on ONE plane: the top face lifts a few px (translateY -lift), a single hard
+   drop-shadow at +lift paints the machined side-wall, a soft ground shadow grows,
+   and a thin bevel highlight (a real <line>/<rect> inside each plate group) fades
+   in. No rotateX/Y, no perspective, no parallax, no depth-plane separation.
+   Thickness graded = plates milled from the same block: card 2 · frame 3 ·
+   header 4 · search 5 · chips 6 (the copper index chips now CROWN the stack).
+   [Gold lock / brass seal plate REMOVED 2026-07-01 — do NOT restore.]
+   GATED to fine-hover + motion-allowed pointers; touch / no-hover / reduced-motion
+   never match → the card stays the byte-identical flat poster. Keyboard parity via
+   tabindex + :focus-visible. All .sl-* namespaced; nothing leaks to shared CSS.
+   ========================================================================== */
+/* .sl-tilt-stage is now a bare positioning wrapper (the tilt 3D machinery is gone). */
+.sl-tilt-stage { position: relative; }
+
+/* ---- Shared plate mechanic ---- */
+/* The wrapper carries ONLY the translateY lift, so a plate's solid body AND its
+   text/icons/hairlines lift together and stay perfectly registered (they share this
+   one lifted element — nothing can drift). Named-prop transitions ONLY. */
+.sl-plate {
+  transform: translateY(0);
+  transition: transform 420ms cubic-bezier(.22,1,.36,1);
+  --sh-y: calc(var(--lift) + 4px);   /* ground-shadow offset */
+  --sh-blur: 9px;                    /* ground-shadow softness */
+}
+/* The machined side-wall + ground shadow are cast ONLY by each plate's solid BODY
+   shape. drop-shadow() paints the FULL alpha silhouette of its element, so on the group
+   it ghosts every thin glyph/hairline as a literal second copy (the doubled-text bug).
+   Body-only = a clean wall for OPAQUE-FILLED bodies (the navy header bar). For
+   STROKE-DOMINANT bodies (frame bezel, chip pills, search field) even the body-only
+   silhouette is ring-dominated, so a hard 0-blur wall would double the OUTLINE — those
+   get a SOFT ground shadow only instead (see the overrides below). Flat resting =
+   zero-offset shadows (invisible); every rule keeps the SAME two drop-shadow() functions
+   (colors constant, offsets/blur change) so the filter interpolates cleanly. */
+.sl-plate-body {
+  filter: drop-shadow(0 0 0 var(--wall)) drop-shadow(0 0 0 var(--ground));
+  transition: filter 420ms cubic-bezier(.22,1,.36,1);
+}
+/* The governed frame is a STROKE-ONLY bezel — a hard 0-blur wall would read as a
+   doubled outline, so its body casts a SOFT ground shadow only (still two soft
+   drop-shadow() functions for smooth interpolation, no hard wall). */
+.sl-mat-navy-frame.sl-plate-body {
+  filter: drop-shadow(0 0 0 var(--ground)) drop-shadow(0 0 0 var(--ground));
+  /* the frame is the ONE element carrying both .sl-plate and .sl-plate-body, so restate
+     the combined transition here (the shorthand doesn't merge across those two rules). */
+  transition: transform 420ms cubic-bezier(.22,1,.36,1),
+              filter    420ms cubic-bezier(.22,1,.36,1);
+}
+/* CHIP PILLS + SEARCH FIELD are ALSO stroke-dominant rounded rects (a full copper ring on
+   a translucent/white fill). A hard 0-blur wall paints their alpha silhouette — which the
+   ring dominates — as a SECOND offset copper RING (the doubled-outline bug Ethan flagged on
+   the 2nd hover test, 2026-07-01). SAME remedy as the frame: a SOFT ground shadow only in
+   both states (two soft drop-shadow() functions, no hard wall). They still LIFT via
+   .sl-plate's translateY, so the milled-depth read is preserved; only the wall becomes a
+   soft ground. (These bodies live on a separate descendant element from .sl-plate, so the
+   base .sl-plate-body filter transition still applies — no need to restate it here.) */
+.sl-chip-box.sl-plate-body,
+.sl-search-box.sl-plate-body {
+  filter: drop-shadow(0 0 0 var(--ground)) drop-shadow(0 0 0 var(--ground));
+}
+.sl-bevel {
+  opacity: 0;
+  transition: opacity 420ms cubic-bezier(.22,1,.36,1);
 }
 
-/* Reduced motion: hide live paper particles, show static composed scene */
-@media (prefers-reduced-motion: reduce) {
-  .hs-paper-stage { display: none; }
-  .hs-static-scene { display: block !important; }
-  .hs-dotted-path { animation: none; }
+/* Raised state — GATED to fine-hover pointers with motion allowed, and only after
+   the journey arms the card (.sl-armed). Touch / no-hover / reduced-motion never
+   match → the card stays the exact flat poster. Both flat + raised states carry the
+   SAME two drop-shadow() functions (only offsets/blur change; colors constant) so
+   the filter interpolates cleanly — never change the function count between states. */
+@media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
+  /* wrapper lifts the whole plate (body + text + hairlines, in lockstep) */
+  .hero-story-frame.sl-armed:hover .sl-plate,
+  .hero-story-frame.sl-armed:focus-visible .sl-plate {
+    transform: translateY(calc(-1 * var(--lift)));
+  }
+  /* body shape alone casts the hard machined side-wall + soft ground shadow */
+  .hero-story-frame.sl-armed:hover .sl-plate-body,
+  .hero-story-frame.sl-armed:focus-visible .sl-plate-body {
+    filter: drop-shadow(0 var(--lift) 0 var(--wall))
+            drop-shadow(0 var(--sh-y) var(--sh-blur) var(--ground));
+  }
+  /* frame bezel: soft ground shadow only (no hard doubled outline) */
+  .hero-story-frame.sl-armed:hover .sl-mat-navy-frame.sl-plate-body,
+  .hero-story-frame.sl-armed:focus-visible .sl-mat-navy-frame.sl-plate-body {
+    filter: drop-shadow(0 var(--lift) 3px var(--ground))
+            drop-shadow(0 var(--sh-y) var(--sh-blur) var(--ground));
+  }
+  /* chip pills + search field: soft ground shadow only (no hard doubled copper RING) */
+  .hero-story-frame.sl-armed:hover .sl-chip-box.sl-plate-body,
+  .hero-story-frame.sl-armed:focus-visible .sl-chip-box.sl-plate-body,
+  .hero-story-frame.sl-armed:hover .sl-search-box.sl-plate-body,
+  .hero-story-frame.sl-armed:focus-visible .sl-search-box.sl-plate-body {
+    filter: drop-shadow(0 var(--lift) 3px var(--ground))
+            drop-shadow(0 var(--sh-y) var(--sh-blur) var(--ground));
+  }
+  .hero-story-frame.sl-armed:hover .sl-bevel,
+  .hero-story-frame.sl-armed:focus-visible .sl-bevel { opacity: 1; }
+
+  /* whole slab lifts a hair + deepens its shadow */
+  .hero-story-frame.sl-armed:hover,
+  .hero-story-frame.sl-armed:focus-visible {
+    transform: translateY(-2px);
+    box-shadow: 0 30px 80px rgba(37,66,107,0.16), 0 4px 10px rgba(37,66,107,0.10);
+  }
+
+  /* SUBTLE stagger — plates "separate" in sequence (enter only; crisp settle on leave).
+     Delay BOTH the wrapper's transform AND its body's filter so lift + side-wall stay in
+     lockstep. (The frame is its own body, so its single selector covers both.) */
+  .hero-story-frame.sl-armed:hover .sl-mat-navy-frame,
+  .hero-story-frame.sl-armed:focus-visible .sl-mat-navy-frame { transition-delay: 20ms; }
+  .hero-story-frame.sl-armed:hover .sl-mat-navy,
+  .hero-story-frame.sl-armed:hover .sl-mat-navy .sl-plate-body,
+  .hero-story-frame.sl-armed:focus-visible .sl-mat-navy,
+  .hero-story-frame.sl-armed:focus-visible .sl-mat-navy .sl-plate-body       { transition-delay: 40ms; }
+  .hero-story-frame.sl-armed:hover .sl-mat-acrylic,
+  .hero-story-frame.sl-armed:hover .sl-mat-acrylic .sl-plate-body,
+  .hero-story-frame.sl-armed:focus-visible .sl-mat-acrylic,
+  .hero-story-frame.sl-armed:focus-visible .sl-mat-acrylic .sl-plate-body    { transition-delay: 55ms; }
+  /* copper index chips are LAST in the stagger — they now crown the stack
+     (the gold lock/brass plate was removed 2026-07-01). */
+  .hero-story-frame.sl-armed:hover .sl-mat-copper,
+  .hero-story-frame.sl-armed:hover .sl-mat-copper .sl-plate-body,
+  .hero-story-frame.sl-armed:focus-visible .sl-mat-copper,
+  .hero-story-frame.sl-armed:focus-visible .sl-mat-copper .sl-plate-body     { transition-delay: 70ms; }
 }
+
+/* The card transitions its lift + shadow with the same easing */
+.hero-story-frame {
+  transition: transform 420ms cubic-bezier(.22,1,.36,1),
+              box-shadow 420ms cubic-bezier(.22,1,.36,1);
+  outline: none;
+}
+.hero-story-frame:focus-visible { box-shadow: 0 0 0 3px rgba(194,104,58,0.55), 0 20px 60px rgba(37,66,107,0.10); }
+
+/* ---- Per-material vars ---- */
+/* NAVY — matte powder-coated aluminium (header + frame) */
+.sl-mat-navy        { --wall:#1B3050; --ground:rgba(27,48,80,0.26); --lift:4px; }
+.sl-mat-navy-frame  { --wall:#1B3050; --ground:rgba(27,48,80,0.22); --lift:3px; }
+/* COPPER — brushed anodized metal (index chips) */
+.sl-mat-copper      { --wall:#8E4522; --ground:rgba(138,62,28,0.22); --lift:6px; }
+/* WHITE — matte acrylic / ceramic (search field) */
+.sl-mat-acrylic     { --wall:#DCE1E8; --ground:rgba(37,66,107,0.16); --lift:5px; }
+/* BRASS material REMOVED 2026-07-01 — the gold lock seal it served was deleted (Ethan's
+   call). Do NOT restore .sl-mat-brass or the lock. */
 
 
 /* ---- Generic section scaffolding (extends services.html patterns) ---- */
@@ -281,7 +493,9 @@
 .cross-link h2 { font-size: clamp(1.6rem, 2.6vw, 2rem); font-weight: 700; line-height: 1.2; margin-bottom: 2.5rem; letter-spacing: -0.01em; color: var(--navy); }
 .cross-link-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; max-width: 880px; margin: 0 auto 2rem; text-align: left; }
 .cross-link-card { display: flex; flex-direction: column; gap: 0.75rem; padding: 1.75rem 1.75rem 1.5rem; background: var(--white); border-left: 4px solid var(--xlink-ui); border-radius: 4px; box-shadow: 0 2px 8px rgba(37,66,107,0.04); transition: transform 300ms ease, box-shadow 300ms ease; text-decoration: none; }
+@media (hover: hover) and (pointer: fine) {
 .cross-link-card:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(37,66,107,0.10); }
+}
 .cross-link-card:focus-visible { outline: 3px solid var(--xlink-ui); outline-offset: 3px; }
 .cross-link-card .card-eyebrow { font-size: 0.65rem; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; color: var(--xlink-ink); }
 .cross-link-card h3 { font-size: clamp(1.15rem, 1.8vw, 1.35rem); font-weight: 700; color: var(--navy); line-height: 1.25; letter-spacing: -0.005em; position: relative; display: inline-block; }
@@ -290,7 +504,9 @@
 .cross-link-card p { font-size: 0.95rem; line-height: 1.65; color: var(--text-body); margin: 0; }
 .cross-link-card .card-arrow { margin-top: auto; display: inline-flex; align-items: center; gap: 0.4rem; font-size: 0.82rem; font-weight: 700; color: var(--navy); letter-spacing: 0.02em; padding-top: 0.5rem; }
 .cross-link-card .card-arrow i { font-size: 18px; transition: transform 300ms ease; }
+@media (hover: hover) and (pointer: fine) {
 .cross-link-card:hover .card-arrow i { transform: translateX(4px); color: var(--xlink-ui); }
+}
 /* Destination color-coding — Scanning links to Data Migration + Compliance Setup. The whole
    Organize family is now COPPER (family-wide recolor 2026-06-23), so both destination cards wear
    copper too: --xlink-ui copper #C2683A on decorative strokes; --xlink-ink copper-ink #A8542B for
@@ -301,7 +517,9 @@
 .cross-link-framework { display: inline-flex; align-items: center; gap: 0.4rem; font-size: 0.9rem; font-weight: 700; color: var(--navy); letter-spacing: 0.02em; position: relative; }
 .cross-link-framework::after { content: ''; position: absolute; bottom: -3px; left: 0; width: 100%; height: 2px; background: var(--accent); transform: scaleX(0); transform-origin: left; transition: transform 300ms ease; }
 .cross-link-framework:hover { color: var(--accent); }
+@media (hover: hover) and (pointer: fine) {
 .cross-link-framework:hover::after { transform: scaleX(1); }
+}
 
 
 /* ---- Section reveal animation (generic) ---- */
@@ -478,88 +696,150 @@
         <p class="lead">Decades of paper records sit in storage rooms across every public agency in California. We pick them up, scan them, index them, and return them to your cloud &mdash; searchable, compliant, and governed by your policies. Here is exactly how that happens.</p>
       </div>
 
-      <div class="hero-story" id="heroStory" role="img" aria-label="Animation: paper records flow into a scanner, then travel along a dotted path to a cloud archive where they are organized.">
-        <div class="hero-story-frame">
-          <svg class="hero-story-svg" viewBox="0 0 600 360" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
+      <div class="hero-story" id="heroStory" role="img" aria-label="Animation: a paper record is scanned by a copper light and becomes a searchable, governed digital record.">
+        <div class="sl-tilt-stage" id="slTiltStage">
+          <div class="hero-story-frame" tabindex="0" aria-label="Governed record graphic. On hover or focus its layers rise into stacked machined plates.">
+          <svg class="hero-story-svg" id="scanlineSvg" viewBox="0 0 600 360" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
             <defs>
-              <!-- Paper template — reused via <use> for each in-flight paper.
-                   fill/stroke driven by CSS custom properties on the host <use> element,
-                   which propagate through the shadow tree in all modern browsers. -->
-              <symbol id="hs-paper-template" viewBox="0 0 28 36">
-                <rect x="0.6" y="0.6" width="26.8" height="34.8" rx="2" fill="var(--paper-fill, #f5f5f5)" stroke="var(--paper-stroke, #25426B)" stroke-width="1.2"/>
-                <line x1="5" y1="9"  x2="23" y2="9"  stroke="var(--paper-line, #25426B)" stroke-width="1" opacity="var(--paper-line-opacity, 0.55)"/>
-                <line x1="5" y1="14" x2="20" y2="14" stroke="var(--paper-line, #25426B)" stroke-width="1" opacity="var(--paper-line-opacity, 0.55)"/>
-                <line x1="5" y1="19" x2="22" y2="19" stroke="var(--paper-line, #25426B)" stroke-width="1" opacity="var(--paper-line-opacity, 0.55)"/>
-                <line x1="5" y1="24" x2="17" y2="24" stroke="var(--paper-line, #25426B)" stroke-width="1" opacity="var(--paper-line-opacity, 0.55)"/>
-                <line x1="5" y1="29" x2="21" y2="29" stroke="var(--paper-line, #25426B)" stroke-width="1" opacity="var(--paper-line-opacity, 0.55)"/>
-              </symbol>
+              <!-- The reveal rect clips the digital record; its HEIGHT is driven 0→280 in the
+                   light's wake (default 280 = fully-resolved poster; GSAP resets to 0 at start). -->
+              <clipPath id="sl-reveal">
+                <rect id="sl-reveal-rect" x="200" y="40" width="200" height="280"/>
+              </clipPath>
+              <!-- Soft copper glow for the scan-line "light". -->
+              <filter id="sl-glow" x="-60%" y="-60%" width="220%" height="220%">
+                <feGaussianBlur stdDeviation="3.2" result="b"/>
+                <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+              </filter>
+              <!-- Trailing afterglow band gradient. -->
+              <linearGradient id="sl-afterglow-grad" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0"    stop-color="#C2683A" stop-opacity="0"/>
+                <stop offset="0.45" stop-color="#C2683A" stop-opacity="0.30"/>
+                <stop offset="1"    stop-color="#C2683A" stop-opacity="0"/>
+              </linearGradient>
             </defs>
 
-            <!-- Subtle background grid for "system" feel -->
-            <g class="hs-bg" aria-hidden="true">
-              <line class="hs-bg-grid" x1="0" y1="80"  x2="600" y2="80"/>
-              <line class="hs-bg-grid" x1="0" y1="160" x2="600" y2="160"/>
-              <line class="hs-bg-grid" x1="0" y1="240" x2="600" y2="240"/>
-              <line class="hs-bg-grid" x1="0" y1="320" x2="600" y2="320"/>
+            <!-- Faint navy "system" grid backdrop -->
+            <g aria-hidden="true">
+              <line class="sl-grid" x1="0" y1="80"  x2="600" y2="80"/>
+              <line class="sl-grid" x1="0" y1="160" x2="600" y2="160"/>
+              <line class="sl-grid" x1="0" y1="240" x2="600" y2="240"/>
+              <line class="sl-grid" x1="0" y1="320" x2="600" y2="320"/>
             </g>
 
-            <!-- INBOX (left) — paper origin: a "Banker's Box" stack suggestion -->
-            <g class="hs-inbox-group" aria-hidden="true">
-              <rect class="hs-inbox" x="40" y="180" width="100" height="80" rx="6"/>
-              <line x1="55" y1="200" x2="125" y2="200" stroke="rgba(37,66,107,0.25)" stroke-width="1"/>
-              <line x1="55" y1="215" x2="115" y2="215" stroke="rgba(37,66,107,0.25)" stroke-width="1"/>
-              <line x1="55" y1="230" x2="125" y2="230" stroke="rgba(37,66,107,0.25)" stroke-width="1"/>
-              <line x1="55" y1="245" x2="105" y2="245" stroke="rgba(37,66,107,0.25)" stroke-width="1"/>
-              <text class="hs-inbox-label" x="90" y="275" text-anchor="middle">Records</text>
+            <!-- ANALOG "before" — outer group carries GSAP opacity/translate; inner group holds the
+                 static -1.6deg tilt (kept separate so GSAP's transform never fights the rotate). -->
+            <g id="sl-analog" class="sl-analog">
+              <g transform="rotate(-1.6 300 180)">
+                <rect class="sl-sheet-analog" x="204" y="44" width="192" height="272" rx="3"/>
+                <!-- skewed grey typewriter lines (uneven lengths) -->
+                <line class="sl-typeline" x1="224" y1="92"  x2="360" y2="92"  transform="rotate(-0.5 224 92)"/>
+                <line class="sl-typeline" x1="224" y1="108" x2="346" y2="108" transform="rotate(0.4 224 108)"/>
+                <line class="sl-typeline" x1="224" y1="124" x2="372" y2="124" transform="rotate(-0.3 224 124)"/>
+                <line class="sl-typeline" x1="224" y1="140" x2="332" y2="140" transform="rotate(0.6 224 140)"/>
+                <line class="sl-typeline" x1="224" y1="156" x2="364" y2="156" transform="rotate(-0.5 224 156)"/>
+                <line class="sl-typeline" x1="224" y1="172" x2="348" y2="172" transform="rotate(0.3 224 172)"/>
+                <line class="sl-typeline" x1="224" y1="188" x2="336" y2="188" transform="rotate(-0.4 224 188)"/>
+                <line class="sl-typeline" x1="224" y1="204" x2="356" y2="204" transform="rotate(0.5 224 204)"/>
+                <!-- coffee ring (upper-right) -->
+                <circle class="sl-coffee" cx="366" cy="96" r="17"/>
+                <circle class="sl-coffee" cx="366" cy="96" r="12"/>
+                <!-- paperclip (top-left, over the edge) -->
+                <path class="sl-clip-glyph" d="M220 62 l0 -9 a4.5 4.5 0 0 1 9 0 l0 18 a3 3 0 0 1 -6 0 l0 -13"/>
+                <!-- handwritten margin note squiggle -->
+                <path class="sl-note" d="M224 250 q6 -6 12 0 t12 0 t12 0"/>
+              </g>
             </g>
 
-            <!-- DOTTED PATH (scanner exit → cloud) — visible always; JS samples this for paper trajectory -->
-            <path class="hs-dotted-path" id="hsFlowPath" d="M 365 215 C 410 215, 430 160, 470 120"/>
-
-            <!-- SCANNER (center) — stylized flatbed -->
-            <g class="hs-scanner-group">
-              <!-- Scanner base -->
-              <rect class="hs-scanner-body" x="215" y="195" width="150" height="55" rx="6"/>
-              <!-- Scanner top lid -->
-              <rect class="hs-scanner-top" x="220" y="175" width="140" height="25" rx="5"/>
-              <!-- Input slot (where paper enters from the left) -->
-              <rect class="hs-scanner-slot" x="215" y="208" width="6" height="14" rx="1"/>
-              <!-- Output slot (right) -->
-              <rect class="hs-scanner-slot" x="359" y="208" width="6" height="14" rx="1"/>
-              <!-- Status light -->
-              <circle class="hs-scanner-light" cx="345" cy="187" r="3"/>
-              <!-- Scanning beam (animated) -->
-              <line id="hsBeam" class="hs-scanner-beam" x1="240" y1="200" x2="340" y2="200"/>
-              <text class="hs-scanner-label" x="290" y="270">Scanner</text>
+            <!-- DIGITAL "after" — clipped by the reveal rect, so it resolves in the light's wake. -->
+            <g id="sl-digital" clip-path="url(#sl-reveal)">
+              <rect class="sl-sheet-digital" x="200" y="40" width="200" height="280" rx="3"/>
+              <!-- header bar + copper underline + file glyph + label — PLATE (navy powder-coat, lift 4px) -->
+              <g class="sl-plate sl-mat-navy">
+                <rect class="sl-header sl-plate-body" x="200" y="40" width="200" height="26"/>
+                <rect class="sl-header-underline" x="200" y="66" width="200" height="2"/>
+                <path class="sl-header-glyph" d="M209 47 h7 l3 3 v8 h-10 z M216 47 v3 h3"/>
+                <text class="sl-header-label" x="226" y="57">DIGITAL RECORD</text>
+                <line class="sl-bevel" x1="202" y1="40.6" x2="398" y2="40.6" stroke="rgba(255,255,255,0.22)" stroke-width="1"/>
+              </g>
+              <!-- clean OCR text lines (bars); the 4th is the search "match" -->
+              <rect class="sl-ocr-line" x="216" y="84"  width="160" height="4" rx="2"/>
+              <rect class="sl-ocr-line" x="216" y="98"  width="150" height="4" rx="2"/>
+              <rect class="sl-ocr-line" x="216" y="112" width="168" height="4" rx="2"/>
+              <rect id="sl-ocr-hit" class="sl-ocr-hit" x="214" y="123" width="126" height="9" rx="2"/>
+              <rect class="sl-ocr-line" x="216" y="126" width="120" height="4" rx="2"/>
+              <rect class="sl-ocr-line" x="216" y="140" width="158" height="4" rx="2"/>
+              <rect class="sl-ocr-line" x="216" y="154" width="140" height="4" rx="2"/>
+              <rect class="sl-ocr-line" x="216" y="168" width="118" height="4" rx="2"/>
+              <!-- index chips (structural labels — no numbers/dates) -->
+              <g id="sl-chips">
+                <!-- Each chip is a brushed-copper PLATE (lift 6px). GSAP still animates the INNER
+                     .sl-chip (scale) at journey time; the hover translateY lives on the OUTER wrapper
+                     so the two never collide. -->
+                <!-- CHANGE 4 (2026-07-02): row rebalanced within the sheet [200,400] so the widened
+                     third pill fits with comfortable padding. Widths 40 / 52 / 74, 6px gaps, ~14px
+                     left + ~8px right margin off the sheet edge (chip3 ends 392, sheet edge 400). The
+                     "CHAIN OF CUSTODY" pill grew 64→74 (~5.5px padding each side, matching INDEXED /
+                     SEARCHABLE). Text centers + bevels moved with their rects. -->
+                <g class="sl-plate sl-mat-copper">
+                  <g class="sl-chip">
+                    <rect class="sl-chip-box sl-plate-body" x="214" y="190" width="40" height="16" rx="8"/>
+                    <text class="sl-chip-text" x="234" y="201">INDEXED</text>
+                  </g>
+                  <line class="sl-bevel" x1="216" y1="190.6" x2="252" y2="190.6" stroke="rgba(255,240,220,0.50)" stroke-width="1"/>
+                </g>
+                <g class="sl-plate sl-mat-copper">
+                  <g class="sl-chip">
+                    <rect class="sl-chip-box sl-plate-body" x="260" y="190" width="52" height="16" rx="8"/>
+                    <text class="sl-chip-text" x="286" y="201">SEARCHABLE</text>
+                  </g>
+                  <line class="sl-bevel" x1="262" y1="190.6" x2="310" y2="190.6" stroke="rgba(255,240,220,0.50)" stroke-width="1"/>
+                </g>
+                <g class="sl-plate sl-mat-copper">
+                  <g class="sl-chip">
+                    <rect class="sl-chip-box sl-plate-body" x="318" y="190" width="74" height="16" rx="8"/>
+                    <text class="sl-chip-text" x="355" y="201">CHAIN OF CUSTODY</text>
+                  </g>
+                  <line class="sl-bevel" x1="320" y1="190.6" x2="390" y2="190.6" stroke="rgba(255,240,220,0.50)" stroke-width="1"/>
+                </g>
+              </g>
+              <!-- search field: magnifier + typed query + blinking caret — PLATE (matte acrylic, lift 5px) -->
+              <g class="sl-search sl-plate sl-mat-acrylic">
+                <rect class="sl-search-box sl-plate-body" x="216" y="250" width="168" height="28" rx="7"/>
+                <circle class="sl-search-glyph" cx="231" cy="264" r="6"/>
+                <line class="sl-search-glyph" x1="235.5" y1="268.5" x2="240" y2="273"/>
+                <text x="246" y="268"><tspan id="sl-search-text" class="sl-search-text">meeting minutes</tspan><tspan id="sl-search-caret" class="sl-search-caret" dx="1">|</tspan></text>
+                <line class="sl-bevel" x1="218" y1="250.6" x2="382" y2="250.6" stroke="rgba(255,255,255,0.85)" stroke-width="1"/>
+              </g>
             </g>
 
-            <!-- CLOUD (right) — Phosphor cloud-check-style glyph, sized larger for visibility -->
-            <g class="hs-cloud-group" id="hsCloudGroup">
-              <!-- Cloud pulse ring (animated on paper arrival) — drawn BEHIND cloud -->
-              <path class="hs-cloud-pulse" id="hsCloudPulse" d="M 478 135 C 462 135, 450 123, 450 107 C 450 91, 462 80, 478 80 C 483 68, 495 60, 508 60 C 525 60, 539 73, 541 89 C 553 91, 562 101, 562 113 C 562 125, 553 135, 541 135 Z"/>
-              <!-- Cloud shape -->
-              <path class="hs-cloud" id="hsCloud" d="M 478 135 C 462 135, 450 123, 450 107 C 450 91, 462 80, 478 80 C 483 68, 495 60, 508 60 C 525 60, 539 73, 541 89 C 553 91, 562 101, 562 113 C 562 125, 553 135, 541 135 Z"/>
-              <!-- Cloud check mark (cloud-check Phosphor-style glyph), centered inside cloud -->
-              <path class="hs-cloud-check" d="M 487 107 L 499 119 L 521 95"/>
-              <text class="hs-scanner-label" x="506" y="158">Cloud Archive</text>
+            <!-- SCAN LINE — the whole group translates down; the afterglow trails automatically. -->
+            <g id="sl-scan" class="sl-scan">
+              <rect id="sl-afterglow" x="200" y="34" width="200" height="20" fill="url(#sl-afterglow-grad)"/>
+              <line class="sl-scan-glow" x1="200" y1="40" x2="400" y2="40" filter="url(#sl-glow)"/>
+              <line class="sl-scan-core" x1="200" y1="40" x2="400" y2="40"/>
             </g>
 
-            <!-- Live paper stage — JS injects <use> elements here at runtime -->
-            <g class="hs-paper-stage" id="hsPaperStage"></g>
-
-            <!-- Static fallback scene (reduced motion) — three papers locked in narrative positions -->
-            <g class="hs-static-scene" id="hsStaticScene" style="display:none;">
-              <use class="hs-paper" href="#hs-paper-template" x="155" y="197" width="26" height="34"/>
-              <use class="hs-paper scanned" href="#hs-paper-template" x="385" y="200" width="20" height="26"/>
-              <use class="hs-paper scanned" href="#hs-paper-template" x="450" y="135" width="14" height="18"/>
+            <!-- GOVERNED FRAME (DrawSVG). Gold lock seal REMOVED 2026-07-01 (Ethan's call) — do NOT restore. -->
+            <g id="sl-frame-group">
+              <!-- governed frame — PLATE (navy powder-coat bezel, lift 3px, lowest structure). GSAP animates
+                   its drawSVG (stroke-dashoffset), which does not conflict with the CSS transform/filter. -->
+              <rect id="sl-frame" class="sl-frame sl-plate sl-plate-body sl-mat-navy-frame" x="188" y="28" width="224" height="304" rx="12"/>
             </g>
           </svg>
+          <!-- STAGE TIMELINE (2026-07-01, spec-scanning-hero-stage-timeline.md): the copper
+               dot walks Paper → Scanning → Governed Record, frame-locked into the journey tl.
+               DEFAULT (no-JS / reduced-motion / no-GSAP) = finished poster: inline dot inside the
+               Governed Record span, that span .is-active. The journey branch adds .is-animated
+               (hides the inline dot, reveals the floating .hsl-marker), resets to Paper, and glides. -->
           <div class="hero-story-legend" aria-hidden="true">
-            <span><span class="dot"></span>Records</span>
-            <span>Scanned</span>
-            <span>Cloud Archive</span>
+            <span class="hsl-item">Paper</span>
+            <span class="hsl-item">Scanning</span>
+            <span class="hsl-item is-active"><span class="dot"></span>Governed Record</span>
+            <span class="hsl-marker" aria-hidden="true"></span>
           </div>
-        </div>
+          </div><!-- /.hero-story-frame -->
+        </div><!-- /.sl-tilt-stage -->
         <p class="hero-caption">Paper records become searchable digital records &mdash; without leaving your governance.</p>
       </div>
     </div>
@@ -792,6 +1072,14 @@
   </div>
 </footer>
 
+<!-- GSAP core + free plugins (v3.13.0 — all plugins are free as of 3.13), pinned on jsDelivr.
+     Powers the hero "Scan-Line" showpiece. Loaded blocking, before the controller below, so
+     window.gsap is present when it runs. If any of these fail to load, the controller detects
+     the missing libs and leaves the resolved POSTER frame intact (never a blank card). -->
+<script src="assets/js/gsap.min.js"></script>
+<script src="assets/js/ScrollTrigger.min.js"></script>
+<script src="assets/js/DrawSVGPlugin.min.js"></script>
+<script src="assets/js/TextPlugin.min.js"></script>
 <script>
 (function() {
   'use strict';
@@ -815,15 +1103,24 @@
     var triggers = document.querySelectorAll('.nav-mega-trigger');
     if (!triggers.length) return;
     var mqMobile = window.matchMedia('(max-width: 1024px)');
+    // Condensed desktop band (1025-1440px). Ceiling MUST match the CSS
+    // media query in assets/css/sytech-shared.css (media queries can't read a JS var).
+    var mqBand = window.matchMedia('(min-width: 1025px) and (max-width: 1440px)');
 
     Array.prototype.forEach.call(triggers, function(trigger) {
       var megaLi = trigger.closest('.nav-has-mega');
       var chevron = trigger.querySelector('.nav-mega-chevron');
 
       trigger.addEventListener('click', function(e) {
+        // Condensed desktop band: Services collapses to a plain link that
+        // jumps to the homepage service tiles (its dropdown is CSS-hidden).
+        // Skip Resources (.nav-has-mega--compact), which keeps its dropdown.
+        if (mqBand.matches && !megaLi.classList.contains('nav-has-mega--compact')) {
+          e.preventDefault();
+          window.location.href = 'index.html#service-tiles';
+          return;
+        }
         if (!mqMobile.matches) return;
-        var clickedChevron = chevron && (e.target === chevron || chevron.contains(e.target));
-        if (!clickedChevron) return;
         e.preventDefault();
         var isOpen = megaLi.classList.toggle('is-open');
         trigger.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
@@ -948,7 +1245,7 @@
       var rect = hero.getBoundingClientRect();
       var w = Math.max(1, Math.round(rect.width));
       var h = Math.max(1, Math.round(rect.height));
-      dpr = Math.min(window.devicePixelRatio || 1, 2);  // cap DPR for perf
+      dpr = Math.min(window.devicePixelRatio || 1, 1.5);  // cap DPR for perf (spec §3)
       canvas.width = w * dpr;
       canvas.height = h * dpr;
       canvas.style.width = w + 'px';
@@ -1042,232 +1339,405 @@
   })();
 
   // ============================================================
-  // HERO STORY ANIMATION — continuous paper-flow loop
-  // Stages per paper (~12s lifecycle):
-  //   0.00 - 0.18  Slide from inbox to scanner intake (x: 90 → 218)
-  //   0.18 - 0.34  Inside scanner; scan beam pulses; opacity dips briefly
-  //   0.34 - 0.40  Emerges from scanner exit; flips to "scanned" state
-  //   0.40 - 0.92  Travels along dotted path to cloud entry
-  //   0.92 - 1.00  Absorbs into cloud; cloud pulse triggers
-  // New paper spawns every 3s → up to 4 papers in flight simultaneously.
-  // Paused via IntersectionObserver when offscreen.
+  // HERO SHOWPIECE — "The Scan-Line" (GSAP + DrawSVG), 2026-07-01
+  // Spec: planning/spec-scanning-hero-showpiece.md
+  //
+  // A copper scan-line sweeps a single aged paper record ONCE; the
+  // analog page resolves in its wake into a crisp, searchable,
+  // governed digital record, then a navy frame draws. (The gold lock
+  // seal beat was REMOVED 2026-07-01.) Plays ONCE on scroll-into-view,
+  // then HOLDS the resolved record (no idle loop; only the caret blinks).
+  //
+  // The SVG's DEFAULT state IS the resolved POSTER, so reduced
+  // motion OR a GSAP load failure both leave a finished, on-message
+  // card — never a blank/broken one. Only when motion is allowed AND
+  // gsap + ScrollTrigger loaded do we RESET to the start frame and play.
   // ============================================================
-  var heroStory = document.getElementById('heroStory');
-  var paperStage = document.getElementById('hsPaperStage');
-  var flowPath = document.getElementById('hsFlowPath');
-  var staticScene = document.getElementById('hsStaticScene');
-  var scanBeam = document.getElementById('hsBeam');
-  var cloudPulse = document.getElementById('hsCloudPulse');
-  var cloudGroup = document.getElementById('hsCloudGroup');
-  var SVG_NS = 'http://www.w3.org/2000/svg';
+  (function() {
+    var heroStory = document.getElementById('heroStory');
+    var svg = document.getElementById('scanlineSvg');
+    if (!heroStory) return;
 
-  // Reveal the hero story frame on load (single-fire entrance)
-  if (heroStory) {
-    window.setTimeout(function() { heroStory.classList.add('is-visible'); }, 300);
-  }
+    var gsapReady = !!(window.gsap && window.ScrollTrigger && svg);
+    var hasDraw = gsapReady && !!window.DrawSVGPlugin;
+    var hasText = gsapReady && !!window.TextPlugin;
 
-  if (prefersReducedMotion) {
-    // Static composed scene — no JS animation
-    if (staticScene) staticScene.style.display = 'block';
-  } else if (heroStory && paperStage && flowPath && scanBeam && cloudPulse) {
-    var pathLength = flowPath.getTotalLength();
-    var pathStart = flowPath.getPointAtLength(0);   // cached: scanner-exit reference point
-    var papers = [];          // active paper records: { use, start }
-    var lastSpawn = -Infinity;
-    var lastCloudPulse = -Infinity;
-    var lastBeamFlash = -Infinity;
-    var SPAWN_INTERVAL = 3000;       // ms between paper spawns
-    var LIFETIME = 12000;            // ms per paper full lifecycle
-    var paused = false;
-    var rafId = null;
-    var pausedAccum = 0;             // accumulated pause time to keep timeline consistent
-    var pauseStart = 0;
-
-    // Helper: spawn a paper element
-    function spawnPaper(now) {
-      var use = document.createElementNS(SVG_NS, 'use');
-      use.setAttributeNS(null, 'href', '#hs-paper-template');
-      use.setAttributeNS(null, 'width', '26');
-      use.setAttributeNS(null, 'height', '34');
-      use.setAttribute('class', 'hs-paper');
-      // initial position at inbox exit
-      use.setAttributeNS(null, 'x', '90');
-      use.setAttributeNS(null, 'y', '197');
-      paperStage.appendChild(use);
-      papers.push({ use: use, start: now, scanned: false });
+    // Reduced motion OR libs missing → keep the default poster; just fade the card in.
+    if (prefersReducedMotion || !gsapReady) {
+      window.setTimeout(function() { heroStory.classList.add('is-visible'); }, 200);
+      // No journey runs here to arm the stacked-hover later, so ARM it immediately and
+      // open the clip headroom. (reduced-motion never matches the hover media query, so
+      // this is inert there; on a no-GSAP-but-motion-allowed device the poster hovers.)
+      var f = heroStory.querySelector('.hero-story-frame');
+      if (f) f.classList.add('sl-armed');
+      var rr = document.getElementById('sl-reveal-rect');
+      if (rr) { rr.setAttribute('y', '20'); rr.setAttribute('height', '300'); }
+      return;
     }
 
-    // Helper: trigger scanner beam flash (copper horizontal line pulses during scan)
-    // LIGHT-HERO: peak opacity raised to 1.0 (was 0.95) — on white the beam must be a
-    // fully-opaque copper sweep to read as a scan; glow does not translate to light.
-    function flashBeam(now) {
-      if (now - lastBeamFlash < 500) return;
-      lastBeamFlash = now;
-      scanBeam.style.transition = 'none';
-      scanBeam.style.opacity = '1';
-      // Force reflow so the next transition triggers
-      void scanBeam.getBoundingClientRect();
-      scanBeam.style.transition = 'opacity 450ms ease-out';
-      scanBeam.style.opacity = '0';
-    }
+    gsap.registerPlugin(ScrollTrigger);
+    if (hasDraw) gsap.registerPlugin(DrawSVGPlugin);
+    if (hasText) gsap.registerPlugin(TextPlugin);
 
-    // Helper: trigger cloud pulse ring
-    function pulseCloud(now) {
-      if (now - lastCloudPulse < 500) return;
-      lastCloudPulse = now;
-      cloudPulse.style.transition = 'none';
-      cloudPulse.style.opacity = '0.85';
-      cloudPulse.style.strokeWidth = '2';
-      // Force reflow
-      void cloudPulse.getBoundingClientRect();
-      cloudPulse.style.transition = 'opacity 900ms ease-out, stroke-width 900ms ease-out';
-      cloudPulse.style.opacity = '0';
-      cloudPulse.style.strokeWidth = '8';
-      // Cloud check briefly brightens
-      if (cloudGroup) {
-        cloudGroup.style.transition = 'opacity 250ms ease';
-        cloudGroup.style.opacity = '1';
-        window.setTimeout(function() {
-          if (cloudGroup) {
-            cloudGroup.style.opacity = '0.85';
-            window.setTimeout(function() {
-              if (cloudGroup) cloudGroup.style.opacity = '';
-            }, 250);
-          }
-        }, 200);
+    gsap.context(function() {
+      var analog     = svg.querySelector('#sl-analog');
+      var revealRect = svg.querySelector('#sl-reveal-rect');
+      var scan       = svg.querySelector('#sl-scan');
+      var afterglow  = svg.querySelector('#sl-afterglow');
+      var frame      = svg.querySelector('#sl-frame');
+      /* #sl-lock / #sl-lock-shine references REMOVED 2026-07-01 — the gold lock seal was deleted. */
+      var chips      = svg.querySelectorAll('#sl-chips .sl-chip');
+      var ocrHit     = svg.querySelector('#sl-ocr-hit');
+      var searchText = svg.querySelector('#sl-search-text');
+      var storyFrame = heroStory.querySelector('.hero-story-frame');  // .sl-armed / focus / hover target
+      var QUERY = 'meeting minutes';   // neutral query — not a fabricated claim
+      var REVEAL_H = 280;              // reveal rect full height (doc y 40 → 320)
+      var passProxy = { p: 0 };
+
+      // ---- LOOP GATE (spec §3): loop ONLY where a hover CAN pause it. Touch/no-hover play
+      //      once + hold forever (today's behavior); reduced-motion/no-GSAP never reach here. ----
+      var canHoverFine = !!(window.matchMedia &&
+        window.matchMedia('(hover: hover) and (pointer: fine)').matches);
+      var loopEnabled = canHoverFine;
+
+      // ---- LEGEND setup (helpers defined EARLY so resetToStart() + the dissolve glide can reuse them) ----
+      // The copper marker walks Paper → Scanning → Governed Record, frame-locked to the journey, and
+      // glides HOME to Paper during the dissolve exhale. (Forward glide tweens are added below, after tl.)
+      var legend    = heroStory.querySelector('.hero-story-legend');
+      var hslItems  = legend ? legend.querySelectorAll('.hsl-item') : null;   // [Paper, Scanning, Governed]
+      var hslMarker = legend ? legend.querySelector('.hsl-marker') : null;
+      var MARK_GAP  = 11;      // dot width (6) + leading gap (~5) — tunable feel knob
+      var activeIndex = 0;
+      // leading-dot X for label i (offsetLeft valid even while the card is opacity:0). Clamped ≥0.
+      function stopFor(i){ return hslItems ? Math.max(0, hslItems[i].offsetLeft - MARK_GAP) : 0; }
+      function activate(i){
+        activeIndex = i;
+        if (!hslItems) return;
+        hslItems.forEach(function(el, idx){ el.classList.toggle('is-active', idx === i); });
       }
-    }
+      if (legend) legend.classList.add('is-animated');   // hide inline dot, reveal floating marker
 
-    // Main tick — drives all in-flight papers
-    function tick(timestamp) {
-      if (paused) { rafId = null; return; }
-      var now = timestamp - pausedAccum;
-
-      // Spawn a new paper every SPAWN_INTERVAL
-      if (now - lastSpawn >= SPAWN_INTERVAL) {
-        lastSpawn = now;
-        spawnPaper(now);
+      // ---- resetToStart(): rebuild the RAW start frame every cycle so each loop is byte-identical
+      //      to the first play. RE-CLOSES the clip to y40/h0 (NOT the opened y20/h300). ----
+      function resetToStart() {
+        revealRect.setAttribute('y', '40');       // re-close clip TOP to the true start (undo the y20 open)
+        revealRect.setAttribute('height', '0');   // fully clipped — the digital record is hidden again
+        scan.setAttribute('transform', 'translate(0,0)');
+        if (searchText) searchText.textContent = '';
+        passProxy.p = 0;
+        gsap.set(analog,   { opacity: 0, y: 8 });
+        gsap.set(scan,     { opacity: 0 });
+        gsap.set(afterglow,{ opacity: 0 });
+        gsap.set(chips,    { opacity: 0, scale: 0.8, transformOrigin: '50% 50%' });
+        gsap.set(ocrHit,   { scaleX: 0, transformOrigin: '0% 50%' });
+        if (hasDraw) gsap.set(frame, { drawSVG: '0%' });
+        else gsap.set(frame, { opacity: 0 });
+        if (legend) { activate(0); gsap.set(hslMarker, { x: stopFor(0) }); }  // idempotent (dissolve glided it home)
       }
 
-      // Advance each paper
-      for (var i = papers.length - 1; i >= 0; i--) {
-        var p = papers[i];
-        var t = (now - p.start) / LIFETIME;  // 0..1 progress
+      // Apply the start frame once, then reveal the card (no poster flash).
+      resetToStart();
+      heroStory.classList.add('is-visible');
 
-        if (t >= 1) {
-          // Paper has arrived at cloud — clean up
-          if (p.use && p.use.parentNode) p.use.parentNode.removeChild(p.use);
-          papers.splice(i, 1);
-          continue;
-        }
+      // ============================================================
+      // LOOP CONTROLLER — two gates (inView, hovering) drive one syncPlayState().
+      // phase: 'idle' | 'playing' | 'holding' | 'dissolving' | 'done'
+      //   HOVER now FREEZES-IN-PLACE (Change 3) instead of force-finishing, so there is no
+      //   transient 'settling' phase any more — hover simply pauses whatever phase is live.
+      // ============================================================
+      var HOLD_DUR   = 2.0;    // GOVERNED dwell — rebalanced to ≈ paper dwell (CHANGE 1: was 6.5, 2026-07-02)
+      var MIN_SETTLE = 0.45;   // ≥ plate settle (420ms) so plates fully lower before a dissolve
+      var phase    = 'idle';
+      var inView   = false;
+      var hovering = false;    // pointer OVER the card OR keyboard focus within it
+      var holdCall = null;     // gsap.delayedCall handle for the hold countdown
 
-        var x, y, opacity, scanned;
+      // ---- MASTER TIMELINE (~6.20s w/ the ~2.0s paper dwell, paused until scrolled into view) ----
+      var tl = gsap.timeline({
+        paused: true,
+        onComplete: onJourneyComplete
+      });
 
-        var w = 26, h = 34;   // default paper size (Stages A-C)
-        var setSize = false;
+      // ---- DISSOLVE (spec §4): svg-ROOT crossfade — ONE target, no internal-group dependencies.
+      //      Fades the resolved record + navy frame + copper chips + search field + faint grid as a
+      //      single unit (the card "exhales"), rebuilds the start frame under cover, breathes, replays.
+      //      Built once, paused; replayed each cycle via dissolveTl.restart(). ----
+      var dissolveTl = gsap.timeline({
+        paused: true,
+        onStart: function(){ if (storyFrame) storyFrame.classList.remove('sl-armed'); },  // DISARM first
+        onComplete: onDissolveComplete
+      });
+      // 0.00 → 0.70  exhale: svg fades out with a subtle centered scale settle (NO slide, no blur).
+      dissolveTl.to(svg, { opacity: 0, scale: 0.99, transformOrigin: '50% 50%',
+        duration: 0.70, ease: 'power2.inOut' }, 0);
+      // 0.05 → 0.65  legend marker glides HOME to Paper (mirrors the forward glides); label flips at glide start.
+      if (legend) {
+        dissolveTl.to(hslMarker, { x: stopFor(0), duration: 0.60, ease: 'power2.inOut',
+          onStart: function(){ activate(0); } }, 0.05);
+      }
+      // 0.72  scene rebuilt to the raw start frame while the svg is invisible (clip re-closes here).
+      dissolveTl.call(function(){ resetToStart(); }, null, 0.72);
+      // 0.74  bare ruled grid reappears (all content reset/empty).
+      dissolveTl.set(svg, { opacity: 1, scale: 1 }, 0.74);
+      // 0.74 → 0.94  empty-grid breath (no tweens) — spacer holds the timeline open so onComplete fires at ~0.94.
+      dissolveTl.to({}, { duration: 0.20 }, 0.74);
 
-        if (t < 0.18) {
-          // Stage A: slide from inbox to scanner intake
-          var a = t / 0.18;
-          // top-left coordinates; paper sits at y=197 (visually centered on scanner slot y=215)
-          x = 90 + (205 - 90) * easeInOutQuad(a);
-          y = 197;
-          opacity = 1;
-          scanned = false;
-        } else if (t < 0.34) {
-          // Stage B: inside scanner (paper hidden behind scanner top)
-          var b = (t - 0.18) / 0.16;
-          x = 205 + (340 - 205) * b;
-          y = 197;
-          opacity = 0.22;
-          scanned = false;
-          // Flash beam roughly when paper crosses scanner mid
-          if (b > 0.30 && b < 0.55) flashBeam(now);
-        } else if (t < 0.42) {
-          // Stage C: emerging from scanner exit; flip to "scanned" tint; converge onto path start
-          var c = (t - 0.34) / 0.08;
-          var ce = easeInOutQuad(c);
-          // Tween top-left from scanner exit edge (340, 197) onto path-start-centered position
-          var endX = pathStart.x - w / 2;
-          var endY = pathStart.y - h / 2;
-          x = 340 + (endX - 340) * ce;
-          y = 197 + (endY - 197) * ce;
-          opacity = 0.22 + 0.78 * ce;
-          scanned = true;
-        } else {
-          // Stage D: follow dotted curve from scanner exit to cloud entry
-          var d = (t - 0.42) / 0.50;       // 0..1 along curve
-          var eased = easeInOutCubic(d);
-          var pt = flowPath.getPointAtLength(pathLength * eased);
-          // Paper shrinks slightly approaching cloud (creates "deposit into cloud" effect)
-          var scale = 1 - 0.40 * eased;
-          w = 26 * scale; h = 34 * scale;
-          setSize = true;
-          x = pt.x - w / 2;
-          y = pt.y - h / 2;
-          // Fade as it enters cloud (last 15%)
-          if (d > 0.85) {
-            opacity = 1 - (d - 0.85) / 0.15;
-            // Trigger cloud pulse once per paper near absorption
-            if (!p.deposited) { pulseCloud(now); p.deposited = true; }
+      // ---- Controller functions (declarations = hoisted; safe to reference in tl/dissolveTl configs above) ----
+
+      // ---- arriveFinished(): the "we're now at the fully-resolved, armed frame" arrival, reached ONLY
+      //      by the NATURAL journey completion (Change 3 removed the hover force-finish path). Arms the
+      //      stacked-hover, opens the clip TOP so lifted plates (header sits at the clip's top edge, y40)
+      //      don't clip (bottom stays 320 = 20+300; nothing is drawn above y40, so ZERO visual change at
+      //      rest), parks the legend on Governed, then enters the ~2.0s HOLD (paused instantly if
+      //      hovering/off-screen). Every finish routes through here → 'holding' → beginDissolve →
+      //      resetToStart(), so the reset/replay path stays byte-identical every cycle. ----
+      function arriveFinished(){
+        if (storyFrame) storyFrame.classList.add('sl-armed');
+        revealRect.setAttribute('y', '20');
+        revealRect.setAttribute('height', '300');
+        if (legend){ activate(2); gsap.set(hslMarker, { x: stopFor(2) }); }   // park legend on Governed
+        if (!loopEnabled){ phase = 'done'; return; }   // touch/no-hover: hold forever (unchanged)
+        phase = 'holding';
+        holdCall = gsap.delayedCall(HOLD_DUR, beginDissolve);
+        syncPlayState();                                // hovering/off-screen → pause the hold instantly
+      }
+
+      function onJourneyComplete(){
+        // Natural end of playback. Hover freezes (pauses) the journey now, so tl only completes while
+        // NOT hovering; the guard just ignores any spurious complete outside a live play.
+        if (phase !== 'playing') return;
+        arriveFinished();
+      }
+
+      function beginDissolve(){
+        phase = 'dissolving';
+        dissolveTl.restart();   // onStart disarms; onComplete → onDissolveComplete
+      }
+      function onDissolveComplete(){
+        phase = 'playing';
+        tl.invalidate();        // re-read the freshly-reset values as each .to()'s start state
+        tl.play(0);
+        syncPlayState();
+      }
+
+      // ---- HOVER = FREEZE-IN-PLACE (CHANGE 3, 2026-07-02). Pointer-enter/focus PAUSES the journey at
+      //      the current playhead (NO jump to the finished frame) and ARMS the stacked lift on whatever
+      //      plates are visible right now; leave/blur DISARMS (plates settle) and RESUMES from the exact
+      //      frame. This REPLACES the old hoverForceFinish()/arriveFinished()-on-hover glide-to-end. ----
+      var freezeClip = null;   // saved {y,h} of the clip so a mid-journey freeze restores cleanly
+      // Open ONLY the clip's TOP edge to y20 so lifted plates gain headroom (the header sits AT the clip
+      // top, y40; its lifted top face would otherwise clip). We move the top up but KEEP the bottom
+      // reveal line exactly where the scan has reached — so a mid-scan freeze never exposes content the
+      // light hasn't passed yet, and nothing is drawn between y20 and y40 so the opened strip is empty.
+      function openClipTopForFreeze(){
+        var y = parseFloat(revealRect.getAttribute('y'));      if (isNaN(y)) y = 40;
+        var h = parseFloat(revealRect.getAttribute('height')); if (isNaN(h)) h = 0;
+        freezeClip = { y: y, h: h };
+        var bottom = y + h;
+        revealRect.setAttribute('y', '20');
+        revealRect.setAttribute('height', String(Math.max(0, bottom - 20)));
+      }
+      function restoreClipAfterFreeze(){
+        if (!freezeClip) return;
+        revealRect.setAttribute('y', String(freezeClip.y));
+        revealRect.setAttribute('height', String(freezeClip.h));
+        freezeClip = null;
+      }
+      function onHoverEnter(){
+        hovering = true;
+        if (!loopEnabled) return;                 // touch/no-hover never freezes (poster just holds)
+        openClipTopForFreeze();                   // headroom for the lift; bottom reveal line preserved
+        if (storyFrame) storyFrame.classList.add('sl-armed');
+        syncPlayState();                          // hovering === true → pauses whatever phase is live
+      }
+      function onHoverLeave(){
+        hovering = false;
+        if (!loopEnabled) return;
+        if (storyFrame) storyFrame.classList.remove('sl-armed');  // plates settle (CSS 420ms)
+        restoreClipAfterFreeze();                 // clip back to its pre-freeze journey state
+        syncPlayState();                          // resume from the exact frozen frame
+      }
+
+      function syncPlayState(){
+        var run = inView && !hovering;            // a phase advances only when watched AND not frozen
+        if (phase === 'playing'){
+          run ? tl.play() : tl.pause();
+        } else if (phase === 'holding' && holdCall){
+          if (run){
+            var remaining = holdCall.duration() - holdCall.time();
+            if (remaining < MIN_SETTLE) holdCall.time(holdCall.duration() - MIN_SETTLE); // don't yank plates
+            holdCall.resume();
           } else {
-            opacity = 1;
+            holdCall.pause();
           }
-          scanned = true;
-        }
-
-        p.use.setAttributeNS(null, 'x', x);
-        p.use.setAttributeNS(null, 'y', y);
-        if (setSize) {
-          p.use.setAttributeNS(null, 'width', w);
-          p.use.setAttributeNS(null, 'height', h);
-        }
-        p.use.style.opacity = opacity;
-        if (scanned && !p.scanned) {
-          p.use.setAttribute('class', 'hs-paper scanned');
-          p.scanned = true;
+        } else if (phase === 'dissolving'){
+          run ? dissolveTl.play() : dissolveTl.pause();
         }
       }
 
-      rafId = window.requestAnimationFrame(tick);
-    }
+      // ---- STAGE SEEK (CHANGE 2, 2026-07-02): clicking a legend label seeks the journey to the START
+      //      of that stage and PLAYS FORWARD from there (Ethan's call: play forward, not pause). The
+      //      click clears any in-flight hover-freeze + running dissolve and re-runs the loop from the
+      //      stage. Retimed stage starts: Paper 0 · Scanning 1.8 (scan-ignite) · Governed 4.85 (marker
+      //      landed on Governed; frame drawn; chips crowning). 4.85 is used (not the 4.35 Slide-2 START)
+      //      so the marker Slide-2 tween is already COMPLETE — the legend jumps cleanly to Governed with
+      //      no re-glide fight. ----
+      var STAGE_T = [0, 1.8, 4.85];
+      function seekToStage(i){
+        var t = STAGE_T[i] || 0;
+        // 1. clear a running dissolve + any pending hold, un-fade the svg, disarm, drop the hover-freeze.
+        dissolveTl.pause();
+        gsap.set(svg, { opacity: 1, scale: 1 });
+        if (holdCall){ holdCall.kill(); holdCall = null; }
+        if (storyFrame) storyFrame.classList.remove('sl-armed');
+        freezeClip = null;
+        hovering = false;   // the click/keypress is a deliberate GO — override the pointer-over freeze;
+                            // a fresh pointer leave→enter re-arms the freeze normally.
+        // 2. clean baseline, then seek the timeline to the stage start (tween-driven state renders here).
+        resetToStart();
+        tl.pause();
+        tl.invalidate();
+        tl.time(t);         // events suppressed — renders all tween props (analog/scan/frame/chips/…) at t
+        // 3. reconcile the setAttribute-driven reveal (it lives in the pass onUpdate, not a plain tween).
+        //    Stage starts land only at pp = 0 (Paper/Scanning) or 1 (Governed), so the ease is moot.
+        var pp = (t < 2.0) ? 0 : (t >= 4.2 ? 1 : (t - 2.0) / 2.2);
+        var d = REVEAL_H * pp;
+        revealRect.setAttribute('y', '40');
+        revealRect.setAttribute('height', String(d));
+        scan.setAttribute('transform', 'translate(0,' + d + ')');
+        passProxy.p = pp;
+        // 4. jump the legend marker + active label to the clicked stage immediately.
+        if (legend){ activate(i); gsap.set(hslMarker, { x: stopFor(i) }); }
+        // 5. play forward from the stage (respect off-screen; hovering was just cleared).
+        phase = 'playing';
+        if (inView) tl.play(); else tl.pause();
+      }
 
-    function easeInOutQuad(t) { return t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2; }
-    function easeInOutCubic(t) { return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2; }
+      // ---- Hover / focus bindings (freeze-in-place). Bound to the frame, not the wrapper. ----
+      if (storyFrame){
+        storyFrame.addEventListener('pointerenter', function(e){ if(e.pointerType==='touch') return; onHoverEnter(); });
+        storyFrame.addEventListener('pointerleave', function(e){ if(e.pointerType==='touch') return; onHoverLeave(); });
+        storyFrame.addEventListener('focusin',  function(){ onHoverEnter(); });
+        storyFrame.addEventListener('focusout', function(){ onHoverLeave(); });
+      }
 
-    function start() {
-      if (rafId !== null) return;
-      if (pauseStart) { pausedAccum += performance.now() - pauseStart; pauseStart = 0; }
-      paused = false;
-      heroStory.classList.remove('is-paused');
-      rafId = window.requestAnimationFrame(tick);
-    }
-    function stop() {
-      if (rafId !== null) { window.cancelAnimationFrame(rafId); rafId = null; }
-      paused = true;
-      pauseStart = performance.now();
-      heroStory.classList.add('is-paused');
-    }
+      // ---- STAGE TIMELINE: copper marker walks Paper → Scanning → Governed Record ----
+      // Frame-locked into the master tl. Legend refs + stopFor()/activate() are defined above
+      // (shared with resetToStart + the dissolve glide-home); here we only add the FORWARD glides.
+      if (legend) {
+        // Capture the two destination stops now — layout is stable at this point.
+        var s1 = stopFor(1), s2 = stopFor(2);
+        // Slide 1 → Scanning as the sweep begins (Scanning lights on onStart; dot arrives ~2.5).
+        // (CHANGE 1, 2026-07-02: scan block shifted −0.2 as a rigid block → 2.2 became 2.0.)
+        tl.to(hslMarker, { x: s1, duration: 0.5, ease: 'power2.inOut',
+          onStart: function(){ activate(1); } }, 2.0);
+        // Slide 2 → Governed Record as the frame closes / chips crown (dot lands ~4.85).
+        // (CHANGE 1: 4.55 became 4.35.)
+        tl.to(hslMarker, { x: s2, duration: 0.5, ease: 'power2.inOut',
+          onStart: function(){ activate(2); } }, 4.35);
 
-    // Pause animation when scrolled out of viewport
-    if ('IntersectionObserver' in window) {
-      var heroIO = new IntersectionObserver(function(entries) {
-        entries.forEach(function(entry) {
-          if (entry.isIntersecting) start();
-          else stop();
+        // Resize safety: reseat the marker at the CURRENT active label's stop.
+        window.addEventListener('resize', function(){
+          gsap.set(hslMarker, { x: stopFor(activeIndex) });
+        }, { passive: true });
+
+        // ---- CHANGE 2 (2026-07-02): upgrade the three labels into stage controls that PLAY FORWARD
+        //      from the clicked stage. Done here in the JOURNEY branch ONLY — the reduced-motion /
+        //      no-GSAP fallback keeps the plain decorative legend (no dead buttons). Works for pointer,
+        //      touch (tap), and keyboard (Enter/Space). NOTE: the legend sits inside .hero-story
+        //      [role="img"], which can suppress screen-reader exposure of these controls; keyboard
+        //      focus + activation still work. (Flagged for Cole — restructuring role="img" is out of
+        //      scope for this pass.) ----
+        legend.removeAttribute('aria-hidden');
+        if (hslMarker) hslMarker.setAttribute('aria-hidden', 'true');
+        var dotEl = legend.querySelector('.dot'); if (dotEl) dotEl.setAttribute('aria-hidden', 'true');
+        var STAGE_LABELS = ['Replay from Paper', 'Replay from Scanning', 'Replay from Governed Record'];
+        hslItems.forEach(function(el, i){
+          el.setAttribute('role', 'button');
+          el.setAttribute('tabindex', '0');
+          el.setAttribute('aria-label', STAGE_LABELS[i]);
+          el.addEventListener('click', function(){ seekToStage(i); });
+          el.addEventListener('keydown', function(ev){
+            if (ev.key === 'Enter' || ev.key === ' ' || ev.key === 'Spacebar'){ ev.preventDefault(); seekToStage(i); }
+          });
         });
-      }, { threshold: 0.05 });
-      heroIO.observe(heroStory);
-    } else {
-      start();
-    }
+      }
 
-    // Pause when tab is hidden, resume when visible (battery courtesy)
-    document.addEventListener('visibilitychange', function() {
-      if (document.hidden) stop();
-      else if (heroStory.getBoundingClientRect().bottom > 0 && heroStory.getBoundingClientRect().top < window.innerHeight) start();
-    });
-  }
+      // ---- PACING (CHANGE 1, 2026-07-02): ~2.0s PAPER DWELL. The analog sheet still settles in at 0
+      //      (0.0–0.35) and HOLDS visible through the gap 0.35 → 1.8 (dot rests on PAPER) until the scan
+      //      ignites. The scan block + EVERY downstream beat + the two legend slides were shifted −0.2s
+      //      as a RIGID BLOCK (internal spacing UNCHANGED — the scan-ignite→sweep→resolve segment is
+      //      untouched) to trim the paper dwell from ~2.2s to ~2.0s. Old→new insert times: scan ignite
+      //      2.0→1.8 · pass 2.2→2.0 · fades 4.2→4.0 / 4.15→3.95 · frame 4.25→4.05 · chips 4.75→4.55 ·
+      //      search 5.25→5.05 · OCR 5.95→5.75. Journey now ends ~6.20s (was 6.40). resetToStart()
+      //      re-hides analog each loop, so the paper fades in and dwells identically every cycle. ----
+
+      // 1. analog settles in (0.0–0.35), then HOLDS visible (paper dwell ≈ 2.0s) until scan ignites at 1.8
+      tl.to(analog, { opacity: 1, y: 0, duration: 0.35, ease: 'power2.out' }, 0);
+
+      // 2. scan-line ignites at the top edge (1.8–2.0)   [scan block start; internal timing unchanged]
+      tl.to(scan,      { opacity: 1, duration: 0.2, ease: 'power1.out' }, 1.8);
+      tl.to(afterglow, { opacity: 1, duration: 0.2, ease: 'power1.out' }, 1.8);
+
+      // 3. THE PASS (2.0–4.2) — reveal + scan-line locked to ONE progress value (duration 2.2 unchanged),
+      //    so the digital record resolves exactly in the light's wake.
+      tl.to(passProxy, {
+        p: 1, duration: 2.2, ease: 'power2.inOut',
+        onUpdate: function() {
+          var d = REVEAL_H * passProxy.p;
+          revealRect.setAttribute('height', d);                    // digital resolves top→down
+          scan.setAttribute('transform', 'translate(0,' + d + ')'); // light rides the seam
+        }
+      }, 2.0);
+
+      // 4. scan fades out at the bottom; analog cleans up; governed frame draws.   [−0.2 block offsets]
+      //    (Gold lock seal beat REMOVED 2026-07-01 — the timeline now runs straight from
+      //     the frame draw into the chip stagger; no lock/lockShine tweens, no orphaned targets.)
+      tl.to(scan,      { opacity: 0, duration: 0.3, ease: 'power1.in' }, 4.0);
+      tl.to(afterglow, { opacity: 0, duration: 0.3, ease: 'power1.in' }, 4.0);
+      tl.to(analog,    { opacity: 0, duration: 0.3, ease: 'power1.in' }, 3.95);
+      if (hasDraw) tl.to(frame, { drawSVG: '100%', duration: 0.55, ease: 'power1.inOut' }, 4.05);
+      else tl.to(frame, { opacity: 1, duration: 0.55, ease: 'power1.inOut' }, 4.05);
+
+      // 5. index chips stagger in (4.55–4.90) — subtle, premium, not bouncy
+      tl.to(chips, { opacity: 1, scale: 1, duration: 0.35, stagger: 0.08, ease: 'back.out(1.3)' }, 4.55);
+
+      // 6. search types a neutral query, then the OCR "match" highlights (5.05–6.20)
+      if (hasText && searchText) {
+        tl.to(searchText, { duration: 0.7, text: { value: QUERY }, ease: 'none' }, 5.05);
+      } else if (searchText) {
+        tl.call(function() { searchText.textContent = QUERY; }, null, 5.05);
+      }
+      tl.to(ocrHit, { scaleX: 1, duration: 0.45, ease: 'power2.out' }, 5.75);
+
+      // ---- ScrollTrigger (spec §6): toggle pauses/resumes EVERY phase off-screen (was once:true).
+      //      First kick starts the journey; thereafter inView drives whatever object is live
+      //      (journey tl, holdCall, or dissolveTl) via syncPlayState(), so the loop never churns
+      //      while unwatched and resumes exactly where it left off. ----
+      var st = ScrollTrigger.create({
+        trigger: heroStory,
+        start: 'top 85%',
+        end: 'bottom 15%',
+        onToggle: function(self){
+          inView = self.isActive;
+          if (inView && phase === 'idle'){ phase = 'playing'; tl.play(0); }  // first kick
+          else syncPlayState();
+        }
+      });
+      // Load-in-view safety (onToggle may not fire if already active at creation):
+      if (st.isActive && phase === 'idle'){ inView = true; phase = 'playing'; tl.play(0); }
+    }, heroStory);
+  })();
+
+  // ============================================================
+  // HERO SHOWPIECE — 3D PERSPECTIVE TILT: REMOVED (2026-07-01)
+  // The mouse-proximity perspective tilt was replaced by the "Milled Material"
+  // stacked-depth HOVER, which is pure declarative CSS (see the stacked-hover
+  // <style> block, gated behind @media (hover)+(pointer:fine)+(no-preference)
+  // and the .sl-armed class the journey adds on completion). No JS runs the hover;
+  // the only JS hook is arming .sl-armed + opening the clip rect, handled inside
+  // the Scan-Line controller above (onComplete / poster branch). Nothing here now.
+  // ============================================================
 
   // ----- IntersectionObserver helper (single-fire) -----
   function observe(el, onEnter, threshold) {

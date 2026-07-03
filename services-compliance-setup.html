@@ -121,6 +121,13 @@
   border-radius: 14px;
   padding: 1.25rem 1rem 1rem;
   box-shadow: 0 20px 60px rgba(37,66,107,0.10), 0 1px 3px rgba(37,66,107,0.06);
+  /* Batch 4: lock text-selection/long-press-copy on the graphic frame (SVG diagram text +
+     stage legend labels); keep an arrow cursor. The .hero-caption prose and hero H1/lead
+     sit outside this frame and stay selectable; the .hero-dotfield canvas has no text. */
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+  cursor: default;
 }
 .hero-story-frame::before {
   content: '';
@@ -457,7 +464,9 @@
 .cross-link h2 { font-size: clamp(1.6rem, 2.6vw, 2rem); font-weight: 700; line-height: 1.2; margin-bottom: 2.5rem; letter-spacing: -0.01em; color: var(--navy); }
 .cross-link-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; max-width: 880px; margin: 0 auto 2rem; text-align: left; }
 .cross-link-card { display: flex; flex-direction: column; gap: 0.75rem; padding: 1.75rem 1.75rem 1.5rem; background: var(--white); border-left: 4px solid var(--xlink-ui); border-radius: 4px; box-shadow: 0 2px 8px rgba(37,66,107,0.04); transition: transform 300ms ease, box-shadow 300ms ease; text-decoration: none; }
+@media (hover: hover) and (pointer: fine) {
 .cross-link-card:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(37,66,107,0.10); }
+}
 .cross-link-card:focus-visible { outline: 3px solid var(--xlink-ui); outline-offset: 3px; }
 .cross-link-card .card-eyebrow { font-size: 0.65rem; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; color: var(--xlink-ink); }
 .cross-link-card h3 { font-size: clamp(1.15rem, 1.8vw, 1.35rem); font-weight: 700; color: var(--navy); line-height: 1.25; letter-spacing: -0.005em; position: relative; display: inline-block; }
@@ -466,7 +475,9 @@
 .cross-link-card p { font-size: 0.95rem; line-height: 1.65; color: var(--text-body); margin: 0; }
 .cross-link-card .card-arrow { margin-top: auto; display: inline-flex; align-items: center; gap: 0.4rem; font-size: 0.82rem; font-weight: 700; color: var(--navy); letter-spacing: 0.02em; padding-top: 0.5rem; }
 .cross-link-card .card-arrow i { font-size: 18px; transition: transform 300ms ease; }
+@media (hover: hover) and (pointer: fine) {
 .cross-link-card:hover .card-arrow i { transform: translateX(4px); color: var(--xlink-ui); }
+}
 /* Destination color-coding — cross-link ("Other Ways We Organize") cards.
    FAMILY-WIDE COPPER (decided 2026-06-23): the whole Organize family collapses to copper, so these
    dest cards now use this page's copper recipe instead of each destination page's own brand color.
@@ -478,7 +489,9 @@
 .cross-link-framework { display: inline-flex; align-items: center; gap: 0.4rem; font-size: 0.9rem; font-weight: 700; color: var(--navy); letter-spacing: 0.02em; position: relative; }
 .cross-link-framework::after { content: ''; position: absolute; bottom: -3px; left: 0; width: 100%; height: 2px; background: var(--accent); transform: scaleX(0); transform-origin: left; transition: transform 300ms ease; }
 .cross-link-framework:hover { color: var(--accent); }
+@media (hover: hover) and (pointer: fine) {
 .cross-link-framework:hover::after { transform: scaleX(1); }
+}
 
 
 /* ---- Generic reveal helper ---- */
@@ -1350,15 +1363,24 @@
     var triggers = document.querySelectorAll('.nav-mega-trigger');
     if (!triggers.length) return;
     var mqMobile = window.matchMedia('(max-width: 1024px)');
+    // Condensed desktop band (1025-1440px). Ceiling MUST match the CSS
+    // media query in assets/css/sytech-shared.css (media queries can't read a JS var).
+    var mqBand = window.matchMedia('(min-width: 1025px) and (max-width: 1440px)');
 
     Array.prototype.forEach.call(triggers, function(trigger) {
       var megaLi = trigger.closest('.nav-has-mega');
       var chevron = trigger.querySelector('.nav-mega-chevron');
 
       trigger.addEventListener('click', function(e) {
+        // Condensed desktop band: Services collapses to a plain link that
+        // jumps to the homepage service tiles (its dropdown is CSS-hidden).
+        // Skip Resources (.nav-has-mega--compact), which keeps its dropdown.
+        if (mqBand.matches && !megaLi.classList.contains('nav-has-mega--compact')) {
+          e.preventDefault();
+          window.location.href = 'index.html#service-tiles';
+          return;
+        }
         if (!mqMobile.matches) return;
-        var clickedChevron = chevron && (e.target === chevron || chevron.contains(e.target));
-        if (!clickedChevron) return;
         e.preventDefault();
         var isOpen = megaLi.classList.toggle('is-open');
         trigger.setAttribute('aria-expanded', isOpen ? 'true' : 'false');

@@ -408,7 +408,9 @@ body {
 .story-progress-stop::before {
   content: ''; position: absolute; inset: -8px; border-radius: 50%;
 }
+@media (hover: hover) and (pointer: fine) {
 .story-progress-stop:hover { transform: scale(1.5); }
+}
 .story-progress-stop.reached { background: var(--azure); }
 .story-panel { text-align: center; position: relative; transition: opacity 0.6s ease; cursor: pointer; }
 .story-panel.dimmed { opacity: 0.5; }
@@ -421,9 +423,11 @@ body {
   margin: 0 auto 1.25rem; position: relative; z-index: 2;
   cursor: pointer; transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
+@media (hover: hover) and (pointer: fine) {
 .story-stage-num:hover {
   transform: scale(1.2);
   box-shadow: 0 0 0 4px rgba(48,157,236,0.25), 0 4px 12px rgba(0,0,0,0.2);
+}
 }
 .story-stage-num:active { transform: scale(1.1); }
 .story-stage-num.s1 { background: var(--azure); }
@@ -738,7 +742,9 @@ body {
 .features { padding: 7rem 0; background: var(--white); }
 .features-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2rem; }
 .feature-card { padding: 2.5rem; border-radius: 16px; background: var(--canvas); border: 1px solid transparent; transition: all 0.4s; }
-.feature-card:hover { background: var(--white); border-color: var(--field-gray); box-shadow: 0 16px 48px rgba(37,66,107,0.08); transform: translateY(-4px); }
+@media (hover: hover) and (pointer: fine) {
+  .feature-card:hover { background: var(--white); border-color: var(--field-gray); box-shadow: 0 16px 48px rgba(37,66,107,0.08); transform: translateY(-4px); }
+}
 .feature-icon { width: 56px; height: 56px; border-radius: 14px; display: flex; align-items: center; justify-content: center; margin-bottom: 1.5rem; }
 .feature-icon.azure { background: rgba(48,157,236,0.1); color: var(--azure); }
 .feature-icon.teal { background: rgba(57,185,196,0.1); color: var(--teal); }
@@ -1036,7 +1042,9 @@ body {
   transition: transform 0.6s cubic-bezier(0.25,0.46,0.45,0.94);
   transform-style: preserve-3d;
 }
-.flip-card:hover .flip-card-inner,
+@media (hover: hover) and (pointer: fine) {
+  .flip-card:hover .flip-card-inner { transform: rotateY(180deg); }
+}
 .flip-card.flipped .flip-card-inner { transform: rotateY(180deg); }
 
 .flip-front, .flip-back {
@@ -1109,6 +1117,57 @@ body {
   letter-spacing: 1px; margin-bottom: 12px;
 }
 .flip-solve { font-size: 0.875rem; color: rgba(255,255,255,0.8); line-height: 1.7; }
+
+/* === Batch 3 (touch / non-hover): STATIC STACKED CARD — no flip ===
+   Ethan's decision: on touch there is no flip. The light front (icon + problem
+   title) and the navy back ("The Fix" label + solution) lay back into normal
+   flow as ONE coherent card — problem heading on top, solution below — fully
+   readable with zero interaction. The cards are also stripped of
+   role="button"/tabindex/aria-label in JS on these devices since there is
+   nothing to activate. The 3D geometry (perspective, absolute faces, fixed
+   260px flip height) is neutralized here and lives only on hover+fine.
+   (OneForm's only prefers-reduced-motion block targets the video, not these
+   cards, so there is no crossfade start-state to reset.) Grid stretch plus
+   `.flip-back{flex:1}` equalizes sibling heights side-by-side; at ≤560px the
+   2-up grid drops to 1-up so a fully-expanded static card has room to read. */
+@media (hover: none), (pointer: coarse) {
+  .flip-card {
+    height: auto;
+    perspective: none;
+    cursor: default;
+  }
+  .flip-card-inner {
+    position: relative;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    transform: none !important;
+    transform-style: flat;
+  }
+  .flip-card.wiggle .flip-card-inner { animation: none; }
+  .flip-front, .flip-back {
+    position: relative;
+    inset: auto;
+    transform: none !important;
+    backface-visibility: visible;
+    -webkit-backface-visibility: visible;
+    border-radius: 0;
+  }
+  .flip-front {
+    flex: 0 0 auto;
+    border-radius: 16px 16px 0 0;
+  }
+  .flip-back {
+    flex: 1 1 auto;
+    border-radius: 0 0 16px 16px;
+  }
+  .flip-hint { display: none; }
+  .flip-nudge { display: none; }
+}
+@media (hover: none) and (max-width: 560px),
+       (pointer: coarse) and (max-width: 560px) {
+  .why-cards { grid-template-columns: 1fr; }
+}
 
 /* Stat counters */
 .why-stats {
@@ -1353,9 +1412,11 @@ body {
   text-align: left; position: relative;
   transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
+@media (hover: hover) and (pointer: fine) {
 .sp-card:hover {
   transform: translateY(-4px);
   box-shadow: 0 12px 32px rgba(37,66,107,0.1);
+}
 }
 .sp-card::before {
   content: '\201C'; position: absolute; top: 14px; left: 18px;
@@ -2611,15 +2672,24 @@ Need help with records migration, legacy digitization, or broader modernization?
     var triggers = document.querySelectorAll('.nav-mega-trigger');
     if (!triggers.length) return;
     var mqMobile = window.matchMedia('(max-width: 1024px)');
+    // Condensed desktop band (1025-1440px). Ceiling MUST match the CSS
+    // media query in assets/css/sytech-shared.css (media queries can't read a JS var).
+    var mqBand = window.matchMedia('(min-width: 1025px) and (max-width: 1440px)');
 
     Array.prototype.forEach.call(triggers, function(trigger) {
       var megaLi = trigger.closest('.nav-has-mega');
       var chevron = trigger.querySelector('.nav-mega-chevron');
 
       trigger.addEventListener('click', function(e) {
+        // Condensed desktop band: Services collapses to a plain link that
+        // jumps to the homepage service tiles (its dropdown is CSS-hidden).
+        // Skip Resources (.nav-has-mega--compact), which keeps its dropdown.
+        if (mqBand.matches && !megaLi.classList.contains('nav-has-mega--compact')) {
+          e.preventDefault();
+          window.location.href = 'index.html#service-tiles';
+          return;
+        }
         if (!mqMobile.matches) return;
-        var clickedChevron = chevron && (e.target === chevron || chevron.contains(e.target));
-        if (!clickedChevron) return;
         e.preventDefault();
         var isOpen = megaLi.classList.toggle('is-open');
         trigger.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
@@ -3427,10 +3497,20 @@ setInterval(() => {
       firstCard.classList.add('wiggle-done');
     }
   }
+  // Batch 3: on touch / non-hover devices the cards render as static stacked
+  // cards (problem + fix both visible), so there is nothing to activate. Strip
+  // the button semantics (role/tabindex/aria-label) and attach NO handlers.
+  const isHoverDevice = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
   flipCards.forEach(card => {
+    if (!isHoverDevice) {
+      card.removeAttribute('role');
+      card.removeAttribute('tabindex');
+      card.removeAttribute('aria-label');
+      return;
+    }
     card.addEventListener('click', function(e) {
       // Only toggle on touch devices or narrow screens
-      if (window.innerWidth > 768 && !('ontouchstart' in window)) return;
+      if (window.matchMedia('(hover: hover) and (pointer: fine)').matches) return;
       e.preventDefault();
       flipHandler(card);
     });

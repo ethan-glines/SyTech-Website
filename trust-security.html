@@ -7,12 +7,33 @@
 <meta name="description" content="SyTech's security and compliance posture: data sovereignty, a stand-alone secure facility, vetted staff under signed agreements, certified destruction, GPS-tracked transport, an E&amp;O cyber rider, and enterprise-grade cloud infrastructure."/>
 <link rel="stylesheet" href="assets/css/sytech-shared.css">
 <style>
-.page-hero { padding: 11rem 0 5rem; background: linear-gradient(175deg, var(--deep-navy) 0%, var(--navy) 60%, #2d5080 100%); position: relative; overflow: hidden; color: var(--white); }
+/* Standalone hero gradient (restored). The data-sovereignty graphic moved
+   INTO this hero as the right column, so there is no longer a dark section
+   below to seam into — the next section down is the light Security Overview.
+   Ends on the #2d5080 "blue lift" (mirrors who-we-serve.html) so the navy
+   fades up into the light section cleanly. */
+.page-hero { padding: 9.5rem 0 4rem; background: linear-gradient(175deg, var(--deep-navy) 0%, var(--navy) 60%, #2d5080 100%); position: relative; overflow: hidden; color: var(--white); }
 .page-hero::after { content: ''; position: absolute; inset: 0; background-image: radial-gradient(rgba(255,255,255,0.04) 1px, transparent 1px); background-size: 24px 24px; pointer-events: none; }
 .page-hero .eyebrow { display: inline-block; font-size: 0.7rem; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; color: var(--gold); margin-bottom: 1rem; }
 .page-hero h1 { font-size: clamp(2rem, 4.5vw, 3.2rem); font-weight: 700; line-height: 1.15; margin-bottom: 1.25rem; letter-spacing: -0.01em; }
 .page-hero h1 span { color: var(--gold); }
 .page-hero p.lead { font-size: 1.15rem; line-height: 1.7; color: rgba(255,255,255,0.82); max-width: 720px; }
+
+/* Two-column hero (mirrors the who-we-serve.html Earth-Wrap hero geometry):
+   real page copy left (~57%), data-sovereignty graphic right (~43%). The grid
+   is layered onto the shared .container so its max-width/margin/padding hold. */
+.page-hero .container {
+  display: grid;
+  grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+  align-items: start;
+  gap: clamp(2rem, 5vw, 4.5rem);
+}
+.hero-copy { position: relative; z-index: 1; }
+.page-hero .hero-copy .lead { max-width: 48ch; } /* tighter measure in the narrower column */
+.hero-graphic {
+  position: relative; z-index: 1;
+  display: flex; flex-direction: column; align-items: center;
+}
 
 .section { padding: 5rem 0; }
 .section.alt { background: var(--light); }
@@ -89,7 +110,199 @@
 .btn-primary { display: inline-block; padding: 0.85rem 2rem; background: var(--gold); color: var(--deep-navy); font-size: 0.95rem; font-weight: 700; border-radius: 6px; text-decoration: none; transition: all 0.3s; border: none; cursor: pointer; }
 .btn-primary:hover { background: #d4952a; transform: translateY(-2px); box-shadow: 0 6px 20px rgba(229,166,48,0.35); }
 
-@media (max-width: 900px) { .page-hero { padding: 9rem 0 4rem; } .section, .trust-strip-section { padding: 3.5rem 0; } .security-lead { padding: 1.75rem 1.5rem; } }
+@media (max-width: 900px) {
+  .page-hero { padding: 9rem 0 3.5rem; }
+  /* hero stacks: copy first, graphic below (matches who-we-serve.html) */
+  .page-hero .container { grid-template-columns: 1fr; gap: 2.5rem; }
+  .hero-copy { order: 1; }
+  .hero-graphic { order: 2; }
+  .section, .trust-strip-section { padding: 3.5rem 0; }
+  .security-lead { padding: 1.75rem 1.5rem; }
+}
+
+/* ============================================================
+   DATA SOVEREIGNTY GRAPHIC (ported from
+   source/data-sovereignty-hero-claude-design-handoff — "v2":
+   the 8 guarantees stacked inside the tenant boundary under the
+   gold lock seal). Self-contained + fully .syt- namespaced.
+   NOTE: this graphic originally lived in its own dark .syt-hero
+   <section>; that wrapper was removed and the graphic now sits as
+   the .page-hero right column. Design tokens moved onto .syt-tenant
+   (NOT :root) so they cannot leak into the page or shared CSS. The
+   static CSS state below IS the finished poster — GSAP only plays an
+   intro when it loads AND motion is allowed. Brand: navy #25426B / gold #E5A630.
+   ============================================================ */
+.syt-tenant, .syt-tenant * { box-sizing: border-box; margin: 0; padding: 0; }
+
+/* ---------- Tenant stage (formerly the graphic's outer .syt-hero wrapper) ----------
+   The standalone dark section (radial background + large padding) was removed;
+   the tenant now sits directly on the .page-hero navy gradient as the hero's
+   right column. The scoped tokens live here so they still cascade to every
+   inner .syt-* piece but cannot leak into the page or shared CSS. */
+.syt-tenant {
+  /* scoped tokens (non-leaking) */
+  --navy: #25426B;
+  --navy-deep: #14243D;        /* seal body + boundary-tag fill */
+  --navy-surface: #1C3252;     /* plate face */
+  --navy-edge: #33517F;        /* plate top-edge highlight */
+  --gold: #E5A630;
+  --ink: #E8EDF5;              /* primary text on dark */
+  --ink-dim: #93A5C0;          /* secondary text */
+  --line: rgba(147,165,192,.28);
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  color: var(--ink);
+
+  position: relative;
+  width: 100%;                 /* fill the .hero-graphic flex column, capped below */
+  max-width: 580px;
+  margin: 0 auto;
+  padding: clamp(26px, 4vw, 40px) clamp(20px, 3.5vw, 36px);
+  /* Batch 4: lock text-selection/long-press-copy across the whole graphic (plates,
+     labels, boundary tags); keep an arrow cursor (not the text I-beam). */
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+  cursor: default;
+}
+.syt-boundary-svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  pointer-events: none;
+}
+.syt-boundary-svg .syt-corner {
+  fill: none;
+  stroke: var(--gold);
+  stroke-width: 2;
+  vector-effect: non-scaling-stroke;
+  opacity: .9;
+}
+.syt-boundary-tag {
+  position: absolute;
+  top: -11px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--navy-deep);
+  border: 1px solid rgba(147,165,192,.25);
+  border-radius: 999px;
+  padding: 4px 14px;
+  font-size: 10px;
+  letter-spacing: .2em;
+  text-transform: uppercase;
+  color: var(--ink-dim);
+  white-space: nowrap;
+}
+
+/* Inside the boundary */
+.syt-vault {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 18px;
+}
+
+/* ---------- Gold lock seal ---------- */
+.syt-seal {
+  position: relative;
+  width: 86px; height: 86px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: radial-gradient(circle at 35% 30%, #F3C05C 0%, var(--gold) 45%, #B07C1B 100%);
+  box-shadow:
+    0 0 0 6px rgba(229,166,48,.14),
+    0 0 0 1px rgba(229,166,48,.5),
+    0 8px 24px rgba(0,0,0,.5);
+}
+.syt-seal svg { display: block; }
+.syt-seal-ring {
+  position: absolute;
+  inset: -14px;
+  border-radius: 50%;
+  border: 1px dashed rgba(229,166,48,.35);
+  pointer-events: none;
+}
+
+/* ---------- Manifest: the 8 guarantees, stacked inside ---------- */
+.syt-manifest {
+  width: 100%;
+  display: grid;
+  grid-template-columns: 1fr 1fr;   /* 2×4: source-order l,r,l,r… → all plate-l land left, plate-r right */
+  gap: 9px 10px;
+}
+.syt-plate {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  background: linear-gradient(180deg, var(--navy-edge) 0%, var(--navy-surface) 8%, var(--navy-surface) 100%);
+  border: 1px solid rgba(147,165,192,.18);
+  border-radius: 6px;
+  box-shadow:
+    0 1px 0 rgba(255,255,255,.06) inset,
+    0 2px 6px rgba(0,0,0,.35);
+  cursor: default;
+  transition: transform .28s cubic-bezier(.22,.9,.3,1.2), box-shadow .28s ease, border-color .28s ease;
+  will-change: transform;
+}
+/* Signature interaction: plate lifts off the surface */
+@media (hover: hover) and (pointer: fine) {
+.syt-plate:hover {
+  transform: translateY(-5px);
+  border-color: rgba(229,166,48,.45);
+  box-shadow:
+    0 1px 0 rgba(255,255,255,.09) inset,
+    0 0 0 1px rgba(229,166,48,.18),
+    0 0 18px rgba(229,166,48,.12),
+    0 14px 28px rgba(0,0,0,.5),
+    0 4px 10px rgba(0,0,0,.35);
+}
+}
+.syt-plate::after {              /* soft shadow pooling beneath */
+  content: "";
+  position: absolute;
+  left: 10%; right: 10%; bottom: -8px;
+  height: 10px;
+  border-radius: 50%;
+  background: rgba(0,0,0,.4);
+  filter: blur(6px);
+  opacity: 0;
+  transition: opacity .28s ease;
+  pointer-events: none;
+}
+@media (hover: hover) and (pointer: fine) {
+  .syt-plate:hover::after { opacity: 1; }
+}
+
+.syt-plate-pip {
+  flex: none;
+  width: 8px; height: 8px;
+  border-radius: 2px;
+  background: var(--gold);
+  transform: rotate(45deg);
+}
+.syt-plate-label {
+  font-size: 13.5px;
+  font-weight: 500;
+  letter-spacing: .02em;
+  line-height: 1.35;
+  color: var(--ink);
+}
+
+/* ---------- Very narrow screens: collapse the 2-col plate grid back to one column ---------- */
+@media (max-width: 520px) {
+  .syt-manifest { grid-template-columns: 1fr; }
+}
+
+/* ---------- Reduced motion: kill hover transform too ---------- */
+@media (prefers-reduced-motion: reduce) {
+  .syt-plate, .syt-plate::after { transition: none; }
+  .syt-plate:hover { transform: none; }
+}
 </style>
 </head>
 <body>
@@ -200,26 +413,75 @@
 
 <section class="page-hero">
   <div class="container">
-    <span class="eyebrow">Trust &amp; Security</span>
-    <h1>Your Records. Your Cloud. <span>Your Control.</span></h1>
-    <p class="lead">We handle records for government agencies, which means we handle trust. This page lays out exactly how we protect your data: where it lives, who is allowed near it, and the proof behind every claim. No vague assurances.</p>
+
+    <!-- LEFT: real page hero copy (verbatim) -->
+    <div class="hero-copy">
+      <span class="eyebrow">Trust &amp; Security</span>
+      <h1>Your Records. Your Cloud. <span>Your Control.</span></h1>
+      <p class="lead">We handle records for government agencies, which means we handle trust. This page lays out exactly how we protect your data: where it lives, who is allowed near it, and the proof behind every claim. No vague assurances.</p>
+    </div>
+
+    <!-- ============================================================
+         RIGHT: DATA SOVEREIGNTY GRAPHIC (v2)
+         Moved out of its former standalone dark .syt-hero section and
+         re-parented here as the hero's right column; the .syt-head
+         heading block was removed. The .syt-tenant stage and every inner
+         .syt-* piece are preserved verbatim so the inline CSS + GSAP intro
+         still target them. Static markup below IS the finished poster
+         (renders with no JS). The group is labeled for assistive tech —
+         the removed heading's context now lives on the group label.
+         ============================================================ -->
+    <div class="hero-graphic">
+      <div class="syt-tenant" role="group" aria-label="Data sovereignty: agency records and eight guarantees held inside your own tenant, under a gold lock seal">
+        <!-- Gold corner brackets (frame is marked by corners only) -->
+        <svg class="syt-boundary-svg" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
+          <path class="syt-corner" data-anim="corner" d="M1 9 L1 1 L9 1" pathLength="10"></path>
+          <path class="syt-corner" data-anim="corner" d="M91 1 L99 1 L99 9" pathLength="10"></path>
+          <path class="syt-corner" data-anim="corner" d="M99 91 L99 99 L91 99" pathLength="10"></path>
+          <path class="syt-corner" data-anim="corner" d="M9 99 L1 99 L1 91" pathLength="10"></path>
+        </svg>
+        <span class="syt-boundary-tag" data-anim="tag">Agency tenant boundary</span>
+
+        <div class="syt-vault">
+          <!-- Gold lock seal -->
+          <div class="syt-seal" data-anim="seal" role="img" aria-label="Locked and sealed">
+            <span class="syt-seal-ring" data-anim="sealring"></span>
+            <svg width="34" height="38" viewBox="0 0 34 38" aria-hidden="true">
+              <g data-anim="shackle">
+                <path d="M9 17 V11 a8 8 0 0 1 16 0 V17" fill="none" stroke="#14243D" stroke-width="3.5" stroke-linecap="round"></path>
+              </g>
+              <rect x="5" y="16" width="24" height="18" rx="3" fill="#14243D"></rect>
+              <circle cx="17" cy="24" r="2.6" fill="var(--gold)"></circle>
+              <rect x="15.8" y="25" width="2.4" height="5" rx="1.2" fill="var(--gold)"></rect>
+            </svg>
+          </div>
+
+          <!-- The manifest: guarantees stacked inside the tenant -->
+          <div class="syt-manifest">
+            <div class="syt-plate" data-anim="plate-l"><span class="syt-plate-pip"></span><span class="syt-plate-label">In your own tenant</span></div>
+            <div class="syt-plate" data-anim="plate-r"><span class="syt-plate-pip"></span><span class="syt-plate-label">Your policies govern</span></div>
+            <div class="syt-plate" data-anim="plate-l"><span class="syt-plate-pip"></span><span class="syt-plate-label">Never on our servers</span></div>
+            <div class="syt-plate" data-anim="plate-r"><span class="syt-plate-pip"></span><span class="syt-plate-label">Never resold</span></div>
+            <div class="syt-plate" data-anim="plate-l"><span class="syt-plate-pip"></span><span class="syt-plate-label">No lock-in</span></div>
+            <div class="syt-plate" data-anim="plate-r"><span class="syt-plate-pip"></span><span class="syt-plate-label">Encryption at rest</span></div>
+            <div class="syt-plate" data-anim="plate-l"><span class="syt-plate-pip"></span><span class="syt-plate-label">Encrypted in transit</span></div>
+            <div class="syt-plate" data-anim="plate-r"><span class="syt-plate-pip"></span><span class="syt-plate-label">Monitored daily</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
   </div>
 </section>
 
 <!-- ============================================================
-     DATA SOVEREIGNTY LEAD
+     SECURITY OVERVIEW
      ============================================================ -->
 <section class="section" aria-labelledby="security-overview-heading">
   <div class="container">
     <span class="section-eyebrow">Security Overview</span>
     <h2 id="security-overview-heading">Built to Protect What Agencies Can't Afford to Lose.</h2>
     <p class="lead-row">Public records carry real consequences when they're exposed, lost, or mishandled. We've spent 25 years building our work around that reality. Security at SyTech isn't a single feature — it's how the whole operation is designed, from where your data lives to who is allowed near it.</p>
-
-    <div class="security-lead">
-      <span class="sov-eyebrow">Data Sovereignty</span>
-      <h3>Your Data Stays in Your Cloud.</h3>
-      <p>This is the foundation of how we work. Your records, forms, and workflows live inside your agency's own Microsoft 365 or Google tenant — the platforms you already own and control. We don't hold your data on our servers. We don't resell it. We don't move it somewhere you can't see. Your security policies govern your data, always.</p>
-    </div>
   </div>
 </section>
 
@@ -371,15 +633,24 @@
     var triggers = document.querySelectorAll('.nav-mega-trigger');
     if (!triggers.length) return;
     var mqMobile = window.matchMedia('(max-width: 1024px)');
+    // Condensed desktop band (1025-1440px). Ceiling MUST match the CSS
+    // media query in assets/css/sytech-shared.css (media queries can't read a JS var).
+    var mqBand = window.matchMedia('(min-width: 1025px) and (max-width: 1440px)');
 
     Array.prototype.forEach.call(triggers, function(trigger) {
       var megaLi = trigger.closest('.nav-has-mega');
       var chevron = trigger.querySelector('.nav-mega-chevron');
 
       trigger.addEventListener('click', function(e) {
+        // Condensed desktop band: Services collapses to a plain link that
+        // jumps to the homepage service tiles (its dropdown is CSS-hidden).
+        // Skip Resources (.nav-has-mega--compact), which keeps its dropdown.
+        if (mqBand.matches && !megaLi.classList.contains('nav-has-mega--compact')) {
+          e.preventDefault();
+          window.location.href = 'index.html#service-tiles';
+          return;
+        }
         if (!mqMobile.matches) return;
-        var clickedChevron = chevron && (e.target === chevron || chevron.contains(e.target));
-        if (!clickedChevron) return;
         e.preventDefault();
         var isOpen = megaLi.classList.toggle('is-open');
         trigger.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
@@ -421,6 +692,67 @@
       });
     });
   })();
+})();
+</script>
+
+<!-- ============================================================
+     DATA SOVEREIGNTY GRAPHIC (v2) — intro animation.
+     GSAP core only (no ScrollTrigger / DrawSVG). Self-hosted,
+     not CDN. If GSAP fails to load or motion is reduced, the
+     static poster above still renders — the IIFE returns early.
+     ============================================================ -->
+<script src="assets/js/gsap.min.js"></script>
+
+<script>
+/* ============================================================
+   Intro animation — the tenant establishes, the seal locks,
+   then the guarantees converge INTO the tenant from either
+   side and stack into the manifest. Plays once, then holds.
+   Only runs when GSAP loaded AND user allows motion.
+   All tweens are .from()-style: the CSS-rendered state is the
+   destination, so failure at any point still shows the poster.
+   ============================================================ */
+(function () {
+  var reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  if (typeof gsap === "undefined" || reduced) return; // static poster stands
+
+  var q = function (sel) { return document.querySelectorAll('[data-anim="' + sel + '"]'); };
+
+  var tl = gsap.timeline({ defaults: { ease: "power2.out" } });
+
+  // 1. Boundary establishes: corner brackets draw, label fades in
+  tl.from(q("corner"), {
+      strokeDasharray: "10",
+      strokeDashoffset: 10,
+      opacity: 0,
+      duration: .45,
+      stagger: .06,
+      ease: "power1.out"
+    }, .2)
+    .from(q("tag"), { opacity: 0, duration: .3 }, .5);
+
+  // 2. Lock seal locks: seal pops in, shackle drops closed, ring draws
+  tl.from(q("seal"), {
+      opacity: 0,
+      scale: .6,
+      duration: .45,
+      ease: "back.out(2)"
+    }, .55)
+    .from(q("shackle"), {
+      y: -5,
+      duration: .25,
+      ease: "power3.in"
+    }, .8)
+    .from(q("sealring"), { opacity: 0, scale: .8, duration: .35 }, .85);
+
+  // 3. Guarantees converge into the tenant, alternating sides, top-to-bottom
+  tl.from(q("plate-l"), { opacity: 0, x: -40, duration: .45, stagger: .09 }, .85)
+    .from(q("plate-r"), { opacity: 0, x: 40,  duration: .45, stagger: .09 }, .9);
+
+  // Clear GSAP inline props on plates so CSS :hover transform works cleanly
+  tl.eventCallback("onComplete", function () {
+    gsap.set(".syt-plate", { clearProps: "transform,opacity" });
+  });
 })();
 </script>
 

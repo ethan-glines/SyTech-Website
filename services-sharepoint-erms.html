@@ -106,18 +106,19 @@
 
 
 /* ==========================================================================
-   Hero Animation — v3: 50/50 Split With Shrink-Grow Storytelling
-   12-second cycle. Canvas is split vertically. LEFT panel (proprietary
-   system, broken) shrinks while RIGHT panel (SharePoint, working) grows.
-   The size transition IS the rhetoric — focus literally migrates from
+   Hero Animation — v4: 50/50 Split With Shrink-Grow Storytelling (PLAY-ONCE)
+   Plays once (~9s) and SETTLES on the resolved state — no loop rewind, so the
+   story is never "un-solved". Canvas is split vertically. LEFT panel
+   (proprietary system, broken) shrinks while RIGHT panel (SharePoint, working)
+   grows. The size transition IS the rhetoric — focus literally migrates from
    broken to working.
 
    Choreography map (split X position in viewBox coords, 0..600):
-     0.00s : splitX = 420   (LEFT 70%, RIGHT 30%)  LEFT dominant
-     5.00s : splitX = 300   (balanced 50/50)
-     8.00s : splitX = 180   (LEFT 30%, RIGHT 70%)  RIGHT dominant
-     8.00s — 11.50s : hold at splitX = 180
-     11.50s — 12.00s : ease back to splitX = 420 for next loop
+     0.00s — 1.50s : splitX = 420  (LEFT 70%)  hold, first failure toast lands
+     1.50s — 8.00s : splitX 420 → 180 in ONE continuous smoothstep glide
+                     (v4 fix: the old two-segment ease stalled at t=5)
+     8.00s — 9.00s : hold at 180; broken side dims to 0.55 (echoes the static
+                     fallback); rAF loop then stops permanently
 
    LEFT panel contents:
      - Faux portal frame (frame + title bar dots, no clutter labels)
@@ -324,7 +325,10 @@
    ========================================================================== */
 
 /* --- Desktop radial container --- */
-.hub-wrap { position: relative; max-width: 720px; margin: 3rem auto 0; padding: 4rem 0; }
+.hub-wrap { position: relative; max-width: 720px; margin: 3rem auto 0; padding: 4rem 0;
+  /* Batch 4: lock text-selection/long-press-copy across the graphic — covers both the
+     desktop .hub-radial and the mobile .hub-grid fallback; keep an arrow cursor. */
+  user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; cursor: default; }
 
 /* Radial scene — square container; nodes positioned absolutely; SVG draws connectors */
 .hub-radial {
@@ -384,7 +388,9 @@
   transition: opacity 400ms cubic-bezier(0.4,0,0.2,1), border-color 200ms ease, box-shadow 200ms ease;
 }
 .hub-radial.is-visible .hub-orbital { opacity: 1; }
-.hub-orbital:hover { border-color: rgba(26,110,120,0.55); box-shadow: 0 4px 14px rgba(37,66,107,0.08); }
+@media (hover: hover) and (pointer: fine) {
+  .hub-orbital:hover { border-color: rgba(26,110,120,0.55); box-shadow: 0 4px 14px rgba(37,66,107,0.08); }
+}
 .hub-orbital i { font-size: 38px; color: var(--navy); line-height: 1; }
 .hub-orbital-label { font-size: 0.68rem; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--navy); text-align: center; line-height: 1.2; }
 
@@ -484,23 +490,31 @@
 .cross-link-grid.is-single { grid-template-columns: 428px; justify-content: center; max-width: 880px; }
 
 .cross-link-card { display: flex; flex-direction: column; gap: 0.75rem; padding: 1.75rem 1.75rem 1.5rem; background: var(--white); border-left: 4px solid var(--xlink-ui); border-radius: 4px; box-shadow: 0 2px 8px rgba(37,66,107,0.04); transition: transform 300ms ease, box-shadow 300ms ease; text-decoration: none; }
-.cross-link-card:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(37,66,107,0.10); }
+@media (hover: hover) and (pointer: fine) {
+  .cross-link-card:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(37,66,107,0.10); }
+}
 .cross-link-card:focus-visible { outline: 3px solid var(--xlink-ui); outline-offset: 3px; }
 .cross-link-card .card-eyebrow { font-size: 0.65rem; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; color: var(--xlink-ink); }
 .cross-link-card h3 { font-size: clamp(1.15rem, 1.8vw, 1.35rem); font-weight: 700; color: var(--navy); line-height: 1.25; letter-spacing: -0.005em; position: relative; display: inline-block; }
 .cross-link-card h3::after { content: ''; position: absolute; bottom: -2px; left: 0; width: 0; height: 2px; background: var(--xlink-ui); transition: width 300ms ease; }
-.cross-link-card:hover h3::after { width: 100%; }
+@media (hover: hover) and (pointer: fine) {
+  .cross-link-card:hover h3::after { width: 100%; }
+}
 .cross-link-card p { font-size: 0.95rem; line-height: 1.65; color: var(--text-body); margin: 0; }
 .cross-link-card .card-arrow { margin-top: auto; display: inline-flex; align-items: center; gap: 0.4rem; font-size: 0.82rem; font-weight: 700; color: var(--navy); letter-spacing: 0.02em; padding-top: 0.5rem; }
 .cross-link-card .card-arrow i { font-size: 18px; transition: transform 300ms ease; }
-.cross-link-card:hover .card-arrow i { transform: translateX(4px); color: var(--xlink-ui); }
+@media (hover: hover) and (pointer: fine) {
+  .cross-link-card:hover .card-arrow i { transform: translateX(4px); color: var(--xlink-ui); }
+}
 /* Destination color-coding — each cross-link card wears the accent of the page it LINKS TO (SharePoint ERMS links to OneForm + 1DocStop). Values on white per spec §C. */
 .cross-link-card.dest-oneform  { --xlink-ui: #1593CC; --xlink-ink: #1378A6; }
 .cross-link-card.dest-1docstop { --xlink-ui: #2E7DB5; --xlink-ink: #2A6FA0; }
 .cross-link-framework { display: inline-flex; align-items: center; gap: 0.4rem; font-size: 0.9rem; font-weight: 700; color: var(--navy); letter-spacing: 0.02em; position: relative; }
 .cross-link-framework::after { content: ''; position: absolute; bottom: -3px; left: 0; width: 100%; height: 2px; background: var(--accent); transform: scaleX(0); transform-origin: left; transition: transform 300ms ease; }
 .cross-link-framework:hover { color: var(--accent); }
+@media (hover: hover) and (pointer: fine) {
 .cross-link-framework:hover::after { transform: scaleX(1); }
+}
 
 
 /* ---- Generic reveal helper ---- */
@@ -1303,15 +1317,24 @@
     var triggers = document.querySelectorAll('.nav-mega-trigger');
     if (!triggers.length) return;
     var mqMobile = window.matchMedia('(max-width: 1024px)');
+    // Condensed desktop band (1025-1440px). Ceiling MUST match the CSS
+    // media query in assets/css/sytech-shared.css (media queries can't read a JS var).
+    var mqBand = window.matchMedia('(min-width: 1025px) and (max-width: 1440px)');
 
     Array.prototype.forEach.call(triggers, function(trigger) {
       var megaLi = trigger.closest('.nav-has-mega');
       var chevron = trigger.querySelector('.nav-mega-chevron');
 
       trigger.addEventListener('click', function(e) {
+        // Condensed desktop band: Services collapses to a plain link that
+        // jumps to the homepage service tiles (its dropdown is CSS-hidden).
+        // Skip Resources (.nav-has-mega--compact), which keeps its dropdown.
+        if (mqBand.matches && !megaLi.classList.contains('nav-has-mega--compact')) {
+          e.preventDefault();
+          window.location.href = 'index.html#service-tiles';
+          return;
+        }
         if (!mqMobile.matches) return;
-        var clickedChevron = chevron && (e.target === chevron || chevron.contains(e.target));
-        if (!clickedChevron) return;
         e.preventDefault();
         var isOpen = megaLi.classList.toggle('is-open');
         trigger.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
@@ -1530,14 +1553,13 @@
   })();
 
   // ============================================================
-  // HERO ANIMATION — v3: 50/50 split with shrink-grow choreography
+  // HERO ANIMATION — v4: 50/50 split with shrink-grow choreography (PLAY-ONCE)
   //
-  // 12-second cycle. The SVG canvas is split vertically by `splitX`.
-  // splitX moves across the cycle:
-  //   t = 0.0s : splitX = 420   (LEFT 70%, RIGHT 30%)
-  //   t = 5.0s : splitX = 300   (50/50)
-  //   t = 8.0s : splitX = 180   (LEFT 30%, RIGHT 70%) — and HOLD
-  //   t = 11.5s — 12.0s : ease back to splitX = 420 for next loop
+  // Plays once and settles. The SVG canvas is split vertically by `splitX`:
+  //   t = 0.0s — 1.5s : splitX = 420   (LEFT 70%) hold through first toast
+  //   t = 1.5s — 8.0s : splitX 420 → 180, one continuous smoothstep glide
+  //   t = 8.0s — 9.0s : hold at 180, left side dims; loop stops at t=9 (final
+  //                     frame is permanent — no rewind, no wasted CPU)
   //
   // Element behavior tied to splitX:
   //   - LEFT group: contents authored on a 420-unit-wide design canvas.
@@ -1614,30 +1636,30 @@
     if (staticScene) staticScene.style.display = 'block';
   } else if (heroStory && stage && elLeftGroup && caps.length === 8 && conns.length === 8) {
 
-    // ---- Timing constants (seconds within 12s cycle) ----
-    var CYCLE_MS = 12000;
+    // ---- Timing constants (seconds; play-once timeline) ----
+    var T_END = 9.0;   // final resolved frame; rAF loop stops here permanently
 
-    // splitX choreography keyframes (time s → splitX viewBox units)
-    // 0..5: 420 → 300 (smoothstep)
-    // 5..8: 300 → 180 (smoothstep)
-    // 8..11.5: hold at 180
-    // 11.5..12: 180 → 420 (smoothstep snap-back)
+    // splitX choreography (time s → splitX viewBox units)
+    // v4: ONE continuous smoothstep 420 → 180 over 1.5s–8s. The old version
+    // stitched two smoothstep segments (0–5, 5–8) whose velocity hit zero at
+    // t=5 — the panel visibly stalled mid-move. The initial 1.5s hold keeps
+    // the left panel dominant while the first failure toast lands.
     function smoothstep(a, b, t) {
       var x = Math.max(0, Math.min(1, (t - a) / (b - a)));
       return x * x * (3 - 2 * x);
     }
     function splitAt(t) {
-      if (t < 5)      return 420 - (420 - 300) * smoothstep(0, 5, t);
-      if (t < 8)      return 300 - (300 - 180) * smoothstep(5, 8, t);
-      if (t < 11.5)   return 180;
-      return 180 + (420 - 180) * smoothstep(11.5, 12, t);
+      return 420 - 240 * smoothstep(1.5, 8, t);
     }
 
-    // LEFT panel content event timings (seconds within cycle)
+    // LEFT panel content event timings (seconds within timeline)
     var T_TOAST1_IN  = 0.50, T_TOAST1_OUT = 1.80;
     var T_COST_IN    = 0.60;          // ticker fades in
-    var T_TOAST2_IN  = 2.50, T_TOAST2_OUT = 3.80;
-    var T_LOCK_IN    = 3.80;          // lock lands and lingers
+    var T_TOAST2_IN  = 2.20, T_TOAST2_OUT = 3.40;
+    var T_LOCK_IN    = 3.40;          // lock lands and lingers
+    // v4 legibility fix: all left-panel TEXT fades out by the time the group
+    // scale drops below ~0.73 (text was shrinking into illegible smudges).
+    var T_TEXT_FADE  = 4.60, T_TEXT_GONE = 5.10;
     // Left-panel content fade-out tied to panel-shrink visibility:
     // We fade window + lock when left panel shrinks past their geometric needs.
     // (Done via leftWidth thresholds in render, not pure time.)
@@ -1645,7 +1667,7 @@
     // Cost ticker — relentless/explosive climb (v3.4 retune)
     // Previous formula (4500*t + 1100*t^1.4) topped out near $33K — too gentle.
     // New formula: 30000*t + 10000*t^1.8 — each second adds more than the last.
-    // Projected at freeze point (t≈4.4s from T_COST_IN, then frozen at 5.0s):
+    // Projected at freeze point (t≈4.0s from T_COST_IN, then frozen at T_TEXT_FADE=4.6s):
     //   t=1s →  $40K, t=2s →  $95K, t=3s → $162K, t=4s → $241K, t=4.4s → ~$281K.
     // The exponential term dominates — visually accelerating, unbounded expense.
     var COST_BASE  = 30000;
@@ -1657,7 +1679,7 @@
       splitX: null,
       window: null, toast1: null, toast2: null,
       cost: null, costText: '',
-      lock: null,
+      lock: null, leftDim: null,
       caps: [null, null, null, null, null, null, null, null],
       conns: [null, null, null, null, null, null, null, null],
       capTransforms: ['', '', '', '', '', '', '', ''],
@@ -1688,11 +1710,14 @@
     }
 
     // ---- Initial CSS transitions for smooth opacity changes ----
-    [elToast1, elToast2, elCost, elLock, elBadge, elSpLogo, elWindow].forEach(function(el) {
+    [elToast1, elToast2, elCost, elLock, elSpLogo, elWindow].forEach(function(el) {
       if (el) el.style.transition = 'opacity 350ms cubic-bezier(0.4,0,0.2,1)';
     });
-    caps.forEach(function(c) { c.style.transition = 'opacity 400ms cubic-bezier(0.4,0,0.2,1)'; });
-    conns.forEach(function(k) { k.style.transition = 'opacity 500ms ease-out'; });
+    // v4: caps, connectors and badge are now driven with continuous per-frame
+    // eased values (grow-out choreography) — CSS transitions would lag/fight.
+    caps.forEach(function(c) { c.style.transition = 'none'; });
+    conns.forEach(function(k) { k.style.transition = 'none'; });
+    if (elBadge) elBadge.style.transition = 'none';
 
     // Caps: 8 angles starting at 12 o'clock, clockwise every 45° in radians
     // Order matches v2: 1=top, 2=1:30, 3=3, 4=4:30, 5=6, 6=7:30, 7=9, 8=10:30
@@ -1732,14 +1757,15 @@
     var startTime = null;
     var rafId = null;
     var paused = false;
+    var finished = false;   // play-once: set when the final frame has rendered
     var pausedAccum = 0;
     var pauseStart = 0;
 
     function tick(timestamp) {
       if (paused) { rafId = null; return; }
       if (startTime === null) startTime = timestamp;
-      var elapsed = (timestamp - startTime - pausedAccum) % CYCLE_MS;
-      var t = elapsed / 1000; // seconds within cycle (0..12)
+      var elapsed = timestamp - startTime - pausedAccum;
+      var t = Math.min(elapsed / 1000, T_END); // play-once: clamp at final frame
 
       // -------- Compute split position and panel dimensions --------
       var splitX = splitAt(t);
@@ -1797,29 +1823,35 @@
       setOpacityIfChanged(elToast2, 'toast2', t2On ? '1' : '0');
 
       // Cost ticker — continuously climbing during State A
-      // Visible 0.60s — 5.00s. Fades over 5.00s — 5.50s. Never lands.
+      // Visible 0.60s — T_TEXT_FADE. Fades out before group scale makes the
+      // labels illegible. Never lands.
       var costOp;
-      if (t < T_COST_IN)      costOp = 0;
-      else if (t < 5.0)       costOp = 1;
-      else if (t < 5.5)       costOp = 1 - smoothstep(5.0, 5.5, t);
-      else                    costOp = 0;
+      if (t < T_COST_IN)         costOp = 0;
+      else if (t < T_TEXT_FADE)  costOp = 1;
+      else if (t < T_TEXT_GONE)  costOp = 1 - smoothstep(T_TEXT_FADE, T_TEXT_GONE, t);
+      else                       costOp = 0;
       setOpacityIfChanged(elCost, 'cost', costOp.toFixed(2));
       if (costOp > 0.01 && t >= T_COST_IN) {
         // Value at this t — increments throughout, never winds down
         // Freeze the displayed number after t=5.0s so it fades out at whatever
         // it had reached, not continuing to climb during the fade.
-        var ttCalc = Math.min(t, 5.0) - T_COST_IN;
+        var ttCalc = Math.min(t, T_TEXT_FADE) - T_COST_IN;
         var currentCost = COST_BASE * ttCalc + COST_ACCEL * Math.pow(ttCalc, COST_EXP);
         setCostText(formatCost(currentCost));
       }
 
-      // Paywall lock: 3.80s — 5.00s, fades during transition 5.00s — 5.50s
+      // Paywall lock: T_LOCK_IN — T_TEXT_FADE, fades with the other left text
       var lockOp;
-      if (t < T_LOCK_IN)      lockOp = 0;
-      else if (t < 5.0)       lockOp = 1;
-      else if (t < 5.5)       lockOp = 1 - smoothstep(5.0, 5.5, t);
-      else                    lockOp = 0;
+      if (t < T_LOCK_IN)         lockOp = 0;
+      else if (t < T_TEXT_FADE)  lockOp = 1;
+      else if (t < T_TEXT_GONE)  lockOp = 1 - smoothstep(T_TEXT_FADE, T_TEXT_GONE, t);
+      else                       lockOp = 0;
       setOpacityIfChanged(elLock, 'lock', lockOp.toFixed(2));
+
+      // Settle: once focus has fully migrated, dim the broken side toward the
+      // static-fallback treatment (0.55) so the resolved state owns the frame.
+      var leftDim = 1 - 0.45 * smoothstep(7.5, 9, t);
+      setOpacityIfChanged(elLeftGroup, 'leftDim', leftDim.toFixed(2));
 
       // -------- RIGHT PANEL — SharePoint composition --------
       // Compute center + radial radius from right panel geometry
@@ -1844,52 +1876,55 @@
       logoOp = Math.max(0, Math.min(1, logoOp));
       setOpacityIfChanged(elSpLogo, 'spLogo', logoOp.toFixed(2));
 
-      // Caps — position + opacity each frame
+      // Caps — v4 grow-out choreography: each cap eases OUT of the logo
+      // (radius 0.4r → r) while scaling 0.6 → 1 and fading in, instead of a
+      // bare opacity pop at its threshold. Progress still keyed to rightW so
+      // caps appear in order as the panel grows.
+      var capEase = [];   // per-cap eased progress, reused by the connector pass
       for (var ci = 0; ci < 8; ci++) {
+        var p = (rightW - CAP_THRESHOLDS[ci]) / 40;
+        p = Math.max(0, Math.min(1, p));
+        var eo = 1 - Math.pow(1 - p, 3);   // easeOutCubic
+        capEase[ci] = eo;
         var ang = CAP_ANGLES[ci];
-        var ex = rcx + r * Math.cos(ang);
-        var ey = rcy + r * Math.sin(ang);
-        var tx = ex - 16;
-        var ty = ey - 16;
-        var ttf = 'translate(' + tx.toFixed(1) + ' ' + ty.toFixed(1) + ')';
+        var capR = r * (0.4 + 0.6 * eo);
+        var cs = 0.6 + 0.4 * eo;
+        var ex = rcx + capR * Math.cos(ang);
+        var ey = rcy + capR * Math.sin(ang);
+        var ttf = 'translate(' + ex.toFixed(1) + ' ' + ey.toFixed(1) + ') scale(' + cs.toFixed(3) + ') translate(-16 -16)';
         if (state.capTransforms[ci] !== ttf) {
           state.capTransforms[ci] = ttf;
           caps[ci].setAttribute('transform', ttf);
         }
-        // Reveal: fade in when right panel width crosses threshold,
-        // smooth over a 40-unit range
-        var threshold = CAP_THRESHOLDS[ci];
-        var capOp = (rightW - threshold) / 40;
-        capOp = Math.max(0, Math.min(1, capOp));
-        // During reset window (11.5..12), fade caps out
-        if (t > 11.5) capOp = capOp * (1 - smoothstep(11.5, 12, t));
-        setCapOpacity(ci, capOp.toFixed(2));
+        setCapOpacity(ci, p.toFixed(2));
       }
 
-      // Connectors — recompute endpoints + opacity
+      // Connectors — v4: each line DRAWS outward from the logo edge toward its
+      // cap with the cap's own eased progress (radial grows out of SharePoint),
+      // instead of all 8 fading in at one shared threshold.
       // Inner radius (start point on logo edge): logoSize/2 + a small gap.
-      // Outer radius (end point on cap edge): r - 16 (cap is 32x32, so edge is 16 from center).
       var innerR = logoSize / 2 + 4;
-      var outerR = r - 16;
-      // Don't draw inverted connectors if innerR > outerR (caps too close to logo)
-      var connsViable = outerR > innerR + 4;
       for (var ki = 0; ki < 8; ki++) {
+        var eo2 = capEase[ki];
         var kang = CAP_ANGLES[ki];
+        // Cap edge tracks the cap's animated position + scale (32x32 → 16*scale)
+        var capR2 = r * (0.4 + 0.6 * eo2);
+        var outerR = capR2 - 16 * (0.6 + 0.4 * eo2);
+        var viable = outerR > innerR + 4;   // skip inverted lines (cap too close)
+        // Far endpoint travels from the logo edge to the cap edge
+        var drawR = innerR + Math.max(0, outerR - innerR) * eo2;
         var x1 = rcx + innerR * Math.cos(kang);
         var y1 = rcy + innerR * Math.sin(kang);
-        var x2 = rcx + outerR * Math.cos(kang);
-        var y2 = rcy + outerR * Math.sin(kang);
+        var x2 = rcx + drawR * Math.cos(kang);
+        var y2 = rcy + drawR * Math.sin(kang);
         conns[ki].setAttribute('x1', x1.toFixed(1));
         conns[ki].setAttribute('y1', y1.toFixed(1));
         conns[ki].setAttribute('x2', x2.toFixed(1));
         conns[ki].setAttribute('y2', y2.toFixed(1));
-        // Connector visible only when its own cap is visible AND viable.
         // Peak connector opacity is 0.7 so teal lines hold their presence on the
-        // white card (matches the static fallback).
-        var capOp2 = (rightW - CAP_THRESHOLDS[ki]) / 40;
-        capOp2 = Math.max(0, Math.min(1, capOp2));
-        var connOp = connsViable ? capOp2 * 0.7 : 0;
-        if (t > 11.5) connOp = connOp * (1 - smoothstep(11.5, 12, t));
+        // white card (matches the static fallback). Opacity leads the draw so
+        // the line is visible while it extends.
+        var connOp = viable ? Math.min(1, eo2 * 1.6) * 0.7 : 0;
         setConnOpacity(ki, connOp.toFixed(2));
       }
 
@@ -1909,16 +1944,24 @@
       // Vertically center the text in the pill. Font-size 9 → ascent ~7, descent ~2,
       // visual midpoint ~ baseline - 2.5. Pill height bh; pill top = baseline - 2.5 - bh/2.
       elBadgeRect.setAttribute('y', badgeY - 2.5 - bh / 2);
+      // v4: badge rises 8px into place as it fades in (eased per frame)
       var badgeOp = (rightW - BADGE_THRESHOLD) / 40;
       badgeOp = Math.max(0, Math.min(1, badgeOp));
-      if (t > 11.5) badgeOp = badgeOp * (1 - smoothstep(11.5, 12, t));
-      setOpacityIfChanged(elBadge, 'badge', badgeOp.toFixed(2));
+      var bEase = 1 - Math.pow(1 - badgeOp, 3);
+      elBadge.setAttribute('transform', 'translate(0 ' + ((1 - bEase) * 8).toFixed(1) + ')');
+      setOpacityIfChanged(elBadge, 'badge', bEase.toFixed(2));
 
+      if (t >= T_END) {
+        // Final resolved frame rendered — settle permanently (play-once).
+        finished = true;
+        rafId = null;
+        return;
+      }
       rafId = window.requestAnimationFrame(tick);
     }
 
     function start() {
-      if (rafId !== null) return;
+      if (finished || rafId !== null) return;
       if (pauseStart) { pausedAccum += performance.now() - pauseStart; pauseStart = 0; }
       paused = false;
       rafId = window.requestAnimationFrame(tick);

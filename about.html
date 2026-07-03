@@ -15,7 +15,7 @@
 
 /* ========== PAGE HERO ========== */
 .page-hero {
-  padding: 11rem 0 5rem;
+  padding: 11rem 0 6rem;
   background: linear-gradient(175deg, var(--deep-navy) 0%, var(--navy) 60%, #2d5080 100%);
   position: relative; overflow: hidden;
   color: var(--white);
@@ -60,7 +60,9 @@
 .diff-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; margin-top: 2rem; }
 .diff-card { background: var(--white); padding: 2rem; border-radius: 10px; border: 1px solid #E3E9EF; box-shadow: 0 2px 8px rgba(37, 66, 107, 0.04); transition: transform 0.3s ease, box-shadow 0.3s ease; position: relative; overflow: hidden; }
 .diff-card::before { content: ''; position: absolute; top: 0; left: 0; width: 4px; height: 100%; background: var(--gold); }
+@media (hover: hover) and (pointer: fine) {
 .diff-card:hover { transform: translateY(-4px); box-shadow: 0 8px 24px rgba(37, 66, 107, 0.10); }
+}
 .diff-card .num { display: block; font-size: 0.7rem; font-weight: 700; letter-spacing: 0.16em; color: var(--gold); margin-bottom: 0.75rem; }
 .diff-card h3 { font-size: 1.2rem; font-weight: 700; margin-bottom: 0.75rem; color: var(--navy); }
 .diff-card p { font-size: 0.95rem; line-height: 1.7; color: var(--text-body); margin: 0; }
@@ -159,7 +161,9 @@
   transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 .section.alt .feature-card { background: var(--white); }
+@media (hover: hover) and (pointer: fine) {
 .feature-card:hover { transform: translateY(-4px); box-shadow: 0 8px 24px rgba(37, 66, 107, 0.10); }
+}
 .feature-card h3 {
   font-size: 1.15rem; font-weight: 700; margin-bottom: 0.75rem; color: var(--navy);
 }
@@ -197,6 +201,364 @@
 @media (max-width: 900px) {
   .page-hero { padding: 9rem 0 4rem; }
   .section, .pov-section, .faq-section { padding: 3.5rem 0; }
+}
+
+/* ============================================================
+   HISTORY TIMELINE GRAPHIC  (namespace: htl-)
+   Build #1 under standards-animated-graphic-blueprint-v1.md.
+   JOURNEY · play-once-hold-forever · clickable node stages ·
+   stacked-material hover-lift · bulletproof finished-poster default.
+   All values pulled from blueprint §4 tables. Nothing to shared CSS.
+   ============================================================ */
+
+/* ---- graphic-local design tokens ---- */
+.htl-wrap {
+  --htl-navy: #25426B;
+  --htl-gold: #E5A630;
+  --htl-gold-lite: #F2C25A;
+  --htl-brass: #B8801F;
+  --htl-spine-y: 340px;               /* above-zone height = spine baseline (asymmetric, NOT centered).
+                                          JS fitStage() overrides this + --htl-h from measured card
+                                          heights so no card can overlap; 340px is the safe no-JS floor. */
+  --htl-stem: 30px;                    /* dot → lane gap (feel knob) — tightened so dot→stem→chip→card read as one column */
+  --htl-cardw: clamp(178px, 16.5vw, 218px);
+  --htl-h: 740px;                      /* above-zone (340) + below-zone (400); JS tightens to exact fit */
+  margin: 2.5rem 0 0.5rem;
+  /* Batch 4: lock text-selection/long-press-copy across the whole graphic; keep an arrow
+     cursor (not the text I-beam). Clickable stage nodes keep cursor:pointer via the more
+     specific .htl-node[role="button"] rule below. */
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+  cursor: default;
+}
+
+/* ---- material var blocks (blueprint §4 material table) ---- */
+/* dark-bg (navy hero) material tuning: grounds go deep/near-black so the stacked-lift shadow
+   reads on the navy gradient; walls are the plate's lit thickness edge. */
+.htl-mat-navy    { --wall:#0C1D33;   --ground:rgba(0,0,0,0.34);     --lift:4px; }
+.htl-mat-surface { --wall:#C9D3E0;   --ground:rgba(0,0,0,0.40);     --lift:5px; }
+.htl-mat-gold    { --wall:#8A5F16;   --ground:rgba(0,0,0,0.42);     --lift:6px; }  /* action crowns the stack */
+.htl-mat-seal    { --wall:#8A5F16;   --ground:rgba(0,0,0,0.44);     --lift:7px; }  /* single highest plate */
+
+/* ---- shared plate mechanic (named-property transitions ONLY — never transition:all) ---- */
+.htl-plate {
+  transform: translateY(0);
+  transition: transform 420ms cubic-bezier(.22,1,.36,1);
+  --sh-y: calc(var(--lift) + 4px);
+  --sh-blur: 9px;
+  /* PER-GRAPHIC MATERIAL CHOICE (rest/hover plate shadow as VARS so each plate's rest↔hover shadow
+     shares ONE transition + ONE hover-selector list, and keeps an equal drop-shadow function COUNT for
+     smooth interpolation). DEFAULT below = the machined HARD-WALL (0-blur offset wall + soft ground) —
+     now used ONLY by the thin navy spine bar. Content CARDS, DATE pills, and the brass CROWN seal
+     OVERRIDE these two vars to a single SOFT blurred shadow (see the Ethan 2026-07-02 notes below) —
+     on those plates over navy the hard wall renders a solid offset DOUBLE (a duplicated copy), so they
+     get a clean soft LIFT instead. */
+  --pb-rest:  drop-shadow(0 0 0 var(--wall)) drop-shadow(0 0 0 var(--ground));
+  --pb-hover: drop-shadow(0 var(--lift) 0 var(--wall)) drop-shadow(0 var(--sh-y) var(--sh-blur) var(--ground));
+}
+.htl-plate-body {                       /* SOLID-fill bodies: rest shadow via --pb-rest (see .htl-plate) */
+  position: absolute; inset: 0; z-index: 0;
+  filter: var(--pb-rest);
+  transition: filter 420ms cubic-bezier(.22,1,.36,1);
+}
+.htl-bevel {                            /* 1px top-edge light-catch, opacity 0 at rest */
+  position: absolute; top: 0; left: 0; right: 0; height: 1px; z-index: 1;
+  opacity: 0; transition: opacity 420ms cubic-bezier(.22,1,.36,1);
+  pointer-events: none;
+}
+
+/* ============ STAGE (desktop horizontal composition) ============ */
+.htl-stage {
+  position: relative;
+  width: 100%;
+  height: var(--htl-h);
+  outline: none;
+}
+/* spine track = full-width band under the nodes; carries spine + dash + era wash + mobile rail.
+   (The dots live in each node; the playhead is a direct child of the stage so it paints on top.) */
+.htl-spine-track {
+  position: absolute; left: 0; right: 0; top: 0; bottom: 0;
+  pointer-events: none;
+}
+/* the spine bar — a SOLID navy plate (lift 4). Revealed via scaleX (blueprint-sanctioned width tween:
+   spine is a SOLID plate per §4a, not a stroke, so DrawSVG doesn't apply — DrawSVG is used for the crown). */
+.htl-spine {
+  position: absolute; top: var(--htl-spine-y); left: 0;
+  width: 87%; height: 4px; margin-top: -2px;
+  transform-origin: left center;
+  border-radius: 2px;
+}
+.htl-spine-body { border-radius: 2px; background: rgba(255,255,255,0.85); }  /* light spine on navy hero */
+/* dashed continuation 87% → 100% (the runway) */
+.htl-spine-dash {
+  position: absolute; top: var(--htl-spine-y); left: 87%; right: 0; height: 2px; margin-top: -1px;
+  transform-origin: left center;
+  background: repeating-linear-gradient(to right,
+    rgba(255,255,255,0.7) 0 6px, transparent 6px 13px);
+  opacity: 0.85;
+}
+/* the traveling gold playhead (the ONE traveler; gold place #1 of 2) */
+.htl-playhead {
+  position: absolute; top: var(--htl-spine-y); left: 87%;
+  width: 15px; height: 15px; margin: -7.5px 0 0 -7.5px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 42% 38%, var(--htl-gold-lite), var(--htl-gold) 70%);
+  box-shadow: 0 0 0 4px rgba(229,166,48,0.16), 0 0 14px 2px rgba(229,166,48,0.45);
+  z-index: 4;
+}
+.htl-playhead::after {                  /* soft forward glow, strengthened at rest/park */
+  content: ''; position: absolute; inset: -3px; border-radius: 50%;
+  box-shadow: 0 0 12px 3px rgba(229,166,48,0.35);
+}
+
+/* node anchor = zero-width full-height line at the milestone x */
+.htl-node {
+  position: absolute; top: 0; bottom: 0; left: var(--x);
+  width: 0;
+}
+.htl-dot {                              /* the node point on the spine */
+  position: absolute; top: var(--htl-spine-y); left: 0;
+  width: 11px; height: 11px; margin: -5.5px 0 0 -5.5px;
+  border-radius: 50%; background: #DCE6F2;             /* light bead on navy */
+  box-shadow: 0 0 0 3px rgba(10,20,38,0.55);           /* dark ring separates bead from the light spine */
+  z-index: 3;
+}
+.htl-stem {                             /* hairline connector — rides flush, never lifts */
+  position: absolute; left: 0; width: 2px; margin-left: -1px;
+  background: linear-gradient(rgba(255,255,255,0.85), rgba(255,255,255,0.32));
+  z-index: 2;
+}
+/* LANE-AWARE stem. below: runs DOWN from the dot on the spine to the chip below.
+   above: a TRUE MIRROR — runs UP from the dot to the chip above the spine. Anchor the above stem by
+   TOP at (spine-y − stem): its BOTTOM edge lands on the spine (touching the dot) and its TOP edge lands
+   at the above-lane chip's bottom (no gap, no overlap onto the spine). The base .htl-stem gradient
+   (bright→faint top-to-bottom) already renders bright-near-chip / faint-near-spine for the above case,
+   mirroring the below override below. (Was `bottom:var(--htl-spine-y)`, which — because spine-y is a
+   distance from the TOP, not the bottom, on this asymmetric stage — drew the above stem BELOW the spine
+   pointing DOWN, away from the card.) */
+.htl-above .htl-stem { top: calc(var(--htl-spine-y) - var(--htl-stem)); height: var(--htl-stem); }
+.htl-below .htl-stem { top: var(--htl-spine-y); height: var(--htl-stem);
+  background: linear-gradient(rgba(255,255,255,0.32), rgba(255,255,255,0.85)); }
+
+/* the date+card pair lives in a non-lifting flex lane, anchored off the spine.
+   Horizontal anchor uses margin-left (a factor of card width) — NOT transform —
+   so GSAP owns the lane's transform for the y-rise reveal (no inline-transform clash
+   with the CSS hover-lift on the plates inside). */
+.htl-lane {
+  position: absolute; left: 0; width: var(--htl-cardw);
+  margin-left: calc(var(--htl-cardw) * var(--txf, -0.5));
+  display: flex; flex-direction: column; gap: 4px;   /* chip hugs the card */
+  z-index: 2;
+}
+/* above lane sits ABOVE the spine: its BOTTOM edge is exactly one stem-length above the spine
+   ((spine-y − stem) from the top), so the chip clears the spine line entirely (never sits on it).
+   Written as a distance-from-BOTTOM: 100% − (spine-y − stem) = (100% − spine-y) + stem, where 100% =
+   the node's height = the stage height, so it tracks fitStage()'s measured --htl-h at any width.
+   column-reverse puts the chip at the visual bottom (nearest the spine) with the card above it →
+   both lanes now read identically: spine → stem → chip → card. */
+.htl-above .htl-lane { bottom: calc(100% - var(--htl-spine-y) + var(--htl-stem)); flex-direction: column-reverse; }
+.htl-below .htl-lane { top: calc(var(--htl-spine-y) + var(--htl-stem)); }
+
+/* date chip — navy plate (lift 4) */
+.htl-date {
+  position: relative; align-self: center;
+  padding: 4px 11px; border-radius: 999px;
+  font-size: 0.72rem; font-weight: 700; letter-spacing: 0.1em;
+  color: var(--htl-navy); overflow: visible;          /* dark text on the light chip (AA on the navy hero) */
+}
+.htl-date .htl-plate-body { background: #E8EEF6; border-radius: 999px; }   /* light chip on navy */
+.htl-date .htl-bevel { border-radius: 999px 999px 0 0;
+  background: linear-gradient(rgba(255,255,255,0.6), transparent); }
+.htl-date-num { position: relative; z-index: 1; }   /* numeral only — was `.htl-date > span`, which also matched
+  `.htl-plate-body`/`.htl-bevel` and collapsed the pill (specificity 0,1,1 beat the plate-body rule → 0×0 chip) */
+
+/* card — white surface plate (lift 5) */
+.htl-card {
+  position: relative;
+  padding: 0.8rem 0.95rem 0.9rem;
+  border-radius: 11px;
+  min-height: 195px;    /* EQUAL-HEIGHT FLOOR (Ethan 2026-07-02) — every card renders the SAME height.
+                           This CSS floor is the no-JS / GSAP-CDN-fail POSTER fallback so the six cards
+                           read close-to-uniform even without JS (chosen to comfortably clear the tallest
+                           card's content across desktop card widths ~178–218px, so all cards sit at the
+                           floor and look uniform). Once JS runs (INCLUDING reduced-motion, which still
+                           runs fitStage — only the GSAP animation is gated), equalizeCards() OVERRIDES
+                           this with an inline height + min-height = the EXACT tallest natural card, so the
+                           result is pixel-exact equal, not just floored. Released to 0 on mobile (≤900px)
+                           so stacked phone cards stay natural height. */
+}
+.htl-card .htl-card-body {
+  background: var(--white);
+  border: 1px solid #E3E9EF;
+  border-radius: 11px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.30);       /* deeper resting shadow so white cards float on navy */
+}
+.htl-card .htl-bevel { border-radius: 11px 11px 0 0;
+  background: linear-gradient(rgba(255,255,255,0.85), transparent); }
+.htl-title {
+  position: relative; z-index: 1;
+  font-size: 0.94rem; font-weight: 700; line-height: 1.2;
+  color: var(--htl-navy); margin: 0 0 0.3rem;
+  text-wrap: balance;
+}
+.htl-detail {
+  position: relative; z-index: 1;
+  font-size: 0.8rem; line-height: 1.45; color: var(--text-body); margin: 0;
+  text-wrap: pretty;
+}
+
+/* ============ CARDS + DATE PILLS = CLEAN SOFT LIFT (Ethan 2026-07-02) ============
+   PER-GRAPHIC MATERIAL CHOICE — DO NOT revert these two to the machined hard-wall. On these large
+   rectangular content cards / date pills over the navy bg, the default hard 0-blur offset wall reads as
+   a literal DOUBLE of the card (a second stacked slab). So cards + dates lift a subtle ~7px on hover/
+   focus and their shadow grows from a resting SOFT shadow to a slightly larger/deeper SOFT (blurred)
+   shadow — one soft element lifting off the surface, no wall, no double. Same drop-shadow function COUNT
+   rest↔hover (both a single soft function) so `filter` interpolates smoothly (blueprint §4a). The brass
+   crown seal gets the SAME soft-lift fix below (it doubled too on the navy bg — Ethan 2026-07-02); the
+   thin navy spine bar keeps the machined default. */
+.htl-card, .htl-date { --lift: 7px; }                    /* subtle premium lift (scanning-graphic feel) */
+/* card rest float stays the .htl-card-body box-shadow (poster unchanged); the filter adds ONLY the
+   growing lift-cast on hover — transparent at rest → soft blurred on lift. */
+.htl-card { --pb-rest: drop-shadow(0 0 0 rgba(0,0,0,0)); --pb-hover: drop-shadow(0 18px 34px rgba(0,0,0,0.42)); }
+/* date pill has no body box-shadow → keep it flat at rest (poster unchanged), soft lift on hover. */
+.htl-date { --pb-rest: drop-shadow(0 0 0 rgba(0,0,0,0)); --pb-hover: drop-shadow(0 9px 20px rgba(0,0,0,0.42)); }
+
+/* HERO node (2002) — gold surface (lift 6) + brass crown seal (lift 7) */
+.htl-hero .htl-card { padding: 0.9rem 1.05rem 1rem; }
+.htl-hero .htl-card-body {
+  background: #FBEED2;
+  border: 1px solid rgba(184,128,31,0.55);
+  box-shadow: 0 10px 28px rgba(0,0,0,0.34);      /* signature 2002 card lifts most on navy */
+}
+.htl-hero .htl-title { color: #2A3E5E; }
+.htl-hero .htl-detail { color: #4b4326; }
+.htl-hero .htl-date { color: var(--white); }                        /* keep WHITE text on the brass (gold) chip */
+.htl-hero .htl-date .htl-plate-body { background: #8A5F16; }   /* deepened from #B8801F so white text clears AA (~5.7:1) now the pill paints */
+.htl-crown {                            /* brushed-brass governance seal (gold place #2 of 2) */
+  position: absolute; top: -14px; right: 12px; z-index: 2;
+  width: 34px; height: 34px;
+}
+.htl-crown .htl-plate-body {
+  border-radius: 50%;
+  background: radial-gradient(circle at 40% 35%, #F2C25A, #C89226 72%);
+  box-shadow: 0 3px 9px rgba(184,128,31,0.30);   /* resting float (stays); hover lift-cast is the soft filter below */
+}
+.htl-crown svg { position: relative; z-index: 1; display: block; width: 34px; height: 34px; }
+/* crown seal = CLEAN SOFT LIFT too (Ethan 2026-07-02): the machined hard-wall cast a solid 0-blur offset
+   DOUBLE of the brass circle on hover (read as a duplicated crown). Same fix as .htl-card/.htl-date —
+   transparent filter at rest (resting float stays the .htl-plate-body box-shadow above) growing to a
+   single SOFT blurred lift-cast on hover; equal drop-shadow COUNT rest↔hover so `filter` interpolates. */
+.htl-crown { --pb-rest: drop-shadow(0 0 0 rgba(0,0,0,0)); --pb-hover: drop-shadow(0 8px 14px rgba(0,0,0,0.34)); }
+
+/* end-anchored node (Today): date chip centered on the node, like every other node */
+.htl-anchor-end .htl-date { align-self: center; }
+
+/* .htl-light (2019 ExpressLink) and .htl-major (2021 CNRA) are now INERT markers only.
+   Per Ethan (2026-07-02) card widths are ALSO uniform: every card inherits the base
+   --htl-cardw: clamp(178px, 16.5vw, 218px) from .htl-wrap. No per-card WIDTH override and
+   no per-card TEXT hierarchy remains (title 0.94rem / body 0.8rem across all six cards).
+   Do NOT re-add per-card --htl-cardw widths or smaller title/body font-sizes. */
+
+/* active-node indicator — a gold underline tick under the date chip (NOT a progress bar;
+   no green, no checkmarks, no dimming of poster content — government register). */
+.htl-date::after {
+  content: ''; position: absolute; left: 11px; right: 11px; bottom: -5px; height: 2px;
+  background: var(--htl-gold); border-radius: 2px;
+  transform: scaleX(0); transform-origin: left center;
+  transition: transform 300ms cubic-bezier(.22,1,.36,1);
+}
+.htl-node.htl-active .htl-date::after { transform: scaleX(1); }
+
+/* node as a stage control (added in JS) */
+.htl-node[role="button"] { cursor: pointer; }
+.htl-node[role="button"] .htl-lane { cursor: pointer; }
+
+/* ============ RAISED STATE — triple-gated + armed. Un-enhanced = byte-identical flat poster ============ */
+@media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
+  /* whole field lifts as one milled object on stage hover; a single node lifts on keyboard focus */
+  .htl-stage.htl-armed:hover .htl-plate,
+  .htl-node:focus-visible .htl-plate {
+    transform: translateY(calc(-1 * var(--lift)));
+  }
+  .htl-stage.htl-armed:hover .htl-plate-body,
+  .htl-node:focus-visible .htl-plate-body {
+    filter: var(--pb-hover);
+  }
+  .htl-stage.htl-armed:hover .htl-bevel,
+  .htl-node:focus-visible .htl-bevel { opacity: 1; }
+
+  /* enter-only stagger: structure → surface → action (0 delay on leave = clean together-settle) */
+  .htl-stage.htl-armed:hover .htl-mat-navy,
+  .htl-stage.htl-armed:hover .htl-mat-navy .htl-plate-body    { transition-delay: 40ms; }
+  .htl-stage.htl-armed:hover .htl-mat-surface,
+  .htl-stage.htl-armed:hover .htl-mat-surface .htl-plate-body { transition-delay: 55ms; }
+  .htl-stage.htl-armed:hover .htl-mat-gold,
+  .htl-stage.htl-armed:hover .htl-mat-gold .htl-plate-body,
+  .htl-stage.htl-armed:hover .htl-mat-seal,
+  .htl-stage.htl-armed:hover .htl-mat-seal .htl-plate-body    { transition-delay: 70ms; }
+
+  /* focus ring parity (family = brand gold on this off-family page) */
+  .htl-node:focus-visible { outline: none; }
+  .htl-node:focus-visible .htl-card-body {
+    box-shadow: 0 0 0 3px rgba(229,166,48,0.55), 0 12px 30px rgba(37,66,107,0.14);
+  }
+}
+/* keyboard focus ring even where hover-lift is gated out (touch/reduced-motion desktop-emulated) */
+.htl-node:focus-visible .htl-card-body,
+.htl-node:focus-visible .htl-date .htl-plate-body {
+  outline: 2px solid var(--htl-gold); outline-offset: 2px;
+}
+
+/* Entrance fade is a GSAP-only enhancement (motion branch). Default = fully visible,
+   so the no-JS / reduced-motion / mobile poster is never hidden. */
+
+/* ============ MOBILE REFLOW ≤900px — vertical stack, no horizontal hijack ============ */
+@media (max-width: 900px) {
+  .htl-stage {
+    height: auto;
+    padding-left: 26px;                 /* room for the vertical rail */
+  }
+  .htl-spine-track { position: absolute; inset: 0; }
+  .htl-spine, .htl-spine-dash, .htl-playhead { display: none; }
+  /* vertical rail down the left edge */
+  .htl-vrail {
+    position: absolute; left: 5px; top: 6px; bottom: 6px; width: 3px;
+    background: linear-gradient(rgba(255,255,255,0.85), rgba(255,255,255,0.3));
+    border-radius: 2px;
+  }
+  .htl-node {
+    position: relative; top: auto; bottom: auto; left: auto; width: 100%;
+    margin-bottom: 1.4rem;
+  }
+  .htl-node .htl-dot {
+    top: 14px; left: -21px; margin: 0;
+  }
+  .htl-stem { display: none; }
+  .htl-lane {
+    position: relative; left: auto; top: auto; bottom: auto;
+    width: 100%; transform: none; margin-left: 0;   /* reset the desktop anchor offset */
+  }
+  /* reset the desktop above-lane reverse — chip on top by the rail dot */
+  .htl-above .htl-lane { flex-direction: column; }
+  /* neutralize BOTH lanes' desktop vertical anchors on mobile. `.htl-above/.htl-below .htl-lane` are
+     0,2,0 and outrank the `.htl-lane { top/bottom:auto }` reset above (0,1,0), so without this the
+     desktop `bottom`/`top` calc would leak into the mobile relative-flow stack and shift the cards.
+     This restores the intended normal vertical stack along the left rail at all mobile widths. */
+  .htl-above .htl-lane, .htl-below .htl-lane { top: auto; bottom: auto; }
+  .htl-crown { top: -12px; right: 10px; }
+  .htl-title { font-size: 1rem; }
+  .htl-detail { font-size: 0.86rem; }
+  /* EQUAL-HEIGHT is a desktop-composition concern only. Release the CSS floor here so stacked phone
+     cards are natural height (fitStage() also clears any inline height on mobile via clearCardHeights). */
+  .htl-card { min-height: 0; }
+}
+.htl-vrail { display: none; }            /* desktop: hidden (horizontal spine shown) */
+@media (max-width: 900px) { .htl-vrail { display: block; } }
+
+@media (prefers-reduced-motion: reduce) {
+  .htl-wrap { transition: none; }
+  .htl-plate, .htl-plate-body, .htl-bevel, .htl-date::after { transition: none !important; }
 }
 </style>
 </head>
@@ -320,6 +682,118 @@
     <span class="eyebrow">About SyTech</span>
     <h1>A Different Kind of Records Partner. <span>Since 2000.</span></h1>
     <p class="lead">Most vendors sell public agencies another platform to license and maintain. Since 2000, SyTech has done the opposite. We build records management inside the cloud you already own, so you pay for the work, not someone else's software. Below is what makes that approach different, and how we got here.</p>
+
+    <!-- HISTORY TIMELINE GRAPHIC (htl-) relocated INTO the hero (navy gradient) — structure tones
+         flipped light (spine/stems/dots/date-chips/era wash/rail); white cards + all gold kept.
+         Journey kicks on load (above the fold). fitStage() sizes the stage so nothing overlaps. -->
+    <div class="htl-wrap" id="htlWrap" role="group"
+         aria-label="SyTech company timeline, 2000 to today: founded 2000; first cloud records system 2002; expansion across California through the 2010s; ExpressLink 2019; 50 million records for the California Natural Resources Agency 2021; and continuing today.">
+      <div class="htl-stage" id="htlStage">
+
+        <!-- spine layer (decorative) -->
+        <div class="htl-spine-track" aria-hidden="true">
+          <div class="htl-spine htl-plate htl-mat-navy" id="htlSpine"><span class="htl-plate-body htl-spine-body"></span></div>
+          <div class="htl-spine-dash" id="htlSpineDash"></div>
+          <div class="htl-vrail"></div>
+        </div>
+
+        <!-- NODE 0 — 2000 · above -->
+        <div class="htl-node htl-above htl-anchor-start" data-idx="0" style="--x:10%; --txf:-0.5;">
+          <span class="htl-dot" aria-hidden="true"></span>
+          <span class="htl-stem" aria-hidden="true"></span>
+          <div class="htl-lane">
+            <span class="htl-date htl-plate htl-mat-navy"><span class="htl-plate-body"></span><span class="htl-bevel"></span><span class="htl-date-num">2000</span></span>
+            <div class="htl-card htl-plate htl-mat-surface">
+              <span class="htl-card-body htl-plate-body"></span><span class="htl-bevel"></span>
+              <h3 class="htl-title">Founded in a garage.</h3>
+              <p class="htl-detail">Bryan Golden and two co-founders start SyTech with $20,000 — a document-scanning service, building agile from day one.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- NODE 1 — 2002 · below · HERO (gold plate + brass crown seal) -->
+        <div class="htl-node htl-below htl-hero" data-idx="1" style="--x:24%; --txf:-0.5;">
+          <span class="htl-dot" aria-hidden="true"></span>
+          <span class="htl-stem" aria-hidden="true"></span>
+          <div class="htl-lane">
+            <span class="htl-date htl-plate htl-mat-gold"><span class="htl-plate-body"></span><span class="htl-bevel"></span><span class="htl-date-num">2002</span></span>
+            <div class="htl-card htl-plate htl-mat-gold">
+              <span class="htl-card-body htl-plate-body"></span><span class="htl-bevel"></span>
+              <div class="htl-crown htl-plate htl-mat-seal" aria-hidden="true">
+                <span class="htl-plate-body"></span>
+                <svg viewBox="0 0 34 34" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M9 22.5 L9 15 L13 18.5 L17 12.5 L21 18.5 L25 15 L25 22.5 Z"
+                        fill="none" stroke="#5F4310" stroke-width="1.6" stroke-linejoin="round" id="htlCrownRing"/>
+                  <line x1="9" y1="24.4" x2="25" y2="24.4" stroke="#5F4310" stroke-width="1.6" stroke-linecap="round"/>
+                </svg>
+              </div>
+              <h3 class="htl-title">Cloud, before it was the word.</h3>
+              <p class="htl-detail">SyTech builds its first native cloud records system — for Stockton Unified School District — years before the industry left on-premise servers.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- NODE 2 — 2010s · above · ERA BAND -->
+        <div class="htl-node htl-above" data-idx="2" style="--x:44%; --txf:-0.5;">
+          <span class="htl-dot" aria-hidden="true"></span>
+          <span class="htl-stem" aria-hidden="true"></span>
+          <div class="htl-lane">
+            <span class="htl-date htl-plate htl-mat-navy"><span class="htl-plate-body"></span><span class="htl-bevel"></span><span class="htl-date-num">2010s</span></span>
+            <div class="htl-card htl-plate htl-mat-surface">
+              <span class="htl-card-body htl-plate-body"></span><span class="htl-bevel"></span>
+              <h3 class="htl-title">Proven across California.</h3>
+              <p class="htl-detail">Expansion from single districts to county offices to statewide departments — hundreds of public agencies, one cloud engagement at a time.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- NODE 3 — 2019 · below · LIGHT plate (ExpressLink) -->
+        <div class="htl-node htl-below htl-light" data-idx="3" style="--x:62%; --txf:-0.5;">
+          <span class="htl-dot" aria-hidden="true"></span>
+          <span class="htl-stem" aria-hidden="true"></span>
+          <div class="htl-lane">
+            <span class="htl-date htl-plate htl-mat-navy"><span class="htl-plate-body"></span><span class="htl-bevel"></span><span class="htl-date-num">2019</span></span>
+            <div class="htl-card htl-plate htl-mat-surface">
+              <span class="htl-card-body htl-plate-body"></span><span class="htl-bevel"></span>
+              <h3 class="htl-title">Connective tools ship.</h3>
+              <p class="htl-detail">ExpressLink releases — a lightweight watch-folder tool that feeds documents straight into the cloud. Connective tools, not more silos.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- NODE 4 — 2021 · above · MAJOR (50M records) -->
+        <div class="htl-node htl-above htl-major" data-idx="4" style="--x:78%; --txf:-0.5;">
+          <span class="htl-dot" aria-hidden="true"></span>
+          <span class="htl-stem" aria-hidden="true"></span>
+          <div class="htl-lane">
+            <span class="htl-date htl-plate htl-mat-navy"><span class="htl-plate-body"></span><span class="htl-bevel"></span><span class="htl-date-num">2021</span></span>
+            <div class="htl-card htl-plate htl-mat-surface">
+              <span class="htl-card-body htl-plate-body"></span><span class="htl-bevel"></span>
+              <h3 class="htl-title">50 million records.</h3>
+              <p class="htl-detail">The California Natural Resources Agency — 50M records digitized ahead of a 2021 building move. Likely the largest SharePoint Online deployment for a California public agency.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- NODE 5 — Today · below · FORWARD CAP (dashed runway) -->
+        <div class="htl-node htl-below htl-forward htl-anchor-end htl-active" data-idx="5" style="--x:87%; --txf:-0.5;">
+          <span class="htl-dot" aria-hidden="true"></span>
+          <span class="htl-stem" aria-hidden="true"></span>
+          <div class="htl-lane">
+            <span class="htl-date htl-plate htl-mat-navy"><span class="htl-plate-body"></span><span class="htl-bevel"></span><span class="htl-date-num">TODAY</span></span>
+            <div class="htl-card htl-plate htl-mat-surface">
+              <span class="htl-card-body htl-plate-body"></span><span class="htl-bevel"></span>
+              <h3 class="htl-title">The next 25 years.</h3>
+              <p class="htl-detail">25+ years in, and still modernizing public records the same way: inside the cloud you already own, one practical step at a time. Cloud, automation, and AI next.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- traveling gold playhead (last child → paints above the nodes as it travels) -->
+        <div class="htl-playhead" id="htlPlayhead" aria-hidden="true"></div>
+
+      </div>
+    </div>
   </div>
 </section>
 
@@ -445,6 +919,7 @@
       <p>Since 2000, SyTech has provided digital transformation services for hundreds of public agencies across California — school districts, county offices, statewide departments. We have never been in the business of reselling proprietary software. From the start, our work has been to help agencies move their records and data into open, extensible cloud platforms — and to spend their budgets on outcomes instead of licenses.</p>
       <p>Twenty-five years later, that approach has produced 4,579 active cloud clients, 10.7 million records under management, and a client roster that includes some of the largest public agencies in the state.</p>
     </div>
+
     <div class="stats-row">
       <div class="stat-block"><div class="num">25<span>+</span></div><div class="label">Years in Public Sector</div></div>
       <div class="stat-block"><div class="num">4,579</div><div class="label">Active Cloud Clients</div></div>
@@ -587,15 +1062,24 @@
     var triggers = document.querySelectorAll('.nav-mega-trigger');
     if (!triggers.length) return;
     var mqMobile = window.matchMedia('(max-width: 1024px)');
+    // Condensed desktop band (1025-1440px). Ceiling MUST match the CSS
+    // media query in assets/css/sytech-shared.css (media queries can't read a JS var).
+    var mqBand = window.matchMedia('(min-width: 1025px) and (max-width: 1440px)');
 
     Array.prototype.forEach.call(triggers, function(trigger) {
       var megaLi = trigger.closest('.nav-has-mega');
       var chevron = trigger.querySelector('.nav-mega-chevron');
 
       trigger.addEventListener('click', function(e) {
+        // Condensed desktop band: Services collapses to a plain link that
+        // jumps to the homepage service tiles (its dropdown is CSS-hidden).
+        // Skip Resources (.nav-has-mega--compact), which keeps its dropdown.
+        if (mqBand.matches && !megaLi.classList.contains('nav-has-mega--compact')) {
+          e.preventDefault();
+          window.location.href = 'index.html#service-tiles';
+          return;
+        }
         if (!mqMobile.matches) return;
-        var clickedChevron = chevron && (e.target === chevron || chevron.contains(e.target));
-        if (!clickedChevron) return;
         e.preventDefault();
         var isOpen = megaLi.classList.toggle('is-open');
         trigger.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
@@ -637,6 +1121,331 @@
       });
     });
   })();
+})();
+</script>
+
+<!-- ============================================================
+     GSAP + plugins — SELF-HOSTED at promotion (blueprint §8.6): repointed from the
+     jsDelivr CDN to local files under assets/js/ so the live site has no third-party
+     CDN dependency (government networks may block CDNs). To refresh a lib, re-download
+     the SAME pinned version noted beside each tag from cdn.jsdelivr.net/npm/gsap@3.13.0.
+     A total script 404 still lands on the finished poster (default DOM = poster).
+     Load order: gsap → ScrollTrigger → DrawSVGPlugin → the inline controller below.
+     ============================================================ -->
+<script src="assets/js/gsap.min.js"></script>          <!-- gsap@3.13.0 (core) — was cdn.jsdelivr.net/npm/gsap@3.13.0/dist/gsap.min.js -->
+<script src="assets/js/ScrollTrigger.min.js"></script> <!-- gsap@3.13.0 ScrollTrigger plugin — was cdn.jsdelivr.net/npm/gsap@3.13.0/dist/ScrollTrigger.min.js -->
+<script src="assets/js/DrawSVGPlugin.min.js"></script> <!-- gsap@3.13.0 DrawSVGPlugin — was cdn.jsdelivr.net/npm/gsap@3.13.0/dist/DrawSVGPlugin.min.js -->
+
+<!-- ============================================================
+     HISTORY TIMELINE CONTROLLER (htl-)
+     JOURNEY · play once → hold forever · click-to-revisit · freeze-in-place hover.
+     ============================================================ -->
+<script>
+(function(){
+  'use strict';
+  var wrap  = document.getElementById('htlWrap');
+  var stage = document.getElementById('htlStage');
+  if (!wrap || !stage) return;
+
+  var gsapReady = !!(window.gsap && window.ScrollTrigger);
+  var hasDraw   = gsapReady && !!window.DrawSVGPlugin;
+  var prefersReduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var isMobile = window.matchMedia && window.matchMedia('(max-width: 900px)').matches;
+
+  // ============================================================
+  // fitStage() — ROOT-CAUSE overlap fix. Cards are absolutely positioned, so the stage can't
+  //   auto-grow to contain them. Measure each lane's real rendered height and size the stage so it
+  //   contains the TALLEST above-lane and TALLEST below-lane cards + stem + clearance, with an
+  //   ASYMMETRIC spine baseline (--htl-spine-y = the above-zone). This guarantees nothing above/below
+  //   the graphic is ever overlapped — at any desktop width and after web-font swap. On mobile (≤900px)
+  //   the stage is a flow-stacked rail (height:auto), so we clear the inline vars and let CSS own it.
+  //   Runs in EVERY branch (incl. the reduced-motion / no-GSAP poster), not just the animated path.
+  // ============================================================
+  var laneNodes = Array.prototype.slice.call(stage.querySelectorAll('.htl-node'));
+  var cardEls   = Array.prototype.slice.call(stage.querySelectorAll('.htl-card'));
+
+  // equalizeCards() — make all six .htl-card boxes the SAME height (= the tallest natural card). Text stays
+  //   TOP-aligned (normal flow); shorter cards simply gain empty space at the bottom. The absolute
+  //   .htl-card-body (inset:0) background fills the taller box automatically, so no gap shows.
+  //   RATCHET GUARD: every pass RESETS each card to natural height AND neutralizes the CSS min-height floor
+  //   (inline minHeight:0) BEFORE measuring, so the max is recomputed from TRUE natural heights each time —
+  //   never from a previously-applied fixed height (which would only ratchet upward on resize) and never
+  //   inflated by the floor. box-sizing is border-box site-wide, so offsetHeight == the height we set back;
+  //   the applied inline min-height also OVERRIDES the CSS floor so the exact tallest natural wins, not 195.
+  function equalizeCards(){
+    var maxH = 0, i;
+    for (i = 0; i < cardEls.length; i++){        // 1) reset to natural (also kill the CSS floor for the measure)
+      cardEls[i].style.height = '';
+      cardEls[i].style.minHeight = '0px';
+    }
+    for (i = 0; i < cardEls.length; i++){        // 2) measure true natural border-box heights → max
+      var h = cardEls[i].offsetHeight;           //    (this first read forces one reflow flushing the resets above)
+      if (h > maxH) maxH = h;
+    }
+    if (!maxH){                                  // not laid out yet — restore the CSS floor, bail
+      for (i = 0; i < cardEls.length; i++){ cardEls[i].style.minHeight = ''; }
+      return;
+    }
+    for (i = 0; i < cardEls.length; i++){        // 3) apply the exact tallest height to all six
+      cardEls[i].style.boxSizing = 'border-box'; //    guarantee height == the border-box value we measured
+      cardEls[i].style.height = maxH + 'px';
+      cardEls[i].style.minHeight = maxH + 'px';  //    inline min-height beats the CSS 195px floor → exact equal
+    }
+  }
+  function clearCardHeights(){                    // mobile: release equal-height → natural stacked cards
+    for (var i = 0; i < cardEls.length; i++){
+      cardEls[i].style.height = '';
+      cardEls[i].style.minHeight = '';
+      cardEls[i].style.boxSizing = '';
+    }
+  }
+
+  function fitStage(){
+    if (window.matchMedia && window.matchMedia('(max-width: 900px)').matches){
+      clearCardHeights();                        // no equal-height on the phone stack (natural heights)
+      wrap.style.removeProperty('--htl-spine-y');
+      wrap.style.removeProperty('--htl-h');
+      return;
+    }
+    equalizeCards();                             // EQUALIZE first, THEN size the stage from the now-uniform lanes
+    var STEM = 30, CLEAR = 40, aboveMax = 0, belowMax = 0;   // STEM matches --htl-stem (30); CLEAR = outer breathing room
+    laneNodes.forEach(function(el){
+      var lane = el.querySelector('.htl-lane');
+      if (!lane) return;
+      var h = lane.offsetHeight;                 // content height (transform + opacity don't affect it)
+      if (el.classList.contains('htl-above')) aboveMax = Math.max(aboveMax, h);
+      else                                    belowMax = Math.max(belowMax, h);
+    });
+    if (!aboveMax && !belowMax) return;          // nodes not laid out yet — keep the CSS floor
+    var aboveZone = STEM + aboveMax + CLEAR;
+    var belowZone = STEM + belowMax + CLEAR;
+    wrap.style.setProperty('--htl-spine-y', aboveZone + 'px');
+    wrap.style.setProperty('--htl-h', (aboveZone + belowZone) + 'px');
+  }
+  fitStage();
+  window.addEventListener('resize', fitStage, { passive: true });
+  window.addEventListener('load', fitStage, { passive: true });
+  if (document.fonts && document.fonts.ready) { document.fonts.ready.then(fitStage); }  // re-fit after font swap
+
+  // ---- FALLBACK BRANCH: reduced-motion OR libs missing OR mobile stack → keep the default finished
+  //      poster untouched. ARM the stacked-hover (inert under the reduced-motion / touch media gate,
+  //      live on a no-GSAP fine-hover desktop). Never reset to the blank start frame here. ----
+  if (prefersReduced || !gsapReady || isMobile) {
+    stage.classList.add('htl-armed');
+    return;
+  }
+
+  gsap.registerPlugin(ScrollTrigger);
+  if (hasDraw) gsap.registerPlugin(DrawSVGPlugin);
+
+  gsap.context(function(){
+    // ---- element refs (queried once) ----
+    var spine    = document.getElementById('htlSpine');
+    var dash     = document.getElementById('htlSpineDash');
+    var playhead = document.getElementById('htlPlayhead');
+    var crownRing = document.getElementById('htlCrownRing');
+    var nodes    = Array.prototype.slice.call(stage.querySelectorAll('.htl-node'));
+    nodes.sort(function(a,b){ return (+a.getAttribute('data-idx')) - (+b.getAttribute('data-idx')); });
+
+    // ============================================================
+    // HTL_NODES — SINGLE SOURCE OF TRUTH (spec §7). Adding a client-confirmed milestone =
+    //   (1) insert ONE .htl-node block in the HTML at its chronological spot, (2) push ONE
+    //   entry here with its xPct. The beat loop, STAGE_T seek array, and stage controls all
+    //   iterate this array + the matching DOM nodes — no geometry is hand-coded twice.
+    //   kinds: 'point' | 'hero' | 'era' | 'point-light' | 'point-major' | 'forward'
+    // ============================================================
+    var HTL_NODES = [
+      { idx:0, side:'above', kind:'point',       xPct:10, hero:false },
+      { idx:1, side:'below', kind:'hero',        xPct:24, hero:true  },
+      { idx:2, side:'above', kind:'era',         xPct:44, hero:false },
+      { idx:3, side:'below', kind:'point-light', xPct:62, hero:false },
+      { idx:4, side:'above', kind:'point-major', xPct:78, hero:false },
+      { idx:5, side:'below', kind:'forward',     xPct:87, hero:false }
+    ];
+    var N = HTL_NODES.length;
+    var BASE_PCT = HTL_NODES[N-1].xPct;   // playhead CSS base is left:87% (parked at Today in the poster)
+
+    // ---- geometry helpers (px, resolution-independent; playhead uses transform x on top of its CSS left) ----
+    function pxForPct(pct){ return stage.clientWidth * (pct/100); }
+    function travelX(i){ return pxForPct(HTL_NODES[i].xPct) - pxForPct(BASE_PCT); }  // 0 at Today
+    function laneOf(i){ return nodes[i].querySelector('.htl-lane'); }
+
+    // ---- active-node indicator (gold underline tick; NOT a progress bar — no green/checks/dimming) ----
+    var activeIndex = 0;
+    function activate(i){
+      activeIndex = i;
+      nodes.forEach(function(el, idx){ el.classList.toggle('htl-active', idx === i); });
+    }
+
+    // ============================================================
+    // resetToStart() — rebuild the BLANK start frame. Used at init + by the stage-seek path.
+    //   (No auto-loop/dissolve exists — spec §6 play-once-hold — so this is never on a cycle.)
+    //   NOTE the discipline: GSAP only ever writes transform to the LANE (rise), the PLAYHEAD (x),
+    //   the DASH (scaleX) and the CHEVRON glyph (scale) — never to a .htl-plate wrapper, so the CSS
+    //   hover-lift transforms on the plates never fight an inline GSAP transform.
+    // ============================================================
+    var RISE_Y = 18;
+    function resetToStart(){
+      gsap.set(spine,    { width: 0 });
+      gsap.set(dash,     { scaleX: 0, opacity: 0, transformOrigin: 'left center' });
+      gsap.set(playhead, { x: travelX(0), opacity: 0, scale: 0.6 });
+      for (var i=0; i<N; i++){ gsap.set(laneOf(i), { y: RISE_Y, opacity: 0 }); }
+      if (crownRing){ if (hasDraw) gsap.set(crownRing, { drawSVG: '0%' }); else gsap.set(crownRing, { opacity: 0 }); }
+      nodes.forEach(function(el){ el.classList.remove('htl-active'); });
+      activeIndex = 0;
+    }
+
+    // ============================================================
+    // MASTER TIMELINE (the single play). Stepped gold playhead HOPS between nodes (power2.inOut),
+    //   each node's lane RISES with a springy back.out; hero lingers; era wash fades; crown draws;
+    //   the dashed runway reveals at the forward (Today) node. STAGE_T[i] = the hop-start time = seek target.
+    // ============================================================
+    // ---- feel knobs (tune in review) ----
+    var SPINE_DUR   = 0.85;   // spine draw (width tween, power2.out)
+    var PLAYHEAD_IN = 0.45;   // playhead materialize at origin
+    var HOP_DUR     = 0.85;   // playhead hop between nodes
+    var HOP0_DUR    = 0.30;   // "hop" to node 0 (already at origin — timing beat only)
+    var DWELL       = 0.55;   // readable pause after each node rises
+    var RISE_DUR    = 0.55;   // plate/lane rise
+    var HERO_LINGER = 0.40;   // extra dwell on the 2002 hero (emphasis beat)
+    var HOP_EASE    = 'power2.inOut';
+    var RISE_EASE   = 'back.out(1.2)';
+
+    var tl = gsap.timeline({ paused: true, onComplete: onJourneyComplete });
+
+    // spine draws left→right, then the playhead materializes at the origin (node 0)
+    tl.to(spine,    { width: '87%', duration: SPINE_DUR, ease: 'power2.out' }, 0);
+    tl.to(playhead, { opacity: 1, scale: 1, duration: PLAYHEAD_IN, ease: 'back.out(1.6)' }, 0.55);
+
+    var STAGE_T = [];
+    var t = 0.90;
+    HTL_NODES.forEach(function(n, i){
+      STAGE_T[i] = t;
+      var hop = (i === 0) ? HOP0_DUR : HOP_DUR;
+      tl.to(playhead, { x: travelX(i), duration: hop, ease: HOP_EASE }, t);
+      var arrive = t + hop;
+      // lane rises (carries date + card + chevron; plates lift via CSS independently of this transform)
+      tl.to(laneOf(i), { y: 0, opacity: 1, duration: RISE_DUR, ease: RISE_EASE,
+        onStart: function(){ activate(i); } }, arrive - 0.12);
+      if (n.hero && crownRing){
+        if (hasDraw) tl.to(crownRing, { drawSVG: '100%', duration: 0.6, ease: 'power1.inOut' }, arrive + 0.10);
+        else tl.to(crownRing, { opacity: 1, duration: 0.4 }, arrive + 0.10);
+      }
+      if (n.kind === 'forward'){
+        tl.to(dash, { scaleX: 1, opacity: 0.85, duration: 0.6, ease: 'power2.out' }, arrive + 0.10);
+      }
+      t = arrive + DWELL + (n.hero ? HERO_LINGER : 0);
+    });
+
+    // ============================================================
+    // STATE — two gates (inView, hovering) drive one syncPlayState(). phase: idle → playing → done.
+    //   No 'holding'/'dissolving' phases — this graphic plays ONCE and holds (spec §6).
+    // ============================================================
+    var phase = 'idle', inView = false, hovering = false, upgraded = false;
+
+    function syncPlayState(){
+      var run = inView && !hovering;
+      if (phase === 'playing') { run ? tl.play() : tl.pause(); }
+    }
+
+    // arriveFinished(): the resolved, held frame == the finished poster. Arms the stacked-hover
+    // permanently and upgrades the nodes into stage controls. Reached by natural completion,
+    // or on load in the (handled elsewhere) fallback branch.
+    function arriveFinished(){
+      phase = 'done';
+      stage.classList.add('htl-armed');
+      activate(N - 1);                 // Today lit as the current/last stage
+      upgradeStages();
+    }
+    function onJourneyComplete(){ if (phase !== 'playing') return; arriveFinished(); }
+
+    // ---- HOVER = FREEZE-IN-PLACE during the single play; pure §2a lift once 'done' (nothing to pause).
+    //      Honest-clip: un-reached nodes sit at opacity:0/y:18, so a freeze exposes nothing ahead. ----
+    function onHoverEnter(){
+      hovering = true;
+      if (phase !== 'playing') return;           // 'done' → CSS hover-lift handles it; nothing to pause
+      stage.classList.add('htl-armed');          // lift whatever is already revealed
+      syncPlayState();                            // hovering === true → pause the play
+    }
+    function onHoverLeave(){
+      hovering = false;
+      if (phase !== 'playing') return;
+      stage.classList.remove('htl-armed');        // plates settle (CSS 420ms)
+      syncPlayState();                            // resume from the exact frozen frame
+    }
+    stage.addEventListener('pointerenter', function(e){ if (e.pointerType === 'touch') return; onHoverEnter(); });
+    stage.addEventListener('pointerleave', function(e){ if (e.pointerType === 'touch') return; onHoverLeave(); });
+    stage.addEventListener('focusin',  onHoverEnter);
+    stage.addEventListener('focusout', function(e){
+      if (stage.contains(e.relatedTarget)) return;   // focus moving between nodes — stay frozen
+      onHoverLeave();
+    });
+
+    // ---- STAGE SEEK = reset → seek → play forward (spec §4c / blueprint §8.4). All revealed state is
+    //      plain-tween-driven (lane opacity/y, spine width, playhead x, era/crown/chevron/dash), so
+    //      tl.time() re-renders everything — NO onUpdate/setAttribute reconcile step is needed here. ----
+    function seekToStage(i){
+      var tt = STAGE_T[i] || 0;
+      stage.classList.remove('htl-armed');       // disarm; the click is a deliberate GO, not a freeze
+      hovering = false;
+      resetToStart();
+      tl.pause(); tl.invalidate(); tl.time(tt);   // render all tween props at tt (events suppressed)
+      activate(i);                                // light the clicked node
+      phase = 'playing';
+      if (inView) tl.play(); else tl.pause();     // play forward, respecting off-screen
+    }
+
+    // ---- upgrade nodes → stage controls (JOURNEY branch only, so the no-JS/reduced poster keeps a
+    //      plain decorative timeline — no dead buttons). role="button" on nodes; wrap is role="group"
+    //      (NOT role="img"), so these controls ARE exposed to assistive tech (blueprint §4c AT fix). ----
+    function upgradeStages(){
+      if (upgraded) return; upgraded = true;
+      nodes.forEach(function(el, i){
+        var title = (el.querySelector('.htl-title') || {}).textContent || '';
+        var date  = (el.querySelector('.htl-date-num') || {}).textContent || '';
+        el.setAttribute('role', 'button');
+        el.setAttribute('tabindex', '0');
+        el.setAttribute('aria-label', 'Replay timeline from ' + date + ': ' + title);
+        el.addEventListener('click', function(){ seekToStage(i); });
+        el.addEventListener('keydown', function(ev){
+          if (ev.key === 'Enter' || ev.key === ' ' || ev.key === 'Spacebar'){ ev.preventDefault(); seekToStage(i); }
+        });
+      });
+    }
+
+    // ---- resize: reseat the pixel-based playhead on the active node (lanes/dots are %/margin, auto-track) ----
+    window.addEventListener('resize', function(){
+      if (phase === 'done' || phase === 'idle'){ gsap.set(playhead, { x: travelX(activeIndex) }); }
+    }, { passive: true });
+
+    // ============================================================
+    // INIT — apply the blank start frame, fade the wrap in (no poster flash), wire ScrollTrigger,
+    //        then KICK on load. The graphic now lives in the ABOVE-THE-FOLD hero, so the journey
+    //        starts on load (~0.4s after libs confirm) instead of on scroll-enter. ScrollTrigger is
+    //        kept ONLY as the off-screen gate: pause when scrolled away mid-play, resume on return.
+    // ============================================================
+    resetToStart();
+    fitStage();                                   // ensure the stage is sized before the reveal
+    gsap.set(wrap, { autoAlpha: 0, y: 14 });
+    gsap.to(wrap, { autoAlpha: 1, y: 0, duration: 0.6, ease: 'power2.out' });
+
+    var st = ScrollTrigger.create({
+      trigger: wrap, start: 'top 85%', end: 'bottom 15%',
+      onToggle: function(self){
+        inView = self.isActive;
+        syncPlayState();                          // gate ONLY — pause/resume off-screen; the kick is time-based
+      }
+    });
+    inView = st.isActive;                          // seed from the current scroll position
+
+    // load kick (hero is above the fold). If the user scrolls the hero out of view within the delay,
+    // phase becomes 'playing' but syncPlayState keeps it paused until the graphic is scrolled back in.
+    gsap.delayedCall(0.4, function(){
+      if (phase !== 'idle') return;
+      phase = 'playing';
+      syncPlayState();
+    });
+  }, stage);
 })();
 </script>
 

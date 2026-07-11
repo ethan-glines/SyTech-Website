@@ -6,7 +6,7 @@
 <title>AI-Powered Ingestion — SyTech Solutions</title>
 <meta name="description" content="Read, classify, and index decades of unstructured records into your SharePoint tenant — at machine pace. SyTech's AI ingestion pipeline configured inside the Microsoft 365 license you already own."/>
 <link rel="stylesheet" href="assets/css/sytech-shared.css">
-<link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.0.3/src/regular/style.css">
+<link rel="stylesheet" href="assets/css/phosphor.css">
 <style>
 /* === Per-page accent (color pass 2026-06-18) === */
 :root { --accent: #3DB87A; --accent-ink: #2E8E5C; }
@@ -1225,10 +1225,10 @@
   (function() {
     var triggers = document.querySelectorAll('.nav-mega-trigger');
     if (!triggers.length) return;
-    var mqMobile = window.matchMedia('(max-width: 1024px)');
-    // Condensed desktop band (1025-1440px). Ceiling MUST match the CSS
+    var mqMobile = window.matchMedia('(max-width: 800px)');
+    // Condensed desktop band (801-1440px). Ceiling MUST match the CSS
     // media query in assets/css/sytech-shared.css (media queries can't read a JS var).
-    var mqBand = window.matchMedia('(min-width: 1025px) and (max-width: 1440px)');
+    var mqBand = window.matchMedia('(min-width: 801px) and (max-width: 1440px)');
 
     Array.prototype.forEach.call(triggers, function(trigger) {
       var megaLi = trigger.closest('.nav-has-mega');

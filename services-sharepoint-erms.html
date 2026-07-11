@@ -6,7 +6,7 @@
 <title>SharePoint ERMS — SyTech Solutions</title>
 <meta name="description" content="Configure SharePoint as your records system — inside the Microsoft 365 tenant you already own. No second platform. No second invoice."/>
 <link rel="stylesheet" href="assets/css/sytech-shared.css">
-<link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.0.3/src/regular/style.css">
+<link rel="stylesheet" href="assets/css/phosphor.css">
 <style>
 /* === Per-page accent (color pass 2026-06-18) === */
 :root { --accent: #1A6E78; --accent-ink: #1A6E78; }
@@ -262,7 +262,7 @@
    a deep-navy pill with teal text anchors the resolution side and reads premium. */
 .hr-badge { opacity: 0; }
 .hr-badge-bg   { fill: var(--deep-navy); stroke: var(--accent); stroke-width: 1; }
-.hr-badge-text { fill: var(--accent); font-weight: 700; letter-spacing: 1.2px; text-transform: uppercase; text-anchor: middle; font-family: Tahoma, 'Segoe UI', sans-serif; }
+.hr-badge-text { fill: #FFFFFF; font-weight: 700; letter-spacing: 1.2px; text-transform: uppercase; text-anchor: middle; font-family: Tahoma, 'Segoe UI', sans-serif; }
 
 /* Smooth opacity transitions for transient elements */
 #hrToast1, #hrToast2, #hrLockGroup,
@@ -573,6 +573,149 @@
   .hub-center { transform: translate(-50%, -50%) !important; }
   .hub-orbital { transform: translate(-50%, -50%) !important; }
 }
+
+
+/* ==========================================================================
+   PORTED M365 "cinema-stage" hero animation (from homepage index.html).
+   Fully NAMESPACED so it cannot collide with / leak into the SharePoint page:
+     - classes prefixed  .m365-*
+     - element IDs prefixed  #m365*
+     - @keyframes prefixed  m365*
+   Ported from the homepage Microsoft 365 data-flow diagram, then adapted for
+   SharePoint (2026-07-10): the Microsoft/Google chrome toggle + platform
+   crossfade were removed and the platform locked to a single SharePoint
+   identity (SharePoint logo + "SharePoint" wordmark); legend labels recolored
+   navy for AA on the light hero. Driven by its own isolated <script> IIFE at
+   the very end of the page. In-canvas accents still use the shared var(--gold).
+   ========================================================================== */
+.m365-anim { position: relative; }
+
+.m365-stage {
+  width: 100%; max-width: 480px; aspect-ratio: 4/3;
+  background: linear-gradient(145deg, #1e3a5c, #1a2c42);
+  border-radius: 14px; position: relative; overflow: hidden;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.3), 0 0 0 1px rgba(255,255,255,0.05);
+  margin-left: auto;
+}
+.m365-chrome { display: flex; gap: 5px; padding: 12px 16px; position: relative; z-index: 5; }
+.m365-chrome > span { width: 8px; height: 8px; border-radius: 50%; opacity: 0.4; }
+.m365-chrome > span:nth-child(1) { background: #ff5f57; }
+.m365-chrome > span:nth-child(2) { background: #febc2e; }
+.m365-chrome > span:nth-child(3) { background: #28c840; }
+
+.m365-canvas { position: absolute; inset: 36px 0 0 0; overflow: hidden; display: block; }
+.m365-canvas svg { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+
+.m365-cloud-emoji-wrap {
+  width: 100%; height: 100%;
+  display: flex; align-items: center; justify-content: center;
+  font-family: "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif;
+  font-size: 108px; line-height: 1; user-select: none; -webkit-user-select: none;
+}
+
+.m365-legend {
+  position: relative; width: 100%; max-width: 480px;
+  margin: 12px 0 0 auto; height: 32px; box-sizing: border-box;
+}
+.m365-legend-col {
+  position: absolute; top: 0;
+  display: flex; flex-direction: column; align-items: center;
+  transform: translateX(-50%); white-space: nowrap;
+}
+.m365-legend-col[data-zone="1"] { left: 19.79%; }
+.m365-legend-col[data-zone="2"] { left: 50%; }
+.m365-legend-col[data-zone="3"] { left: 80.21%; }
+/* Legend labels recolored gold -> brand navy (2026-07-10): gold #E5A630 failed
+   AA on the LIGHT hero. --navy (#25426B) on the light field clears AA at ~9:1.
+   Only the legend row label text changes; the animation's in-canvas gold accents
+   (connectors, scanner, sparkline, etc.) are untouched. */
+.m365-legend-num {
+  color: var(--navy); font-size: 0.6rem; font-weight: 700;
+  letter-spacing: 0.12em; line-height: 1; opacity: 1;
+}
+.m365-legend-name {
+  margin-top: 0.35em; color: var(--navy); font-size: 0.62rem; font-weight: 700;
+  letter-spacing: 0.16em; text-transform: uppercase; line-height: 1; opacity: 1;
+}
+
+/* Microsoft/Google toggle switch REMOVED (2026-07-10): platform locked to a single
+   SharePoint identity, so the toggle control, its track/thumb/labels, and the entire
+   Microsoft<->Google crossfade CSS are gone. The chrome bar now shows only the three
+   traffic-light dots on the left (the quiet "SharePoint" title was removed 2026-07-10). */
+
+@keyframes m365ScaleSparklineDraw {
+  0%   { stroke-dashoffset: 100; }
+  25%  { stroke-dashoffset: 0;   }
+  92%  { stroke-dashoffset: 0;   }
+  100% { stroke-dashoffset: 100; }
+}
+#m365ScaleSparklinePath {
+  stroke-dasharray: 100; stroke-dashoffset: 0;
+  animation: m365ScaleSparklineDraw 6.5s ease-in-out infinite;
+}
+@keyframes m365ScaleSparklineDot {
+  0%   { opacity: 0;    transform: scale(0.6); }
+  25%  { opacity: 0.95; transform: scale(1);   }
+  92%  { opacity: 0.95; transform: scale(1);   }
+  100% { opacity: 0;    transform: scale(0.6); }
+}
+#m365ScaleSparklineDot {
+  transform-origin: center; transform-box: fill-box;
+  animation: m365ScaleSparklineDot 6.5s ease-in-out infinite;
+}
+
+@keyframes m365OrganizeLabelPulse { 0%,100% { opacity: 0.7; } 50% { opacity: 1.0; } }
+#m365OrganizeLabel { animation: m365OrganizeLabelPulse 2.5s ease-in-out infinite; }
+
+@keyframes m365OrganizePaperFeed {
+  0%   { transform: translateY(0px);  opacity: 0; }
+  6%   { opacity: 1; }
+  50%  { transform: translateY(28px); opacity: 1; }
+  55%  { transform: translateY(28px); opacity: 0; }
+  100% { transform: translateY(28px); opacity: 0; }
+}
+#m365OrganizePaperA, #m365OrganizePaperB {
+  transform-origin: 95px 205px; transform-box: view-box;
+  animation: m365OrganizePaperFeed 2s linear infinite;
+}
+#m365OrganizePaperB { animation-delay: -1s; }
+
+@keyframes m365OrganizeSlotFlash {
+  0%,45% { opacity: 0.55; } 50% { opacity: 1.0; } 55% { opacity: 0.55; } 100% { opacity: 0.55; }
+}
+#m365OrganizeScannerSlot { animation: m365OrganizeSlotFlash 2s linear infinite; }
+
+@keyframes m365OrganizeScannerPulse {
+  0%,45% { filter: brightness(1); } 50% { filter: brightness(1.35); }
+  60% { filter: brightness(1); } 100% { filter: brightness(1); }
+}
+#m365OrganizeScannerBody { animation: m365OrganizeScannerPulse 2s linear infinite; }
+
+@media (prefers-reduced-motion: reduce), (max-width: 600px) {
+  #m365ScaleSparklinePath, #m365ScaleSparklineDot,
+  #m365OrganizePaperA, #m365OrganizePaperB,
+  #m365OrganizeScannerSlot, #m365OrganizeScannerBody,
+  #m365OrganizeLabel { animation: none !important; }
+  #m365OrganizePaperA { transform: translateY(14px); opacity: 1; }
+  #m365OrganizePaperB { opacity: 0; }
+  #m365OrganizeScannerSlot { opacity: 0.55; }
+  #m365OrganizeLabel { opacity: 1; }
+  #m365ScaleSparklinePath { stroke-dashoffset: 0; }
+  #m365ScaleSparklineDot { opacity: 0.95; transform: none; }
+}
+@media (max-width: 600px) {
+  .m365-legend-num { font-size: 0.55rem; }
+  .m365-legend-name { font-size: 0.55rem; }
+  .m365-stage { margin: 0 auto; max-width: 360px; }
+  .m365-legend { margin: 12px auto 0; max-width: 360px; }
+}
+
+/* ---- Relocated split-panel animation — mid-page centered treatment ----
+   The .hero-story card was right-aligned in the two-column hero; in its new
+   standalone band it centers. Higher specificity than the base + the 960px
+   rule so it holds at every width. Everything else about .hero-story / .hr-*
+   is unchanged (verbatim from the original hero graphic). */
+.anim-replay .hero-story { margin: 0 auto; max-width: 600px; }
 </style>
 </head>
 <body>
@@ -703,6 +846,240 @@
         <p class="lead">Most public agencies are paying twice for records management &mdash; once for their Microsoft 365 license, and again for a standalone ERMS platform that duplicates what SharePoint Online already does. We configure SharePoint as your records system &mdash; inside the tenant you already own. No second platform. No second invoice.</p>
       </div>
 
+      <!-- ============================================================
+           M365 CINEMA-STAGE HERO ANIMATION (ported from homepage index.html)
+           Namespaced .m365-* classes / #m365* IDs / m365* keyframes + its own
+           isolated <script> IIFE at page end. Verbatim Microsoft 365 data-flow
+           diagram: scan (Organize) -> centralize in M365/Google (Unify) ->
+           report live (Scale). Autoplays on load like the homepage.
+           ============================================================ -->
+      <div class="m365-anim">
+        <div class="m365-stage" role="img" aria-label="Animated graphic: documents are scanned, centralized in SharePoint, and reported live">
+          <div class="m365-chrome">
+            <span></span><span></span><span></span>
+          </div>
+
+          <div class="m365-canvas" id="m365Canvas" aria-hidden="true">
+            <svg id="m365Svg" viewBox="0 0 480 324" preserveAspectRatio="xMidYMid meet"
+                 xmlns="http://www.w3.org/2000/svg"
+                 xmlns:xhtml="http://www.w3.org/1999/xhtml">
+              <defs>
+                <radialGradient id="m365TokenHalo" cx="50%" cy="50%" r="50%">
+                  <stop offset="0%"   stop-color="#F1B14D" stop-opacity="0.55"/>
+                  <stop offset="60%"  stop-color="#E5A630" stop-opacity="0.18"/>
+                  <stop offset="100%" stop-color="#E5A630" stop-opacity="0"/>
+                </radialGradient>
+                <filter id="m365TokenGlow" x="-50%" y="-50%" width="200%" height="200%">
+                  <feGaussianBlur stdDeviation="1.2" result="blur"/>
+                  <feMerge>
+                    <feMergeNode in="blur"/>
+                    <feMergeNode in="SourceGraphic"/>
+                  </feMerge>
+                </filter>
+                <path id="m365TokenPath"
+                      d="M 95 235 L 95 165 L 95 70 L 240 70 L 385 70 L 385 165 L 340 210"
+                      fill="none" stroke="none"/>
+                <symbol id="m365TokenSymbol" overflow="visible">
+                  <circle cx="0" cy="0" r="9" fill="url(#m365TokenHalo)" filter="url(#m365TokenGlow)"/>
+                  <circle cx="0" cy="0" r="4" fill="#F1B14D"/>
+                  <circle cx="0" cy="0" r="4" fill="none" stroke="#E5A630" stroke-width="0.6" opacity="0.9"/>
+                </symbol>
+              </defs>
+
+              <g id="m365Connectors">
+                <path id="m365ConnectorLeft"
+                      d="M 95 165 L 95 70 L 240 70"
+                      fill="none"
+                      stroke="#E5A630" stroke-width="1.5"
+                      stroke-linecap="round" stroke-linejoin="miter"
+                      stroke-dasharray="4 4"/>
+                <path id="m365ConnectorRight"
+                      d="M 240 70 L 385 70 L 385 165"
+                      fill="none"
+                      stroke="#E5A630" stroke-width="1.5"
+                      stroke-linecap="round" stroke-linejoin="miter"
+                      stroke-dasharray="4 4"/>
+              </g>
+
+              <g id="m365TokenStream"></g>
+
+              <g id="m365OrganizeRegion">
+                <rect x="30" y="165" width="130" height="130" rx="14" ry="14"
+                      fill="#1c344e" fill-opacity="1"
+                      stroke="#E5A630" stroke-width="1.5"/>
+                <g id="m365Organize01Tab">
+                  <rect x="42" y="178" width="12" height="14" rx="2" ry="2" fill="#E5A630"/>
+                  <text x="48" y="188"
+                        fill="#FFFFFF"
+                        font-family="Tahoma, 'Segoe UI', sans-serif"
+                        font-size="6.5" font-weight="700"
+                        text-anchor="middle"
+                        letter-spacing="0.3">01</text>
+                </g>
+                <text id="m365OrganizeLabel" x="95" y="188"
+                      fill="#E5A630"
+                      font-family="Tahoma, 'Segoe UI', sans-serif"
+                      font-size="7.5" font-weight="700"
+                      letter-spacing="0.5"
+                      text-anchor="middle"
+                      style="text-transform: uppercase;">SCANNING</text>
+                <g id="m365OrganizePaperA">
+                  <rect x="84" y="205" width="22" height="22" rx="1.5" ry="1.5"
+                        fill="#25426B" fill-opacity="0.55" stroke="#E5A630" stroke-width="0.6"/>
+                  <line x1="87" y1="211" x2="103" y2="211" stroke="#FFFFFF" stroke-opacity="0.45" stroke-width="0.5"/>
+                  <line x1="87" y1="215" x2="101" y2="215" stroke="#FFFFFF" stroke-opacity="0.35" stroke-width="0.5"/>
+                  <line x1="87" y1="219" x2="103" y2="219" stroke="#FFFFFF" stroke-opacity="0.35" stroke-width="0.5"/>
+                  <line x1="87" y1="223" x2="99"  y2="223" stroke="#FFFFFF" stroke-opacity="0.35" stroke-width="0.5"/>
+                </g>
+                <g id="m365OrganizePaperB">
+                  <rect x="84" y="205" width="22" height="22" rx="1.5" ry="1.5"
+                        fill="#25426B" fill-opacity="0.55" stroke="#E5A630" stroke-width="0.6"/>
+                  <line x1="87" y1="211" x2="103" y2="211" stroke="#FFFFFF" stroke-opacity="0.45" stroke-width="0.5"/>
+                  <line x1="87" y1="215" x2="101" y2="215" stroke="#FFFFFF" stroke-opacity="0.35" stroke-width="0.5"/>
+                  <line x1="87" y1="219" x2="103" y2="219" stroke="#FFFFFF" stroke-opacity="0.35" stroke-width="0.5"/>
+                  <line x1="87" y1="223" x2="99"  y2="223" stroke="#FFFFFF" stroke-opacity="0.35" stroke-width="0.5"/>
+                </g>
+                <g id="m365OrganizeScannerBody">
+                  <rect x="60" y="235" width="70" height="30" rx="4" ry="4"
+                        fill="#1a2c42" fill-opacity="1"
+                        stroke="#E5A630" stroke-width="1.2"/>
+                  <rect x="62" y="237" width="66" height="2" rx="1" ry="1"
+                        fill="#E5A630" fill-opacity="0.18"/>
+                  <rect x="66"  y="261" width="6" height="2" fill="#E5A630" fill-opacity="0.4"/>
+                  <rect x="118" y="261" width="6" height="2" fill="#E5A630" fill-opacity="0.4"/>
+                  <circle cx="122" cy="250" r="1.4" fill="#F1B14D" opacity="0.85"/>
+                </g>
+                <rect id="m365OrganizeScannerSlot"
+                      x="68" y="234" width="54" height="2.5" rx="1.25" ry="1.25"
+                      fill="#E5A630" opacity="0.55"/>
+              </g>
+
+              <g id="m365CloudEmoji">
+                <foreignObject x="180" y="0" width="120" height="120">
+                  <xhtml:div class="m365-cloud-emoji-wrap" role="img" aria-label="cloud">&#9729;&#65039;</xhtml:div>
+                </foreignObject>
+              </g>
+
+              <g id="m365CloudPlatform">
+                <!-- Platform identity locked to SharePoint (2026-07-10). The 4-color
+                     Microsoft logo + the Google logo/wordmark crossfade were removed;
+                     this reuses THIS page's existing assets/sharepoint-logo.png mark
+                     (same asset used in the split-panel + hub-radial graphics on this
+                     page) so the platform slot is self-contained. Centered on x=240,
+                     36px square (x=222), sitting above the wordmark at y=152. -->
+                <image id="m365PlatformSpLogo"
+                       href="assets/sharepoint-logo.png"
+                       x="222" y="102" width="36" height="36"
+                       preserveAspectRatio="xMidYMid meet"/>
+                <text id="m365PlatformSpWordmark" x="240" y="152"
+                      fill="#FFFFFF"
+                      font-family="Tahoma, 'Segoe UI', sans-serif"
+                      font-size="8" font-weight="700"
+                      text-anchor="middle"
+                      letter-spacing="0.2">SharePoint</text>
+              </g>
+
+              <g id="m365ScaleRegion">
+                <rect x="320" y="165" width="130" height="130" rx="14" ry="14"
+                      fill="#1c344e" fill-opacity="1"
+                      stroke="#E5A630" stroke-width="1.5"/>
+                <text x="330" y="188"
+                      fill="#E5A630"
+                      font-family="Tahoma, 'Segoe UI', sans-serif"
+                      font-size="7.5" font-weight="700"
+                      letter-spacing="0.5"
+                      style="text-transform: uppercase;">OPERATIONS</text>
+                <g transform="translate(429 180) scale(0.039)">
+                  <path d="M232,56V120a8,8,0,0,1-16,0V75.32l-83.59,83.59a8,8,0,0,1-11.32,0L96,123.32,21.66,197.66a8,8,0,0,1-11.32-11.32l80-80a8,8,0,0,1,11.32,0L126.06,142,202.69,64H168a8,8,0,0,1,0-16h64A8,8,0,0,1,232,56Z"
+                        fill="#E5A630"/>
+                </g>
+                <line x1="330" y1="195" x2="440" y2="195"
+                      stroke="#E5A630" stroke-width="0.5" opacity="0.3"/>
+                <text id="m365ScaleCounter" x="330" y="218"
+                      fill="#FFFFFF"
+                      font-family="Tahoma, 'Segoe UI', sans-serif"
+                      font-size="16" font-weight="700"
+                      letter-spacing="-0.2">+0</text>
+                <text x="330" y="230"
+                      fill="#FFFFFF" opacity="0.6"
+                      font-family="Tahoma, 'Segoe UI', sans-serif"
+                      font-size="5" font-weight="700"
+                      letter-spacing="0.15"
+                      style="text-transform: uppercase;">documents indexed today</text>
+                <g id="m365ScaleSparkline" transform="translate(330 250)">
+                  <path id="m365ScaleSparklinePath"
+                        d="M 0 14 L 20 12 L 38 13 L 56 8 L 76 5 L 96 1"
+                        fill="none"
+                        stroke="#E5A630" stroke-width="1.5"
+                        stroke-linecap="round" stroke-linejoin="round"/>
+                  <circle id="m365ScaleSparklineDot" cx="96" cy="1" r="1.8" fill="#F1B14D" opacity="0.95"/>
+                </g>
+                <g id="m365ScaleDonut" transform="translate(425 277)">
+                  <circle cx="0" cy="0" r="13"
+                          fill="none"
+                          stroke="#25426B" stroke-opacity="0.45"
+                          stroke-width="2"/>
+                  <circle cx="0" cy="0" r="13"
+                          fill="none"
+                          stroke="#E5A630" stroke-width="2"
+                          stroke-linecap="round"
+                          stroke-dasharray="57.18 81.68"
+                          transform="rotate(-90)"/>
+                  <text x="0" y="2.5"
+                        fill="#E5A630"
+                        font-family="Tahoma, 'Segoe UI', sans-serif"
+                        font-size="6.5" font-weight="700"
+                        text-anchor="middle"
+                        letter-spacing="0">70%</text>
+                </g>
+                <g id="m365ScaleMiniBars" transform="translate(332 282)">
+                  <rect x="0"  y="-6"  width="3" height="6"  fill="#E5A630" opacity="0.85"/>
+                  <rect x="5"  y="-10" width="3" height="10" fill="#E5A630" opacity="0.85"/>
+                  <rect x="10" y="-14" width="3" height="14" fill="#E5A630" opacity="0.85"/>
+                </g>
+              </g>
+            </svg>
+          </div>
+        </div>
+
+        <div class="m365-legend" id="m365Legend" aria-hidden="true">
+          <div class="m365-legend-col" data-zone="1">
+            <span class="m365-legend-num">01</span>
+            <span class="m365-legend-name">Organize</span>
+          </div>
+          <div class="m365-legend-col" data-zone="2">
+            <span class="m365-legend-num">02</span>
+            <span class="m365-legend-name">Unify</span>
+          </div>
+          <div class="m365-legend-col" data-zone="3">
+            <span class="m365-legend-num">03</span>
+            <span class="m365-legend-name">Scale</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     RELOCATED — Split-panel "Shrink-Grow" replacement animation
+     (this was the SharePoint hero graphic). Moved OUT of the hero
+     into this standalone band so the ported M365 diagram can own the
+     hero. Placed directly below the hero, BEFORE the Comparison section,
+     so its SharePoint-radial is separated from Section 2's hub-radial.
+     Light-gray (.alt) band so the WHITE animation card reads as elevated.
+     Fires on scroll-into-view via the EXISTING #heroStory
+     IntersectionObserver (unchanged). All original markup / CSS
+     (.hero-story, .hr-*) / JS is UNTOUCHED — only its DOM home and
+     container centering (.anim-replay) differ.
+     ============================================================ -->
+<section class="section alt anim-replay" aria-labelledby="replacement-anim-heading">
+  <div class="container">
+    <div class="section-header">
+      <span class="section-eyebrow">The Replacement, In Motion</span>
+      <h2 id="replacement-anim-heading">One System Fades. SharePoint Takes Over.</h2>
+      <p class="section-intro">The standalone platform shrinks as the records system already inside your Microsoft 365 tenant grows to fill its place &mdash; eight capabilities, one license.</p>
+    </div>
       <div class="hero-story" id="heroStory" role="img" aria-label="Animation: the canvas is split into two panels — a left panel showing a proprietary records system failing with error messages, a continuously climbing cost ticker, and a paywall lock — and a right panel showing the Microsoft 365 SharePoint system with eight capability icons, teal connector lines, and a badge reading Included in Microsoft 365. As the animation progresses, the left panel shrinks while the right panel grows, shifting focus from the broken system to the working one.">
         <div class="hero-story-frame">
 
@@ -974,7 +1351,6 @@
         <p class="hero-caption">A standalone records system adds a second platform and a second invoice. SharePoint already does the job &mdash; inside the tenant you own.</p>
       </div>
     </div>
-  </div>
 </section>
 
 
@@ -1316,10 +1692,10 @@
   (function() {
     var triggers = document.querySelectorAll('.nav-mega-trigger');
     if (!triggers.length) return;
-    var mqMobile = window.matchMedia('(max-width: 1024px)');
-    // Condensed desktop band (1025-1440px). Ceiling MUST match the CSS
+    var mqMobile = window.matchMedia('(max-width: 800px)');
+    // Condensed desktop band (801-1440px). Ceiling MUST match the CSS
     // media query in assets/css/sytech-shared.css (media queries can't read a JS var).
-    var mqBand = window.matchMedia('(min-width: 1025px) and (max-width: 1440px)');
+    var mqBand = window.matchMedia('(min-width: 801px) and (max-width: 1440px)');
 
     Array.prototype.forEach.call(triggers, function(trigger) {
       var megaLi = trigger.closest('.nav-has-mega');
@@ -1978,26 +2354,64 @@
       window.requestAnimationFrame(fitBadgePill);
     });
 
-    // IntersectionObserver — pause when hero scrolls offscreen
+    // -------- Pre-start POSTER frame --------
+    // This graphic is BELOW THE FOLD after relocation, so it must sit at a
+    // readable poster (broken panel dominant + a TINY SharePoint logo) until
+    // the user scrolls to it. The left window/panel already read correctly from
+    // their DOM defaults (elLeftBg width=420, window opacity 1, toasts/cost/lock
+    // opacity 0). Only the SharePoint logo needs painting in — its CSS default
+    // is opacity:0, which would leave the right panel blank. Paint its t=0
+    // size/position/opacity directly (no timeline advance) and seed the state
+    // trackers so the first real tick dedups cleanly.
+    if (elSpLogo) {
+      var _posterRcx  = (420 + 600) / 2;   // right-panel center at splitX=420
+      var _posterSize = 36;                 // logoSize at rightW=180 (t=0)
+      elSpLogo.setAttribute('x', _posterRcx - _posterSize / 2);
+      elSpLogo.setAttribute('y', 180 - _posterSize / 2);
+      elSpLogo.setAttribute('width', _posterSize);
+      elSpLogo.setAttribute('height', _posterSize);
+      elSpLogo.style.opacity = '1';
+      state.spLogo    = '1';
+      state.spLogoBox = _posterRcx.toFixed(1) + ',' + _posterSize.toFixed(1);
+    }
+
+    // -------- Scroll-into-view trigger (PLAY ONCE) --------
+    // hasPlayed guard fires the timeline exactly once, the first time a
+    // MEANINGFUL portion (~40%) of the section is in the viewport — so it kicks
+    // off as the user ARRIVES at it, not when it barely peeks in from the bottom
+    // (the old threshold:0.05 started it while it was still a sliver at the
+    // screen edge, so it played out before he reached it). Once triggered it
+    // runs to its settled final frame and never replays; scrolling back shows it
+    // complete. The observer disconnects after firing.
+    var hasPlayed = false;
     if ('IntersectionObserver' in window) {
       var heroIO = new IntersectionObserver(function(entries) {
         entries.forEach(function(entry) {
-          if (entry.isIntersecting) start();
-          else stop();
+          // isIntersecting alone is true at any ratio > 0, so gate on the ratio.
+          if (!hasPlayed && entry.isIntersecting && entry.intersectionRatio >= 0.4) {
+            hasPlayed = true;
+            heroIO.disconnect();   // single-fire
+            start();
+          }
         });
-      }, { threshold: 0.05 });
+      }, { threshold: [0, 0.4] });   // DIAL: raise/lower 0.4 to trigger later/earlier
       heroIO.observe(heroStory);
     } else {
+      // No IntersectionObserver support — play immediately so it still runs.
+      hasPlayed = true;
       start();
     }
 
-    // visibilitychange — pause when tab is hidden
+    // visibilitychange — pause a MID-PLAY run when the tab is hidden (prevents an
+    // rAF timestamp jump on return via the pausedAccum compensation). Does
+    // nothing before the scroll trigger fires or after the play-once completes,
+    // so it never bypasses the scroll-into-view gate and never replays.
     document.addEventListener('visibilitychange', function() {
+      if (!hasPlayed || finished) return;
       if (document.hidden) {
-        stop();
+        stop();               // sets pauseStart; start() folds it into pausedAccum
       } else {
-        var rect = heroStory.getBoundingClientRect();
-        if (rect.bottom > 0 && rect.top < window.innerHeight) start();
+        start();              // resumes from the exact frame, no timestamp jump
       }
     });
   }
@@ -2080,6 +2494,117 @@
       animateNumber(n, target, 1400, formatter);
     });
   }, 0.4);
+
+})();
+
+
+/* ============================================================
+   PORTED M365 CINEMA-STAGE ANIMATION — isolated IIFE (own scope).
+   Verbatim logic from homepage index.html, retargeted to the
+   #m365* IDs / .m365-* classes. Separate function scope from the
+   main IIFE above, so no shared globals (its own rafId, tokens,
+   counter, etc. cannot collide). Autoplays on load (hero graphic).
+   ============================================================ */
+(function () {
+  'use strict';
+
+  /* Microsoft/Google platform toggle handler REMOVED (2026-07-10). The platform is
+     locked to a single SharePoint identity, so the toggle element, its labels, the
+     cloudPlatform crossfade lookups, and the click handler are all gone. The
+     token-stream / counter / scanner animation below is unchanged and runs on its
+     own guards (tokenPath / tokenStream / counterEl). */
+
+  var prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var isNarrow             = window.matchMedia('(max-width: 600px)').matches;
+  var staticMode           = prefersReducedMotion || isNarrow;
+
+  var counterEl = document.getElementById('m365ScaleCounter');
+  function fmt(n) { return n.toLocaleString('en-US'); }
+
+  if (staticMode) {
+    if (counterEl) counterEl.textContent = '+' + fmt(1294);
+    return;
+  }
+
+  var SVG_NS      = 'http://www.w3.org/2000/svg';
+  var XLINK_NS    = 'http://www.w3.org/1999/xlink';
+  var tokenPath   = document.getElementById('m365TokenPath');
+  var tokenStream = document.getElementById('m365TokenStream');
+  if (!tokenPath || !tokenStream || !counterEl) return;
+  var totalLen    = tokenPath.getTotalLength();
+
+  var TRANSIT_MS     = 8000;
+  var SPAWN_INTERVAL = 2000;
+  var COUNTER_STEP   = 1;
+  var COUNTER_RESET  = 9999;
+
+  var INITIAL_PROGRESS = [0.10, 0.35, 0.60, 0.85];
+
+  var tokens = [];
+  var counter = 0;
+
+  function makeTokenEl() {
+    var use = document.createElementNS(SVG_NS, 'use');
+    use.setAttribute('href', '#m365TokenSymbol');
+    use.setAttributeNS(XLINK_NS, 'href', '#m365TokenSymbol');
+    use.setAttribute('x', '0');
+    use.setAttribute('y', '0');
+    tokenStream.appendChild(use);
+    return use;
+  }
+
+  function positionToken(tok) {
+    var p = Math.max(0, Math.min(1, tok.progress));
+    var pt = tokenPath.getPointAtLength(p * totalLen);
+    tok.el.setAttribute('transform', 'translate(' + pt.x.toFixed(2) + ' ' + pt.y.toFixed(2) + ')');
+  }
+
+  function spawnToken(initialProgress, nowTs) {
+    var el = makeTokenEl();
+    var bornAt = nowTs - initialProgress * TRANSIT_MS;
+    tokens.push({ el: el, progress: initialProgress, bornAt: bornAt });
+    positionToken(tokens[tokens.length - 1]);
+  }
+
+  function removeToken(tok, idx) {
+    if (tok.el && tok.el.parentNode) tok.el.parentNode.removeChild(tok.el);
+    tokens.splice(idx, 1);
+  }
+
+  function incrementCounter() {
+    counter += COUNTER_STEP;
+    if (counter > COUNTER_RESET) counter = 0;
+    counterEl.textContent = '+' + fmt(counter);
+  }
+
+  var startTs = performance.now();
+  for (var i = 0; i < INITIAL_PROGRESS.length; i++) {
+    spawnToken(INITIAL_PROGRESS[i], startTs);
+  }
+  counter = 1247;
+  counterEl.textContent = '+' + fmt(counter);
+
+  var nextSpawnAt = startTs + 1000;
+
+  function frame(now) {
+    while (now >= nextSpawnAt) {
+      spawnToken(0, nextSpawnAt);
+      nextSpawnAt += SPAWN_INTERVAL;
+    }
+    for (var i = tokens.length - 1; i >= 0; i--) {
+      var t = tokens[i];
+      t.progress = (now - t.bornAt) / TRANSIT_MS;
+      if (t.progress >= 1) {
+        removeToken(t, i);
+        incrementCounter();
+        continue;
+      }
+      positionToken(t);
+    }
+    requestAnimationFrame(frame);
+  }
+
+  requestAnimationFrame(frame);
 
 })();
 </script>

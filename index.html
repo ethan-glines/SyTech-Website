@@ -22,10 +22,10 @@
   --navy-soft: rgba(37, 66, 107, 0.07);
 }
 
-/* Reserve the scrollbar gutter at ALL times so the stepped-framework's
-   body-lock pin (position:fixed, which removes the vertical scrollbar)
-   causes NO horizontal layout shift on engage/release. macOS/iOS overlay
-   scrollbars reserve nothing anyway, so this is a no-op there. Page-scoped. */
+/* Reserve the scrollbar gutter at ALL times. (Vestigial from the old body-lock
+   pin, which is gone — the framework no longer locks scroll. Harmless to keep:
+   it just holds the gutter stable so nothing shifts horizontally; macOS/iOS
+   overlay scrollbars reserve nothing anyway, so it's a no-op there. Page-scoped.) */
 html { scrollbar-gutter: stable; }
 
 
@@ -94,6 +94,212 @@ html { scrollbar-gutter: stable; }
   border: 2px solid rgba(255,255,255,0.3); cursor: pointer;
 }
 .btn-secondary:hover { border-color: var(--gold); color: var(--gold); }
+
+/* ============================================================
+   [VIDEO-SIDE PROTO — ISOLATED / REVERSIBLE — HERO ONLY]
+   Two-column hero: copy LEFT, video RIGHT (in the exact right-column
+   cell the M365 cinema-stage diagram used to occupy). This is the
+   contained (NOT full-bleed) alternative to the video-hero proto.
+
+   The ORIGINAL hero is untouched here — the base .hero navy gradient,
+   its ::before glow / ::after dot-grid, and the 2-col .hero-grid all
+   remain in force. This block ONLY:
+     1. reversibly hides the diagram: .hero .hero-animation{display:none}
+     2. styles a new right-column .hero-video-side wrapper + its <video>
+        (mirrors the old .cinema-stage card: 14px radius, same shadow)
+     3. reduced-motion fallback: swap the moving video for the poster
+        still inside the same column card.
+
+   To FULLY REVERT to the original diagram hero:
+     1. delete this entire CSS block, and
+     2. delete the <div class="hero-video-side"> element added inside
+        <div class="hero-grid"> (between .hero-copy and .hero-animation).
+   Nothing else (nav, amber nav-shape, chaos/framework section,
+   shared CSS) is touched.
+   ============================================================ */
+/* reversibly hide the M365 cinema-stage diagram (delete this one rule to
+   bring the right-column diagram back); markup/CSS/JS all stay intact */
+.hero .hero-animation { display: none; }
+
+/* right-column card wrapper — becomes grid item 2 now that .hero-animation
+   is display:none and out of grid flow. Right-aligned to mirror the old
+   .cinema-stage (margin-left:auto). */
+.hero .hero-video-side {
+  width: 100%; max-width: 580px;   /* DIAL: bumped from 480px per Ethan — bigger hero video */
+  margin-left: auto;
+  position: relative; z-index: 1;  /* above .hero::after dot-grid */
+}
+/* the film — fills the column card. Mirrors .cinema-stage corner radius +
+   shadow + hairline so it reads as the same premium card the diagram had. */
+.hero .hero-video-side video {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 9;            /* DIAL: footage is 16:9 */
+  object-fit: cover;
+  object-position: center center;  /* DIAL: focal crop of the frame */
+  border-radius: 14px;             /* DIAL: mirrors .cinema-stage 14px */
+  background: var(--deep-navy);    /* fill before poster/frame paints */
+  box-shadow: 0 20px 60px rgba(0,0,0,0.3), 0 0 0 1px rgba(255,255,255,0.05);
+  /* DIAL: shadow/hairline copied verbatim from .cinema-stage */
+}
+
+/* Reduced-motion / no-autoplay fallback: hide the moving video and paint the
+   poster as a still inside the SAME column card, so the layout reads complete
+   as a static image. (The <video poster="…"> attribute already covers the
+   no-JS / unsupported-video / pre-load cases.) */
+@media (prefers-reduced-motion: reduce) {
+  .hero .hero-video-side video { display: none; }
+  .hero .hero-video-side {
+    aspect-ratio: 16 / 9;
+    background-image: url('assets/img/sytech-overview-hero-poster.jpg');
+    background-size: cover;
+    background-position: center center;
+    border-radius: 14px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.3), 0 0 0 1px rgba(255,255,255,0.05);
+  }
+}
+
+/* Stacked (mobile/narrow): the video sits below the copy like the diagram
+   did — centered and capped so it scales down cleanly and never overflows. */
+@media (max-width: 900px) {
+  .hero .hero-video-side { margin: 0 auto; max-width: 520px; }
+}
+
+/* ============================================================
+   [VIDEO-SIDE PROTO — CUSTOM HOVER-REVEAL PLAYER CONTROLS]
+   Isolated, namespaced .hvs-* overlay on ONLY the hero right-column
+   video card (.hero-video-side). Custom mini-player: play/pause,
+   restart, mute/unmute, slim seek bar, fullscreen. Reveals on hover
+   / focus-within / touch-tap. All inline SVG icons (no CDN / no icon
+   font — govt-network safe). Nothing outside this card is touched.
+   The card wrapper is already position:relative; z-index:1 (block above)
+   so the absolutely-positioned controls anchor to it.
+   ============================================================ */
+
+/* controls container — anchored to the card BOTTOM, clipped to the
+   card's 14px bottom corners, hidden (opacity 0 + not interactive)
+   until revealed. Sits ABOVE the video (z-index 2). */
+.hero .hero-video-side .hvs-controls {
+  position: absolute;
+  left: 0; right: 0; bottom: 0;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  border-radius: 0 0 14px 14px;          /* match card bottom corners */
+  background: linear-gradient(to top,
+      rgba(26,44,66,0.92) 0%,            /* --deep-navy scrim */
+      rgba(26,44,66,0.72) 55%,
+      rgba(26,44,66,0.00) 100%);
+  padding-top: 22px;                      /* scrim fade headroom above the bar */
+  opacity: 0;
+  transform: translateY(6px);
+  transition: opacity .28s cubic-bezier(.4,0,.2,1),
+              transform .28s cubic-bezier(.4,0,.2,1);
+  pointer-events: none;                   /* invisible → non-interactive */
+}
+
+/* REVEAL — hover (fine pointers only), keyboard focus-within, or the
+   JS-toggled .hvs-show class (touch tap). */
+@media (hover: hover) and (pointer: fine) {
+  .hero .hero-video-side:hover .hvs-controls {
+    opacity: 1; transform: none; pointer-events: auto;
+  }
+}
+.hero .hero-video-side:focus-within .hvs-controls,
+.hero .hero-video-side.hvs-show .hvs-controls {
+  opacity: 1; transform: none; pointer-events: auto;
+}
+
+/* slim seek/progress bar */
+.hero .hero-video-side .hvs-progress {
+  position: relative;
+  height: 5px;
+  margin: 0 12px 2px;
+  border-radius: 3px;
+  background: rgba(255,255,255,0.22);
+  cursor: pointer;
+  touch-action: none;                     /* let JS own drag gestures */
+}
+.hero .hero-video-side .hvs-progress-fill {
+  position: absolute; left: 0; top: 0; bottom: 0;
+  width: 0%;
+  border-radius: 3px;
+  background: var(--gold);                /* played portion = brand gold */
+  pointer-events: none;
+}
+.hero .hero-video-side .hvs-progress-fill::after {
+  content: ''; position: absolute; right: -5px; top: 50%;
+  width: 11px; height: 11px; border-radius: 50%;
+  background: var(--gold);
+  transform: translateY(-50%) scale(0);
+  transition: transform .15s ease;
+}
+.hero .hero-video-side .hvs-progress:hover .hvs-progress-fill::after,
+.hero .hero-video-side .hvs-progress:focus-visible .hvs-progress-fill::after {
+  transform: translateY(-50%) scale(1);
+}
+.hero .hero-video-side .hvs-progress:focus-visible {
+  outline: 2px solid var(--gold); outline-offset: 3px;
+}
+
+/* button bar */
+.hero .hero-video-side .hvs-bar {
+  display: flex; align-items: center; gap: 2px;
+  padding: 4px 8px 8px;
+}
+.hero .hero-video-side .hvs-btn {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 34px; height: 34px;
+  padding: 0; margin: 0; border: 0;
+  background: transparent; color: #fff;
+  border-radius: 8px;
+  cursor: pointer;
+  -webkit-appearance: none; appearance: none;
+  transition: background .18s ease, color .18s ease, transform .12s ease;
+}
+.hero .hero-video-side .hvs-btn svg {
+  width: 18px; height: 18px; display: block; fill: currentColor;
+}
+@media (hover: hover) and (pointer: fine) {
+  .hero .hero-video-side .hvs-btn:hover {
+    background: rgba(255,255,255,0.14); color: var(--gold);
+  }
+}
+.hero .hero-video-side .hvs-btn:focus-visible {
+  outline: 2px solid var(--gold); outline-offset: 2px;
+}
+.hero .hero-video-side .hvs-btn:active { transform: scale(.92); }
+
+.hero .hero-video-side .hvs-spacer { flex: 1 1 auto; }
+.hero .hero-video-side .hvs-time {
+  font-size: 0.7rem;
+  font-variant-numeric: tabular-nums;
+  color: rgba(255,255,255,0.82);
+  letter-spacing: 0.02em;
+  padding: 0 4px 0 6px;
+  white-space: nowrap;
+  user-select: none;
+}
+
+/* icon state swaps — one button holds both glyphs; JS toggles a class */
+.hero .hero-video-side .hvs-play .hvs-ico-pause,
+.hero .hero-video-side .hvs-play.is-playing .hvs-ico-play { display: none; }
+.hero .hero-video-side .hvs-play.is-playing .hvs-ico-pause { display: block; }
+
+.hero .hero-video-side .hvs-mute .hvs-ico-muted,
+.hero .hero-video-side .hvs-mute.is-muted .hvs-ico-vol { display: none; }
+.hero .hero-video-side .hvs-mute.is-muted .hvs-ico-muted { display: block; }
+
+.hero .hero-video-side .hvs-fs .hvs-ico-fs-exit,
+.hero .hero-video-side .hvs-fs.is-fs .hvs-ico-fs-enter { display: none; }
+.hero .hero-video-side .hvs-fs.is-fs .hvs-ico-fs-exit { display: block; }
+
+/* Reduced motion: the card shows the still poster and the video does NOT
+   play (handled in CSS above + JS pause) — so there's nothing to control.
+   Hide the whole overlay. */
+@media (prefers-reduced-motion: reduce) {
+  .hero .hero-video-side .hvs-controls { display: none; }
+}
 
 /* ---- Hero Animation: v3 Unified Data-Flow Narrative ----
    Spatial layout (replaces v2's sequential walk-through):
@@ -1006,11 +1212,13 @@ html { scrollbar-gutter: stable; }
    Panel 1: white background, 16 chaos lines tangled, hero text
    Panels 2-4: dark gradient, single amber line, blue dots, step text
    ============================================================ */
-/* PINNED MODEL (stepped engine): the section is exactly 100vh and is held
-   in place by a HARD scroll-lock (JS sets <body> position:fixed) — NOT by a
-   tall wrapper + sticky scrub. So the wrapper no longer consumes a 600vh
-   scroll range; the sections before/after it flow normally. (Mobile + reduced
-   override this to height:auto vertical stack — see the media query below.) */
+/* STATIC MODEL (arrow-driven engine): the section is a normal one-viewport
+   (100vh) block in NORMAL FLOW — no scroll-lock, no pin, no tall wrapper. The
+   user scrolls past it like any other section; the chaos->clarity animation is
+   OPTIONAL and driven ONLY by the on-screen PREV/NEXT arrows (see the JS). The
+   400vw track is clipped by overflow:hidden and slid horizontally via
+   translateX in place. (Mobile + reduced override this to height:auto vertical
+   stack — see the media query below.) */
 .frame-wrapper {
   position: relative; width: 100%;
   height: 100vh;
@@ -1240,17 +1448,49 @@ html { scrollbar-gutter: stable; }
    Width slightly narrowed (8.4% -> 7%) so the right-shifted blocks
    don't overflow the right side of their panels. */
 .text-step {
-  top: 55%;
-  width: 7%;         /* % of 400vw track = ~28vw — narrower so anchored
-                        blocks don't overflow right side of their panel */
-  max-width: 420px;  /* hard cap so super-wide viewports don't stretch line length */
+  top: 50%;          /* was 55% — zero-height anchor sits ON the 50vh amber line */
+  height: 0;         /* the block collapses to a line; the two sub-groups
+                        (.step-above / .step-below) straddle it via absolute pos */
+  width: 7.1%;       /* % of 400vw track = ~28.4vw — widened a notch so two of the
+                        bigger uniform service buttons sit side-by-side; still inside
+                        the Organize panel's ~29.6vw right-safe zone (no overflow) */
+  max-width: 400px;  /* hard cap so super-wide viewports don't stretch line length;
+                        fits two 188px buttons + 6px gap (382px) in the button row */
 }
 .text-step.organize { left: 42.60%; }
 .text-step.unify    { left: 60.30%; }
 .text-step.scale    { left: 78.00%; }
 
+/* ---- Straddle groups (fork proto, desktop-only) --------------------------
+   Eyebrow + headline ABOVE the amber line (bottom-anchored so the headline's
+   last line lands at a constant Y just above the line on all 3 steps); body +
+   teaching sentence + service chips BELOW the line (top-anchored, grows down).
+   The natural eyebrow->headline->body gap now straddles the 50vh line, which
+   bisects the headline<->body gap. Namespaced under .text-step so nothing
+   leaks to the .mobile-text-block stack. Inline, isolated, reversible. */
+.text-step .step-above {
+  position: absolute;
+  left: 0;
+  width: 100%;
+  bottom: clamp(44px, 6.5vh, 72px);   /* group bottom sits above the line, grows up */
+  text-align: left;
+}
+.text-step .step-below {
+  position: absolute;
+  left: 0;
+  width: 100%;
+  top: clamp(44px, 6.5vh, 72px);      /* group top sits below the line, grows down */
+  text-align: left;
+}
+/* Straddle rebalance (Option A): the first body paragraph (.step-body-1) now
+   lives in .step-above after the headline, so the headline KEEPS its natural
+   bottom gap (default .headline margin) to separate it from the paragraph, and
+   the paragraph — as the last, bottom-anchored child — carries no trailing
+   margin so its final line lands at a constant Y just above the amber line. */
+.text-step .step-above .step-body-1 { margin-bottom: 0; }
+
 .text-step .eyebrow {
-  font-size: clamp(11px, 1.4vh, 18px);
+  font-size: clamp(12px, 1.5vh, 19px);
   letter-spacing: 0.2em;
   text-transform: uppercase;
   color: var(--gold);
@@ -1258,7 +1498,7 @@ html { scrollbar-gutter: stable; }
   display: block;
 }
 .text-step .headline {
-  font-size: clamp(28px, 4vh, 56px);
+  font-size: clamp(32px, 4.6vh, 62px);
   line-height: 1.15;
   letter-spacing: -0.005em;
   color: var(--white);
@@ -1266,13 +1506,94 @@ html { scrollbar-gutter: stable; }
   display: block;
 }
 .text-step .body {
-  font-size: clamp(13px, 1.5vh, 18px);
+  font-size: clamp(15px, 1.7vh, 20px);
   line-height: 1.5;
   font-weight: 400;
   color: var(--soft-white);
   max-width: 380px;
   display: block;
 }
+
+/* ---- Deepened step panels (fork proto): 2nd teaching line + service chips ----
+   The teaching sentence reuses .body (so it inherits the correct desktop AND
+   mobile sizing/color automatically); .step-body-2 only adds its top gap. Below
+   it, a gold-hairline row of small "chip" service links. Dark-panel-only design
+   (hero/Panel 1 gets none). Namespaced .step-* — inline, isolated, reversible. */
+.step-body-2 { margin-top: 0.6rem; }
+/* Straddle rebalance (Option A): on desktop .step-body-2 is now the FIRST child
+   of the top-anchored .step-below, so drop its 0.6rem lead-in gap — the group's
+   `top: clamp(...)` already sets the clearance below the amber line, keeping it
+   symmetric with the .step-above bottom clearance (dot clearance preserved).
+   The mobile .mobile-text-block .step-body-2 rule (0.6rem) is untouched. */
+.text-step .step-body-2 { margin-top: 0; }
+.step-services {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  max-width: 380px;                       /* match the .body measure */
+  margin-top: 1rem;
+  padding-top: 0.9rem;
+  border-top: 1px solid rgba(229,166,48,0.25);   /* thin gold hairline */
+}
+.step-svc-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  border-radius: 8px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(229,166,48,0.4);
+  color: var(--soft-white, #C5CDD8);
+  font-weight: 700;
+  font-size: 0.82rem;
+  line-height: 1.1;
+  padding: 0.4rem 0.8rem;
+  text-decoration: none;
+  transition: background 0.25s ease, border-color 0.25s ease, color 0.25s ease;
+}
+/* ---- Desktop uniform service buttons (fork proto) --------------------------
+   Every .step-svc-btn across Organize/Unify/Scale is an IDENTICAL rectangle:
+   FIXED width sized to fit the longest label ("AI-Powered Ingestion" + arrow)
+   and a FIXED height with vertically-centered content. Label pinned left / gold
+   arrow pinned right via justify-content:space-between so every box reads the
+   same. Scoped to .text-step so the fixed width does NOT reach the mobile
+   .mobile-text-block stack (mobile buttons stay flexible/content-sized).
+   Inline, isolated, reversible — does not touch the animation. */
+.text-step .step-svc-btn {
+  box-sizing: border-box;
+  width: 188px;                 /* fits the longest label + arrow with slack */
+  height: 46px;                 /* fixed box height */
+  padding: 0 0.85rem;           /* horizontal only; height + align-items center it */
+  gap: 0.5rem;
+  justify-content: space-between;  /* label left, gold arrow pinned right */
+  white-space: nowrap;             /* labels are static; never wrap inside the box */
+}
+.text-step .step-services {
+  gap: 6px;
+  max-width: 388px;             /* fits exactly two 188px buttons (+6px gap = 382) */
+}
+.step-svc-btn .arrow {
+  color: var(--gold);
+  font-size: 0.8em;
+  transition: transform 0.25s ease;
+}
+.step-svc-btn:focus-visible {
+  outline: none;
+  border-color: var(--gold);
+  box-shadow: 0 0 0 3px rgba(229,166,48,0.4);
+}
+@media (hover: hover) and (pointer: fine) {
+  .step-svc-btn:hover {
+    background: rgba(229,166,48,0.12);
+    border-color: var(--gold);
+    color: var(--white);
+  }
+  .step-svc-btn:hover .arrow { transform: translateX(3px); }
+}
+/* Desktop text layer is pointer-events:none — re-enable chips ONLY on a revealed
+   step so an unrevealed (opacity:0) step can't catch a click on an unseen chip.
+   (JS toggles .revealed per step; a MutationObserver mirrors the tabindex gate.) */
+.frame-text-block .step-svc-btn { pointer-events: none; }
+.frame-text-block.revealed .step-svc-btn { pointer-events: auto; }
 
 /* Panels: live HTML overlay containers (kept as visual gutter zones for
    pointer-events; text now lives in .frame-text-layer above) */
@@ -1296,31 +1617,211 @@ html { scrollbar-gutter: stable; }
   position: relative;
 }
 
-/* ---- Scroll-to-continue affordance (stepped engine) ----
-   Namespaced .frame-scroll-hint (renamed from the prototype's generic
-   .scroll-hint to avoid any cross-page collision). Shown by the JS hint
-   poll only at a settled, engaged, pre-final pause. .on-light = navy copy
-   over the white panel-1 (steps 0-1); default = gold copy over the dark
-   gradient. Lives inside .frame-sticky (the stage). */
-.frame-scroll-hint {
-  position: absolute; left: 50%; bottom: 4vh; transform: translateX(-50%);
-  z-index: 6; pointer-events: none;
-  display: flex; flex-direction: column; align-items: center; gap: 6px;
-  font-size: 12px; letter-spacing: 0.22em; text-transform: uppercase;
-  font-weight: 700; color: var(--gold);
-  opacity: 0; transition: opacity 0.5s ease;
-  text-shadow: 0 1px 6px rgba(0,0,0,0.35);
+/* ---- Step PREV / NEXT arrows ----
+   A carousel-style stepper flanking the frame at its left/right edges. It
+   DRIVES the chaos->clarity animation in place (arrow-driven model): RIGHT
+   advances a stage, LEFT steps back. Shown whenever the section is on screen
+   (JS toggles .frame-review-nav--ready via an IntersectionObserver);
+   interactive desktop only — the mobile / reduced-motion stack media query
+   below display:none's the whole nav. Namespaced .frame-review-* so nothing
+   leaks into shared CSS. */
+.frame-review-nav {
+  position: absolute; inset: 0;
+  z-index: 7;
+  pointer-events: none;       /* only the buttons take pointer events */
+  opacity: 0; visibility: hidden;
+  transition: opacity 0.4s ease, visibility 0s linear 0.4s;
 }
-.frame-scroll-hint.on-light { color: var(--navy); text-shadow: 0 0 6px rgba(255,255,255,0.9); }
-.frame-scroll-hint.is-visible { opacity: 0.92; }
-.frame-scroll-hint .chev {
-  width: 16px; height: 16px;
-  border-right: 2px solid currentColor; border-bottom: 2px solid currentColor;
-  transform: rotate(45deg); animation: frameHintBob 1.7s ease-in-out infinite;
+.frame-review-nav.frame-review-nav--ready {
+  opacity: 1; visibility: visible;
+  transition: opacity 0.4s ease, visibility 0s;
 }
-@keyframes frameHintBob {
-  0%,100% { transform: rotate(45deg) translate(0,0); opacity: 0.55; }
-  50%     { transform: rotate(45deg) translate(3px,3px); opacity: 1; }
+
+/* ---- FIRST-RUN WHITE WASH (behind the RIGHT arrow) ----
+   A soft white gradient over the right edge of the section that MUTES the busy
+   multicolor chaos lines exactly where the NEXT arrow sits, so the arrow pops on
+   the very first run. It is a child of the nav (z-index:7 stacking context), so
+   it paints ABOVE the chaos SVG (z-index:2) but BELOW the arrows (z-index:2 within
+   the nav — the wash is z-index:1 here). pointer-events:none => never intercepts
+   clicks or scroll. Rides the nav's --ready visibility (appears with the arrows);
+   fades in/out on the .frame-review-nav--fr-active class, which JS removes ONE-WAY
+   at turn-off. DIALS: width = how much of the right side is muted; the gradient
+   stops = how soft. Namespaced .frame-firstrun-wash; nothing leaks to shared CSS. */
+.frame-firstrun-wash {
+  position: absolute;
+  top: 0; bottom: 0; right: 0;
+  width: 24%;                        /* DIAL: right ~24% of the section (spec: 18–25%) */
+  z-index: 1;                        /* below the arrows (z-index:2), above the chaos SVG */
+  pointer-events: none;              /* NEVER blocks scroll/click */
+  background: linear-gradient(
+    to right,
+    rgba(255, 255, 255, 0)    0%,
+    rgba(255, 255, 255, 0.35) 45%,   /* DIAL: mid softness */
+    rgba(255, 255, 255, 0.72) 100%   /* DIAL: peak opacity at the arrow edge */
+  );
+  opacity: 0;                        /* hidden until the first-run helper is active */
+  transition: opacity 0.5s ease;
+}
+.frame-review-nav--fr-active .frame-firstrun-wash { opacity: 1; }
+/* Belt-and-suspenders: no wash on the inert stack / reduced motion (the whole nav
+   is display:none there anyway, and the fr-active class is never added by JS). */
+@media (max-width: 900px), (prefers-reduced-motion: reduce) {
+  .frame-firstrun-wash { display: none !important; }
+}
+.frame-review-arrow {
+  position: absolute; top: 50%;
+  width: 60px; height: 60px;                      /* DIAL: bumped 48 -> 60 for legibility (Ethan: hard to see) */
+  transform: translateY(-50%);
+  display: flex; align-items: center; justify-content: center;
+  padding: 0; margin: 0;
+  border-radius: 50%;
+  cursor: pointer;
+  pointer-events: auto;
+  z-index: 2;                                     /* sits ABOVE the first-run white wash (z-index:1) inside the nav */
+  background: rgba(37, 66, 107, 0.72);            /* slate navy — stronger fill so it reads on light AND dark panels */
+  border: 2px solid rgba(229, 166, 48, 0.75);     /* gold — bolder/higher-contrast ring */
+  color: var(--gold);
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
+  box-shadow: 0 5px 18px rgba(0,0,0,0.32);        /* deeper lift so the button separates from the light panel */
+  transition: background 0.25s ease, border-color 0.25s ease,
+              transform 0.25s ease, box-shadow 0.25s ease, opacity 0.25s ease;
+}
+.frame-review-prev { left: clamp(12px, 2.5vw, 40px); }
+.frame-review-next { right: clamp(12px, 2.5vw, 40px); }
+
+/* ---- LEFT/PREV arrow: HIDDEN until the framework has been played through once ----
+   While the user reveals the framework forward, only the RIGHT arrow shows as the
+   single clear CTA. The LEFT arrow is fully ABSENT (display:none removes it from
+   layout, tab order AND the a11y tree) until JS adds .frame-review-nav--completed
+   the first time currentStep reaches LAST_STEP (Scale). At that point it POPS IN
+   once (fade + scale) and then behaves normally (disabled at step 0). The auto-play
+   chaos draw-in only reaches step 1, so it never triggers this. No fill-mode on the
+   animation so it releases cleanly back to base styles (hover scale keeps working). */
+.frame-review-prev { display: none; }
+.frame-review-nav--completed .frame-review-prev {
+  display: flex;
+  animation: framePrevPopIn 0.42s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+@keyframes framePrevPopIn {
+  0%   { opacity: 0; transform: translateY(-50%) scale(0.55); }
+  100% { opacity: 1; transform: translateY(-50%) scale(1);    }
+}
+/* Reduced motion: appear instantly, no pop (the whole nav is display:none under the
+   mobile/reduced media query anyway — this is just belt-and-suspenders). */
+@media (prefers-reduced-motion: reduce) {
+  .frame-review-nav--completed .frame-review-prev { animation: none; }
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .frame-review-arrow:hover:not(:disabled) {
+    background: rgba(37, 66, 107, 0.82);
+    border-color: var(--gold);
+    transform: translateY(-50%) scale(1.08);
+    box-shadow: 0 6px 20px rgba(229,166,48,0.28);
+  }
+}
+.frame-review-arrow:focus-visible {
+  outline: none;
+  border-color: var(--gold);
+  box-shadow: 0 0 0 3px rgba(229,166,48,0.45);
+}
+.frame-review-arrow:disabled {
+  cursor: default;
+  opacity: 0.3;
+  color: var(--soft-white);
+  border-color: rgba(197, 205, 216, 0.3);
+  background: rgba(37, 66, 107, 0.32);
+}
+/* Chevron drawn with two borders (no glyph dependency) — scaled up with the
+   60px button + a heavier stroke for higher contrast on both backgrounds. */
+.frame-review-chev {
+  display: block;
+  width: 14px; height: 14px;
+  border-left: 2.5px solid currentColor;
+  border-bottom: 2.5px solid currentColor;
+}
+.frame-review-prev .frame-review-chev { transform: rotate(45deg);   margin-left: 4px; }
+.frame-review-next .frame-review-chev { transform: rotate(-135deg); margin-right: 4px; }
+
+/* ---- RIGHT-arrow AUTO-LABEL / callout pill (.frame-review-tip) ----
+   A small navy/gold pill to the LEFT of the NEXT arrow with a pointer aimed at it.
+   In this fork it is the FIRST-RUN onboarding label ("Press to see the next
+   framework"): shown AUTOMATICALLY during the helper phase (see the
+   .frame-review-nav--fr-active reveal below) — NOT hover-dependent — and gone for
+   good after turn-off (no hover tooltip either). Tied to the button via
+   aria-describedby (#frameReviewTip / role="tooltip") for AT. pointer-events:none.
+   Namespaced .frame-review-tip so nothing leaks into shared CSS. */
+.frame-review-tip {
+  position: absolute;
+  top: 50%;
+  right: calc(100% + 14px);          /* sit to the LEFT of the arrow, pointer facing right toward it */
+  transform: translateY(-50%) translateX(6px);
+  white-space: nowrap;
+  padding: 0.4rem 0.7rem;
+  border-radius: 8px;
+  background: rgba(26, 44, 66, 0.96);            /* deep navy */
+  border: 1px solid rgba(229, 166, 48, 0.55);    /* gold hairline */
+  color: var(--white);
+  font-family: Tahoma, 'Segoe UI', Arial, sans-serif;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  line-height: 1;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.28);
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;              /* purely a hint; never intercepts */
+  transition: opacity 0.22s ease, transform 0.22s ease, visibility 0s linear 0.22s;
+  z-index: 8;
+}
+/* pointer triangle on the right edge, aimed at the arrow */
+.frame-review-tip::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 100%;
+  transform: translateY(-50%);
+  border: 6px solid transparent;
+  border-left-color: rgba(26, 44, 66, 0.96);
+}
+/* FIRST-RUN reveal (AUTOMATIC, not hover/focus): the label is shown the whole time
+   the first-run helper is active, then hidden permanently once JS drops the
+   .frame-review-nav--fr-active class at turn-off. The old :hover / :focus-visible
+   reveals were intentionally removed so there is NO hover tooltip afterwards
+   (per Ethan: "just for that initial one"). Screen readers still get the text via
+   aria-describedby on focus. */
+.frame-review-nav--fr-active .frame-review-tip {
+  opacity: 1; visibility: visible;
+  transform: translateY(-50%) translateX(0);
+  transition: opacity 0.22s ease, transform 0.22s ease, visibility 0s;
+}
+
+/* ---- Persistent "interactive" cue on the RIGHT arrow (DIAL — restrained) ----
+   A gentle expanding gold ring (~2.4s). Folded into the FIRST-RUN helper: it runs
+   only while the arrows are available (--ready) AND the first-run helper is active
+   (--fr-active) AND the NEXT arrow is enabled (not the final stage). Once the
+   helper turns off (JS drops --fr-active) the pulse stops for good, alongside the
+   wash and the auto-label. Suppressed entirely under prefers-reduced-motion. To
+   REMOVE the cue: delete this block plus the @keyframes frameNextPulse. */
+.frame-review-next::after {
+  content: '';
+  position: absolute;
+  inset: -3px;
+  border-radius: 50%;
+  border: 2px solid rgba(229, 166, 48, 0.5);
+  opacity: 0;
+  pointer-events: none;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .frame-review-nav--ready.frame-review-nav--fr-active .frame-review-next:not(:disabled)::after {
+    animation: frameNextPulse 2.4s ease-out infinite;
+  }
+}
+@keyframes frameNextPulse {
+  0%   { opacity: 0.5; transform: scale(0.9); }
+  70%  { opacity: 0;   transform: scale(1.5); }
+  100% { opacity: 0;   transform: scale(1.5); }
 }
 
 
@@ -1347,14 +1848,16 @@ html { scrollbar-gutter: stable; }
     height: auto;
     transform: none !important;
   }
+  /* No stepped playback on the inert stack -> no stages to review, hide the
+     review arrows (nothing to review). */
+  .frame-review-nav { display: none !important; }
   /* Hide the unified SVG, dots, text layer, and split-bg approach —
      recreate per-panel on mobile with text re-rendered inside .frame-panel */
   .frame-svg-canvas,
   .frame-bg-white,
   .frame-bg-gradient,
   .dots-layer,
-  .frame-text-layer,
-  .frame-scroll-hint {
+  .frame-text-layer {
     display: none;
   }
   .frame-panels {
@@ -1378,94 +1881,198 @@ html { scrollbar-gutter: stable; }
     font-weight: 700;
   }
   .mobile-text-block .eyebrow {
-    font-size: 0.78rem;
-    letter-spacing: 0.2em;
+    font-size: 0.72rem;
+    letter-spacing: 0.18em;
     text-transform: uppercase;
     color: var(--gold);
-    margin-bottom: 1rem;
+    margin-bottom: 0.65rem;
     display: block;
   }
   .mobile-text-block .headline {
-    font-size: clamp(1.6rem, 6vw, 2.2rem);
-    line-height: 1.15;
+    font-size: clamp(1.35rem, 5.2vw, 1.7rem);
+    line-height: 1.2;
     letter-spacing: -0.005em;
-    margin-bottom: 1rem;
+    margin-bottom: 0.85rem;
     display: block;
   }
   /* Framework intro 2nd line mirrored on mobile (v7 EGUSD) */
   .mobile-text-block .subline {
     font-size: 1rem;
     font-weight: 400;
-    color: var(--text-body);
-    margin: -0.5rem 0 1rem;
+    color: var(--soft-white);
+    margin: -0.25rem 0 0;
     display: block;
   }
   .mobile-text-block .body {
     font-size: 1rem;
     line-height: 1.6;
     font-weight: 400;
+    color: var(--soft-white);
     margin: 0;
     display: block;
   }
-  /* Mobile panel 1: white background with simplified chaos visual */
+  /* Secondary teaching paragraph: smaller + muted (secondary hierarchy). */
+  .mobile-text-block .step-body-2 {
+    font-size: 0.9rem;
+    line-height: 1.55;
+    color: rgba(197, 205, 216, 0.72);
+    margin-top: 0.7rem;
+  }
+  /* Service buttons: FULL-WIDTH STACKED, >=44px tap targets. Scoped to the
+     mobile block only — desktop .text-step buttons are untouched. */
+  .mobile-text-block .step-services {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    max-width: none;
+    margin-top: 1rem;
+  }
+  .mobile-text-block .step-svc-btn {
+    display: flex;
+    width: 100%;
+    box-sizing: border-box;
+    min-height: 44px;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.7rem 1rem;
+    font-size: 0.95rem;
+    line-height: 1.2;
+    white-space: normal;
+  }
+  /* ---- Panel 1: UNIFIED DARK BAND intro (deep-navy, white headline) ---- */
   .frame-panel-hero {
-    background: var(--white);
-    padding-top: 5rem;
-    padding-bottom: 4rem;
+    background: var(--deep-navy);
+    padding: 3rem 1.25rem 1.25rem;
     flex-direction: column;
     justify-content: center;
+    text-align: center;
   }
-  .frame-panel-hero .mobile-text-block .headline { color: var(--navy); }
+  .frame-panel-hero .mobile-text-block {
+    max-width: 640px;
+    margin: 0 auto;
+  }
+  .frame-panel-hero .mobile-text-block .headline {
+    color: var(--white);
+    font-size: clamp(1.6rem, 6.5vw, 2.1rem);
+  }
+  .frame-panel-hero .mobile-text-block .subline { color: var(--soft-white); }
   .frame-panel-hero::after {
-    /* Static decorative chaos hint — gold tangles */
+    /* Intentional amber spine lead-in threading the intro into the first node */
     content: '';
     display: block;
-    width: 100%;
-    max-width: 380px;
-    height: 120px;
-    margin-top: 2.5rem;
-    background-image:
-      radial-gradient(ellipse 80% 40% at 30% 50%, rgba(241,177,76,0.18), transparent 70%),
-      radial-gradient(ellipse 60% 30% at 70% 60%, rgba(229,166,48,0.16), transparent 65%);
-    border-radius: 12px;
-    position: relative;
+    width: 2px;
+    height: 28px;
+    margin: 1.25rem auto 0;
+    background: linear-gradient(to bottom, rgba(229,166,48,0), rgba(229,166,48,0.38));
   }
-  /* Mobile step panels: dark with vertical amber connector on left */
+
+  /* ---- Step panels: FLAT deep-navy so the 3 read as ONE continuous band ---- */
   .frame-panel-step {
-    background: linear-gradient(180deg, var(--deep-navy) 0%, #1f3454 100%);
+    background: var(--deep-navy);
     color: var(--white);
-    padding: 4rem 1.5rem 4rem 4rem;
+    padding: 0 1rem;
     position: relative;
   }
-  .frame-panel-step .mobile-text-block .headline { color: var(--white); }
-  .frame-panel-step .mobile-text-block .body { color: var(--soft-white); }
+  /* Numbered-stepper layout: node rail (col 1) + content card (col 2) */
+  .frame-panel-step .mobile-text-block {
+    display: grid;
+    grid-template-columns: 56px 1fr;
+    column-gap: 0.85rem;
+    align-items: start;
+    max-width: 640px;
+    width: 100%;
+    margin: 0 auto;
+    padding: 1.5rem 0;
+    box-sizing: border-box;
+  }
+  /* Node badge — icon + number, centered on the spine, above it (z-index) */
+  .ms-node {
+    grid-column: 1;
+    width: 48px;
+    justify-self: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    padding: 0.5rem 0;
+    background: var(--deep-navy);
+    border: 1px solid rgba(229,166,48,0.45);
+    border-radius: 14px;
+    position: relative;
+    z-index: 1;
+  }
+  .ms-node-icon {
+    width: 22px;
+    height: 22px;
+    color: var(--gold);
+    display: block;
+  }
+  .ms-node-icon svg { width: 100%; height: 100%; stroke: currentColor; }
+  .ms-node-num {
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: var(--gold);
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 0.02em;
+    line-height: 1;
+  }
+  /* Content card */
+  .ms-card {
+    grid-column: 2;
+    box-sizing: border-box;
+    max-width: 100%;
+    min-width: 0;
+    background: rgba(255,255,255,0.045);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-top: 2px solid rgba(229,166,48,0.55);
+    border-radius: 16px;
+    padding: 1.25rem;
+    box-shadow: 0 10px 28px rgba(0,0,0,0.28);
+  }
+  .frame-panel-step .ms-card .headline {
+    color: var(--white);
+    font-size: clamp(1.35rem, 5.2vw, 1.7rem);
+  }
+  .frame-panel-step .ms-card .body { color: var(--soft-white); }
+  /* Continuous amber SPINE centered on the rail, threading behind the nodes */
   .frame-panel-step::before {
-    /* Vertical amber line running through all step panels */
     content: '';
     position: absolute;
-    left: 1.75rem; top: 0; bottom: 0;
-    width: 4px;
-    background: var(--amber);
+    /* Track the CENTERED block's badge rail: flush-left value when the block
+       fills the panel (P-2rem <= 640), centered value (50% - 320px + halfRail)
+       once the 640px-capped block centers. max() picks whichever is rightmost.
+       halfRail = 28px here (56px rail) -> 50% - 320 + 28 = 50% - 292px. */
+    left: max(calc(1rem + 28px), calc(50% - 292px));
+    top: 0; bottom: 0;
+    width: 2px;
+    background: rgba(229,166,48,0.38);
+    z-index: 0;
   }
-  .frame-panel-step::after {
-    /* Mobile dot anchor */
-    content: '';
-    position: absolute;
-    left: calc(1.75rem + 2px);
-    top: 4rem;
-    transform: translateX(-50%);
-    width: 18px; height: 18px;
-    border-radius: 50%;
-    background: var(--dot-blue);
-    box-shadow: 0 0 0 4px rgba(47,183,234,0.18), 0 0 20px rgba(47,183,234,0.45);
+  /* First panel: spine begins at the first node (not above it) */
+  .frame-panel-step.first::before { top: calc(1.5rem + 26px); }
+  /* Last panel: spine ends at the last node (not below it) */
+  .frame-panel-step.last::before { bottom: calc(100% - 1.5rem - 26px); }
+
+  /* ---- Narrow-width tuning (nested; never reaches wide reduced-motion) ---- */
+  @media (max-width: 360px) {
+    .frame-panel-step .mobile-text-block { grid-template-columns: 48px 1fr; }
+    /* 48px rail -> halfRail 24px; centered value = 50% - 320 + 24 = 50% - 296px */
+    .frame-panel-step::before { left: max(calc(1rem + 24px), calc(50% - 296px)); }
+    .frame-panel-step.first::before { top: calc(1.5rem + 24px); }
+    .frame-panel-step.last::before { bottom: calc(100% - 1.5rem - 24px); }
+    .ms-node { width: 42px; }
+    .ms-node-icon { width: 20px; height: 20px; }
+    .ms-node-num { font-size: 0.75rem; }
+    .ms-card { padding: 1.1rem; }
   }
-  /* First step panel: amber line should start at the dot, not above */
-  .frame-panel-step.first::before {
-    top: 4rem;
+  @media (min-width: 390px) {
+    .frame-panel-step .mobile-text-block { grid-template-columns: 56px 1fr; }
+    /* 56px rail -> halfRail 28px; centered value = 50% - 320 + 28 = 50% - 292px */
+    .frame-panel-step::before { left: max(calc(1rem + 28px), calc(50% - 292px)); }
+    .ms-node { width: 48px; }
   }
-  /* Last step panel: amber line should taper off cleanly */
-  .frame-panel-step.last::before {
-    bottom: 4rem;
+  @media (min-width: 520px) {
+    .ms-card { padding: 1.5rem; }
   }
 }
 /* Desktop (motion OK): hide the mobile-only in-panel text. Scoped with
@@ -1706,13 +2313,17 @@ html { scrollbar-gutter: stable; }
   letter-spacing: 0.18em; text-transform: uppercase;
 }
 
-/* === Tile row (3-up desktop) ===
-   WIDTH FIX (v7 fork): columns are now fluid (1fr) instead of fixed
-   var(--tile-size), so the three tiles distribute across the FULL .container
-   band and their outer left/right edges line up with the stats strip above.
-   --tile-size now only acts as an upper cap (max-width on the tile) so tiles
-   grow within reason but never get oversized. The lone Scale tile (:only-child)
-   stays left-aligned at one column's natural width via the rule below. */
+/* === Tile row (3-up desktop -> 2-up tablet -> 1-up phone) ===
+   ALIGNMENT MODEL (2026-07): "left-aligned tiles inside a centered block".
+   The tiles LEFT-PACK from the first column (justify-content: start), so a lone
+   or 3rd tile sits under the FIRST tile rather than centered in its row. The
+   whole grid then shrink-wraps to its content (width: fit-content) and centers
+   in the band with equal margins (margin-inline: auto). Column COUNT stays 3-up
+   at desktop so a full 3-tile group (Organize, Unify) sits ALL THREE ON ONE LINE
+   (block = 3 cols, centered); 2-up tablet; 1-up phone. Columns are
+   minmax(0, var(--tile-cap)); --tile-cap upper-bounds each column so tiles never
+   get oversized. No orphan-centering rules — left-packing + a shrink-wrapped
+   centered block handle every count. (≤519 overrides width to span full band.) */
 .svc-tiles-section .pillar-tiles {
   display: grid;
   /* WIDTH/HEIGHT FIX (v7.1): cap each COLUMN track at --tile-cap (not just the
@@ -1727,8 +2338,20 @@ html { scrollbar-gutter: stable; }
      space than the old square grid. */
   grid-template-columns: repeat(3, minmax(0, var(--tile-cap)));
   gap: var(--tile-gap);
-  justify-content: start;   /* pack capped columns to the left, lining up with stats */
+  /* ALIGNMENT FIX (2026-07): "left-aligned tiles inside a centered block".
+     - justify-content: start  → tiles LEFT-PACK from the first column (a lone /
+       3rd tile sits under the first tile, NOT centered in its row).
+     - width: fit-content + margin-inline: auto → the grid shrink-wraps to its
+       content (widest occupied row) and the whole BLOCK centers in the band with
+       equal left/right margins. So: left-packed tiles, centered block.
+       (Replaces the old justify-content:center + per-breakpoint orphan-centering
+       rules that span-and-centered a lone/3rd tile.) max-width:100% guards
+       against overflow if content ever exceeds the band. */
+  justify-content: start;
   justify-items: stretch;   /* tile fills its (already-capped) column cell */
+  width: fit-content;
+  max-width: 100%;
+  margin-inline: auto;
 }
 
 /* ========================================================================
@@ -1988,12 +2611,13 @@ html { scrollbar-gutter: stable; }
   .svc-tiles-section .tile-nudge { display: none; }
 }
 
-/* === Responsive: 3-up -> 2-up tablet -> 1-up mobile ===
+/* === Responsive: 2-up desktop -> 2-up tablet -> 1-up mobile -> full-width phone ===
    WIDTH/HEIGHT FIX (v7.1): every breakpoint caps the COLUMN track at --tile-cap
    (minmax(0, var(--tile-cap))) so a cell can never grow wider than the cap and the
-   aspect-ratio height resolves cleanly. The grid is left-packed (justify-content)
-   so capped columns line up with the stats strip's left edge. Only the column
-   COUNT, the cap, the gap, and (on mobile) the card RATIO change. */
+   aspect-ratio height resolves cleanly. ALIGNMENT MODEL (2026-07): tiles LEFT-PACK
+   (justify-content:start from the base) inside a shrink-wrapped block that centers
+   in the band (width:fit-content + margin-inline:auto from the base). Only the
+   column COUNT, the cap, the gap, and (on mobile) the card RATIO change here. */
 
 /* --- Mid-range "small computer window" (~640–959px): 2-up ---
    Inherits --tile-ratio: 5/2. cap 300px → ~120px tall cards. Still wide+short. */
@@ -2002,6 +2626,11 @@ html { scrollbar-gutter: stable; }
   .svc-tiles-section .pillar-tiles {
     grid-template-columns: repeat(2, minmax(0, var(--tile-cap)));
   }
+  /* ALIGNMENT FIX (2026-07): orphan-centering removed. At 2-up an odd-count
+     pillar's final tile (Organize's / Unify's 3rd tile) now LEFT-PACKS into the
+     first column of row 2 — under the first tile — via the base
+     justify-content:start. The block stays centered via the base
+     width:fit-content + margin-inline:auto (block = 2 columns wide, centered). */
 }
 
 /* --- Tight tablet / large phone (~520–639px): 1-up, landscape, capped ---
@@ -2016,38 +2645,102 @@ html { scrollbar-gutter: stable; }
   }
 }
 
-/* --- Phone (≤519px): 1-up, FULL-WIDTH landscape card ---
-   The card fills the band edge-to-edge. A full-width 5:2 strip can read a touch
-   letterbox-thin on a narrow phone (height shrinks as width is whatever the band
-   is), so we BUMP the proportion to 2/1 — slightly taller than desktop, giving the
-   horizontal lockup + back-face copy a bit more breathing room. Driven purely by
-   the --tile-ratio token so aspect-ratio still resolves the flip faces' box (the
-   faces are position:absolute; inset:0 and need a definite height — aspect-ratio
-   on the .tile-link provides it, no fixed pixel height needed). Type + padding
-   scale down so the logo, copy, and "Learn more →" all fit. */
-@media (max-width: 519px) {
-  .svc-tiles-section { --tile-gap: 14px; --tile-ratio: 2 / 1; }
+/* --- Phone (≤519px): 1-up, FULL-WIDTH SHORT BAR (icon + label row) ---
+   REDESIGN (2026-07): the old full-width 2:1 aspect box read very TALL on a phone —
+   a small icon + label floating in a lot of empty vertical space, so ~7 tiles forced
+   a lot of scrolling. This block now kills the fixed aspect ratio and makes the tile
+   height CONTENT-DRIVEN: a short full-width horizontal bar (icon left, label right,
+   vertically centered). Only the FRONT/static face shows here; the back face is
+   removed from flow (display:none) so it can't force extra height and there is no
+   flip to a now-empty back.
+   IMPORTANT ordering note: this block is placed AFTER the touch static-stack block
+   (@media hover:none,pointer:coarse). On a REAL phone BOTH queries match; these
+   equal-specificity rules come later in source, so they WIN and collapse the stacked
+   card down to the same short single-face bar on touch too.
+   TOUCH-GATE (2026-07): the query is now width + TOUCH (hover:none OR pointer:coarse)
+   so the short-bar / no-flip treatment applies ONLY to touch phones at <=519px. A
+   NARROW DESKTOP window (hover:hover, pointer:fine) at <=519px no longer matches this
+   block, so it falls back to the base flip-card CSS (aspect-ratio 2/1 + hover flip) —
+   restoring the on-hover flip for a small mouse window. */
+@media (max-width: 519px) and (hover: none), (max-width: 519px) and (pointer: coarse) {
+  .svc-tiles-section { --tile-gap: 12px; }
   .svc-tiles-section .pillar-tiles {
     grid-template-columns: minmax(0, 1fr);   /* full-width single column */
     justify-content: stretch;
+    /* Override the base width:fit-content so the block spans the band edge-to-edge
+       (fit-content would shrink-wrap to the card's content width and no longer
+       fill the phone width). margin-inline:auto on a full-width block collapses to
+       zero margins — full-width bars, edge-to-edge. */
+    width: auto;
+    max-width: none;
   }
+
+  /* --- Geometry: content-driven height, no tall aspect box --- */
   .svc-tiles-section .tile-link {
     max-width: none;          /* fill the column edge-to-edge in the band */
+    aspect-ratio: auto;       /* drop --tile-ratio 2/1 → height follows content */
+    min-height: 0;            /* beat the touch block's min-height:160px */
+    display: block;
   }
-  /* Scale type + padding down so content fits the shorter card. */
-  .svc-tiles-section .tile-logo { padding: 14px 18px; }
-  .svc-tiles-section .tile-logo--composed { gap: 14px; padding: 14px 18px; }
-  .svc-tiles-section .tile-logo--composed .tile-logo-icon { width: 48px; height: 48px; flex: 0 0 48px; }
-  .svc-tiles-section .tile-logo-name { font-size: 0.92rem; }
-  .svc-tiles-section .tile-logo--composed .tile-logo-name { font-size: 0.92rem; }
+  .svc-tiles-section .tile-flip {
+    position: relative;
+    height: auto;             /* height comes from the front face, not a fixed box */
+    display: block;
+    transform: none;
+    transform-style: flat;
+  }
+  /* Front face laid back into normal flow so it DRIVES the (short) height. */
+  .svc-tiles-section .tile-front {
+    position: relative;
+    inset: auto;
+    opacity: 1;
+    backface-visibility: visible;
+    -webkit-backface-visibility: visible;
+    border-radius: var(--tile-radius);   /* full rounded card (touch block squared the top) */
+    flex: none;
+  }
+  /* Back face removed entirely at this width: only the front/static face matters and a
+     hidden back must add zero height. */
+  .svc-tiles-section .tile-back { display: none; }
+  /* Neutralize the hover-flip at this width (equal specificity, later source wins) so a
+     fine-pointer narrow view never rotates the bar away to a now-empty back. */
+  .svc-tiles-section .tile-link:hover .tile-flip { transform: none; }
+  .svc-tiles-section .tile-nudge { display: none; }
+
+  /* --- Face layout: compact horizontal ROW, icon left + label right, centered --- */
+  .svc-tiles-section .tile-logo {
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    gap: 14px;
+    height: auto;
+    min-height: 0;
+    padding: 1rem 16px;       /* ~16px top/bottom → short bar */
+  }
+  .svc-tiles-section .tile-logo--composed {
+    gap: 14px;
+    padding: 1rem 16px;
+  }
+  .svc-tiles-section .tile-logo--composed .tile-logo-icon { width: 46px; height: 46px; flex: 0 0 46px; }
+  .svc-tiles-section .tile-logo-name {
+    font-size: 0.95rem;
+    line-height: 1.25;
+    min-width: 0;             /* allow a long name to wrap instead of overflowing the row */
+  }
+  .svc-tiles-section .tile-logo--composed .tile-logo-name {
+    font-size: 0.95rem;
+    text-align: left;
+    max-width: none;          /* use the full remaining bar width before wrapping to 2 lines */
+  }
+  /* Single-logo marks: cap height so the bar stays short + roughly uniform with the
+     composed icon (~46px). Wide marks stay width-constrained already. */
   .svc-tiles-section .tile-logo--product svg,
-  .svc-tiles-section .tile-logo--mark svg { max-height: 70px; }
+  .svc-tiles-section .tile-logo--mark svg { max-height: 46px; }
   .svc-tiles-section .tile-logo--mark.tile-logo--sharepoint svg {
-    width: 70px; height: 70px; max-width: 70px; max-height: 70px;
+    width: 46px; height: 46px; max-width: 46px; max-height: 46px;
   }
-  .svc-tiles-section .tile-back { padding: 16px 22px; }
-  .svc-tiles-section .tile-desc { font-size: 0.82rem; line-height: 1.45; margin-bottom: 8px; }
-  .svc-tiles-section .tile-more { font-size: 0.8rem; padding-top: 0.45rem; }
+  .svc-tiles-section .tile-logo--product.tile-logo--oneform svg { max-height: 30px; }
+  .svc-tiles-section .tile-logo--product.tile-logo--1docstop svg { max-height: 46px; }
 }
 
 /* --- Very small phones (≤360px): trim type a touch more (ratio 2/1 inherits) --- */
@@ -2055,6 +2748,116 @@ html { scrollbar-gutter: stable; }
   .svc-tiles-section .tile-logo-name,
   .svc-tiles-section .tile-logo--composed .tile-logo-name { font-size: 0.86rem; }
   .svc-tiles-section .tile-desc { font-size: 0.8rem; }
+}
+
+/* ============================================================
+   NAV CTA / BAND MACHINERY — MOVED TO SHARED CSS (2026-07-10)
+   ------------------------------------------------------------
+   The fork's old CTA-wall (amber-clearance margin), fork CTA-hide
+   (1025-1150), 801-1024 hamburger-counter block, and amber links-wall
+   were all REMOVED here and replaced by shared rules in
+   assets/css/sytech-shared.css ("CTA VISIBILITY + NAV FIT" section) so
+   every page — shared-nav pages AND this index fork — behaves identically:
+     > 1150px : full nav WITH the CTA (amber-clearance wall in shared).
+     801-1150 : full nav, CTA hidden, links tightened + no-wrap.
+     <= 800px : hamburger (flat mobile menu block below is unchanged).
+   Nothing fork-specific is needed above 800px anymore; the shared
+   hamburger cutoff is already 800px, so no counter block is required.
+   ============================================================ */
+
+/* ============================================================
+   FLAT MOBILE MENU (isolated prototype, fork only, <=800px)
+   ------------------------------------------------------------
+   Replaces the shared stylesheet's ACCORDION hamburger menu with a
+   SIMPLE FLAT, SCROLLABLE list: NO chevrons, NO expand/collapse, nothing
+   to tap-to-reveal. Every item is a plain link, all visible at once; the
+   user just scrolls.
+
+   Flat item order (matches DOM order exactly — no reflow needed):
+     Home / About / Services / Who We Serve / White Papers /
+     Downloads / Contact
+   - SERVICES  = single plain link to services.html (the 7 sub-page links
+     in its mega panel are hidden on mobile).
+   - RESOURCES group is FLATTENED: its trigger row is CSS-hidden (Resources
+     has no standalone page), and its two children (White Papers, Downloads)
+     surface as their own top-level flat rows. NO "Resources" label — this
+     keeps the list to Ethan's exact 7 items and needs no DOM reorder.
+
+   The accordion toggle JS is neutralized at <=800px in the inline nav
+   script (see NAV block) so no row has a tap-to-expand handler; taps on a
+   trigger row just navigate.
+
+   Scoped under #nav + @media(max-width:800px) so it overrides the shared
+   @media(max-width:1024px) accordion rules (higher specificity via #nav,
+   later in the cascade). Desktop nav >800px is untouched.
+   DIALS: panel max-height offset (64px = nav height); row padding
+   (0.875rem 2rem = shared mobile row metric).
+   ============================================================ */
+@media (max-width: 800px) {
+
+  /* --- SCROLLABLE PANEL: never clip, even on a short screen --- */
+  /* Cap the open dropdown at viewport-height-minus-header and scroll the
+     overflow. 100dvh (dynamic viewport) preferred; 100vh is the fallback
+     for browsers without dvh. Nav is position:fixed, height 64px at
+     hamburger widths, so the panel starts 64px below the top. */
+  #nav .nav-links.open {
+    max-height: calc(100vh - 64px);
+    max-height: calc(100dvh - 64px);
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;   /* iOS momentum scroll */
+  }
+
+  /* --- SERVICES: collapse to a single plain link --- */
+  #nav .nav-has-mega:not(.nav-has-mega--compact) .mega { display: none; }
+  #nav .nav-has-mega:not(.nav-has-mega--compact) .nav-mega-chevron { display: none; }
+  #nav .nav-has-mega:not(.nav-has-mega--compact) .nav-mega-trigger {
+    display: block;                 /* plain flat link row */
+    justify-content: flex-start;    /* inert once block; belt + suspenders */
+    padding: 0.875rem 2rem;
+    font-size: 1rem;
+    /* border-bottom inherited from shared .nav-links a — left intact */
+  }
+
+  /* --- RESOURCES group: flatten to two plain rows --- */
+  /* Hide the "Resources" trigger row (no standalone page; its children
+     surface directly, right after "Who We Serve"). */
+  #nav .nav-has-mega--compact > .nav-mega-trigger { display: none; }
+  /* Force the compact panel permanently OPEN + FLAT — no accordion state. */
+  #nav .mega.mega--compact {
+    display: block;
+    position: static;
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+    max-height: none;
+    overflow: visible;
+    transform: none;
+    background: none;
+    border: none;
+    box-shadow: none;
+    transition: none;
+  }
+  #nav .mega--compact .mega-inner { padding: 0; }
+  #nav .mega-simple-list { margin: 0; padding: 0; }
+  #nav .mega-simple-list li { width: 100%; }
+  /* White Papers + Downloads styled EXACTLY like the other flat rows
+     (flush 2rem indent, 1rem text, divider under each). */
+  #nav .mega-simple-list a {
+    display: block;
+    min-height: 0;
+    padding: 0.875rem 2rem;
+    font-size: 1rem;
+    white-space: normal;
+    border-bottom: 1px solid #E3E9EF;
+  }
+
+  /* --- DEFENSIVE: kill any lingering accordion/expand affordance --- */
+  /* Hide every chevron across the mobile list. */
+  #nav .nav-mega-chevron { display: none; }
+  /* Even if .is-open were somehow toggled, the services mega stays hidden
+     and the compact list stays flat — no expand can happen. */
+  #nav .nav-has-mega.is-open:not(.nav-has-mega--compact) .mega { display: none; }
+  #nav .nav-has-mega--compact.is-open .mega.mega--compact { max-height: none; }
 }
 </style>
 </head>
@@ -2183,6 +2986,47 @@ html { scrollbar-gutter: stable; }
         <div class="hero-ctas">
           <a href="contact.html" class="btn-primary">Request a Free Assessment</a>
           <a href="services.html" class="btn-secondary">See How It Works</a>
+        </div>
+      </div>
+      <!-- [VIDEO-SIDE PROTO] right-column video card. Replaces the M365
+           cinema-stage diagram (kept in the DOM below but hidden via
+           `.hero .hero-animation{display:none}`). Muted is required for
+           autoplay; poster covers pre-load / no-JS / unsupported / reduced
+           motion. Delete this whole <div> + the CSS block to fully revert. -->
+      <div class="hero-video-side">
+        <video autoplay muted loop playsinline preload="auto"
+               poster="assets/img/sytech-overview-hero-poster.jpg"
+               aria-hidden="true" tabindex="-1">
+          <source src="assets/video/sytech-overview-hero.mp4" type="video/mp4">
+        </video>
+        <!-- [VIDEO-SIDE PROTO] custom hover-reveal mini-player. Namespaced
+             .hvs-*; all inline-SVG icons (no CDN). Reveals on hover /
+             focus-within / touch-tap. Reflects real <video> state via JS. -->
+        <div class="hvs-controls">
+          <div class="hvs-progress" role="slider" tabindex="0"
+               aria-label="Video progress. Use arrow keys to seek."
+               aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+            <div class="hvs-progress-fill"></div>
+          </div>
+          <div class="hvs-bar">
+            <button type="button" class="hvs-btn hvs-play" aria-label="Play video">
+              <svg class="hvs-ico-play" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>
+              <svg class="hvs-ico-pause" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 5h4v14H6zM14 5h4v14h-4z"/></svg>
+            </button>
+            <button type="button" class="hvs-btn hvs-restart" aria-label="Restart video from the beginning">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5V1L7 6l5 5V7a5 5 0 1 1-5 5H5a7 7 0 1 0 7-7z"/></svg>
+            </button>
+            <button type="button" class="hvs-btn hvs-mute" aria-label="Unmute video">
+              <svg class="hvs-ico-vol" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3a4.5 4.5 0 0 0-2.5-4.02v8.04A4.5 4.5 0 0 0 16.5 12zM14 3.23v2.06a7 7 0 0 1 0 13.42v2.06a9 9 0 0 0 0-17.54z"/></svg>
+              <svg class="hvs-ico-muted" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 9v6h4l5 5V4L7 9H3z"/><path d="M16.5 12l2.8-2.8-1.4-1.4L15 10.6l-2.8-2.8-1.4 1.4L12.6 12l-2.8 2.8 1.4 1.4L15 13.4l2.8 2.8 1.4-1.4z"/></svg>
+            </button>
+            <span class="hvs-spacer"></span>
+            <span class="hvs-time" aria-hidden="true"><span class="hvs-cur">0:00</span> / <span class="hvs-dur">0:00</span></span>
+            <button type="button" class="hvs-btn hvs-fs" aria-label="Enter fullscreen">
+              <svg class="hvs-ico-fs-enter" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 7h3V5H5v5h2V7zm10 0v3h2V5h-5v2h3zM7 17v-3H5v5h5v-2H7zm10 0h-3v2h5v-5h-2v3z"/></svg>
+              <svg class="hvs-ico-fs-exit" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 8H5v2h5V5H8v3zm6-3v5h5V8h-3V5h-2zm3 11v-3h-5v5h2v-3h3zM5 16h3v3h2v-5H5v2z"/></svg>
+            </button>
+          </div>
         </div>
       </div>
       <div class="hero-animation">
@@ -2592,23 +3436,51 @@ html { scrollbar-gutter: stable; }
 
         <!-- Step 1 / Organize (Panel 2) -->
         <div class="frame-text-block text-step organize" id="textOrganize">
-          <span class="eyebrow">Step 1 / Organize</span>
-          <span class="headline">See What You Actually Have</span>
-          <span class="body">We scan, structure, and index your legacy records, paper and digital, so nothing stays buried and everything becomes visible.</span>
+          <div class="step-above">
+            <span class="eyebrow">Step 1 / Organize</span>
+            <span class="headline">See What You Actually Have</span>
+            <span class="body step-body-1">We scan, structure, and index your legacy records, paper and digital, so nothing stays buried and everything becomes visible.</span>
+          </div>
+          <div class="step-below">
+            <span class="body step-body-2">You can't modernize, share, or automate records you can't find, and most agencies don't fully know what they're holding, so we make everything visible first.</span>
+            <div class="step-services">
+              <a class="step-svc-btn" href="services-scanning.html" tabindex="-1">Archive Scanning<span class="arrow" aria-hidden="true">&rarr;</span></a>
+              <a class="step-svc-btn" href="services-data-migration.html" tabindex="-1">Data Migration<span class="arrow" aria-hidden="true">&rarr;</span></a>
+              <a class="step-svc-btn" href="services-compliance-setup.html" aria-label="Records Management and Compliance Setup" tabindex="-1">Compliance Setup<span class="arrow" aria-hidden="true">&rarr;</span></a>
+            </div>
+          </div>
         </div>
 
         <!-- Step 2 / Unify (Panel 3) -->
         <div class="frame-text-block text-step unify" id="textUnify">
-          <span class="eyebrow">Step 2 / Unify</span>
-          <span class="headline">One Ecosystem. One Login.</span>
-          <span class="body">Your organized records move into the cloud platform you already own. Forms, workflows, and data connect in a single place. No new software.</span>
+          <div class="step-above">
+            <span class="eyebrow">Step 2 / Unify</span>
+            <span class="headline">One Ecosystem. One Login.</span>
+            <span class="body step-body-1">Your organized records move into the cloud platform you already own. Forms, workflows, and data connect in a single place. No new software.</span>
+          </div>
+          <div class="step-below">
+            <span class="body step-body-2">Most agencies pay twice, once for Microsoft 365 and again for a separate records or forms platform that duplicates it, and Unify folds that work back into the tools you already fund.</span>
+            <div class="step-services">
+              <a class="step-svc-btn" href="services-oneform.html" tabindex="-1">OneForm<span class="arrow" aria-hidden="true">&rarr;</span></a>
+              <a class="step-svc-btn" href="services-sharepoint-erms.html" tabindex="-1">SharePoint ERMS<span class="arrow" aria-hidden="true">&rarr;</span></a>
+              <a class="step-svc-btn" href="services-1docstop.html" tabindex="-1">1DocStop<span class="arrow" aria-hidden="true">&rarr;</span></a>
+            </div>
+          </div>
         </div>
 
         <!-- Step 3 / Scale (Panel 4) -->
         <div class="frame-text-block text-step scale" id="textScale">
-          <span class="eyebrow">Step 3 / Scale</span>
-          <span class="headline">Activate What You Already Fund</span>
-          <span class="body">We turn on advanced automation, analytics, and AI using the licenses your agency already pays for. Your infrastructure grows with you.</span>
+          <div class="step-above">
+            <span class="eyebrow">Step 3 / Scale</span>
+            <span class="headline">Activate What You Already Fund</span>
+            <span class="body step-body-1">We turn on advanced automation, analytics, and AI using the licenses your agency already pays for. Your infrastructure grows with you.</span>
+          </div>
+          <div class="step-below">
+            <span class="body step-body-2">Scale isn't a new purchase; it switches on power already inside your licenses, like AI that reads, classifies, and indexes huge archives on its own so staff aren't filing by hand.</span>
+            <div class="step-services">
+              <a class="step-svc-btn" href="services-ai-ingestion.html" tabindex="-1">AI-Powered Ingestion<span class="arrow" aria-hidden="true">&rarr;</span></a>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -2626,37 +3498,88 @@ html { scrollbar-gutter: stable; }
         <!-- Panel 2: Organize -->
         <div class="frame-panel frame-panel-step first" data-panel-index="1">
           <div class="mobile-text-block">
-            <span class="eyebrow">Step 1 / Organize</span>
-            <span class="headline">See What You Actually Have</span>
-            <span class="body">We scan, structure, and index your legacy records, paper and digital, so nothing stays buried and everything becomes visible.</span>
+            <div class="ms-node" aria-hidden="true">
+              <span class="ms-node-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="7" x2="15" y2="7"/><line x1="4" y1="12" x2="12" y2="12"/><line x1="4" y1="17" x2="9" y2="17"/><circle cx="17" cy="15" r="3.1"/><line x1="19.3" y1="17.3" x2="21.5" y2="19.5"/></svg></span>
+              <span class="ms-node-num">01</span>
+            </div>
+            <div class="ms-card">
+              <span class="eyebrow">Organize</span>
+              <span class="headline">See What You Actually Have</span>
+              <span class="body">We scan, structure, and index your legacy records, paper and digital, so nothing stays buried and everything becomes visible.</span>
+              <span class="body step-body-2">You can't modernize, share, or automate records you can't find, and most agencies don't fully know what they're holding, so we make everything visible first.</span>
+              <div class="step-services">
+                <a class="step-svc-btn" href="services-scanning.html">Archive Scanning<span class="arrow" aria-hidden="true">&rarr;</span></a>
+                <a class="step-svc-btn" href="services-data-migration.html">Data Migration<span class="arrow" aria-hidden="true">&rarr;</span></a>
+                <a class="step-svc-btn" href="services-compliance-setup.html" aria-label="Records Management and Compliance Setup">Compliance Setup<span class="arrow" aria-hidden="true">&rarr;</span></a>
+              </div>
+            </div>
           </div>
         </div>
 
         <!-- Panel 3: Unify -->
         <div class="frame-panel frame-panel-step" data-panel-index="2">
           <div class="mobile-text-block">
-            <span class="eyebrow">Step 2 / Unify</span>
-            <span class="headline">One Ecosystem. One Login.</span>
-            <span class="body">Your organized records move into the cloud platform you already own. Forms, workflows, and data connect in a single place. No new software.</span>
+            <div class="ms-node" aria-hidden="true">
+              <span class="ms-node-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="2.6"/><circle cx="5" cy="5" r="1.7"/><circle cx="19" cy="5" r="1.7"/><circle cx="12" cy="20" r="1.7"/><line x1="6.4" y1="6.4" x2="10.2" y2="10.2"/><line x1="17.6" y1="6.4" x2="13.8" y2="10.2"/><line x1="12" y1="14.6" x2="12" y2="18.3"/></svg></span>
+              <span class="ms-node-num">02</span>
+            </div>
+            <div class="ms-card">
+              <span class="eyebrow">Unify</span>
+              <span class="headline">One Ecosystem. One Login.</span>
+              <span class="body">Your organized records move into the cloud platform you already own. Forms, workflows, and data connect in a single place. No new software.</span>
+              <span class="body step-body-2">Most agencies pay twice, once for Microsoft 365 and again for a separate records or forms platform that duplicates it, and Unify folds that work back into the tools you already fund.</span>
+              <div class="step-services">
+                <a class="step-svc-btn" href="services-oneform.html">OneForm<span class="arrow" aria-hidden="true">&rarr;</span></a>
+                <a class="step-svc-btn" href="services-sharepoint-erms.html">SharePoint ERMS<span class="arrow" aria-hidden="true">&rarr;</span></a>
+                <a class="step-svc-btn" href="services-1docstop.html">1DocStop<span class="arrow" aria-hidden="true">&rarr;</span></a>
+              </div>
+            </div>
           </div>
         </div>
 
         <!-- Panel 4: Scale -->
         <div class="frame-panel frame-panel-step last" data-panel-index="3">
           <div class="mobile-text-block">
-            <span class="eyebrow">Step 3 / Scale</span>
-            <span class="headline">Activate What You Already Fund</span>
-            <span class="body">We turn on advanced automation, analytics, and AI using the licenses your agency already pays for. Your infrastructure grows with you.</span>
+            <div class="ms-node" aria-hidden="true">
+              <span class="ms-node-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="19" x2="5" y2="14"/><line x1="12" y1="19" x2="12" y2="10"/><line x1="19" y1="19" x2="19" y2="6"/><polyline points="15.5,8.5 19,6 21,9"/></svg></span>
+              <span class="ms-node-num">03</span>
+            </div>
+            <div class="ms-card">
+              <span class="eyebrow">Scale</span>
+              <span class="headline">Activate What You Already Fund</span>
+              <span class="body">We turn on advanced automation, analytics, and AI using the licenses your agency already pays for. Your infrastructure grows with you.</span>
+              <span class="body step-body-2">Scale isn't a new purchase; it switches on power already inside your licenses, like AI that reads, classifies, and indexes huge archives on its own so staff aren't filing by hand.</span>
+              <div class="step-services">
+                <a class="step-svc-btn" href="services-ai-ingestion.html">AI-Powered Ingestion<span class="arrow" aria-hidden="true">&rarr;</span></a>
+              </div>
+            </div>
           </div>
         </div>
       </div>
 
     </div>
 
-    <!-- Scroll-to-continue affordance (stepped engine; namespaced) -->
-    <div class="frame-scroll-hint" id="frameScrollHint" aria-hidden="true">
-      <span class="label">Scroll to continue</span>
-      <span class="chev"></span>
+    <!-- Step PREV / NEXT arrows — drive the chaos->clarity animation IN PLACE
+         (RIGHT = advance chaos -> Organize -> Unify -> Scale, LEFT = step back).
+         No scroll-lock: available whenever the section is on screen (JS adds
+         .frame-review-nav--ready via an IntersectionObserver). PREV disabled at
+         the first stage, NEXT disabled at the last; the last stage just holds.
+         Interactive desktop only (the stack media query display:none's this on
+         mobile / reduced-motion). Namespaced .frame-review-*. -->
+    <div class="frame-review-nav" id="frameReviewNav" aria-hidden="true">
+      <!-- FIRST-RUN white wash — soft gradient muting the chaos behind the RIGHT
+           arrow on the first run only. pointer-events:none; z-index:1 (above the
+           chaos SVG, below the z-index:2 arrows). Fades on .frame-review-nav--fr-active. -->
+      <div class="frame-firstrun-wash" aria-hidden="true"></div>
+      <button type="button" class="frame-review-arrow frame-review-prev" id="frameReviewPrev" aria-label="Previous step" aria-hidden="true" tabindex="-1" disabled>
+        <span class="frame-review-chev" aria-hidden="true"></span>
+      </button>
+      <button type="button" class="frame-review-arrow frame-review-next" id="frameReviewNext" aria-label="Next step" aria-describedby="frameReviewTip" disabled>
+        <span class="frame-review-chev" aria-hidden="true"></span>
+        <!-- FIRST-RUN auto-label (repurposed from the old hover tooltip): shown
+             automatically while the helper is active, gone permanently after. -->
+        <span class="frame-review-tip" id="frameReviewTip" role="tooltip">Press to see the next framework</span>
+      </button>
     </div>
   </div>
 </section>
@@ -3103,28 +4026,70 @@ html { scrollbar-gutter: stable; }
     (function() {
       var triggers = document.querySelectorAll('.nav-mega-trigger');
       if (!triggers.length) return;
-      var mqMobile = window.matchMedia('(max-width: 1024px)');
-      // Condensed desktop band (1025-1440px). Ceiling MUST match the CSS
-      // media query in assets/css/sytech-shared.css (media queries can't read a JS var).
-      var mqBand = window.matchMedia('(min-width: 1025px) and (max-width: 1440px)');
+      // FORK: hamburger cutoff moved 1024 -> 800. Accordion/mobile logic
+      // only fires at <=800px now (matches the CSS re-scope in <head>).
+      var mqMobile = window.matchMedia('(max-width: 800px)');
+      // Condensed "narrow desktop" band where Services collapses to a plain
+      // link. FORK: extended DOWN to 801px so the whole 801-1440 desktop-nav
+      // range behaves uniformly (Services=link, Resources keeps its dropdown).
+      // 801-1024 Services-hide is done by the inline CSS block in <head>;
+      // 1025-1440 by shared CSS. The 1440 ceiling still matches shared CSS.
+      var mqBand = window.matchMedia('(min-width: 801px) and (max-width: 1440px)');
+
+      /* FORK Services->tiles jump. On the homepage (THIS file) #service-tiles
+         exists -> SAME-PAGE: smooth-scroll straight to the tiles. The framework
+         section no longer locks scroll, so there is nothing to force-release —
+         window.__sytChaosBypass() is now a SAFE NO-OP (kept so this guarded call
+         needs no edit). When this nav is later ported onto a SIBLING page that
+         has no tiles, the same call falls back to CROSS-PAGE loading
+         index.html#service-tiles, where the on-load hash land settles the scroll
+         on the tiles. One helper, portable to both. */
+      function jumpToServiceTiles(closeMenu) {
+        if (closeMenu) {
+          navHamburger.classList.remove('open');
+          navLinks.classList.remove('open');
+          navHamburger.setAttribute('aria-expanded', 'false');
+        }
+        var tiles = document.getElementById('service-tiles');
+        if (tiles) {
+          if (typeof window.__sytChaosBypass === 'function') window.__sytChaosBypass();
+          tiles.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        } else {
+          window.location.href = 'index.html#service-tiles';
+        }
+      }
 
       Array.prototype.forEach.call(triggers, function(trigger) {
         var megaLi = trigger.closest('.nav-has-mega');
         var chevron = trigger.querySelector('.nav-mega-chevron');
 
         trigger.addEventListener('click', function(e) {
-          // Condensed desktop band: Services collapses to a plain link that
-          // jumps to the homepage service tiles (its dropdown is CSS-hidden).
-          // Skip Resources (.nav-has-mega--compact), which keeps its dropdown.
+          // Condensed desktop band (801-1024): Services collapses to a plain
+          // link that jumps to the homepage service tiles (its dropdown is
+          // CSS-hidden). Skip Resources (.nav-has-mega--compact), which keeps
+          // its floating dropdown. UNCHANGED.
           if (mqBand.matches && !megaLi.classList.contains('nav-has-mega--compact')) {
             e.preventDefault();
-            window.location.href = 'index.html#service-tiles';
+            jumpToServiceTiles(false);   // no hamburger open in this band; same-page bypass on the homepage fork
             return;
           }
-          if (!mqMobile.matches) return;
-          e.preventDefault();
-          var isOpen = megaLi.classList.toggle('is-open');
-          trigger.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+          // FORK (<=800px flat menu): the Services row jumps to the homepage
+          // service-tiles section via jumpToServiceTiles() — a plain smooth-
+          // scroll to #service-tiles WITHIN this file (the framework no longer
+          // locks scroll, so there is no pin to be trapped by). Done in JS
+          // (mirroring the mqBand branch above) rather than by editing the
+          // <a href>, because the href is SHARED with the desktop >1440 mega
+          // trigger, which MUST keep pointing at services.html. Close the
+          // hamburger first so the menu doesn't linger. Skip Resources
+          // (.nav-has-mega--compact), whose children surface as their own flat rows.
+          if (mqMobile.matches && !megaLi.classList.contains('nav-has-mega--compact')) {
+            e.preventDefault();
+            jumpToServiceTiles(true);   // close the hamburger, then same-page bypass + scroll
+            return;
+          }
+          // Otherwise (wide desktop >1440): reveal stays pure CSS
+          // (:hover / :focus-within) and a direct click on the trigger
+          // navigates via its href (services.html) — UNCHANGED.
         });
 
         megaLi.addEventListener('mouseenter', function() {
@@ -3412,40 +4377,42 @@ html { scrollbar-gutter: stable; }
 
 
   /* -------------------------------------------------------
-     FRAMEWORK SECTION — STEPPED, TRIGGERED PLAYBACK ENGINE
-     Ported from planning/prototype-chaos-stepped-scroll/
-     chaos-stepped-scroll-prototype.html. Replaces the old
-     scroll-scrub drive with a forward-only, gesture-triggered,
-     scroll-LOCKED step engine: Step1 chaos draws in, Step2 Organize,
-     Step3 Unify, Step4 Scale glide, then release.
+     FRAMEWORK SECTION — ARROW-DRIVEN PLAYBACK ENGINE
+     NO scroll-lock / NO pin / NO scroll-hijack. The section is a normal
+     100vh block in flow; scrolling passes straight through and NEVER
+     touches the animation. The chaos->clarity animation is OPTIONAL and
+     driven ONLY by the on-screen PREV/NEXT arrows (and ArrowLeft/ArrowRight
+     while the section is in view). RIGHT advances chaos -> Organize -> Unify
+     -> Scale (holding on the finished frame at the end — no unlock needed);
+     LEFT steps back. Default resting state = step START_STEP (the hero title
+     card), shown statically — it does NOT autoplay.
 
-     Wired to v7's REAL element ids (#services / #frameTrack /
-     #amberMask rect / dot-organize|unify|scale / textHero|Organize|
-     Unify|Scale / chaosMask1..16 / .amber-group). All coordinate
-     constants (VB 11885, amber start 4569, gaps 5064.62 / 7166.97,
-     end 11880; dot anchors 170.434 / 241.196 / 311.953 vw) MATCH the
-     prototype exactly — only the container CLASS mapping differs
-     (.frame-wrapper#services / .frame-sticky vs the prototype's
-     .pin-section / .frame-stage).
+     Reuses the ORIGINAL step visuals/transitions/easing: the multi-speed
+     chaos draw-in (runChaosDraw), the easeInOutCubic glide (setTrack/setAmber),
+     the DOT_TEXT_AT dot+text reveal, and renderStepStatics for backward snaps.
+
+     Wired to v7's REAL element ids (#services / #frameTrack / #amberMask rect /
+     dot-organize|unify|scale / textHero|Organize|Unify|Scale / chaosMask1..16 /
+     .amber-group). Coordinate constants MATCH the prototype exactly. Arrow
+     visibility is toggled by an IntersectionObserver (in-view), replacing the
+     old lock-state (engaged/completedForward) gating.
 
      Self-contained IIFE — none of its locals leak into the page scope.
-     The dev-only "Step N/4" readout from the prototype is OMITTED.
-     Reduced-motion + small screens skip the hijack entirely; v7's OWN
+     Reduced-motion + small screens skip the animation entirely; v7's OWN
      vertical-stack CSS fallback renders in normal flow.
      ------------------------------------------------------- */
   (function () {
     'use strict';
 
-    /* ---- TUNABLE FEEL PARAMETERS (prototype values, unchanged) ---- */
-    var STEP_DUR        = 3000;  // ms — each cinematic glide (steps 2-4). Step 1 uses CHAOS_LINES.
-    var STEP_COOLDOWN   = 520;   // ms — input lock AFTER a step settles
-    var ENGAGE_COOLDOWN = 480;   // ms — input lock right after the pin engages (swallows momentum fling)
-    var FWD_THRESHOLD   = 4;     // wheel deltaY past which a forward gesture counts
-    var UP_THRESHOLD    = 8;     // wheel -deltaY past which we release the pin upward
-    var TOUCH_FWD       = 34;    // px swipe-up to advance one step
-    var TOUCH_UP        = 28;    // px swipe-down to release upward
-    var REARM_IDLE      = 160;   // ms — forward wheel stream must go idle this long before the next step re-arms
-    var DOT_TEXT_AT     = 0.6;   // fraction through a glide when the incoming dot/text fades in
+    /* ---- TUNABLE FEEL PARAMETERS (ARROW-DRIVEN model) ----
+       No scroll-hijack: the section never locks scroll. Steps are driven ONLY
+       by the on-screen PREV/NEXT arrows (and ArrowLeft/ArrowRight keys while the
+       section is in view). DIALS below. */
+    var START_STEP    = 0;     // DIAL — default resting stage (0 = hero title card; set 1 to rest on the chaos tangle)
+    var STEP_DUR      = 3000;  // ms — forward cinematic glide (steps 2-4). DIAL (transition speed). Step 1 uses CHAOS_LINES.
+    var BACK_DUR      = 850;   // ms — backward step tween. DIAL.
+    var STEP_COOLDOWN = 300;   // ms — input lock AFTER a step settles (debounces rapid clicks)
+    var DOT_TEXT_AT   = 0.6;   // fraction through a forward glide when the incoming dot/text fades in
 
     // easeInOutCubic — gentle ramp, sustained middle, long soft decel. Steps 2-4 only.
     function ease(t) {
@@ -3496,7 +4463,6 @@ html { scrollbar-gutter: stable; }
     var frameTrack   = document.getElementById('frameTrack');
     var amberGroup   = document.querySelector('.amber-group');
     var amberMaskRect= document.querySelector('#amberMask rect');
-    var scrollHint   = document.getElementById('frameScrollHint');
     var textHero     = document.getElementById('textHero');
     var textOrganize = document.getElementById('textOrganize');
     var textUnify    = document.getElementById('textUnify');
@@ -3504,6 +4470,9 @@ html { scrollbar-gutter: stable; }
     var dotOrganize  = document.getElementById('dot-organize');
     var dotUnify     = document.getElementById('dot-unify');
     var dotScale     = document.getElementById('dot-scale');
+    var reviewNav    = document.getElementById('frameReviewNav');   // manual step-review arrows
+    var reviewPrev   = document.getElementById('frameReviewPrev');
+    var reviewNext   = document.getElementById('frameReviewNext');
 
     if (!pinSection || !frameTrack) return; // section absent -> nothing to drive
 
@@ -3533,24 +4502,30 @@ html { scrollbar-gutter: stable; }
       { trackX: -261.953,   amberW: MASK_W_FULL }                // 4: Scale (full resolve)
     ];
 
-    /* ---- RUNTIME STATE ---- */
-    var currentStep      = 0;
-    var isAnimating      = false;
-    var cooldownUntil    = 0;
-    var engaged          = false;
-    var completedForward = false;
-    var pinnedY          = 0;
-    var scrollLocked     = false;   // true while <body> is position:fixed (hard pin)
-    var rafId            = null;    // rAF handle for the Step 2-4 cinematic glide
-    var chaosRafId       = null;    // SEPARATE rAF handle for the Step-1 chaos draw
-    var touchStartY      = 0;
-    var armed            = true;    // forward GESTURE GATE; consumed on fire, re-arms on input SETTLE
-    var lastFwdWheelTime = -1e9;
-    var anim             = { trackX: 0, amberW: 0 };
-    var reduced          = false;
-    var hintShown        = false;   // mirrors the hint's .is-visible class
-    var hintOnLight      = false;   // mirrors the hint's .on-light class
-    var hintRafId        = null;    // SEPARATE rAF handle for the always-on hint poll
+    /* ---- RUNTIME STATE (arrow-driven; no lock/pin state) ---- */
+    var currentStep = START_STEP;
+    var isAnimating = false;         // true while a forward glide / chaos draw / backward tween runs
+    var cooldownUntil = 0;           // performance.now() gate that debounces rapid clicks
+    var rafId       = null;          // rAF handle for the forward glide + backward tween
+    var chaosRafId  = null;          // SEPARATE rAF handle for the Step-1 chaos draw-in
+    var anim        = { trackX: 0, amberW: 0 };
+    var reduced     = false;
+    var inView      = false;         // IntersectionObserver: section on screen -> arrows available
+    var hasCompleted = false;        // flips true the FIRST time currentStep reaches LAST_STEP (Scale);
+                                     // gates the LEFT/PREV arrow (hidden until then). Persists for the
+                                     // page session — once true the PREV arrow stays available even at step 0.
+    var frHelperDone = false;        // ONE-WAY session flag: once true, the first-run helper (white wash +
+                                     // auto-label + pulse) is gone for good and never returns this session.
+
+    /* ---- AUTO-PLAY (scroll-in attention grab) STATE ----
+       A SEPARATE observer (threshold 0.5) auto-plays the chaos draw-in ONCE when
+       the section crosses ~50% in view, purely as an attention grab. It never
+       locks scroll (it just calls goForward once from step 0). One-time guard +
+       re-arm-on-full-exit below. */
+    var autoPlayed   = false;        // one-time guard: chaos auto-play already fired for THIS in-view cycle
+    var autoObserver = null;         // the threshold-0.5 observer (created only when motion is allowed)
+    // #service-tiles jump/land in progress -> suppress the on-load attention-grab so it can't fight the jump.
+    var bypassActive = (window.location.hash === '#service-tiles');
 
     /* ---- VISUAL HELPERS ---- */
     function setTrack(x) { frameTrack.style.transform = 'translateX(' + x + 'vw)'; }
@@ -3558,7 +4533,7 @@ html { scrollbar-gutter: stable; }
     function chaosFull() { for (var k = 0; k < 16; k++) if (chaosMaskRects[k]) chaosMaskRects[k].setAttribute('width', VB_WIDTH); }
 
     // STEP 1 driver — each line on its own rAF clock (own dur/delay/ease) on chaosRafId.
-    // Fires onComplete (settleStep) ONCE at CHAOS_READY_AT; keeps drawing slow tails in the
+    // Fires onComplete (settle) ONCE at CHAOS_READY_AT; keeps drawing slow tails in the
     // background until CHAOS_TOTAL, then chaosFull() snaps any remainder and stops the loop.
     function runChaosDraw(onComplete) {
       var start = performance.now();
@@ -3575,7 +4550,7 @@ html { scrollbar-gutter: stable; }
         }
         if (!settledFired && elapsed >= CHAOS_READY_AT) {
           settledFired = true;
-          onComplete();          // settleStep -> isAnimating=false, cooldown, re-arm gate
+          onComplete();          // settle() -> isAnimating=false, arms the click cooldown
         }
         if (elapsed < CHAOS_TOTAL) {
           chaosRafId = requestAnimationFrame(frame);
@@ -3593,247 +4568,353 @@ html { scrollbar-gutter: stable; }
       else if (step === 4) { dotScale.classList.add('active'); textScale.classList.add('revealed'); }
     }
 
-    /* ---- DECLARATIVE HINT VISIBILITY — single source of truth ----
-       Always-running poll derives the scroll-to-continue hint's class state from
-       runtime STATE every frame, so the hint is correct on EVERY path (including the
-       Step-1 chaos draw -> Step 2 handoff). Classes mutate only when the desired state
-       differs, so the 0.5s opacity transition never restarts. */
-    function updateHint() {
-      var shouldShow = engaged && !isAnimating && !completedForward &&
-                       currentStep < 4 && performance.now() >= cooldownUntil;
-      if (shouldShow !== hintShown) {
-        hintShown = shouldShow;
-        if (scrollHint) scrollHint.classList.toggle('is-visible', shouldShow);
-      }
-      var onLight = currentStep <= 1; // navy copy over the white panel-1 (steps 0-1)
-      if (onLight !== hintOnLight) {
-        hintOnLight = onLight;
-        if (scrollHint) scrollHint.classList.toggle('on-light', onLight);
-      }
-    }
-    function tickHint() {
-      updateHint();
-      hintRafId = requestAnimationFrame(tickHint); // runs for the life of the page (cheap)
-    }
-
-    /* ---- STEP ENGINE ---- */
-    function canForward() {
-      return engaged && !isAnimating && !completedForward &&
-             currentStep < 4 && performance.now() >= cooldownUntil;
-    }
-
-    // SHARED POST-STEP SETTLE — single source of truth for any step coming to rest.
-    // Both the Step-1 chaos draw and the Step 2-4 glide call THIS, so completion can't drift.
-    function settleStep() {
-      revealStage(currentStep);            // show this step's dot + text (no-op for Step 1)
+    /* ---- SHARED SETTLE — clears the animating flag + arms a short cooldown ---- */
+    function settle() {
       isAnimating = false;
       cooldownUntil = performance.now() + STEP_COOLDOWN;
-      armed = false;                       // re-arms only on input SETTLE (see onWheel)
-      lastFwdWheelTime = performance.now();
-      if (currentStep >= 4) {
-        completeForward();                 // final step: release the pin
-      }
-      // Hint reappearance is governed by the declarative poll (updateHint).
+      syncReviewDisabled();
+    }
+    function cancelRafs() {
+      if (rafId)      { cancelAnimationFrame(rafId);      rafId = null; }
+      if (chaosRafId) { cancelAnimationFrame(chaosRafId); chaosRafId = null; }
+    }
+    // Whether a new arrow input can fire right now.
+    function busy() { return isAnimating || performance.now() < cooldownUntil; }
+
+    /* ---- APPLY A STEP STATICALLY (no animation) ----
+       Used for the default resting state on load and for the Services-jump
+       bypass. Snaps every discrete visual (chaos / amber / dots / text) AND the
+       track/amber-mask geometry straight to step n. */
+    function applyStepStatic(n) {
+      if (n < 0) n = 0; else if (n > LAST_STEP) n = LAST_STEP;
+      cancelRafs();
+      currentStep = n;
+      renderStepStatics(n);                  // chaos fill + amber/dots/text classes
+      anim.trackX = STEPS[n].trackX;
+      anim.amberW = STEPS[n].amberW;
+      setTrack(anim.trackX);
+      setAmber(anim.amberW);
+      syncReviewDisabled();
     }
 
-    function advanceStep() {
-      if (!canForward()) return;
-      armed = false;                       // consume this gesture
-      // Leaving Step 1 while its chaos visual is still drawing slow tails in the
-      // BACKGROUND (chaosRafId != null): cancel that loop + snap every line complete.
-      if (chaosRafId) { cancelAnimationFrame(chaosRafId); chaosRafId = null; chaosFull(); }
-      currentStep++;
+    /* ---- FORWARD (RIGHT arrow) — advance one stage, hold at the last ----
+       0 -> 1 plays the multi-speed chaos draw-in; 1..3 -> next plays the
+       cinematic glide (reusing the exact STEP_DUR / easeInOutCubic / DOT_TEXT_AT
+       reveal timing). Reaching step 4 simply HOLDS on the finished frame — there
+       is no lock to release. */
+    function goForward() {
+      if (reduced || busy() || currentStep >= LAST_STEP) return;
+      cancelRafs();
       isAnimating = true;
 
-      var target = STEPS[currentStep];
-
-      // STEP 1 — chaos draw runs on its OWN multi-speed clock; isAnimating is cleared
-      // by settleStep at CHAOS_READY_AT (~1.5s), NOT when the slowest line finishes.
-      if (target.chaos) {
-        runChaosDraw(settleStep);
+      // Step 0 -> 1: chaos tangle draws in on its own multi-speed clock.
+      if (currentStep === 0) {
+        currentStep = 1;
+        syncReviewDisabled();
+        chaosReset();                        // masks start hidden, then draw in
+        runChaosDraw(settle);                // settle() fires at CHAOS_READY_AT (~1.5s); tails finish in the bg
         return;
       }
 
+      // Steps 1 -> 2 -> 3 -> 4: cinematic horizontal glide + amber reveal.
+      chaosFull();                           // guarantee the tangle is complete (a bg tail-draw was just cancelled)
+      currentStep++;
+      syncReviewDisabled();
+      var target = STEPS[currentStep];
       var fromX = anim.trackX, fromA = anim.amberW;
       var toX = target.trackX, toA = target.amberW;
-      if (currentStep >= 2 && amberGroup) amberGroup.classList.add('revealed');
-
-      var fired = false;
-      var start = performance.now();
-
+      if (amberGroup) amberGroup.classList.add('revealed');   // clarity line present from step 2
+      var fired = false, start = performance.now();
       function frame(now) {
-        var t = (now - start) / STEP_DUR;
-        if (t > 1) t = 1;
+        var t = (now - start) / STEP_DUR; if (t > 1) t = 1;
         var e = ease(t);
-
         anim.trackX = fromX + (toX - fromX) * e;
         anim.amberW = fromA + (toA - fromA) * e;
-        setTrack(anim.trackX);
-        setAmber(anim.amberW);
-
+        setTrack(anim.trackX); setAmber(anim.amberW);
         if (!fired && t >= DOT_TEXT_AT) { fired = true; revealStage(currentStep); }
-
-        if (t < 1) {
-          rafId = requestAnimationFrame(frame);
-        } else {
-          anim.trackX = toX; anim.amberW = toA; setTrack(toX); setAmber(toA);
-          settleStep();
-        }
+        if (t < 1) { rafId = requestAnimationFrame(frame); }
+        else { anim.trackX = toX; anim.amberW = toA; setTrack(toX); setAmber(toA); revealStage(currentStep); rafId = null; settle(); }
       }
       rafId = requestAnimationFrame(frame);
     }
 
-    function completeForward() {
-      completedForward = true;
-      engaged = false;        // release downward — native scroll flows to social proof
-      unlockScroll();         // drop the body lock + restore exact position
-    }
-
-    /* ---- PIN ENGAGE / RELEASE — HARD SCROLL LOCK ----
-       On engage <body> is position:fixed; top:-pinnedY so the page physically cannot
-       scroll (native momentum has nothing to fight = no shake). scrollbar-gutter:stable
-       (CSS) keeps width constant = no horizontal shift; the exact pre-lock position is
-       restored on release = no vertical jump. The site nav is position:fixed (viewport-
-       relative) and is a sibling of the locked content, so the body-lock does NOT move it. */
-    function lockScroll() {
-      if (scrollLocked) return;
-      var b = document.body;
-      b.style.position = 'fixed';
-      b.style.top      = (-pinnedY) + 'px';
-      b.style.left     = '0';
-      b.style.right    = '0';
-      b.style.width    = '100%';
-      scrollLocked = true;
-    }
-    function unlockScroll() {
-      if (!scrollLocked) return;
-      var b = document.body;
-      b.style.position = '';
-      b.style.top      = '';
-      b.style.left     = '';
-      b.style.right    = '';
-      b.style.width    = '';
-      scrollLocked = false;
-      // Restore the EXACT pre-lock position INSTANTLY. The shared CSS sets
-      // `html { scroll-behavior: smooth }` for nav anchors; without neutralizing it,
-      // clearing position:fixed snaps the doc to top then scrollTo glides back down
-      // (the owner-reported "bounce up then back down"). Force instant just for this
-      // restore, then put the prior scroll-behavior back so nav links stay smooth.
-      var de = document.documentElement;
-      var prevBehavior = de.style.scrollBehavior;
-      de.style.scrollBehavior = 'auto';
-      try {
-        window.scrollTo({ top: pinnedY, left: 0, behavior: 'instant' });
-      } catch (e) {
-        window.scrollTo(0, pinnedY); // older browsers: no options object
+    /* ---- BACKWARD (LEFT arrow) — step back one stage, disabled at step 0 ----
+       renderStepStatics(n) snaps the discrete classes (dots/text/amber fade out
+       via their CSS transitions; chaos snaps off at step 0), then the track /
+       amber-mask geometry tweens back over BACK_DUR. */
+    function goBackward() {
+      if (reduced || busy() || currentStep <= 0) return;
+      cancelRafs();
+      var n = currentStep - 1;
+      currentStep = n;
+      renderStepStatics(n);
+      syncReviewDisabled();
+      var target = STEPS[n];
+      var fromX = anim.trackX, fromA = anim.amberW;
+      var toX = target.trackX, toA = target.amberW;
+      if (fromX === toX && fromA === toA) { settle(); return; }   // e.g. 1 -> 0 (chaos-only snap)
+      isAnimating = true;
+      var start = performance.now();
+      function frame(now) {
+        var t = (now - start) / BACK_DUR; if (t > 1) t = 1;
+        var e = ease(t);
+        anim.trackX = fromX + (toX - fromX) * e;
+        anim.amberW = fromA + (toA - fromA) * e;
+        setTrack(anim.trackX); setAmber(anim.amberW);
+        if (t < 1) { rafId = requestAnimationFrame(frame); }
+        else { anim.trackX = toX; anim.amberW = toA; setTrack(toX); setAmber(toA); rafId = null; settle(); }
       }
-      de.style.scrollBehavior = prevBehavior; // restore (smooth nav anchors unaffected)
+      rafId = requestAnimationFrame(frame);
     }
 
-    function engage() {
-      if (engaged) return;
-      engaged = true;
-      // Lock at the ACTUAL current scroll offset so position:fixed moves nothing.
-      pinnedY = window.pageYOffset || document.documentElement.scrollTop || 0;
-      lockScroll();
-      cooldownUntil = performance.now() + ENGAGE_COOLDOWN; // swallow the entry fling
-      armed = true;
-      lastFwdWheelTime = performance.now();
-      if (currentStep === 0 && textHero) { textHero.classList.add('revealed'); }
+    /* ---- STEP BOOKKEEPING ---- */
+    var LAST_STEP = STEPS.length - 1;    // 4 (Scale / full resolve)
+
+    // Snap chaos tangle fully hidden (used at the hero-only origin, step 0).
+    function chaosReset() {
+      for (var k = 0; k < 16; k++) if (chaosMaskRects[k]) chaosMaskRects[k].setAttribute('width', 0);
     }
 
-    function releaseUp() {
-      if (!engaged) return;
-      engaged = false;
-      // HARDENING: cancel an in-flight glide so a re-engage never finds the engine
-      // stuck "animating". currentStep is LEFT where it is (re-engage continues).
-      if (isAnimating) {
-        if (rafId) { cancelAnimationFrame(rafId); rafId = null; }
-        isAnimating = false;
-      }
-      // Stop a still-running Step-1 chaos draw and snap the lines complete.
-      if (chaosRafId) { cancelAnimationFrame(chaosRafId); chaosRafId = null; chaosFull(); }
-      unlockScroll();         // unlock + restore exact position; page scrolls freely upward
+    // Set every DISCRETE (non-tweened) visual to its resting state for step n:
+    // chaos fill, amber-group reveal, and which dots/texts are shown. trackX and
+    // amberW are handled by the tween in goToStep (not here).
+    function renderStepStatics(n) {
+      if (n >= 1) chaosFull(); else chaosReset();               // tangle present from step 1 on
+      if (amberGroup)   amberGroup.classList.toggle('revealed', n >= 2); // clarity line from step 2
+      if (textHero)     textHero.classList.toggle('revealed', true);     // hero copy stays present
+      if (dotOrganize)  dotOrganize.classList.toggle('active',   n >= 2);
+      if (textOrganize) textOrganize.classList.toggle('revealed', n >= 2);
+      if (dotUnify)     dotUnify.classList.toggle('active',      n >= 3);
+      if (textUnify)    textUnify.classList.toggle('revealed',   n >= 3);
+      if (dotScale)     dotScale.classList.toggle('active',      n >= 4);
+      if (textScale)    textScale.classList.toggle('revealed',   n >= 4);
     }
 
-    function onScroll() {
-      if (reduced) return;
-      if (engaged) return;            // locked: nothing can drift
-      if (completedForward) return;   // forward done -> never re-pins
-      var top = pinSection.getBoundingClientRect().top;
-      if (top <= 0 && currentStep < 4) engage();
+    /* Reveal the LEFT/PREV arrow permanently the first time the framework fully
+       resolves (currentStep === LAST_STEP). Idempotent — safe to call every step.
+       Adds .frame-review-nav--completed (CSS pops the arrow in) and puts the button
+       back into the tab order + a11y tree. */
+    function markCompleted() {
+      if (hasCompleted) return;
+      hasCompleted = true;
+      if (reviewNav)  reviewNav.classList.add('frame-review-nav--completed');
+      if (reviewPrev) { reviewPrev.removeAttribute('aria-hidden'); reviewPrev.removeAttribute('tabindex'); }
     }
 
-    /* ---- INPUT — wheel / touch / keyboard (forward-only triggered) ---- */
-    function onWheel(e) {
-      if (reduced || !engaged) return;          // not pinned -> native scroll
-      if (e.deltaY <= -UP_THRESHOLD) { releaseUp(); return; } // up-intent: release
-      e.preventDefault();                        // block native scroll while pinned
-      if (e.deltaY >= FWD_THRESHOLD) {
-        var now = performance.now();
-        // RE-ARM ON SETTLE: a continuous flick keeps the gap small (never re-arms mid-
-        // gesture, can't skip steps); a fresh down gesture arrives after REARM_IDLE idle.
-        if (!armed && (now - lastFwdWheelTime) >= REARM_IDLE) armed = true;
-        lastFwdWheelTime = now;
-        if (armed) advanceStep();                // advanceStep consumes `armed` on a real fire
+    /* Turn the FIRST-RUN helper OFF permanently the FIRST time currentStep passes
+       the initial chaos page — i.e. as soon as currentStep > 1 (the user has
+       advanced from the chaos tangle to the first real framework panel, Organize).
+       The helper stays visible for the whole initial page: the hero card (step 0),
+       the chaos tangle (step 1), AND the 0->1 auto-play draw-in (which lands on
+       step 1 — NOT > 1 — so it does NOT retire the helper). Only the first move to
+       step 2+ retires it.
+       One-way (frHelperDone) so it never comes back for the rest of the session
+       (until a full page reload). Dropping .frame-review-nav--fr-active removes the
+       white wash, the auto-label AND the pulse together (all three are gated on that
+       class in CSS). */
+    function maybeEndFirstRunHelper() {
+      if (frHelperDone) return;
+      if (currentStep > 1) {
+        frHelperDone = true;
+        if (reviewNav) reviewNav.classList.remove('frame-review-nav--fr-active');
       }
     }
 
-    function onTouchStart(e) { touchStartY = e.touches[0].clientY; armed = true; } // new touch = new gesture
-    function onTouchMove(e) {
-      if (reduced || !engaged) return;
-      var y = e.touches[0].clientY;
-      var dy = touchStartY - y;                  // +ve = swipe up = forward
-      if (dy <= -TOUCH_UP) { releaseUp(); return; }
-      e.preventDefault();
-      if (dy >= TOUCH_FWD) { touchStartY = y; if (armed) advanceStep(); } // one swipe = one step
+    function syncReviewDisabled() {
+      if (currentStep >= LAST_STEP) markCompleted();   // first full resolve -> unlock the PREV arrow (auto-play only hits step 1)
+      if (reviewPrev) reviewPrev.disabled = (currentStep <= 0);
+      if (reviewNext) reviewNext.disabled = (currentStep >= LAST_STEP);
+      maybeEndFirstRunHelper();                         // one-way: retire the first-run helper the first time currentStep > 1 (past the initial chaos page)
     }
 
-    function onKey(e) {
-      if (reduced || !engaged) return;
-      if (e.key === 'ArrowDown' || e.key === ' ' || e.key === 'Spacebar' || e.key === 'PageDown') {
-        e.preventDefault(); advanceStep();
-      } else if (e.key === 'ArrowUp' || e.key === 'PageUp') {
-        releaseUp();                             // let the browser scroll up natively
-      }
+    /* ---- ARROW VISIBILITY — driven by an IntersectionObserver ------------
+       The old model gated the arrows on lock state (engaged / completedForward).
+       With the lock gone, the arrows are simply available whenever the section
+       is on screen (and motion is allowed). One observer toggles the --ready
+       class + aria-hidden; nothing polls. */
+    function setArrowsVisible(show) {
+      if (!reviewNav) return;
+      var on = show && !reduced;
+      reviewNav.classList.toggle('frame-review-nav--ready', on);
+      reviewNav.setAttribute('aria-hidden', on ? 'false' : 'true');
     }
 
-    /* ---- REDUCED MOTION / SMALL SCREEN — no hijack at all ---- */
-    function evalReduced() {
-      var prefers = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-      var small   = window.innerWidth <= 900;
-      return prefers || small;
+    var frameObserver = null;
+    function observeInView() {
+      if (!('IntersectionObserver' in window)) { inView = true; setArrowsVisible(true); return; }
+      frameObserver = new IntersectionObserver(function (entries) {
+        entries.forEach(function (entry) {
+          inView = entry.isIntersecting;
+          setArrowsVisible(inView);
+        });
+      }, { threshold: 0.35 });   // arrows appear once ~a third of the section is on screen (DIAL)
+      frameObserver.observe(pinSection);
     }
 
+    /* ---- AUTO-PLAY on scroll-in — the CHAOS LINES catch the eye ---------
+       Purely visual: fires goForward() ONCE from step 0 (the chaos draw-in),
+       which lands at step 1 and HOLDS. It never locks scroll, never advances
+       past the chaos draw, and never yanks the user back if they've already
+       driven the animation with the arrows. Guards:
+         - reduced/≤900px      -> never runs (observer isn't even created)
+         - bypassActive        -> suppressed during a #service-tiles jump/land
+         - autoPlayed          -> one-time per in-view cycle (kills scroll jitter)
+         - currentStep !== 0   -> user already advanced via arrows: don't yank back
+       Re-arm: autoPlayed resets only after the section FULLY leaves the viewport
+       (the threshold-0 boundary in observeAutoPlay), so it plays again next
+       scroll-in but never on small jitter while it stays partly on screen. */
+    function maybeAutoPlay() {
+      if (reduced || bypassActive) return;          // fallback OR jump-in-progress: no attention grab
+      if (autoPlayed) return;                        // already fired this cycle
+      autoPlayed = true;                             // consume now -> won't refire until a full-exit re-arm
+      if (currentStep !== 0 || busy()) return;       // user already stepped in (or mid-anim): leave it alone
+      goForward();                                   // 0 -> 1 chaos draw-in ONLY, then holds at step 1
+    }
+
+    function observeAutoPlay() {
+      // No IO -> skip the attention grab entirely (arrows still work); nothing to trap.
+      if (!('IntersectionObserver' in window)) return;
+      autoObserver = new IntersectionObserver(function (entries) {
+        entries.forEach(function (entry) {
+          if (entry.isIntersecting && entry.intersectionRatio >= 0.5) {
+            maybeAutoPlay();               // crossed ~50% in view -> one-time chaos draw-in (DIAL: 0.5)
+          } else if (!entry.isIntersecting) {
+            autoPlayed   = false;          // section fully off-screen -> re-arm for the next scroll-in
+            bypassActive = false;          // the #service-tiles jump is over once the section has left once
+          }
+        });
+      }, { threshold: [0, 0.5] });         // 0.5 = trigger; the 0 boundary detects full exit for re-arm
+      autoObserver.observe(pinSection);
+    }
+
+    /* ---- KEYBOARD — ArrowRight advances, ArrowLeft steps back (in-view only).
+       ArrowLeft/Right never scroll the page vertically, so NO preventDefault /
+       scroll-trap. Ignored while focus is in a form field. */
+    function onArrowKey(e) {
+      if (reduced || !inView) return;
+      var el = e.target, tag = (el && el.tagName) || '';
+      if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT' || (el && el.isContentEditable)) return;
+      if (e.key === 'ArrowRight') { goForward(); }
+      else if (e.key === 'ArrowLeft') { goBackward(); }
+    }
+
+    /* The old scroll-lock machinery (forceCompleteAndRelease, lockScroll /
+       unlockScroll, engage / releaseUp, onScroll, and the wheel / touch / key
+       interceptors) has been REMOVED. The section no longer traps scroll —
+       scrolling passes straight through and never touches the animation. Steps
+       are driven only by goForward / goBackward (arrows + onArrowKey). The
+       Services-jump bypass is now a safe no-op (see the expose block below). */
+
+    /* ---- REDUCED MOTION / SMALL SCREEN — LIVE-STATE GATE (matchMedia) ------
+       mqLive is the EXACT condition under which the desktop chaos animation must
+       be live, mirroring the CSS gate
+         @media (min-width:901px) and (prefers-reduced-motion:no-preference).
+       When it is FALSE (viewport ≤900px OR reduced-motion) the v7 vertical-stack
+       CSS fallback renders in normal flow and the engine is torn down. Using
+       matchMedia's `change` event means we react ONLY on threshold crossings
+       (no resize debounce, no per-pixel work) — including the narrow→wide and
+       reduced-motion-off upgrades that a one-shot load-time check used to miss. */
+    var mqLive = window.matchMedia('(min-width: 901px) and (prefers-reduced-motion: no-preference)');
+
+    var initialized    = false;   // true while the LIVE desktop engine is up — guards double-init
+    var listenersWired = false;   // one-time arrow-click + keydown wiring (handlers self-guard on `reduced`)
+
+    // Kept for back-compat/parity with the old name; mqLive is now the source of truth.
+    function evalReduced() { return !mqLive.matches; }
+
+    // Wire arrow clicks + keydown ONCE per page session. These listeners stay attached across
+    // every resize toggle — each handler already early-returns while `reduced` is true, so they
+    // are inert in the mobile/stack state. Wiring once (never re-adding) prevents doubled
+    // goForward/goBackward calls after repeated narrow⇄wide crossings.
+    function wireControlsOnce() {
+      if (listenersWired) return;
+      listenersWired = true;
+      if (reviewNext) reviewNext.addEventListener('click', goForward);   // native <button>: click/tap + Enter/Space
+      if (reviewPrev) reviewPrev.addEventListener('click', goBackward);
+      window.addEventListener('keydown', onArrowKey);                    // ArrowRight/Left, in-view gated (no scroll trap)
+    }
+
+    /* ---- INIT — bring the LIVE desktop engine UP (idempotent) ----
+       Runs on a fresh WIDE load AND on a narrow→wide / reduced-motion-off crossing.
+       The `initialized` guard makes it safe to call repeatedly (resize jitter around
+       900px, rapid stretch/shrink) — it only does work on the transition into the
+       eligible state. Comes up in the exact fresh-wide-load default: resting stage,
+       first-run helper, in-view arrow observer, and 50%-in-view chaos auto-play. */
     function init() {
-      reduced = evalReduced();
-      if (reduced) {
-        // v7's OWN vertical-stack CSS fallback (mobile + reduced) renders in normal
-        // flow; attach no hijack handlers, snap nothing (the SVG/dots/text are display:none).
-        return;
-      }
-      window.addEventListener('scroll', onScroll, { passive: true });
-      window.addEventListener('wheel', onWheel, { passive: false });
-      window.addEventListener('touchstart', onTouchStart, { passive: true });
-      window.addEventListener('touchmove', onTouchMove, { passive: false });
-      window.addEventListener('keydown', onKey);
-      hintRafId = requestAnimationFrame(tickHint); // start the declarative hint poll
-      onScroll(); // in case the page loads already scrolled into the section
+      if (initialized) return;       // already live -> no double-init, no doubled rAF loops
+      initialized = true;
+      reduced = false;
+
+      // Reset per-run SESSION flags so an upgrade lands EXACTLY like a fresh wide load.
+      autoPlayed   = false;          // auto-play (chaos draw-in) can fire again once ~50% in view
+      hasCompleted = false;          // PREV arrow hidden again until the first full resolve
+      frHelperDone = false;          // first-run helper active again for the fresh cycle
+      bypassActive = false;          // any pending #service-tiles jump is irrelevant after a resize
+      if (reviewNav)  reviewNav.classList.remove('frame-review-nav--completed');
+      if (reviewPrev) { reviewPrev.setAttribute('aria-hidden', 'true'); reviewPrev.setAttribute('tabindex', '-1'); }
+
+      applyStepStatic(START_STEP);   // render the default resting stage (no autoplay)
+      // FIRST-RUN onboarding helper for the RIGHT arrow (white wash + auto-label + pulse).
+      // Motion-path only — the inert stack never reaches here (and the nav is display:none there).
+      if (reviewNav) reviewNav.classList.add('frame-review-nav--fr-active');
+      wireControlsOnce();            // arrow click + keydown listeners (one-time, session-persistent)
+      observeInView();               // show the arrows whenever the section is on screen
+      observeAutoPlay();             // auto-play the chaos draw-in once when ~50% in view (motion only)
     }
 
-    window.addEventListener('resize', function () {
-      // If motion preference / breakpoint flips to reduced after load, fall back cleanly.
-      if (!reduced && evalReduced()) {
-        reduced = true;
-        if (engaged) { engaged = false; unlockScroll(); } // drop the hard lock first
-        if (rafId) { cancelAnimationFrame(rafId); rafId = null; }
-        if (chaosRafId) { cancelAnimationFrame(chaosRafId); chaosRafId = null; }
-        isAnimating = false;
-      }
-      // While engaged the body is position:fixed; pinnedY stays authoritative (not recomputed).
-    });
+    /* ---- TEARDOWN — drop back to the inert stack (idempotent) ----
+       Runs on a wide→narrow / reduced-motion-on crossing. Cancels both rAF loops,
+       hides the arrows, and disconnects BOTH observers so nothing leaks. The arrow /
+       keydown listeners intentionally STAY attached (they self-guard on `reduced`),
+       so re-upgrading never needs to re-add them. `initialized` guard makes repeated
+       teardown a no-op. The v7 vertical-stack CSS fallback renders in normal flow. */
+    function teardown() {
+      if (!initialized) return;
+      initialized = false;
+      reduced = true;
+      cancelRafs();
+      isAnimating = false;
+      setArrowsVisible(false);       // stack fallback has no stages to review
+      if (frameObserver) { frameObserver.disconnect(); frameObserver = null; }
+      if (autoObserver)  { autoObserver.disconnect();  autoObserver  = null; }  // no auto-play in the inert fallback
+    }
 
-    init();
+    // Threshold-crossing handler: eligible -> init(), ineligible -> teardown(). matchMedia
+    // `change` fires ONLY when the boolean flips, so no debounce/throttle is required.
+    function onLiveChange() {
+      if (mqLive.matches) init();
+      else teardown();
+    }
+    if (mqLive.addEventListener)   mqLive.addEventListener('change', onLiveChange);
+    else if (mqLive.addListener)   mqLive.addListener(onLiveChange);   // Safari <14 legacy MediaQueryList
+
+    /* ---- SERVICES-JUMP BYPASS (no-op) + ON-LOAD #service-tiles LANDING ----
+       There is no scroll-lock to release anymore, so the nav "Services" jump is
+       just a smooth-scroll to #service-tiles. window.__sytChaosBypass is kept as
+       a SAFE NO-OP so the existing guarded call in the nav script keeps working
+       without edits and never throws. The framework is left at its inviting
+       default resting stage. */
+    window.__sytChaosBypass = function () { /* no-op: scrolling passes straight through */ };
+
+    // BOOT: start the engine only if we load already-eligible (wide + motion allowed). A NARROW
+    // or reduced-motion load stays inert (reduced=true, no observers/rAF/listeners) until mqLive
+    // flips true, at which point onLiveChange() runs init() with NO refresh required.
+    reduced = !mqLive.matches;
+    if (mqLive.matches) init();
+
+    var landOnTiles = (window.location.hash === '#service-tiles');
+    if (landOnTiles) {
+      var settleOnTiles = function () {
+        var tiles = document.getElementById('service-tiles');
+        if (!tiles) return;
+        var de = document.documentElement, prev = de.style.scrollBehavior;
+        de.style.scrollBehavior = 'auto';        // override html{scroll-behavior:smooth} for an exact, instant land
+        tiles.scrollIntoView({ block: 'start' });
+        de.style.scrollBehavior = prev;
+      };
+      settleOnTiles();                                   // assert position now (DOM is fully parsed at end of body)
+      window.addEventListener('load', settleOnTiles);    // re-assert after the browser's own hash jump + late layout
+    }
   })();
 
 
@@ -3919,6 +5000,193 @@ html { scrollbar-gutter: stable; }
         }
       });
     });
+  })();
+</script>
+
+<!-- Chip keyboard gate (fork proto) — mirrors the CSS pointer-events gate.
+     The desktop service chips live in the always-present .frame-text-layer, so
+     they're tab-reachable before their step reveals. Chips start tabindex="-1"
+     (set in the HTML); this OBSERVES the engine's .revealed toggle (does not
+     modify it) and clears/restores tabindex to match. Self-contained + reversible;
+     mobile-stack chips are separate elements and untouched (always tabbable). -->
+<script>
+  (function () {
+    var ids = ['textOrganize', 'textUnify', 'textScale'];
+    function syncChips(block) {
+      var revealed = block.classList.contains('revealed');
+      var chips = block.querySelectorAll('.step-svc-btn');
+      for (var i = 0; i < chips.length; i++) {
+        if (revealed) chips[i].removeAttribute('tabindex');
+        else chips[i].setAttribute('tabindex', '-1');
+      }
+    }
+    ids.forEach(function (id) {
+      var block = document.getElementById(id);
+      if (!block) return;
+      syncChips(block); // set initial state to match current .revealed
+      new MutationObserver(function () { syncChips(block); })
+        .observe(block, { attributes: true, attributeFilter: ['class'] });
+    });
+  })();
+</script>
+
+<!-- [VIDEO-SIDE PROTO] custom mini-player controller. Isolated + namespaced;
+     touches only the .hero-video-side card. Reflects real <video> state via
+     play/pause/volumechange/timeupdate/loadedmetadata listeners so the icons
+     always match reality. Preserves autoplay/muted/loop/playsinline. -->
+<script>
+  (function () {
+    var card = document.querySelector('.hero-video-side');
+    if (!card) return;
+    var video = card.querySelector('video');
+    var controls = card.querySelector('.hvs-controls');
+    if (!video || !controls) return;
+
+    // Reduced motion: nothing to control — pause the (hidden) video and bail.
+    // The CSS already shows the still poster + hides the overlay.
+    var reduce = window.matchMedia('(prefers-reduced-motion: reduce)');
+    if (reduce.matches) { try { video.pause(); } catch (e) {} return; }
+
+    var playBtn    = card.querySelector('.hvs-play');
+    var muteBtn    = card.querySelector('.hvs-mute');
+    var restartBtn = card.querySelector('.hvs-restart');
+    var fsBtn      = card.querySelector('.hvs-fs');
+    var progress   = card.querySelector('.hvs-progress');
+    var fill       = card.querySelector('.hvs-progress-fill');
+    var curEl      = card.querySelector('.hvs-cur');
+    var durEl      = card.querySelector('.hvs-dur');
+
+    function fmt(t) {
+      if (!isFinite(t) || t < 0) t = 0;
+      var m = Math.floor(t / 60);
+      var s = Math.floor(t % 60);
+      return m + ':' + (s < 10 ? '0' + s : s);
+    }
+
+    /* ---- play / pause (reflect real state) ---- */
+    playBtn.addEventListener('click', function () {
+      if (video.paused) { video.play(); } else { video.pause(); }
+    });
+    video.addEventListener('play', function () {
+      playBtn.classList.add('is-playing');
+      playBtn.setAttribute('aria-label', 'Pause video');
+    });
+    video.addEventListener('pause', function () {
+      playBtn.classList.remove('is-playing');
+      playBtn.setAttribute('aria-label', 'Play video');
+    });
+
+    /* ---- mute / unmute (video HAS audio; starts muted for autoplay) ---- */
+    muteBtn.addEventListener('click', function () {
+      video.muted = !video.muted;
+      if (!video.muted && video.volume === 0) video.volume = 1; // safety
+    });
+    video.addEventListener('volumechange', function () {
+      var m = video.muted || video.volume === 0;
+      muteBtn.classList.toggle('is-muted', m);
+      muteBtn.setAttribute('aria-label', m ? 'Unmute video' : 'Mute video');
+    });
+
+    /* ---- restart ---- */
+    restartBtn.addEventListener('click', function () {
+      video.currentTime = 0;
+      video.play();
+    });
+
+    /* ---- fullscreen (card first so controls stay visible; iOS video fallback) ---- */
+    function inFullscreen() {
+      return document.fullscreenElement === card ||
+             document.webkitFullscreenElement === card;
+    }
+    fsBtn.addEventListener('click', function () {
+      if (inFullscreen()) {
+        (document.exitFullscreen || document.webkitExitFullscreen || function(){}).call(document);
+      } else if (card.requestFullscreen) {
+        card.requestFullscreen();
+      } else if (card.webkitRequestFullscreen) {
+        card.webkitRequestFullscreen();
+      } else if (video.webkitEnterFullscreen) {
+        video.webkitEnterFullscreen(); // iOS Safari: native video fullscreen
+      }
+    });
+    function syncFs() {
+      var on = inFullscreen();
+      fsBtn.classList.toggle('is-fs', on);
+      fsBtn.setAttribute('aria-label', on ? 'Exit fullscreen' : 'Enter fullscreen');
+    }
+    document.addEventListener('fullscreenchange', syncFs);
+    document.addEventListener('webkitfullscreenchange', syncFs);
+
+    /* ---- progress / seek ---- */
+    function updateProgress() {
+      var d = video.duration;
+      var ratio = (d && isFinite(d)) ? (video.currentTime / d) : 0;
+      fill.style.width = (ratio * 100) + '%';
+      progress.setAttribute('aria-valuenow', Math.round(ratio * 100));
+      if (curEl) curEl.textContent = fmt(video.currentTime);
+    }
+    video.addEventListener('timeupdate', updateProgress);
+    video.addEventListener('loadedmetadata', function () {
+      if (durEl) durEl.textContent = fmt(video.duration);
+      updateProgress();
+    });
+    if (video.readyState >= 1 && durEl) { // metadata already available
+      durEl.textContent = fmt(video.duration);
+      updateProgress();
+    }
+
+    function seekToClientX(clientX) {
+      var rect = progress.getBoundingClientRect();
+      var r = (clientX - rect.left) / rect.width;
+      r = Math.max(0, Math.min(1, r));
+      if (video.duration && isFinite(video.duration)) {
+        video.currentTime = r * video.duration;
+        updateProgress();
+      }
+    }
+    var dragging = false;
+    progress.addEventListener('pointerdown', function (e) {
+      dragging = true;
+      progress.setPointerCapture && progress.setPointerCapture(e.pointerId);
+      seekToClientX(e.clientX);
+      e.preventDefault();
+    });
+    progress.addEventListener('pointermove', function (e) {
+      if (dragging) seekToClientX(e.clientX);
+    });
+    progress.addEventListener('pointerup',   function () { dragging = false; });
+    progress.addEventListener('pointercancel', function () { dragging = false; });
+
+    // keyboard seek on the slider
+    progress.addEventListener('keydown', function (e) {
+      var d = video.duration; if (!d || !isFinite(d)) return;
+      var step = 5, handled = true;
+      switch (e.key) {
+        case 'ArrowRight': case 'ArrowUp':   video.currentTime = Math.min(d, video.currentTime + step); break;
+        case 'ArrowLeft':  case 'ArrowDown': video.currentTime = Math.max(0, video.currentTime - step); break;
+        case 'Home': video.currentTime = 0; break;
+        case 'End':  video.currentTime = d; break;
+        default: handled = false;
+      }
+      if (handled) { updateProgress(); e.preventDefault(); }
+    });
+
+    /* ---- touch reveal: no hover → tap the video toggles the bar ---- */
+    var canHover = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+    if (!canHover) {
+      card.addEventListener('click', function (e) {
+        // let real controls act without also toggling the bar
+        if (e.target.closest('.hvs-btn') || e.target.closest('.hvs-progress')) return;
+        card.classList.toggle('hvs-show');
+      });
+    }
+
+    // initialise icon/label state to match the video as it stands now
+    if (!video.paused) playBtn.classList.add('is-playing');
+    muteBtn.classList.toggle('is-muted', video.muted || video.volume === 0);
+    muteBtn.setAttribute('aria-label',
+      (video.muted || video.volume === 0) ? 'Unmute video' : 'Mute video');
+    syncFs();
   })();
 </script>
 

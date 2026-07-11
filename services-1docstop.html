@@ -9,7 +9,7 @@
 <meta property="og:description" content="SyTech runs the platform. Your team uses it. The records work happens, you don't think about it."/>
 <meta property="og:type" content="website"/>
 <link rel="stylesheet" href="assets/css/sytech-shared.css">
-<link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.0.3/src/regular/style.css">
+<link rel="stylesheet" href="assets/css/phosphor.css">
 <style>
 /* === Per-page accent (color pass 2026-06-18) === */
 :root { --accent: #2E7DB5; --accent-ink: #2A6FA0; }
@@ -1664,10 +1664,10 @@
   (function() {
     var triggers = document.querySelectorAll('.nav-mega-trigger');
     if (!triggers.length) return;
-    var mqMobile = window.matchMedia('(max-width: 1024px)');
-    // Condensed desktop band (1025-1440px). Ceiling MUST match the CSS
+    var mqMobile = window.matchMedia('(max-width: 800px)');
+    // Condensed desktop band (801-1440px). Ceiling MUST match the CSS
     // media query in assets/css/sytech-shared.css (media queries can't read a JS var).
-    var mqBand = window.matchMedia('(min-width: 1025px) and (max-width: 1440px)');
+    var mqBand = window.matchMedia('(min-width: 801px) and (max-width: 1440px)');
 
     Array.prototype.forEach.call(triggers, function(trigger) {
       var megaLi = trigger.closest('.nav-has-mega');

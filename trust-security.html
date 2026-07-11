@@ -303,6 +303,115 @@
   .syt-plate, .syt-plate::after { transition: none; }
   .syt-plate:hover { transform: none; }
 }
+/* ============================================================
+   NAV CTA / BAND MACHINERY — MOVED TO SHARED CSS (2026-07-10)
+   ------------------------------------------------------------
+   The old CTA-wall (amber-clearance margin), CTA-hide (1025-1150),
+   801-1024 hamburger-counter block, and amber links-wall were all
+   REMOVED here and replaced by shared rules in
+   assets/css/sytech-shared.css ("CTA VISIBILITY + NAV FIT" section) so
+   every page — this one AND every other SyTech page — behaves identically:
+     > 1150px : full nav WITH the CTA (amber-clearance wall in shared).
+     801-1150 : full nav, CTA hidden, links tightened + no-wrap.
+     <= 800px : hamburger (flat mobile menu block below is unchanged).
+   Nothing page-specific is needed above 800px anymore; the shared
+   hamburger cutoff is already 800px, so no counter block is required.
+   ============================================================ */
+
+/* ============================================================
+   FLAT MOBILE MENU (isolated prototype, fork only, <=800px)
+   ------------------------------------------------------------
+   Replaces the shared stylesheet's ACCORDION hamburger menu with a
+   SIMPLE FLAT, SCROLLABLE list: NO chevrons, NO expand/collapse, nothing
+   to tap-to-reveal. Every item is a plain link, all visible at once; the
+   user just scrolls.
+
+   Flat item order (matches DOM order exactly — no reflow needed):
+     Home / About / Services / Who We Serve / White Papers /
+     Downloads / Contact
+   - SERVICES  = single plain link to services.html (the 7 sub-page links
+     in its mega panel are hidden on mobile).
+   - RESOURCES group is FLATTENED: its trigger row is CSS-hidden (Resources
+     has no standalone page), and its two children (White Papers, Downloads)
+     surface as their own top-level flat rows. NO "Resources" label — this
+     keeps the list to Ethan's exact 7 items and needs no DOM reorder.
+
+   The accordion toggle JS is neutralized at <=800px in the inline nav
+   script (see NAV block) so no row has a tap-to-expand handler; taps on a
+   trigger row just navigate.
+
+   Scoped under #nav + @media(max-width:800px) so it overrides the shared
+   @media(max-width:1024px) accordion rules (higher specificity via #nav,
+   later in the cascade). Desktop nav >800px is untouched.
+   DIALS: panel max-height offset (64px = nav height); row padding
+   (0.875rem 2rem = shared mobile row metric).
+   ============================================================ */
+@media (max-width: 800px) {
+
+  /* --- SCROLLABLE PANEL: never clip, even on a short screen --- */
+  /* Cap the open dropdown at viewport-height-minus-header and scroll the
+     overflow. 100dvh (dynamic viewport) preferred; 100vh is the fallback
+     for browsers without dvh. Nav is position:fixed, height 64px at
+     hamburger widths, so the panel starts 64px below the top. */
+  #nav .nav-links.open {
+    max-height: calc(100vh - 64px);
+    max-height: calc(100dvh - 64px);
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;   /* iOS momentum scroll */
+  }
+
+  /* --- SERVICES: collapse to a single plain link --- */
+  #nav .nav-has-mega:not(.nav-has-mega--compact) .mega { display: none; }
+  #nav .nav-has-mega:not(.nav-has-mega--compact) .nav-mega-chevron { display: none; }
+  #nav .nav-has-mega:not(.nav-has-mega--compact) .nav-mega-trigger {
+    display: block;                 /* plain flat link row */
+    justify-content: flex-start;    /* inert once block; belt + suspenders */
+    padding: 0.875rem 2rem;
+    font-size: 1rem;
+    /* border-bottom inherited from shared .nav-links a — left intact */
+  }
+
+  /* --- RESOURCES group: flatten to two plain rows --- */
+  /* Hide the "Resources" trigger row (no standalone page; its children
+     surface directly, right after "Who We Serve"). */
+  #nav .nav-has-mega--compact > .nav-mega-trigger { display: none; }
+  /* Force the compact panel permanently OPEN + FLAT — no accordion state. */
+  #nav .mega.mega--compact {
+    display: block;
+    position: static;
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+    max-height: none;
+    overflow: visible;
+    transform: none;
+    background: none;
+    border: none;
+    box-shadow: none;
+    transition: none;
+  }
+  #nav .mega--compact .mega-inner { padding: 0; }
+  #nav .mega-simple-list { margin: 0; padding: 0; }
+  #nav .mega-simple-list li { width: 100%; }
+  /* White Papers + Downloads styled EXACTLY like the other flat rows
+     (flush 2rem indent, 1rem text, divider under each). */
+  #nav .mega-simple-list a {
+    display: block;
+    min-height: 0;
+    padding: 0.875rem 2rem;
+    font-size: 1rem;
+    white-space: normal;
+    border-bottom: 1px solid #E3E9EF;
+  }
+
+  /* --- DEFENSIVE: kill any lingering accordion/expand affordance --- */
+  /* Hide every chevron across the mobile list. */
+  #nav .nav-mega-chevron { display: none; }
+  /* Even if .is-open were somehow toggled, the services mega stays hidden
+     and the compact list stays flat — no expand can happen. */
+  #nav .nav-has-mega.is-open:not(.nav-has-mega--compact) .mega { display: none; }
+  #nav .nav-has-mega--compact.is-open .mega.mega--compact { max-height: none; }
+}
 </style>
 </head>
 <body>
@@ -632,10 +741,10 @@
   (function() {
     var triggers = document.querySelectorAll('.nav-mega-trigger');
     if (!triggers.length) return;
-    var mqMobile = window.matchMedia('(max-width: 1024px)');
-    // Condensed desktop band (1025-1440px). Ceiling MUST match the CSS
+    var mqMobile = window.matchMedia('(max-width: 800px)');
+    // Condensed desktop band (801-1440px). Ceiling MUST match the CSS
     // media query in assets/css/sytech-shared.css (media queries can't read a JS var).
-    var mqBand = window.matchMedia('(min-width: 1025px) and (max-width: 1440px)');
+    var mqBand = window.matchMedia('(min-width: 801px) and (max-width: 1440px)');
 
     Array.prototype.forEach.call(triggers, function(trigger) {
       var megaLi = trigger.closest('.nav-has-mega');

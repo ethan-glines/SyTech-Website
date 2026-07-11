@@ -448,21 +448,16 @@ a { color: inherit; text-decoration: none; }
    1024px hamburger cutoff. CEILING = 1440px. This literal MUST stay in sync
    with the mqBand matchMedia in every page's inline nav JS (CSS media queries
    can't read a var(); keep the two 1440 literals adjacent in mind).
-   Two changes vs. wide desktop (>1440px):
-     (1) hide the "Request a Free Assessment" CTA to de-clutter the row;
-     (2) collapse the Services mega-menu to a plain link (its inline JS
-         redirects the click to index.html#service-tiles). The Resources
-         .mega--compact dropdown is only 2 items, so it is left fully intact.
-   The <=1024px hamburger/accordion block below is untouched by this band.
+   One change vs. wide desktop (>1440px):
+     collapse the Services mega-menu to a plain link (its inline JS
+     redirects the click to index.html#service-tiles). The Resources
+     .mega--compact dropdown is only 2 items, so it is left fully intact.
+   The "Request a Free Assessment" CTA STAYS VISIBLE in this band; it is only
+   hidden at <=1024px (hamburger mode) by the block below, which is untouched
+   by this band.
    ========================================================================== */
-@media (min-width: 1025px) and (max-width: 1440px) {
-  /* (1) Hide the CTA in the band. !important guarantees this wins over any
-     page-level inline <style> (which loads after this external sheet) or a
-     stale/partially-cached copy re-showing it. There is no width <=1440px
-     where the CTA should ever show, so !important cannot mis-reveal it. */
-  .nav-cta { display: none !important; }
-
-  /* (2) Kill ONLY the Services dropdown: hide its panel + chevron so no
+@media (min-width: 801px) and (max-width: 1440px) {
+  /* Kill ONLY the Services dropdown: hide its panel + chevron so no
      hover/focus-within reveal can fire and keyboard focus can't land in a
      hidden menu. Scoped with :not(.nav-has-mega--compact) so the Resources
      compact dropdown keeps its chevron + panel. */
@@ -471,8 +466,105 @@ a { color: inherit; text-decoration: none; }
 }
 
 
+/* ==========================================================================
+   CTA VISIBILITY + NAV FIT — governs ALL pages identically (shared-nav pages
+   AND the index fork) so the header behaves the same everywhere. This is the
+   single source of truth for the "Request a Free Assessment" CTA boundary;
+   the index fork's old CTA-wall / CTA-hide / links-wall / 801-1024 counter
+   blocks were removed in favor of these rules. Boundaries:
+     > 1150px : full horizontal nav WITH the CTA (amber-clearance wall below).
+     801-1150 : full horizontal nav, CTA HIDDEN (no reappearance anywhere);
+                links tightened + no-wrap so the 6 top-level items + 2 dropdown
+                chevrons fit cleanly down to the 801px floor without crowding
+                the logo.
+     <= 800px : hamburger (handled by the mobile block below).
+   ========================================================================== */
+
+/* Top-level nav labels never wrap (e.g. "Who We Serve" breaking to 3 lines).
+   Scoped to > li > a so the long service names inside the Services mega panel
+   keep their normal multi-line wrapping. */
+.nav-links > li > a { white-space: nowrap; }
+
+/* CTA visible ONLY above 1150px. !important reliably beats the base .nav-cta
+   display AND any #nav .nav-cta rule, closing the old 801-1024 reappearance
+   gap on every page. (The <=800 hamburger block also hard-hides it; harmless
+   overlap.) */
+@media (max-width: 1150px) {
+  .nav-cta { display: none !important; }
+}
+
+/* Amber-notch clearance for the VISIBLE CTA (>1150 only): pull the button left
+   as the viewport narrows so its right edge stays inside the gold curve; the
+   push tapers to 0 at ~1416px so the wide-desktop cradle (>1416, incl. Ethan's
+   >1440 "good" look) is untouched. 538 = nav-inner max-width/2 - padding
+   = 1140/2 - 32. TIGHTNESS DIAL: raise the 0.88 target (lower the 0.38 coeff)
+   for a looser button-to-amber gap. Relocated here from the index fork so
+   shared + index behave identically. A margin on a hidden (<=1150) CTA would
+   be a no-op anyway, so gating to >1150 keeps the two ranges coherent. */
+@media (min-width: 1151px) {
+  .nav-cta { margin-right: max(0px, 538px - 0.38 * 100vw); }
+}
+
+/* Tighten the link row in the CTA-hidden band so all 6 top-level items + the
+   2 dropdown chevrons fit at the 801px floor. (Desktop base gap = 2rem.) */
+@media (min-width: 801px) and (max-width: 1150px) {
+  .nav-links { gap: 1.5rem; }
+
+  /* Amber-notch clearance for the CTA-HIDDEN band. With the CTA gone,
+     space-between hugs .nav-links to the nav-inner right content edge, which
+     would overrun the decorative gold notch. So pull .nav-links LEFT with a
+     small margin-right.
+
+     NOTCH GEOMETRY (RENDER-MEASURED 2026-07-10, supersedes the old numbers):
+     the gold curve is drawn by the full-width preserveAspectRatio="none"
+     header SVG. Its FLAT-BOTTOM corner is at viewBox x=2570.83/2992.02
+     = 0.859*vw, but that is NOT where the links must clear — by the time the
+     gold line has RISEN to link-TEXT height it sits at a CONSTANT ~0.892*vw
+     across this whole band (do NOT re-derive from 0.859 / 0.90 — those are the
+     flat-bottom and an earlier bad estimate; the verified text-height value is
+     0.892*vw). Because .nav-links is the space-between item pinned to the right
+     content edge and "Contact" is the LAST link, Contact's right edge is
+     ALWAYS (rightContentEdge - margin-right) and is FONT-INDEPENDENT.
+
+     WHY THE SHALLOW 0.108 SLOPE (was 0.21): for vw<=1140 the right content
+     edge = vw - 32 (32px = 2rem right padding), so
+       gap = 0.892*vw - (vw - 32 - margin) = margin - 0.108*vw + 32.
+     Setting the slope to 0.108 makes margin's 0.108*vw term CANCEL the notch's
+     0.108*vw encroachment, so gap = 32 - CONST is CONSTANT (flat) across the
+     band instead of collapsing into overlap at the narrow end. RENDER-VERIFIED
+     with 0.108*100vw - 3: gap is a flat ~29px at 1080/1000/900/850/801 and
+     ~34px at 1150 (nav-inner caps at 1140 there, a touch looser — fine, that's
+     the wide end with the most room). The old 0.21/129 rule had the WRONG
+     slope and tapered the gap the wrong way: it read +25px @1150 but went
+     NEGATIVE (overlap) at 900/850/801 (-5, -10, -15px). At 801 the new push is
+     ~83px and Home still clears the logo by ~22px (66.8px of slack existed).
+
+     WINDOWS NOTE: target ~28-30px on a Mac headless render (device-scale 1,
+     overlay scrollbars where 100vw == clientWidth). On classic-scrollbar OSes
+     (Windows -- SyTech's government audience) 100vw runs ~15px wider than the
+     content, so keep the Mac gap generous enough that the real-world gap stays
+     a comfortable ~13-15px. 29px Mac satisfies that.
+
+     TUNING DIALS (sign has been gotten BACKWARDS twice -- read carefully):
+       - margin-right pulls .nav-links (and thus Contact) LEFT. So a LARGER
+         margin-right = Contact moves LEFT = BIGGER gap.
+       - The CONSTANT (currently 3) is SUBTRACTED from margin-right. So a
+         SMALLER constant = larger margin-right = BIGGER gap. To WIDEN the gap,
+         DECREASE the constant; to narrow it, INCREASE it. Flat gap ~= 32 - CONST
+         (Mac render). (Constant 3 -> ~29px; e.g. constant 5 -> ~27px.)
+       - The SLOPE (currently 0.108) sets the TAPER. Keep it at 0.108 to hold
+         the gap FLAT (it matches the notch's per-px rise). RAISE it only if you
+         deliberately want the gap wider at 1150 and tighter toward 801; LOWER
+         it for the reverse. Changing the slope re-tilts the whole band, so
+         re-render and re-measure if you touch it.
+     Scoped to this band only; the >1150 (CTA visible) and <=800 (hamburger)
+     states are untouched. */
+  .nav-links { margin-right: max(0px, 0.108 * 100vw - 3px); }
+}
+
+
 /* Nav collapses to hamburger at <=1024px (per OneForm reference) */
-@media (max-width: 1024px) {
+@media (max-width: 800px) {
   .nav {
     background: var(--white);
     border-bottom: 1px solid #E3E9EF;

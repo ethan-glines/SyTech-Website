@@ -6,7 +6,7 @@
 <title>Data Migration &mdash; SyTech Solutions</title>
 <meta name="description" content="Move records out of legacy systems and into the Microsoft 365 tenant your agency already owns &mdash; with taxonomy, retention, permissions, and audit trail preserved."/>
 <link rel="stylesheet" href="assets/css/sytech-shared.css">
-<link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.0.3/src/regular/style.css">
+<link rel="stylesheet" href="assets/css/phosphor.css">
 <style>
 /* === Per-page accent (COPPER family recolor 2026-06-23) ===
    Organize family color = Copper #C2683A. Recolored from slate-violet #473C7A to match the
@@ -1140,10 +1140,10 @@
   (function() {
     var triggers = document.querySelectorAll('.nav-mega-trigger');
     if (!triggers.length) return;
-    var mqMobile = window.matchMedia('(max-width: 1024px)');
-    // Condensed desktop band (1025-1440px). Ceiling MUST match the CSS
+    var mqMobile = window.matchMedia('(max-width: 800px)');
+    // Condensed desktop band (801-1440px). Ceiling MUST match the CSS
     // media query in assets/css/sytech-shared.css (media queries can't read a JS var).
-    var mqBand = window.matchMedia('(min-width: 1025px) and (max-width: 1440px)');
+    var mqBand = window.matchMedia('(min-width: 801px) and (max-width: 1440px)');
 
     Array.prototype.forEach.call(triggers, function(trigger) {
       var megaLi = trigger.closest('.nav-has-mega');

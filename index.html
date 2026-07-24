@@ -2775,13 +2775,13 @@ html { scrollbar-gutter: stable; }
 
    Flat item order (matches DOM order exactly — no reflow needed):
      Home / About / Services / Who We Serve / White Papers /
-     Downloads / Contact
+     IT Deep Dive / Media / Downloads / Contact
    - SERVICES  = single plain link to services.html (the 7 sub-page links
      in its mega panel are hidden on mobile).
    - RESOURCES group is FLATTENED: its trigger row is CSS-hidden (Resources
-     has no standalone page), and its two children (White Papers, Downloads)
-     surface as their own top-level flat rows. NO "Resources" label — this
-     keeps the list to Ethan's exact 7 items and needs no DOM reorder.
+     has no standalone page), and its four children (White Papers, IT Deep
+     Dive, Media, Downloads) surface as their own top-level flat rows. NO
+     "Resources" label — this needs no DOM reorder.
 
    The accordion toggle JS is neutralized at <=800px in the inline nav
    script (see NAV block) so no row has a tap-to-expand handler; taps on a
@@ -2959,6 +2959,8 @@ html { scrollbar-gutter: stable; }
           <div class="mega-inner">
             <ul class="mega-simple-list" role="list">
               <li><a href="white-papers.html">White Papers</a></li>
+              <li><a href="it-deep-dive.html">IT Deep Dive</a></li>
+              <li><a href="media.html">Media</a></li>
               <li><a href="downloads.html">Downloads</a></li>
             </ul>
           </div>

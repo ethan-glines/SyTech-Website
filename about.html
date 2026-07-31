@@ -231,6 +231,10 @@
                                           strict A/B/A/B) leave a clean same-side gap (~30–45px at desktop
                                           widths) with no card-to-card or card-to-tech-pill overlap. */
   --htl-h: 740px;                      /* above-zone (340) + below-zone (400); JS tightens to exact fit */
+  /* HOVER-EXPAND (2026-07-29): collapsed vs expanded slate-pill widths (uniform among pills). Feel knobs.
+     Only consumed inside the desktop hover-gate media query below; mobile/touch pills keep natural width. */
+  --htl-wn-w:     84px;                 /* collapsed pill width (year + short name only) */
+  --htl-wn-w-exp: 188px;               /* expanded pill width (adds "+N yrs" tag + significance line) */
   margin: 2.5rem 0 0.5rem;
   /* Batch 4: lock text-selection/long-press-copy across the whole graphic; keep an arrow
      cursor (not the text I-beam). Clickable stage nodes keep cursor:pointer via the more
@@ -384,8 +388,11 @@
   color: var(--htl-navy); overflow: visible;          /* dark text on the light chip (AA on the navy hero) */
 }
 .htl-date .htl-plate-body { background: #E8EEF6; border-radius: 999px; }   /* light chip on navy */
-.htl-date .htl-bevel { border-radius: 999px 999px 0 0;
-  background: linear-gradient(rgba(255,255,255,0.6), transparent); }
+.htl-date .htl-bevel { display: none;   /* Ethan 2026-07-31 (round 2): removed the thin white top-edge
+  light-catch on the YEAR PILLS too — same fix as the message cards below. Was a 1px gradient
+  (rgba(255,255,255,0.6)→transparent) that lit on stage-hover and read as a detached highlight line
+  above the pills. The <span class="htl-bevel"> stays in the DOM; it just renders nothing.
+  Prior rule (removed): border-radius:999px 999px 0 0; background:linear-gradient(rgba(255,255,255,0.6),transparent); */ }
 .htl-date-num { position: relative; z-index: 1; }   /* numeral only — was `.htl-date > span`, which also matched
   `.htl-plate-body`/`.htl-bevel` and collapsed the pill (specificity 0,1,1 beat the plate-body rule → 0×0 chip) */
 
@@ -410,8 +417,12 @@
   border-radius: 11px;
   box-shadow: 0 8px 24px rgba(0,0,0,0.30);       /* deeper resting shadow so white cards float on navy */
 }
-.htl-card .htl-bevel { border-radius: 11px 11px 0 0;
-  background: linear-gradient(rgba(255,255,255,0.85), transparent); }
+.htl-card .htl-bevel { display: none; }   /* Ethan 2026-07-31: removed the 1px top-edge light-catch on the
+  white message CARDS. On stage-hover every card's bevel lit (opacity 0→1) at once, and the bright 1px white
+  line at top:0 read as a detached highlight stroke floating above the card on the navy bg. Card top is now
+  clean. The <span class="htl-bevel"> stays in the DOM (untouched); it just renders nothing on the cards.
+  Date-pill bevel (.htl-date .htl-bevel) was ALSO removed round 2 (2026-07-31) — see that rule above.
+  Everything else (fill, size, position, drop-shadow depth, dashed draft borders, plate lift) is unchanged. */
 .htl-title {
   position: relative; z-index: 1;
   font-size: 0.94rem; font-weight: 700; line-height: 1.2;
@@ -497,7 +508,7 @@
 }
 .htl-draft-flag {
   position: relative; z-index: 1;
-  display: block; margin: 0 0 0.4rem;
+  display: none; margin: 0 0 0.4rem;   /* flag text hidden per Ethan (dashed draft border kept) */
   font-size: 0.55rem; font-weight: 700; letter-spacing: 0.09em;
   text-transform: uppercase; color: #8A5F16;   /* deep brass — ~5.7:1 on the white card (AA), not the
                                                    lighter --htl-brass #B8801F which is only ~3.5:1 */
@@ -687,6 +698,88 @@
 
 /* Entrance fade is a GSAP-only enhancement (motion branch). Default = fully visible,
    so the no-JS / reduced-motion / mobile poster is never hidden. */
+
+/* ============================================================
+   COLLAPSE → EXPAND ON HOVER/FOCUS  (Ethan 2026-07-29) — DESKTOP HOVER DEVICES ONLY
+   ------------------------------------------------------------
+   Gate: @media (hover:hover) and (pointer:fine) and (min-width:901px).
+   The min-width:901px pin keeps this OUT of the ≤900px mobile-reflow band even on a
+   hover-capable narrow desktop window — so touch / no-hover / ≤900px keep the CURRENT
+   behavior EXACTLY (full descriptions visible, tiles as they were).
+   MODEL:
+     - AT REST every tile shows its TITLE ONLY. Story-card .htl-detail and the pill
+       .htl-wn-sig / .htl-wn-tag are CLIPPED (max-height/opacity/overflow — NOT display:none),
+       so screen readers + no-JS + reduced-motion still reach the full text.
+     - ON hover OR keyboard focus the tile EXPANDS to reveal the description AND raises its
+       z-index so it pops ON TOP of neighbors (neighbors never move — no reflow).
+     - The stage ZONES stay sized to the EXPANDED tile (JS measures with .htl-measuring), so
+       a card that expands has reserved room and is NEVER clipped by the stage or the hero.
+       At rest the collapsed tiles hug the spine; the reserved room is outer air top+bottom.
+   Pure-CSS :hover/:focus-within so it works with NO JS; JS only supplies exact heights/widths.
+   ============================================================ */
+@media (hover: hover) and (pointer: fine) and (min-width: 901px) {
+
+  /* ---- story cards: title-only at rest, description on hover/focus ---- */
+  /* Better no-JS collapsed floor than the base 195px (JS overrides with the exact uniform
+     collapsed height via inline min-height). */
+  .htl-card { min-height: 58px; }
+
+  .htl-card .htl-detail {
+    max-height: 0; opacity: 0; overflow: hidden;
+    transition: max-height 360ms cubic-bezier(.22,1,.36,1), opacity 240ms ease;
+  }
+  .htl-node:hover .htl-detail,
+  .htl-node:focus-within .htl-detail {
+    max-height: var(--htl-detail-h, 320px);   /* JS sets the exact px (detail scrollHeight); 320 = safe fallback */
+    opacity: 1;
+  }
+  /* MEASURING pass (JS toggles .htl-measuring on the stage): force the full text open so
+     lane heights read at their EXPANDED size for zone reservation. Specificity (0,3,0) beats
+     the collapse rule (0,2,0); measuring never coincides with :hover so no !important needed. */
+  .htl-stage.htl-measuring .htl-detail { max-height: none; opacity: 1; }
+
+  /* keep the DRAFT signalling visible while collapsed (only the body hides) — the .htl-draft-flag
+     and dashed .htl-card-body border already render at rest; nothing to hide here. */
+
+  /* ---- tech-world slate pills: "year + name" at rest, significance + "+N yrs" on hover/focus ---- */
+  .htl-wn-pill {
+    width: var(--htl-wn-w);                    /* uniform collapsed pill width */
+    transition: width 360ms cubic-bezier(.22,1,.36,1),
+                background 240ms ease, border-color 240ms ease, box-shadow 240ms ease;
+  }
+  .htl-wn-tag { display: none; }               /* "+N yrs" moves into the expanded state */
+  .htl-wn-sig {
+    display: block; width: 100%;
+    max-height: 0; opacity: 0; overflow: hidden; margin-top: 0;
+    font-size: 0.5rem; line-height: 1.28; color: rgba(255,255,255,0.72);
+    text-wrap: pretty;
+    transition: max-height 360ms cubic-bezier(.22,1,.36,1),
+                opacity 240ms ease, margin-top 360ms cubic-bezier(.22,1,.36,1);
+  }
+  .htl-wn:hover .htl-wn-pill,
+  .htl-wn:focus-within .htl-wn-pill { width: var(--htl-wn-w-exp); }
+  .htl-wn:hover .htl-wn-tag,
+  .htl-wn:focus-within .htl-wn-tag { display: inline; }
+  .htl-wn:hover .htl-wn-sig,
+  .htl-wn:focus-within .htl-wn-sig {
+    max-height: var(--htl-sig-h, 6em); opacity: 1; margin-top: 4px;
+  }
+  /* MEASURING pass — open the pill to expanded width + full sig so JS can read --htl-sig-h. */
+  .htl-stage.htl-measuring .htl-wn-pill { width: var(--htl-wn-w-exp); }
+  .htl-stage.htl-measuring .htl-wn-tag  { display: inline; }
+  .htl-stage.htl-measuring .htl-wn-sig  { max-height: none; opacity: 1; margin-top: 4px; }
+
+  /* ---- POP ON TOP: the hovered/focused tile raises above its neighbors (neighbors do NOT move) ---- */
+  .htl-node { z-index: 2; }                    /* establish a base so the raise is deterministic */
+  .htl-node:hover, .htl-node:focus-within { z-index: 30; }
+  .htl-wn:hover,   .htl-wn:focus-within   { z-index: 30; }   /* .htl-wn base z-index:2 already set */
+}
+
+/* Reduced motion on a hover desktop: KEEP collapse/expand (title-only at rest, reveal on hover)
+   but make the reveal INSTANT — no animation. */
+@media (prefers-reduced-motion: reduce) {
+  .htl-detail, .htl-wn-pill, .htl-wn-sig { transition: none !important; }
+}
 
 /* ============ MOBILE REFLOW ≤900px — vertical stack, no horizontal hijack ============ */
 @media (max-width: 900px) {
@@ -1170,7 +1263,7 @@
              off Today's 87% via BASE_PCT), so all spreading happens in the interior. New dot order L→R:
                2000(6) 2002(15) 2005(23) [AWS 2006 @26] 2008(34) [Azure 2010 @37] 2010s(45)
                [O365 2011 @48] [Cloud First 2011 @53] 2013(56) 2015(61) [SharePoint 2016 @66] 2019(72)
-               2021(78) [AI 2023 @82] Today(87).
+               2021(78) [AI 2023 @80] Today(87).
              The four collision pairs that touched pre-ITER-8 — Azure/2010s, 2010s/CloudFirst (the top-heavy
              sandwich), AWS/2008, and O365/2013 — are each now a full 8% apart (chip-to-pill). The two genuine
              same-year 2011s (O365 @48 below, Cloud First @53 above) stay a TIGHT PAIR on OPPOSITE lanes (5%,
@@ -1189,6 +1282,7 @@
           <div class="htl-wn-pill">
             <span class="htl-wn-top"><span class="htl-wn-yr">2006</span><span class="htl-wn-tag">+4 yrs</span></span>
             <span class="htl-wn-lbl">AWS</span>
+            <span class="htl-wn-sig">The modern cloud everyone now uses started here. SyTech had already built in the cloud 4 years earlier.</span>
           </div>
         </div>
         <div class="htl-wn htl-wn--above" data-seq="5" style="--x:37%;">
@@ -1196,6 +1290,7 @@
           <div class="htl-wn-pill">
             <span class="htl-wn-top"><span class="htl-wn-yr">2010</span><span class="htl-wn-tag">+8 yrs</span></span>
             <span class="htl-wn-lbl">Azure</span>
+            <span class="htl-wn-sig">Microsoft's own cloud arrives 8 years after SyTech's first cloud build.</span>
           </div>
         </div>
         <div class="htl-wn htl-wn--below" data-seq="7" style="--x:48%;">
@@ -1203,6 +1298,7 @@
           <div class="htl-wn-pill">
             <span class="htl-wn-top"><span class="htl-wn-yr">2011</span><span class="htl-wn-tag">+9 yrs</span></span>
             <span class="htl-wn-lbl">Office 365</span>
+            <span class="htl-wn-sig">The office tools agencies live in finally move to the cloud, 9 years after SyTech.</span>
           </div>
         </div>
         <div class="htl-wn htl-wn--above" data-seq="8" style="--x:53%;">
@@ -1210,6 +1306,7 @@
           <div class="htl-wn-pill">
             <span class="htl-wn-top"><span class="htl-wn-yr">2011</span><span class="htl-wn-tag">+9 yrs</span></span>
             <span class="htl-wn-lbl">Cloud First</span>
+            <span class="htl-wn-sig">The federal government mandates cloud, 9 years after SyTech was already there.</span>
           </div>
         </div>
         <div class="htl-wn htl-wn--below" data-seq="11" style="--x:66%;">
@@ -1217,13 +1314,15 @@
           <div class="htl-wn-pill">
             <span class="htl-wn-top"><span class="htl-wn-yr">2016</span></span>
             <span class="htl-wn-lbl">SharePoint</span>
+            <span class="htl-wn-sig">SharePoint modernizes and becomes the platform SyTech's practice is built on.</span>
           </div>
         </div>
-        <div class="htl-wn htl-wn--below" data-seq="14" style="--x:82%;">
+        <div class="htl-wn htl-wn--below" data-seq="14" style="--x:80%;">
           <span class="htl-wn-dot"></span><span class="htl-wn-stem"></span>
           <div class="htl-wn-pill">
             <span class="htl-wn-top"><span class="htl-wn-yr">2023</span></span>
             <span class="htl-wn-lbl">AI</span>
+            <span class="htl-wn-sig">AI reaches everyday office tools, and SyTech is early again.</span>
           </div>
         </div>
 
@@ -1638,14 +1737,43 @@
     }
   }
 
-  function fitStage(){
-    if (window.matchMedia && window.matchMedia('(max-width: 900px)').matches){
-      clearCardHeights();                        // no equal-height on the phone stack (natural heights)
-      wrap.style.removeProperty('--htl-spine-y');
-      wrap.style.removeProperty('--htl-h');
-      return;
+  // ---- HOVER-EXPAND HELPERS (2026-07-29) --------------------------------------------------
+  // Media gate MUST match the CSS collapse block: (hover:hover)+(pointer:fine)+(min-width:901px).
+  // Evaluated fresh in fitStage so a resize across the 900px line re-picks the right regime.
+  function hoverExpandActive(){
+    return !!(window.matchMedia &&
+      window.matchMedia('(hover: hover) and (pointer: fine) and (min-width: 901px)').matches);
+  }
+  // Per-detail --htl-detail-h = the collapsed detail's scrollHeight (accurate at rest: max-height
+  //   clips the RENDERED height but the element's WIDTH is unchanged, so scrollHeight is the true
+  //   expanded content height). +8 buffer so the last line never clips at the expanded max-height.
+  function measureDetailVars(){
+    var ds = stage.querySelectorAll('.htl-detail');
+    for (var i = 0; i < ds.length; i++){
+      ds[i].style.setProperty('--htl-detail-h', (ds[i].scrollHeight + 8) + 'px');
     }
-    equalizeCards();                             // EQUALIZE first, THEN size the stage from the now-uniform lanes
+  }
+  // Uniform COLLAPSED story cards: set min-height ONLY (never a fixed height) = the tallest collapsed
+  //   card, so every tile rests at the same title-only height but STILL grows on hover to reveal the
+  //   description. Reset to natural + neutralize the CSS floor before measuring (same ratchet guard as
+  //   equalizeCards) so the max is recomputed from TRUE collapsed heights each pass, never inflated.
+  function equalizeCollapsedCards(){
+    var maxH = 0, i;
+    for (i = 0; i < cardEls.length; i++){ cardEls[i].style.height = ''; cardEls[i].style.minHeight = '0px'; }
+    for (i = 0; i < cardEls.length; i++){ var h = cardEls[i].offsetHeight; if (h > maxH) maxH = h; }
+    if (!maxH){ for (i = 0; i < cardEls.length; i++){ cardEls[i].style.minHeight = ''; } return; }
+    for (i = 0; i < cardEls.length; i++){ cardEls[i].style.minHeight = maxH + 'px'; }
+  }
+  // Per-sig --htl-sig-h — MUST run while .htl-measuring is on (pill forced to expanded width) so the
+  //   significance line wraps at its real expanded width and scrollHeight is correct.
+  function measureSigVars(){
+    var ss = stage.querySelectorAll('.htl-wn-sig');
+    for (var i = 0; i < ss.length; i++){
+      ss[i].style.setProperty('--htl-sig-h', (ss[i].scrollHeight + 6) + 'px');
+    }
+  }
+  // Size the stage zones from the current lane heights (extracted so both regimes reuse it).
+  function sizeZonesFromLanes(){
     var STEM = 30, CLEAR = 40, aboveMax = 0, belowMax = 0;   // STEM matches --htl-stem (30); CLEAR = outer breathing room
     laneNodes.forEach(function(el){
       var lane = el.querySelector('.htl-lane');
@@ -1659,6 +1787,35 @@
     var belowZone = STEM + belowMax + CLEAR;
     wrap.style.setProperty('--htl-spine-y', aboveZone + 'px');
     wrap.style.setProperty('--htl-h', (aboveZone + belowZone) + 'px');
+  }
+
+  function fitStage(){
+    if (window.matchMedia && window.matchMedia('(max-width: 900px)').matches){
+      clearCardHeights();                        // no equal-height on the phone stack (natural heights)
+      wrap.style.removeProperty('--htl-spine-y');
+      wrap.style.removeProperty('--htl-h');
+      return;
+    }
+    if (hoverExpandActive()){
+      // HOVER-DESKTOP REGIME: uniform COLLAPSED cards at rest, but reserve room for the EXPANDED tile
+      //   so a hover-expanded card is never clipped by the stage/hero. Steps:
+      //   1) measure per-detail expanded heights (accurate while collapsed),
+      //   2) equalize the collapsed cards (min-height only → still expandable),
+      //   3) with .htl-measuring forcing every detail + sig OPEN, measure per-sig heights and size the
+      //      zones from the now-EXPANDED lanes, then drop the measuring class (add→measure→remove is
+      //      synchronous in one frame, so no flash).
+      measureDetailVars();
+      equalizeCollapsedCards();
+      stage.classList.add('htl-measuring');
+      measureSigVars();
+      sizeZonesFromLanes();                      // reading offsetHeight forces the measuring reflow
+      stage.classList.remove('htl-measuring');
+      return;
+    }
+    // NON-HOVER DESKTOP (e.g. a wide touch panel): CURRENT behavior — details always visible, every
+    //   card equalized to the tallest, zones sized from those full lanes.
+    equalizeCards();
+    sizeZonesFromLanes();
   }
   fitStage();
   window.addEventListener('resize', fitStage, { passive: true });

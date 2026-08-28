@@ -4,7 +4,7 @@
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>SyTech Solutions — Records Management Problems Solved</title>
-<meta name="description" content="SyTech Solutions helps public agencies organize, unify, and scale their records using the cloud they already own. 25+ years in the public sector. 10.7M records under management."/>
+<meta name="description" content="SyTech Solutions helps public agencies organize, unify, and scale records using the cloud they already own. Since 2000, more than 500 public agencies served."/>
 <meta name="robots" content="index, follow"/>
 <link rel="stylesheet" href="assets/css/sytech-shared.css">
 <style>
@@ -71,6 +71,27 @@ html { scrollbar-gutter: stable; }
   letter-spacing: -0.01em;
 }
 .hero-copy h1 span { color: var(--gold); }
+/* [V8 — ETHAN 2026-08-27] Trademark glyph. ONE treatment shared by every mark on
+   the page (hero h1, framework subline x2 desktop + mobile, footer tagline —
+   [V8.3] the Challenge Band bridge head was removed, so its two marks are gone
+   with it) so all of them read identically at any size. Subordinate to
+   the phrase it follows: 0.55em, raised to sit near the cap line. The raise uses
+   position:relative + top (NOT vertical-align) so it can never grow the line box of
+   a clamp()-sized headline; line-height:0 keeps it out of the line box entirely.
+   Colour and weight INHERIT, so inside .hero-copy h1 span it picks up the gold and
+   inside the navy band it picks up the band colour — no per-instance overrides.
+   NOTE: the glyph is left glued to the phrase with no space; there is no line-break
+   opportunity between the phrase and the glyph, so it cannot orphan onto its own
+   line. Screen readers announce it once as "trademark" via role/aria-label rather
+   than the raw "trade mark sign" (or nothing at all, depending on the SR). */
+.syt-tm {
+  font-size: 0.55em;
+  line-height: 0;
+  position: relative;
+  top: -0.55em;             /* = 0.3025em of the parent — lands at cap height */
+  letter-spacing: 0;
+  font-weight: inherit;
+}
 .hero-copy p {
   font-size: 1.1rem; line-height: 1.7; color: rgba(255,255,255,0.8);
   margin-bottom: 2rem; max-width: 480px;
@@ -799,6 +820,11 @@ html { scrollbar-gutter: stable; }
   position: relative;
   font-size: clamp(1.05rem, 1.6vw, 1.2rem);
   font-weight: 400;
+  /* [V8 — ETHAN 2026-08-27] ITALIC. The couplet is now stacked with nothing
+     between it, so the two lines need a treatment difference to read as
+     setup -> answer rather than one run-on statement. Italic (light, 400) sets
+     up; the bold .cb-closing-turn below lands. */
+  font-style: italic;
   line-height: 1.5;
   color: var(--soft-white);
   display: block;
@@ -821,11 +847,197 @@ html { scrollbar-gutter: stable; }
 }
 .cb-closing-turn {
   display: block;
-  margin-top: 0.5rem;
+  /* was 0.5rem — tightened so the italic lead and this line read as ONE
+     couplet, not two separate statements. */
+  margin-top: 0.28rem;
   font-size: clamp(1.15rem, 1.9vw, 1.4rem);
   font-weight: 700;
   line-height: 1.4;
   color: var(--white);   /* brightest/heaviest text in the band */
+}
+
+/* ============================================================
+   [V8] .cb-intro / .cb-bridge — RULED BY COLE
+   These shipped PROVISIONAL because the previous spec listed them out of
+   scope. Cole ruled on them in the vertical-straddle spec §6 (B14):
+   .cb-intro and .cb-bridge are RATIFIED with named refinements.
+   The trademark mark that briefly lived between them (.cb-closing-tm, then the
+   .cb-bridge-head lockup) is REMOVED ENTIRELY — Ethan, 2026-08-27, after a
+   browser review. See the removal note above .cb-bridge below.
+   Gold was WITHHELD from this band (design principles §18.3) apart from the
+   closing hairline; the "See more" control below is the one authorised
+   exception, because Ethan asked for the framework button verbatim.
+   ============================================================ */
+.cb-intro {
+  font-size: clamp(1rem, 1.5vw, 1.1rem);   /* ratified */
+  font-weight: 400;                        /* ratified */
+  line-height: 1.65;                       /* was 1.7 — 1.7 is loose under a headline */
+  color: rgba(255, 255, 255, 0.82);        /* ratified — 8.92:1 on the band, AAA */
+  max-width: 60ch;                         /* was 62ch — holds under 75 eff chars */
+  margin: 1.15rem auto 0;                  /* was 1.25rem — tightens to the headline */
+  text-wrap: pretty;
+}
+/* [V8.3 — ETHAN 2026-08-27, browser review] THE TWO-MARK LOCKUP IS REMOVED.
+   .cb-bridge-head / .cb-bridge-mark / .cb-bridge-turn and the
+   `.cb-bridge-head + .cb-bridge` adjacency override are DELETED, not commented
+   out, so nobody has to work out later whether they are live. Both marks came
+   out together at his instruction: "from Complexity to Clarity™" and "Moving
+   Records & Data Forward—One Practical Step at a Time.™".
+   CONSEQUENCE, on the record: "Moving Records & Data Forward" no longer appears
+   anywhere on this page, and "from complexity to clarity™" now survives ONLY in
+   the footer tagline, which is untouched.
+   .cb-bridge keeps its own ratified 2.25rem top margin, which is what the
+   deleted adjacency rule used to suppress — so the paragraph now sits on the
+   same air it had before the header was ever introduced. */
+.cb-bridge {
+  /* ONE source of truth for the line grid. Both the collapsed height and the
+     mask stops below are expressed in these two numbers, so the "two visible
+     lines" rule is defined in LINE BOXES, never in pixels. */
+  --cb-bridge-lh: 1.65;                        /* was 1.7 */
+  --cb-bridge-lines: 3;                        /* 2 fully visible + 1 that fades out */
+  font-size: clamp(0.95rem, 1.4vw, 1.05rem);  /* ratified */
+  font-weight: 400;                            /* ratified */
+  line-height: var(--cb-bridge-lh);
+  color: rgba(255, 255, 255, 0.78);            /* ratified — 8.23:1, AAA */
+  max-width: 64ch;                             /* was 68ch */
+  margin: 2.25rem auto 0;                      /* was 2.5rem */
+  /* Stays CENTRED on purpose: every other element in this band is centred on one
+     axis, and breaking that axis for one paragraph would read as a mistake. The
+     measure is tightened instead. */
+  text-align: center;
+  text-wrap: pretty;
+}
+
+/* ---- [V8.3] BRIDGE PARAGRAPH: FADE + "SEE MORE" -------------------------
+   ETHAN, 2026-08-27: "Have the first two lines be visible, then the third line
+   fades away, and add a 'see more' button below it."
+
+   This is DELIBERATELY the same control the framework steps ship one section
+   below (.step-more-btn): same gold pill, same border/fill/radius/weight/
+   tracking, same gold caret, same 0.25s cubic-bezier(0.4,0,0.2,1) transitions,
+   same "See more" / "See less" label pair. Two differences, both intentional:
+     1. It expands IN PLACE. The framework's floating window exists only to
+        clear the amber line; there is no line here, so a window would be an
+        invention rather than a sibling.
+     2. Everything is CENTRED, because every element in this band is centred on
+        one axis and the paragraph itself is centred text.
+
+   HOW "TWO VISIBLE LINES" HOLDS AT EVERY WIDTH — no pixel heights anywhere.
+   The collapsed box is `--cb-bridge-lines x --cb-bridge-lh x 1em` and the mask
+   stops sit on the SAME em grid. font-size is a clamp() and line-height is
+   unitless, so `em` tracks both: at 1440px the paragraph is 6 lines and at
+   360px it is ~14, and in both cases the box is exactly three line boxes tall
+   with the fade starting exactly at the top of line 3. A px max-height would
+   have silently shown 1.5 lines or 4 lines the moment the copy rewrapped.
+
+   THE FADE IS NEVER A CUT. Opaque through 2.04 lines (line 2's descenders are
+   safely inside the solid zone), fully transparent by 2.90 lines — i.e. the
+   last ~0.10 of a line is guaranteed empty, so the box bottom edge can never
+   clip a glyph. Line 3 therefore starts at ~87% and dissolves to 0 across its
+   own height.
+
+   FALLBACKS. The clamp lives on `.is-clamped`, which ships in the HTML so there
+   is no flash of full copy on load, and a <noscript> block beside the markup
+   un-clamps it — if JS never runs, the whole paragraph is simply visible and
+   the button is hidden. The copy is ALWAYS in the DOM and never aria-hidden,
+   exactly the call made on the framework panels: a mask and an overflow clip
+   are visual only, screen readers get the full paragraph either way. */
+.cb-bridge-block.is-clamped .cb-bridge {
+  overflow: hidden;
+  transition: max-height 0.42s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.cb-bridge-block.is-clamped:not(.is-open) .cb-bridge {
+  max-height: calc(var(--cb-bridge-lines) * var(--cb-bridge-lh) * 1em);
+  -webkit-mask-image: linear-gradient(to bottom,
+      #000 0,
+      #000 calc(2.04 * var(--cb-bridge-lh) * 1em),
+      transparent calc(2.90 * var(--cb-bridge-lh) * 1em),
+      transparent 100%);
+          mask-image: linear-gradient(to bottom,
+      #000 0,
+      #000 calc(2.04 * var(--cb-bridge-lh) * 1em),
+      transparent calc(2.90 * var(--cb-bridge-lh) * 1em),
+      transparent 100%);
+}
+/* The rail. flex + justify-content:center keeps the pill on the paragraph's own
+   centred axis at every width; the pill keeps its fit-content width. */
+.cb-bridge-more-row {
+  /* Hidden unless the clamp is actually in force, so the button can never sit
+     under an already-complete paragraph promising more. `.is-clamped` ships in
+     the markup, and the <noscript> block strips this row when JS is off. */
+  display: none;
+  margin: 1.05rem auto 0;
+  max-width: 64ch;               /* same measure as the paragraph it belongs to */
+  justify-content: center;
+}
+.cb-bridge-block.is-clamped .cb-bridge-more-row { display: flex; }
+/* Styled AT REST (real border + real fill) — never hover-only, so it is an
+   obvious control on a touch screen and to anyone who never hovers. */
+.cb-bridge-more-btn {
+  display: flex;
+  width: -moz-fit-content;
+  width: fit-content;
+  align-items: center;
+  gap: 0.4rem;
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0.42rem 0.9rem;
+  border: 1px solid rgba(229,166,48,0.55);
+  border-radius: 999px;
+  background: rgba(229,166,48,0.10);
+  color: var(--white);
+  font-family: inherit;
+  font-weight: 700;
+  /* ~12-13.6px, matching the framework pill's calc(var(--step-u) * 0.80) range
+     (--step-u resolves 15-17px). --step-u is scoped to the framework section, so
+     it is re-expressed here rather than borrowed. */
+  font-size: clamp(0.75rem, 1.05vw, 0.85rem);
+  line-height: 1.1;
+  letter-spacing: 0.02em;
+  cursor: pointer;
+  -webkit-appearance: none;
+          appearance: none;
+  transition: background 0.25s cubic-bezier(0.4, 0, 0.2, 1),
+              border-color 0.25s cubic-bezier(0.4, 0, 0.2, 1),
+              color 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+/* Same gold caret as the framework pill — "there is more below" before it is
+   read. It flips to point up in the open state, which is the only styling this
+   control adds over its sibling (the framework's caret never needs to, because
+   its window replaces the button rather than re-labelling it). */
+.cb-bridge-more-btn::after {
+  content: '';
+  width: 0; height: 0;
+  border-left: 4px solid transparent;
+  border-right: 4px solid transparent;
+  border-top: 5px solid var(--gold);
+  transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.cb-bridge-block.is-open .cb-bridge-more-btn::after { transform: rotate(180deg); }
+@media (hover: hover) and (pointer: fine) {
+  .cb-bridge-more-btn:hover {
+    background: rgba(229,166,48,0.24);
+    border-color: var(--gold);
+    color: var(--white);
+  }
+}
+.cb-bridge-more-btn:focus-visible {
+  outline: none;
+  border-color: var(--gold);
+  box-shadow: 0 0 0 3px rgba(229,166,48,0.45);
+}
+/* REDUCED MOTION — Ethan's call was left to me, so: the DISCLOSURE STAYS (it is
+   content structure, not motion) and only the movement goes. Expand/collapse is
+   instantaneous, the caret does not swing, and the static mask gradient remains
+   — a gradient is not an animation, and dropping it would hand this cohort a
+   hard clipped edge, which is the one thing the fade exists to avoid. Everyone
+   sees the same layout and reaches the same copy; nothing moves. */
+@media (prefers-reduced-motion: reduce) {
+  .cb-bridge-block.is-clamped .cb-bridge,
+  .cb-bridge-more-btn,
+  .cb-bridge-more-btn::after {
+    transition: none;
+  }
 }
 
 /* Challenge Band animation (single-fire, gated for reduced motion).
@@ -888,7 +1100,7 @@ html { scrollbar-gutter: stable; }
   margin-right: 2px;
 }
 
-/* T3 STRUCTURE — chip 5 ("A stack of separate subscriptions"): KEEPS its
+/* T3 STRUCTURE — chip 5 ("Overlapping software and subscriptions"): KEEPS its
    breathing dot AND gains a compact recurring-cost signal after the label —
    a renew-loop glyph + a LIVE, continuously CLIMBING dollar counter (the
    "money meter that never stops"). The figure is ILLUSTRATIVE only (NO real
@@ -942,91 +1154,150 @@ html { scrollbar-gutter: stable; }
 }
 
 /* ============================================================
-   FAULT TOOLTIP LAYER (v7 EGUSD) — hover/focus/tap comment per chip
-   A small navy popup fades+rises ABOVE the hovered chip with a short
-   fault message. Color-matched: a 3px LEFT accent in THAT chip's
-   --status hue; text stays soft-white (the accent carries the fault
-   hue, the message stays legible for AA). Layered ON TOP — does NOT
-   touch the slide-in / grid / float / dot / spinner / cost treatments.
+   CHIP DISCLOSURE LAYER (v8) — replaces the v7 FAULT TOOLTIP LAYER
+   Was: a small navy popup that fades+rises ABOVE the hovered chip with a
+   2-3 WORD fault message, revealed by :hover / :focus-within on desktop
+   and a touch-only tap-toggle in JS.
+   Now: a 2-3 SENTENCE click/tap disclosure in ONE shared panel below the
+   chip grid, identical on every device. See the full rationale below.
+   Layered ON TOP — does NOT touch the slide-in / grid / float / dot /
+   spinner / cost treatments. Uniquely namespaced. */
+/* [V8 CHIP DISCLOSURE — spec §5 / A8] The 2-3 WORD hover tooltip is RETIRED and
+   replaced by a 2-3 SENTENCE click/tap disclosure that works on EVERY device.
+   Bryan asked for descriptions, and three sentences is far too much content to
+   appear on hover and vanish on mouse-out — and on touch there is no hover at all.
 
-   CLIPPING: .challenge-band keeps overflow:hidden (load-bearing for the
-   ±62vw slide-in). Every chip has ample vertical room ABOVE it inside
-   the band (header sits above the top row; a 2.5rem row-gap sits above
-   the bottom row), so ALL tooltips sit ABOVE with a downward caret and
-   none reach the band's top edge — no chip needs to flip below. The
-   hovered/focused/open chip is raised (z-index) so its tooltip paints
-   above sibling chips (each chip has its own transform stacking ctx).
-   Tooltips are position:absolute (out of flow) + visibility:hidden when
-   closed, so they never shift chip layout. Uniquely namespaced. */
-.cb-tip {
-  position: absolute;
-  bottom: calc(100% + 9px);
-  left: 50%;
-  transform: translateX(-50%) translateY(4px);
-  z-index: 5;
-  white-space: nowrap;
-  padding: 0.42rem 0.72rem;
-  background: #0e1b2e;                       /* deep navy, sits above the band */
-  color: var(--soft-white);                  /* legible message, NOT the fault hue */
-  border: 1px solid rgba(255, 255, 255, 0.10);
-  border-left: 3px solid var(--status);      /* color-matched to THIS chip's fault hue */
-  border-radius: 6px;
-  font-size: 0.78rem;
-  font-weight: 600;
-  line-height: 1.2;
-  letter-spacing: 0.01em;
-  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.45);
-  opacity: 0;
-  visibility: hidden;
-  pointer-events: none;                      /* never intercepts; layout never shifts */
-  transition: opacity 140ms ease-out,
-              transform 140ms ease-out,
-              visibility 0s linear 140ms;
+   WHY ONE SHARED PANEL AND NOT A POPOVER: three sentences is ~250px of panel.
+   .challenge-band keeps overflow:hidden and that clip is LOAD-BEARING for the
+   +/-62vw chip slide-in entrance, so a 250px popover above a top-row chip would
+   be clipped by the band's top edge. Removing the clip breaks the entrance.
+   So: ONE shared panel below the grid.
+
+   .cb-tip is KEPT IN THE DOM as the copy SOURCE (Reed's splice target is
+   unchanged) but is display:none; the JS reads its textContent into the panel.
+   The chips themselves NEVER move, resize or reflow when a panel opens — that is
+   what protects the felt-patchwork composition. */
+.cb-tip { display: none; }
+
+/* ---- Chip: hit target + affordance ----
+   An OVERLAY button, not a wrapper. Overlaying means chip 5's money meter keeps
+   its own role="img" label in the accessibility tree independently, while the
+   button's accessible name stays the clean chip label. */
+.cb-frag-hit {
+  position: absolute; inset: 0;
+  margin: 0; padding: 0;
+  background: none; border: 0;
+  border-radius: inherit;
+  cursor: pointer;
+  -webkit-appearance: none; appearance: none;
 }
-/* Down-caret pointing at the chip, in the tooltip's navy */
-.cb-tip::after {
-  content: '';
-  position: absolute;
-  top: 100%;
-  left: 50%;
-  transform: translateX(-50%);
-  border: 5px solid transparent;
-  border-top-color: #0e1b2e;
+.cb-frag-hit:focus { outline: none; }
+.cb-frag-hit:focus-visible {
+  outline: 2px solid var(--soft-white);   /* gold stays withheld in this band */
+  outline-offset: 4px;
 }
-/* Reveal on hover, keyboard focus, or tap-toggle (.is-open). Raise the
-   chip so its tooltip clears sibling chips' stacking contexts. */
-.challenge-band .cb-frag:hover,
-.challenge-band .cb-frag:focus,
-.challenge-band .cb-frag:focus-within,
-.challenge-band .cb-frag.is-open { z-index: 6; }
-.challenge-band .cb-frag:hover .cb-tip,
-.challenge-band .cb-frag:focus .cb-tip,
-.challenge-band .cb-frag:focus-within .cb-tip,
-.challenge-band .cb-frag.is-open .cb-tip {
-  opacity: 1;
-  visibility: visible;
-  transform: translateX(-50%) translateY(0);
-  transition: opacity 140ms ease-out,
-              transform 140ms ease-out,
-              visibility 0s;
+.cb-frag-chevron {
+  flex: 0 0 auto;
+  display: block;
+  margin-left: 0.15rem;
+  color: rgba(197, 205, 216, 0.72);   /* spec A11 — 3.69:1. Do NOT dim. */
+  transform: rotate(0deg);
+  transition: transform 260ms cubic-bezier(0.4, 0, 0.2, 1);
 }
-/* Intentional, on-brand focus ring (gold is withheld in this band) */
+/* .cb-frag svg sets color:var(--soft-white) at (0,1,1); this reclaims the
+   chevron's own 0.72 for its currentColor fill. */
+.cb-frag .cb-frag-chevron svg { color: inherit; }
+.cb-frag.is-open .cb-frag-chevron { transform: rotate(180deg); }
+.cb-frag.is-open { border-color: rgba(197, 205, 216, 0.42); }
+.cb-frag.is-open::before { opacity: 1; }   /* this chip's --status bar goes to full */
+/* Kept: on-brand focus ring if focus ever lands on the <li> itself. */
 .challenge-band .cb-frag:focus-visible {
   outline: 2px solid var(--soft-white);
   outline-offset: 3px;
 }
-/* Reduced motion: tooltip appears instantly, correctly positioned, no rise/fade */
+
+/* ---- The shared disclosure panel ----
+   grid-template-rows 0fr -> 1fr is the height-agnostic accordion: no measuring,
+   no inline max-height, and it animates correctly for any length of copy. */
+.cb-detail {
+  display: grid;
+  grid-template-rows: 0fr;
+  opacity: 0;
+  transition: grid-template-rows 280ms cubic-bezier(0.4, 0, 0.2, 1),
+              opacity 200ms ease;
+}
+.cb-detail.is-open {
+  grid-template-rows: 1fr;
+  opacity: 1;
+  /* 80ms opacity delay so the text does not smear during the expand */
+  transition: grid-template-rows 280ms cubic-bezier(0.4, 0, 0.2, 1),
+              opacity 220ms ease 80ms;
+}
+.cb-detail-inner {
+  overflow: hidden;
+  min-height: 0;
+  visibility: hidden;                       /* keeps collapsed content out of the tab order */
+  transition: visibility 0s linear 280ms;
+}
+.cb-detail.is-open .cb-detail-inner { visibility: visible; transition: visibility 0s; }
+.cb-detail-card {
+  position: relative;
+  max-width: 720px;
+  margin: 0 auto 2.5rem;
+  padding: 1.35rem 3rem 1.4rem 1.5rem;
+  background: #0e1b2e;
+  border: 1px solid rgba(255, 255, 255, 0.10);
+  /* The fault hue lives ONLY on this 3px edge, exactly as the retired tooltip
+     did. The message text stays soft-white for AA (10.76:1 on #0e1b2e); the
+     muted status hues run 3.4-3.8:1 and must never carry text. */
+  border-left: 3px solid var(--cb-detail-status, #B5564C);
+  border-radius: 10px;
+  box-shadow: 0 14px 34px rgba(0, 0, 0, 0.42);
+}
+.cb-detail-caret {
+  position: absolute;
+  bottom: 100%;
+  left: var(--cb-detail-arrow-x, 50%);
+  transform: translateX(-50%);
+  border: 7px solid transparent;
+  border-bottom-color: #0e1b2e;
+}
+.cb-detail-title {
+  font-size: 0.8rem; font-weight: 700; line-height: 1.3;
+  letter-spacing: 0.14em; text-transform: uppercase;
+  color: var(--soft-white);
+  margin: 0 0 0.55rem;
+}
+.cb-detail-body {
+  font-size: 0.95rem; font-weight: 400; line-height: 1.6;
+  color: var(--soft-white);
+  max-width: 60ch;
+  margin: 0;
+}
+.cb-detail-close {
+  position: absolute; top: 0.7rem; right: 0.7rem;
+  width: 32px; height: 32px;
+  display: flex; align-items: center; justify-content: center;
+  background: none; border: 0; border-radius: 6px;
+  color: rgba(197, 205, 216, 0.6);
+  cursor: pointer;
+  transition: color 200ms ease, background 200ms ease;
+}
+.cb-detail-close:focus-visible { outline: 2px solid var(--soft-white); outline-offset: 2px; }
+@media (hover: hover) and (pointer: fine) {
+  .cb-detail-close:hover { color: var(--soft-white); background: rgba(255, 255, 255, 0.06); }
+}
+
+/* ---- Touch tap-target floor ---- */
+@media (hover: none), (pointer: coarse) {
+  .cb-frag { min-height: 44px; }
+}
+
+/* ---- Reduced motion ---- */
 @media (prefers-reduced-motion: reduce) {
-  .challenge-band .cb-tip {
-    transition: none;
-    transform: translateX(-50%);
-  }
-  .challenge-band .cb-frag:hover .cb-tip,
-  .challenge-band .cb-frag:focus .cb-tip,
-  .challenge-band .cb-frag:focus-within .cb-tip,
-  .challenge-band .cb-frag.is-open .cb-tip {
-    transform: translateX(-50%);
-  }
+  .cb-detail,
+  .cb-detail.is-open { transition: opacity 0s, grid-template-rows 0s; }
+  .cb-frag-chevron { transition: none; }
 }
 
 /* ---- Ambient continuous drift (v7) ----
@@ -1179,6 +1450,15 @@ html { scrollbar-gutter: stable; }
 }
 
 @media (max-width: 900px) {
+  /* [V8.3] THE BRIDGE FADE + "SEE MORE" DELIBERATELY STAYS ON HERE — there is no
+     override in this block, and that is a decision, not an omission. The
+     framework stepper unclips on mobile only because the whole desktop text
+     layer is display:none and a different DOM takes over; nothing like that
+     happens in this band. And the argument for clamping is STRONGEST on a
+     phone: this paragraph wraps to ~14 lines at 360px, so unclipped it becomes
+     the longest scroll in the band. The clamp is expressed in line boxes, so it
+     still resolves to exactly two readable lines plus a fading third at any
+     width, and the pill is a real at-rest, tappable button (no hover needed). */
   .challenge-band .cb-headline { font-size: clamp(1.5rem, 4.5vw, 1.9rem); }
   /* Single column; drop the 6-col grid placement so chips stack */
   .cb-fragments { grid-template-columns: 1fr; row-gap: 0.95rem; }
@@ -1213,39 +1493,108 @@ html { scrollbar-gutter: stable; }
    Panels 2-4: dark gradient, single amber line, blue dots, step text
    ============================================================ */
 /* STATIC MODEL (arrow-driven engine): the section is a normal one-viewport
-   (100vh) block in NORMAL FLOW — no scroll-lock, no pin, no tall wrapper. The
+   block in NORMAL FLOW (v8: at LEAST one viewport — see --stage-h below) — no
+   scroll-lock, no pin, no tall wrapper. The
    user scrolls past it like any other section; the chaos->clarity animation is
    OPTIONAL and driven ONLY by the on-screen PREV/NEXT arrows (see the JS). The
    400vw track is clipped by overflow:hidden and slid horizontally via
    translateX in place. (Mobile + reduced override this to height:auto vertical
    stack — see the media query below.) */
+/* [V8 VERTICAL STRADDLE — spec §3.2 / §3.3 / B7 / B8 / B11]
+   THE FOUR VARIABLES. Every number in the framework panels derives from these.
+   The old `--stage-h: max(100vh, 940px)` is VOID (B7): Bryan's copy is 3.2x-4.8x
+   the volume the shipped straddle held, one column is taller than two, so the
+   section is now taller than the screen on every common laptop and the visitor
+   scrolls INSIDE it. No scroll-lock, no pin, no snap — the page scrolls normally.
+     --step-u   the single type unit. Capped by viewport WIDTH as well as height
+                (B11): without the 1.18vw term a narrow-and-tall window sets 17.8px
+                type in a 378px column and the panel height explodes as u2/W.
+     --col-w    the PROSE measure. left:41.5vw + col-w puts the right edge at a
+                fixed 72vw, so text can no longer overflow the viewport (B9).
+     --shelf-w  the SHELF rail (B5). Legal because the amber ramp exists ONLY
+                above the line and the shelf is below it. Puts all three service
+                buttons on one row at every desktop width >= 1038px.
+     --straddle 36px FLAT, not a clamp (B8). The arrows are 60px circles centred
+                on the line (half-height 30px) and the dot's visible halo radius
+                is ~29px, so a 36px gap clears BOTH by 6-7px. The old
+                clamp(28px,3.6vh,44px) resolved to 28px on short viewports and is
+                exactly why the NEXT arrow landed on copy.
+   These four INHERIT into the mobile stepper. No .mobile-text-block rule may
+   reference any of them (spec §0.3) — the stepper keeps its rem values.
+   overflow:hidden is KEPT — load-bearing for the horizontal clip. The arrow
+   engine only ever writes translateX(), so vertical size is irrelevant to it:
+   ZERO engine edits. */
 .frame-wrapper {
+  --step-u:   clamp(15px, min(1.55vh, 1.18vw), 17px);
+  --col-w:    min(600px, 30.5vw);
+  --shelf-w:  calc(58.5vw - clamp(24px, 3vw, 56px));
+  --straddle: 36px;
+  /* [V8.1 FADE + SEE MORE — Ethan's brief 2026-08-27] THE SECTION IS ONE SCREEN
+     AGAIN. The v8 growth formula (max of 100vh / 1958px-43.9vw / clamp 1120-1290)
+     resolved to 1266-1358px and was REJECTED on sight ("I don't like how the
+     window is taller"). It is deleted. --stage-h is 100vh with a small absolute
+     floor for freak short windows; the copy that used to force the extra height
+     now lives behind the fade + the "See more" window instead. NOTHING IS
+     TRIMMED — every word of Bryan's copy is still in the DOM. */
+  --stage-h:  max(100vh, 640px);
+  /* [V8.1] THE SHARED HEADER AXIS. Distance ABOVE the amber line at which the
+     top edge of every step's eyebrow sits. .step-above is TOP-anchored to this,
+     so Organize / Unify / Scale start at an identical Y no matter how their
+     headlines wrap. 92px of clearance keeps the header out from under the fixed
+     64-80px site nav; the 420px cap stops the header floating on tall monitors
+     and keeps the teaser to roughly 6-7 readable lines before the fade begins.
+     TUNING: RAISE the cap to show more copy before the fade, LOWER it to show
+     less. It is the only dial in this treatment. */
+  --head-axis: clamp(150px, calc(50vh - 92px), 420px);
+  /* [V8.1] THE FADE. --fade-len is the length of the gradient run, --fade-air is
+     the fully-transparent tail INSIDE the box. Both are measured from the box's
+     BOTTOM edge, and that edge is already --straddle (36px) clear of the amber
+     line, so the copy reaches zero opacity 54-70px before the line ever gets
+     close. Never a hard cut, always clear air first. */
+  --fade-len:  clamp(56px, 9vh, 104px);
+  --fade-air:  clamp(18px, 2.6vh, 34px);
+  /* [V8.2] THE "SEE MORE" BAND. Ethan, 2026-08-27: "I want the 'see more' icon to
+     be above the amber line and not below it. And I want it to be middle-aligned
+     compared to where the text is, instead of left-aligned." The button moved OUT
+     of .step-below; it now sits ABOVE the line with its bottom edge on the same
+     36px straddle .step-below's top edge uses, horizontally CENTRED in --col-w.
+     --more-h is the button's REAL rendered box height, derived from its own
+     declarations rather than guessed: padding 0.42rem x2 = 13.44px, border 1px x2
+     = 2px, text 1.1 line-height x 0.80u = 0.88u. So it tracks --step-u.
+     --more-gap is the clear air between the bottom of the faded copy box and the
+     top of the button.
+     --more-band is subtracted from .step-above's height so THE FADE STILL
+     COMPLETES, WITH REAL AIR, ABOVE THE BUTTON. The button never sits inside the
+     gradient run and never inherits the mask. */
+  --more-h:    calc(0.88 * var(--step-u) + 15.44px);
+  --more-gap:  clamp(12px, 1.6vh, 20px);
+  --more-band: calc(var(--more-h) + var(--more-gap));
   position: relative; width: 100%;
-  height: 100vh;
+  height: var(--stage-h);
   overflow: hidden;
 }
 .frame-sticky {
-  position: relative; height: 100vh;
+  position: relative; height: var(--stage-h);
   display: block; overflow: hidden;
 }
 .frame-track {
   display: block;
   position: relative;
   width: 400vw;
-  height: 100vh;
+  height: var(--stage-h);
   will-change: transform;
 }
 
 /* Background layers — split at 25% (panel 1 boundary) */
 .frame-bg-white {
   position: absolute; left: 0; top: 0;
-  width: 100vw; height: 100vh;
+  width: 100vw; height: var(--stage-h);
   background: var(--white);
   z-index: 1;
 }
 .frame-bg-gradient {
   position: absolute; left: 100vw; top: 0;
-  width: 300vw; height: 100vh;
+  width: 300vw; height: var(--stage-h);
   background: linear-gradient(180deg, #0a1628 0%, var(--deep-navy) 35%, #1f3454 100%);
   z-index: 1;
 }
@@ -1266,7 +1615,7 @@ html { scrollbar-gutter: stable; }
 /* Unified SVG canvas: 400vw wide, scaled to viewBox 0 0 11885 1930 */
 .frame-svg-canvas {
   position: absolute; left: 0; top: 0;
-  width: 400vw; height: 100vh;
+  width: 400vw; height: var(--stage-h);
   z-index: 2;
   pointer-events: none;
 }
@@ -1291,7 +1640,7 @@ html { scrollbar-gutter: stable; }
    calc(x/11885 * 400vw) so they sit exactly on the amber line endpoints. */
 .dots-layer {
   position: absolute; left: 0; top: 0;
-  width: 400vw; height: 100vh;
+  width: 400vw; height: var(--stage-h);
   z-index: 3;            /* above SVG canvas, below text panels */
   pointer-events: none;
 }
@@ -1362,7 +1711,7 @@ html { scrollbar-gutter: stable; }
    what the chaos canvas height tracks). */
 .frame-text-layer {
   position: absolute; left: 0; top: 0;
-  width: 400vw; height: 100vh;
+  width: 400vw; height: var(--stage-h);
   z-index: 4;            /* above dots-layer and panels */
   pointer-events: none;
 }
@@ -1440,77 +1789,135 @@ html { scrollbar-gutter: stable; }
 }
 
 /* ---- Step text blocks (Panels 2/3/4, dark gradient bg) ----
-   Anchored to each dot's X position (so the dot sits ABOVE the text,
-   text flows down + right from the same X). Dot centers on the 400vw
-   track: Organize 42.60%, Unify 60.30%, Scale 78.00%.
-   Y position: top:55% — text starts BELOW the amber line (Y=50vh)
-   with breathing room for the dot's halo, no overlap with headline.
-   Width slightly narrowed (8.4% -> 7%) so the right-shifted blocks
-   don't overflow the right side of their panels. */
+   Dot centres on the 400vw track: Organize 42.60%, Unify 60.30%, Scale 78.00%.
+   (The old note about top:55% and an 8.4%->7% width belonged to the pre-straddle
+   composition and is retired — see the V8 block immediately below.) */
+/* [V8 VERTICAL STRADDLE — spec §2 / §3.5 / B2 / B3 / B9 / B10]
+   ONE COLUMN, not two. .step-col-a / .step-col-b are GONE from the DOM and every
+   grid rule written for them is deleted. The block is a ZERO-SIZE ANCHOR sitting
+   8.5vw LEFT of its dot, i.e. at 41.5vw of the screen when its step is active.
+     WHY 41.5vw: it is the only horizontal band clean on all three panels. All 16
+     Organize chaos paths open with an absolute M at their RIGHTMOST point and run
+     right-to-left; the largest opening x is 4793.36, which at trackX=-120.434vw
+     is 40.88vw. Nothing in the tangle exists right of 40.88vw, so the column
+     clears it by 0.62vw and NO scrim/dim/recolour is needed (B4).
+     WHY it stops at 72vw: Scale's amber ribbon leaves the line at viewBox
+     x=9942.59 = 72.66vw, and only ABOVE the line. left 41.5vw + col-w (capped
+     30.5vw) = a fixed 72vw right edge, so text CANNOT overflow the viewport at
+     any width (B9) — that was the cut-off sentence in Ethan's narrow screenshot.
+     NEIGHBOUR BLEED (B10) is solved as a side effect: the block spans anchor-8.5vw
+     to anchor+22vw against a 70.762vw anchor pitch, so a neighbouring block sits
+     48.76vw off-screen. No :has(), no opacity rule, no edge scrim.
+   The dot, the amber line, the track and the arrows do not move. The dot's
+   visible radius (~29px) is SMALLER than the 36px straddle gap, so the node — and
+   both 60px arrows — sit INSIDE the break the composition already empties. */
 .text-step {
-  top: 50%;          /* was 55% — zero-height anchor sits ON the 50vh amber line */
+  top: 50%;          /* zero-height anchor sits ON the amber line (50% of --stage-h) */
   height: 0;         /* the block collapses to a line; the two sub-groups
                         (.step-above / .step-below) straddle it via absolute pos */
-  width: 7.1%;       /* % of 400vw track = ~28.4vw — widened a notch so two of the
-                        bigger uniform service buttons sit side-by-side; still inside
-                        the Organize panel's ~29.6vw right-safe zone (no overflow) */
-  max-width: 400px;  /* hard cap so super-wide viewports don't stretch line length;
-                        fits two 188px buttons + 6px gap (382px) in the button row */
+  width: 0;          /* pure anchor — the sub-groups carry their own widths */
+  max-width: none;
+  transform: translateY(16px);   /* base .frame-text-block reveal offset, unchanged */
 }
-.text-step.organize { left: 42.60%; }
-.text-step.unify    { left: 60.30%; }
-.text-step.scale    { left: 78.00%; }
+.text-step.revealed { transform: translateY(0); }
+/* 42.60% of the 400vw track = 170.434vw (the dot). Minus 8.5vw = the column. */
+.text-step.organize { left: calc(42.60% - 8.5vw); }
+.text-step.unify    { left: calc(60.30% - 8.5vw); }
+.text-step.scale    { left: calc(78.00% - 8.5vw); }
 
-/* ---- Straddle groups (fork proto, desktop-only) --------------------------
-   Eyebrow + headline ABOVE the amber line (bottom-anchored so the headline's
-   last line lands at a constant Y just above the line on all 3 steps); body +
-   teaching sentence + service chips BELOW the line (top-anchored, grows down).
-   The natural eyebrow->headline->body gap now straddles the 50vh line, which
-   bisects the headline<->body gap. Namespaced under .text-step so nothing
-   leaks to the .mobile-text-block stack. Inline, isolated, reversible. */
-.text-step .step-above {
-  position: absolute;
-  left: 0;
-  width: 100%;
-  bottom: clamp(44px, 6.5vh, 72px);   /* group bottom sits above the line, grows up */
-  text-align: left;
-}
+/* ---- THE VERTICAL STRADDLE (desktop-only) --------------------------------
+   [V8.1 UPDATE — this paragraph now describes what SHIPS; the old text is
+   corrected in place.] Headline first and HIGHEST — nothing sits above it, ever
+   (B1). The argument runs straight DOWN and FADES OUT before the amber line;
+   the shelf picks up below it. There is no longer a per-panel COPY split at the
+   line: all prose lives in .step-above, and .step-below holds only the "See
+   more" button and the shelf. .step-above is now TOP-anchored to --head-axis
+   (that is the shared header axis); .step-below is still TOP-anchored 36px
+   below the line and still grows down.
+   The SHELF is WIDER than the prose (B5): prose keeps --col-w, the shelf runs the
+   full --shelf-w rail. A labelled list has no measure obligation; prose does.
+   Namespaced under .text-step so NOTHING reaches the .mobile-text-block stack —
+   .step-above / .step-below / .step-shelf do not exist in the mobile markup,
+   which stays a flat list of siblings. */
+.text-step .step-above,
 .text-step .step-below {
   position: absolute;
   left: 0;
-  width: 100%;
-  top: clamp(44px, 6.5vh, 72px);      /* group top sits below the line, grows down */
   text-align: left;
+  display: block;            /* NOT grid — B2 */
 }
-/* Straddle rebalance (Option A): the first body paragraph (.step-body-1) now
-   lives in .step-above after the headline, so the headline KEEPS its natural
-   bottom gap (default .headline margin) to separate it from the paragraph, and
-   the paragraph — as the last, bottom-anchored child — carries no trailing
-   margin so its final line lands at a constant Y just above the amber line. */
-.text-step .step-above .step-body-1 { margin-bottom: 0; }
+/* [V8.1] .step-above is now TOP-ANCHORED, not bottom-anchored. This is the whole
+   "headers on one horizontal axis" fix: the box starts --head-axis above the
+   amber line on all three panels, so the eyebrow top (and therefore the first
+   line of the headline) is at an IDENTICAL Y on Organize, Unify and Scale.
+   Bottom-anchoring is what used to push a two-line headline higher than a
+   one-line one.
+   [V8.2] The box's height now stops --straddle (36px) PLUS --more-band short of
+   the line. That band is the reserved lane for the "See more" button, which moved
+   above the line. The fade still finishes INSIDE this box, so between the last
+   readable copy and the top of the button there is --fade-air + --more-gap of
+   fully-transparent air (~34px at a 15px unit on a 800px-tall window) — the
+   button is never in the gradient and the copy never reads as a hard cut.
+   COST, stated plainly: the teaser shows roughly two fewer lines than it did
+   below the line. TUNING: --head-axis is the dial that gives them back. */
+.text-step .step-above {
+  width:  var(--col-w);
+  top:    calc(-1 * var(--head-axis));
+  bottom: auto;
+  height: calc(var(--head-axis) - var(--straddle) - var(--more-band));
+}
+.text-step .step-below { width: var(--shelf-w); top:    var(--straddle); }
+/* Prose keeps the measure even though .step-below is a wide rail (B5). */
+.text-step .step-below > .body,
+.text-step .step-below > .subhead { max-width: var(--col-w); }
+/* The straddle edges carry no margin, so the flat 36px clearance is exact:
+   the last thing above the line and the first thing below it both sit at 36px. */
+.text-step .step-above > :last-child  { margin-bottom: 0; }
+.text-step .step-below > :first-child { margin-top: 0; }
 
+/* [V8 §3.6] Type TARGETS, every one a multiple of the single unit --step-u.
+   These are single values, NOT ranges to interpolate inside. Hierarchy is carried
+   by size and weight, NEVER by opacity (B13).
+   At --step-u:15px (every viewport <=909px tall, i.e. every government laptop):
+   eyebrow 11.25 / headline 32.25 / bridge 13.05 / subhead 17.25 / body 15 /
+   principle 19.2 / strips 13.05 / ai-note 12. The headline lands at 32.25px
+   against the 32.4px it renders today — nothing the reader sees has changed. */
 .text-step .eyebrow {
-  font-size: clamp(12px, 1.5vh, 19px);
+  font-size: calc(var(--step-u) * 0.75);
+  line-height: 1.2;
   letter-spacing: 0.2em;
   text-transform: uppercase;
   color: var(--gold);
-  margin-bottom: clamp(8px, 1.1vh, 14px);
+  margin-bottom: calc(var(--step-u) * 0.60);   /* eyebrow -> headline */
   display: block;
 }
 .text-step .headline {
-  font-size: clamp(32px, 4.6vh, 62px);
-  line-height: 1.15;
+  font-size: calc(var(--step-u) * 2.15);
+  line-height: 1.12;
   letter-spacing: -0.005em;
   color: var(--white);
-  margin-bottom: clamp(14px, 2vh, 22px);
+  margin-bottom: calc(var(--step-u) * 0.85);   /* headline -> next element */
   display: block;
+  /* [V8.1 SHARED AXIS, second half] Top-anchoring already puts every EYEBROW on
+     one line. This reserves TWO headline lines on every panel so the copy
+     underneath also starts at an identical Y — "Activate What You Already Fund"
+     wraps to two lines where "One Ecosystem. One Login." does not, and without
+     this the two panels' body text would begin ~36px apart and the block would
+     visibly jump when you arrow between them. 2.15 * 1.12 * 2 = 4.816 units.
+     TO REMOVE: delete this one declaration; the eyebrow axis still holds. */
+  min-height: calc(var(--step-u) * 4.816);
 }
+/* [V8 / spec A6] max-width:380px was a HARD CAP that would silently invalidate
+   every line-count in the spec. --col-w IS the measure now (set on .step-above
+   as a width, and on .step-below's direct prose children as a max-width).
+   Do NOT reinstate a px cap here. */
 .text-step .body {
-  font-size: clamp(15px, 1.7vh, 20px);
-  line-height: 1.5;
+  font-size: var(--step-u);
+  line-height: 1.45;
   font-weight: 400;
   color: var(--soft-white);
-  max-width: 380px;
+  max-width: none;
+  margin-bottom: calc(var(--step-u) * 0.70);   /* body -> body */
   display: block;
 }
 
@@ -1520,12 +1927,143 @@ html { scrollbar-gutter: stable; }
    it, a gold-hairline row of small "chip" service links. Dark-panel-only design
    (hero/Panel 1 gets none). Namespaced .step-* — inline, isolated, reversible. */
 .step-body-2 { margin-top: 0.6rem; }
-/* Straddle rebalance (Option A): on desktop .step-body-2 is now the FIRST child
-   of the top-anchored .step-below, so drop its 0.6rem lead-in gap — the group's
-   `top: clamp(...)` already sets the clearance below the amber line, keeping it
-   symmetric with the .step-above bottom clearance (dot clearance preserved).
+/* [V8.1] On desktop .step-body-2 still needs NO lead-in gap of its own — the
+   reason is simply different now. With the above/below copy split retired it
+   always follows a sibling inside .step-above, and that sibling's own bottom
+   margin IS the gap: 0.70u after .step-body-1 (Unify, Scale) or 0.65u after
+   .step-principle (Organize). Adding one here would double it.
    The mobile .mobile-text-block .step-body-2 rule (0.6rem) is untouched. */
 .text-step .step-body-2 { margin-top: 0; }
+
+/* ============================================================
+   [V8 PANEL ACCOMMODATION] NEW STEP ELEMENTS — DESKTOP LAYER ONLY
+   Bryan's copy introduces .subhead, .step-bridge, .step-principle,
+   .step-label, .step-capabilities, .step-solutions, .step-ai-note and
+   .step-body-3 / .step-body-4. Every rule below is scoped under .text-step
+   so it CANNOT reach .mobile-text-block (which gets its own rules in the
+   <=900px / reduced-motion block far below). Inline, namespaced, reversible.
+   ============================================================ */
+.text-step .subhead {
+  font-size: calc(var(--step-u) * 1.15);
+  line-height: 1.35;
+  font-weight: 700;
+  color: var(--white);
+  display: block;
+  margin-bottom: calc(var(--step-u) * 0.65);   /* subhead -> body-1 */
+}
+/* Unify only. Sits immediately AFTER the headline on BOTH layers (B1) — the
+   headline is the highest element in the panel and nothing is ever allowed above
+   it. Reed's rationale survives: the bridge is a transition INTO the step, so it
+   still reads before the subhead and before the argument.
+   Opacity 0.70 = 4.66:1 on the panel's lightest stop; do NOT dim further (B13). */
+.text-step .step-bridge {
+  font-size: calc(var(--step-u) * 0.87);
+  line-height: 1.50;
+  font-weight: 400;
+  color: rgba(197,205,216,0.70);
+  display: block;
+  margin-bottom: calc(var(--step-u) * 0.80);   /* bridge -> subhead */
+}
+/* Bryan's short declarative line — the argument of the step. Real weight.
+   margin-top collapses with the preceding .body's 0.70u to give the specified
+   1.00u body->principle gap; the :first-child rule zeroes it when the principle
+   opens .step-below (Scale), so the 36px straddle clearance stays exact. */
+.text-step .step-principle {
+  font-size: calc(var(--step-u) * 1.28);
+  line-height: 1.30;
+  font-weight: 700;
+  color: var(--white);
+  margin-top: calc(var(--step-u) * 1.00);      /* body -> principle */
+  margin-bottom: calc(var(--step-u) * 0.65);   /* principle -> body */
+}
+/* RESERVED. Bryan's own label now occupies the .step-principle slot in Scale
+   (Ethan's ruling 2026-08-27), so no element currently uses this class.
+   Kept so a separate label can be reinstated without a respec. */
+.text-step .step-label {
+  font-size: calc(var(--step-u) * 0.75);
+  line-height: 1.2;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: calc(var(--step-u) * 0.50);
+}
+/* .step-body-3 / .step-body-4 need NO rules of their own — they are .body, and
+   .body carries the 0.70u body->body gap. The old 10px/0 pair is deleted. */
+
+/* ---- THE SHELF: capabilities / solutions / ai-note / real buttons ----
+   [B5] Runs the FULL --shelf-w rail, WIDER and quieter than the prose above it,
+   like the footer rail of a technical drawing. Legal because the amber ramp
+   exists only ABOVE the line and the shelf is entirely below it. Takes over the
+   gold hairline that used to sit on .step-services, so the shelf reads as one
+   banded footer: description first, destinations last, weight increasing down. */
+.text-step .step-shelf {
+  max-width: none;
+  margin-top: calc(var(--step-u) * 1.30);
+  padding-top: calc(var(--step-u) * 0.95);
+  border-top: 1px solid rgba(229,166,48,0.25);
+}
+/* [B5] Inside the shelf the 388px cap is removed and all three chips fit ONE row
+   (3 x 188 + 2 x 6 = 576px) at every desktop width >= 1038px. The chips
+   themselves — pinned gold arrow, labels, hrefs, hover guard, pointer-events
+   gate, focus ring — are UNCHANGED. Only the wrap changes. */
+.text-step .step-shelf .step-services {
+  max-width: none;
+  margin-top: calc(var(--step-u) * 0.95);
+  padding-top: 0;
+  border-top: 0;
+  gap: 6px;
+}
+
+/* ---- CAPABILITY / COMMON SOLUTIONS STRIPS ----
+   17 unlinked labels sitting inches from three real buttons. These must read as
+   the small print on a technical drawing, never as a menu. NO box, NO border,
+   NO background, NO arrow, NO hover/focus/active rule may ever target these
+   selectors — a visitor who hovers one and sees nothing happen learns in under
+   200ms that it is not a control. They are plain <span>s: no role, no tabindex,
+   no aria-label, so a keyboard user tabs straight past them onto the real chips.
+   NOTE: the whole .frame-text-layer is pointer-events:none (load-bearing — it
+   stops unrevealed steps catching clicks), so on DESKTOP these cannot be
+   drag-selected regardless of user-select; the declaration is kept as the
+   intent, and on MOBILE (where it is the decisive "this is prose" signal) the
+   stepper strips select normally. */
+.text-step .step-capabilities,
+.text-step .step-solutions {
+  display: block;
+  font-size: calc(var(--step-u) * 0.87);
+  line-height: 1.45;
+  font-weight: 400;
+  color: rgba(197,205,216,0.82);
+  cursor: default;
+  -webkit-user-select: text;
+  user-select: text;
+  background: none;
+  border: 0;
+  border-radius: 0;
+  padding: 0;
+}
+.text-step .step-capabilities strong,
+.text-step .step-solutions strong {
+  font-weight: 700;
+  color: rgba(255,255,255,0.92);
+}
+.text-step .step-solutions { margin-top: calc(var(--step-u) * 0.40); }
+/* Sits 0.40u under .step-solutions (versus 0.95u down to the buttons) so it reads
+   as a FOOTNOTE to the strip above it, gluing the AI conditional to the claim it
+   qualifies. 0.72 = 4.82:1 — do NOT dim (B13). */
+.text-step .step-ai-note {
+  display: block;
+  margin-top: calc(var(--step-u) * 0.40);
+  margin-bottom: 0;
+  font-size: calc(var(--step-u) * 0.80);
+  line-height: 1.45;
+  font-weight: 400;
+  color: rgba(197,205,216,0.72);
+  cursor: default;
+  -webkit-user-select: text;
+  user-select: text;
+}
+
 .step-services {
   display: flex;
   flex-wrap: wrap;
@@ -1560,7 +2098,11 @@ html { scrollbar-gutter: stable; }
    Inline, isolated, reversible — does not touch the animation. */
 .text-step .step-svc-btn {
   box-sizing: border-box;
-  width: 188px;                 /* fits the longest label + arrow with slack */
+  /* [V8 §3.5] 188px is the target (fits "AI-Powered Ingestion" + arrow with
+     slack). The min() only ever engages below ~1038px viewport, where the shelf
+     rail is narrower than 3 x 188 + 2 x 6 = 576px; there the three buttons shrink
+     to share ONE row rather than wrapping and stealing 52px of vertical. */
+  width: min(188px, calc((100% - 12px) / 3));
   height: 46px;                 /* fixed box height */
   padding: 0 0.85rem;           /* horizontal only; height + align-items center it */
   gap: 0.5rem;
@@ -1595,17 +2137,373 @@ html { scrollbar-gutter: stable; }
 .frame-text-block .step-svc-btn { pointer-events: none; }
 .frame-text-block.revealed .step-svc-btn { pointer-events: auto; }
 
+/* ============================================================
+   [V8.1] FADE + "SEE MORE" WINDOW  —  Ethan's brief, 2026-08-27
+   ------------------------------------------------------------
+   WHAT CHANGED AND WHY. v8 let Bryan's copy set the section height and the
+   stage grew to ~1266-1358px; Ethan rejected that outright. The copy is not
+   trimmed — it is RE-STAGED:
+     1. Every step's header sits on ONE shared horizontal axis (.step-above is
+        top-anchored to --head-axis; see the geometry rule far above).
+     2. The prose reads DOWN from the header and FADES to fully transparent
+        before it reaches the amber line (--fade-len / --fade-air below).
+     3. A small "See more" button sits ABOVE the line, centred on the text
+        column ([V8.2] Ethan moved it from below the line and from left-aligned).
+     4. It expands .step-above IN PLACE into a small reading window that sits
+        ON the amber line. No second copy of any string exists — the window IS
+        the same element, restyled. That is deliberate: duplicating the copy
+        would create a THIRD copy of every Organize/Unify/Scale string and the
+        desktop/mobile pair would silently drift.
+
+   ALL of this is scoped under .text-step, which lives inside .frame-text-layer.
+   The <=900px / prefers-reduced-motion media query already sets
+   .frame-text-layer{display:none} and swaps in the .mobile-text-block stepper,
+   so MOBILE AND REDUCED MOTION GET NEITHER THE FADE NOR THE BUTTON — they get
+   the full copy stacked, exactly as asked, with zero extra rules.
+
+   POINTER EVENTS — the trap. .frame-text-layer and .frame-text-block are both
+   pointer-events:none and that is load-bearing (it stops an unrevealed,
+   opacity:0 step from catching clicks). A naive button here is unclickable.
+   The fix is the SAME gate the service chips already ship: a descendant may
+   re-enable itself with pointer-events:auto, and we only turn it on for a
+   .revealed step. Nothing about the layer's own pointer-events changes.
+   ============================================================ */
+
+/* ---- 2. THE FADE --------------------------------------------------------
+   Mask stops are measured from the BOTTOM of the box in px, NOT as a
+   percentage. A percentage would move with the box height, so a headline that
+   wraps to three lines at 901px would drag the header into the gradient. This
+   way the fade always occupies exactly the last (--fade-len + --fade-air) of
+   the box and nothing above it is ever touched.
+   [V8.2] The box now ends 36px + --more-band above the amber line (the button
+   moved into that band), so the copy is fully transparent ~34px before the top
+   of the button and ~110px before the line itself — visible air in both gaps,
+   never a hard cut. The button is OUTSIDE this element, so it is not masked. */
+.text-step .step-above {
+  overflow: hidden;
+  -webkit-mask-image: linear-gradient(to bottom,
+      #000 0,
+      #000 calc(100% - var(--fade-len) - var(--fade-air)),
+      transparent calc(100% - var(--fade-air)),
+      transparent 100%);
+          mask-image: linear-gradient(to bottom,
+      #000 0,
+      #000 calc(100% - var(--fade-len) - var(--fade-air)),
+      transparent calc(100% - var(--fade-air)),
+      transparent 100%);
+}
+
+/* ---- 3. THE "SEE MORE" BUTTON ------------------------------------------
+   [V8.2 PLACEMENT CHANGE — Ethan, 2026-08-27] It used to be the first child of
+   .step-below, i.e. just BELOW the amber line and flush to the column's left
+   edge. It is now ABOVE the line and CENTRED on the text column. Nothing about
+   how it LOOKS changed — this is placement only.
+   HOW, and why it is built this way:
+     - It lives in its own absolutely-positioned rail, .step-more-row, which is a
+       SIBLING of .step-above, NOT a child of it. That is the load-bearing
+       decision. .step-above carries the fade mask, a mask applies to the element
+       AND all of its descendants, and a descendant cannot opt out of an
+       ancestor's mask — so a button placed inside the faded box would fade out
+       along with the copy. As a sibling it stays fully opaque and legible.
+       (It would also have been pushed straight out of that box's clipped
+       overflow, since the prose already overflows it.)
+     - DOM ORDER IS UNCHANGED relative to everything else: .step-above, then the
+       button, then .step-below. So the tab order is still
+       prose -> [See more] -> capability strip -> service links, and the eye
+       reads the same order down the screen.
+     - THE POINTER-EVENTS CHAIN IS UNCHANGED. pointer-events is an INHERITED
+       property, so the new rail inherits :none from .frame-text-block, and the
+       shipped gate `.frame-text-block.revealed .step-more-btn{pointer-events:auto}`
+       is a DESCENDANT selector, so it still reaches the button through the rail.
+       The MutationObserver tabindex gate is a descendant query too — untouched.
+   Styled AT REST (real border + real fill), never hover-only, so it is
+   obvious on a touch screen and to anyone who never hovers. */
+/* THE RAIL. Full column width, bottom edge on the SAME 36px straddle that
+   .step-below's top edge uses, so the button and the shelf are exactly
+   symmetrical about the amber line and the 36px break the dot (~29px radius) and
+   the two 60px arrows sit in stays empty. The arrows are pinned to the viewport
+   edges (clamp(12px,2.5vw,40px)) and the column starts at 41.5vw, so there is no
+   horizontal collision either.
+   justify-content:center IS Ethan's second ask: it centres the pill within
+   --col-w — the measure of the copy directly above it — instead of pinning it to
+   the column's left edge. The pill keeps its own fit-content width. */
+.text-step .step-more-row {
+  position: absolute;
+  left: 0;
+  bottom: var(--straddle);
+  width: var(--col-w);
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  z-index: 1;                 /* under the expanded window, which is z-index:2 */
+  /* Hides WITH the shelf when the reading window opens — otherwise "See more"
+     would still be visible, and still tabbable, beneath the very window it just
+     opened. Same transition pair as .step-below so both halves fade together in
+     both directions. (It used to get this for free by living inside
+     .step-below.) */
+  transition: opacity 0.26s ease 0.06s, visibility 0s linear 0s;
+}
+.text-step.is-expanded .step-more-row {
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.2s ease, visibility 0s linear 0.2s;
+}
+/* [V8.2] The button LEFT .step-below, so .step-shelf became its first child and
+   would inherit the straddle rule `.step-below > :first-child{margin-top:0}` —
+   dropping the shelf's gold hairline to a flat 36px under the amber line, where
+   two horizontal rules that close read as one doubled rule. Restore the shelf's
+   OWN shipped 1.30u lead-in, and ONLY that: the button's ~29px box genuinely
+   left, so the shelf rises by exactly the height of the thing that moved and by
+   nothing more. Higher specificity than the straddle rule, so no !important. */
+.text-step .step-below > .step-shelf:first-child {
+  margin-top: calc(var(--step-u) * 1.30);
+}
+.text-step .step-more-btn {
+  /* [V8.2] This was a BLOCK-level flex so its bottom margin would COLLAPSE with
+     .step-shelf's 1.30u top margin. It is no longer a sibling of the shelf, so
+     that reason is retired; display:flex now simply lays the label + caret out,
+     and the box is a flex ITEM of .step-more-row. margin:0 keeps it flush to the
+     rail's bottom edge, which is what puts it exactly --straddle above the line. */
+  display: flex;
+  width: -moz-fit-content;
+  width: fit-content;
+  align-items: center;
+  gap: 0.4rem;
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0.42rem 0.9rem;
+  border: 1px solid rgba(229,166,48,0.55);
+  border-radius: 999px;
+  background: rgba(229,166,48,0.10);
+  color: var(--white);
+  font-family: inherit;
+  font-weight: 700;
+  font-size: calc(var(--step-u) * 0.80);
+  line-height: 1.1;
+  letter-spacing: 0.02em;
+  cursor: pointer;
+  -webkit-appearance: none;
+          appearance: none;
+  transition: background 0.25s cubic-bezier(0.4, 0, 0.2, 1),
+              border-color 0.25s cubic-bezier(0.4, 0, 0.2, 1),
+              color 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  pointer-events: none;              /* gate — see the header comment */
+}
+/* THE GATE. Mirrors the shipped .step-svc-btn rule one screen above. */
+.frame-text-block.revealed .step-more-btn { pointer-events: auto; }
+/* Small gold caret so it reads as "there is more below" before it is read. */
+.text-step .step-more-btn::after {
+  content: '';
+  width: 0; height: 0;
+  border-left: 4px solid transparent;
+  border-right: 4px solid transparent;
+  border-top: 5px solid var(--gold);
+}
+
+/* ---- 4. THE "SEE LESS" BUTTON ------------------------------------------
+   A SECOND element, not the same button re-labelled, because the expanded
+   window covers the ground the "See more" button stands on. It is the last
+   child of .step-above so it belongs to the window; it is display:none (and
+   therefore un-tabbable) until the window opens. position:sticky pins it to
+   the bottom-right of the window, so on a short laptop where the longest panel
+   scrolls it never scrolls out of reach. */
+.text-step .step-less-btn { display: none; }
+.text-step.is-expanded .step-less-btn {
+  display: block;
+  width: -moz-fit-content;
+  width: fit-content;
+  margin: calc(var(--step-u) * 1.05) 0 0 auto;   /* auto-left = right aligned */
+  position: sticky;
+  bottom: 0;
+  box-sizing: border-box;
+  padding: 0.42rem 0.9rem;
+  border: 1px solid rgba(229,166,48,0.55);
+  border-radius: 999px;
+  background: rgba(229,166,48,0.14);
+  color: var(--white);
+  font-family: inherit;
+  font-weight: 700;
+  font-size: calc(var(--step-u) * 0.80);
+  line-height: 1.1;
+  letter-spacing: 0.02em;
+  text-align: center;
+  cursor: pointer;
+  -webkit-appearance: none;
+          appearance: none;
+  /* Solid pad of the window's own colour around the pill so copy scrolling
+     underneath it never collides with the label. */
+  box-shadow: 0 0 0 7px rgba(14,29,53,0.97), 0 0 26px 16px rgba(14,29,53,0.92);
+  transition: background 0.25s cubic-bezier(0.4, 0, 0.2, 1),
+              border-color 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  pointer-events: auto;
+}
+
+/* Hover is a bonus, not the affordance — guarded so a touch device never
+   inherits a stuck :hover state. */
+@media (hover: hover) and (pointer: fine) {
+  .text-step .step-more-btn:hover,
+  .text-step .step-less-btn:hover {
+    background: rgba(229,166,48,0.24);
+    border-color: var(--gold);
+    color: var(--white);
+  }
+}
+.text-step .step-more-btn:focus-visible,
+.text-step .step-less-btn:focus-visible {
+  outline: none;
+  border-color: var(--gold);
+  box-shadow: 0 0 0 3px rgba(229,166,48,0.45);
+}
+.text-step.is-expanded .step-less-btn:focus-visible {
+  box-shadow: 0 0 0 3px rgba(229,166,48,0.45),
+              0 0 0 10px rgba(14,29,53,0.97),
+              0 0 26px 16px rgba(14,29,53,0.92);
+}
+/* The window itself is the focus target on open; it must not paint a ring
+   around the whole pane, only a quiet edge lift. */
+.text-step.is-expanded .step-above:focus { outline: none; }
+.text-step.is-expanded .step-above:focus-visible {
+  outline: none;
+  border-color: rgba(229,166,48,0.75);
+}
+
+/* ---- 5. THE WINDOW ------------------------------------------------------
+   .step-above becomes "its own tiny little window that will sit on top of the
+   amber line". .text-step is a ZERO-HEIGHT anchor sitting exactly on the line,
+   so top:0 + translateY(-50%) centres the window ON the line by construction —
+   no measuring, no JS geometry.
+   FOOTPRINT IS UNCHANGED: left stays 0 (= 41.5vw) and width stays --col-w
+   (right edge 72vw), so the window never crosses the chaos tangle on the left
+   or Scale's amber ribbon on the right. The padding is inset, so the reading
+   measure inside is --col-w minus the padding.
+   LEGIBILITY IS THE JOB: it sits over a live animated graphic, so the surface
+   is a near-opaque navy pane (0.965 alpha) with a blur behind it, a gold
+   hairline and a deep drop shadow. Body copy is #C5CDD8 on ~#0e1d35 — far
+   above AA.
+   display stays BLOCK, never flex: .step-principle's 1.00u top margin is
+   specified to COLLAPSE with the preceding .body's 0.70u bottom margin, and a
+   flex container would stop that collapsing and re-open every gap.
+   KNOWN COST, stated plainly. Because the padding is INSET, the reading measure
+   inside the window is --col-w minus 2x padding. On a 1920 screen that is
+   ~545px (~74 characters) — fine. At the 901px narrow-desktop floor it is
+   ~268px (~33 characters) against --col-w's own ~37. That is worse, not better,
+   than the inline column at that one width. It is left alone on purpose: making
+   the window wider than --col-w would push its left edge past 41.5vw and over
+   the chaos tangle, which is a geometry decision, not a code one.
+   THE DIAL, if Ethan wants it: give this rule
+     margin-left: calc(-1 * clamp(16px, 1.5vw, 26px));
+     width: calc(var(--col-w) + 2 * clamp(16px, 1.5vw, 26px));
+   and the measure inside becomes exactly --col-w again, at the price of the
+   pane overhanging the column by one padding on each side. */
+.text-step.is-expanded .step-above {
+  top: 0;
+  bottom: auto;
+  height: auto;
+  max-height: min(calc(100vh - 168px), 820px);
+  transform: translateY(-50%);
+  display: block;
+  overflow-y: auto;
+  overflow-x: hidden;
+  overscroll-behavior: contain;
+  -webkit-mask-image: none;
+          mask-image: none;
+  box-sizing: border-box;
+  padding: clamp(16px, 1.5vw, 26px);
+  background: linear-gradient(180deg, rgba(11,24,45,0.965) 0%, rgba(17,34,62,0.965) 100%);
+  -webkit-backdrop-filter: blur(14px) saturate(115%);
+          backdrop-filter: blur(14px) saturate(115%);
+  border: 1px solid rgba(229,166,48,0.38);
+  border-radius: 14px;
+  box-shadow: 0 26px 70px rgba(0,0,0,0.58),
+              0 0 0 1px rgba(255,255,255,0.05) inset;
+  z-index: 2;                     /* above .step-below inside the same block */
+  scrollbar-width: thin;
+  scrollbar-color: rgba(229,166,48,0.45) transparent;
+  animation: stepWinIn 0.28s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+/* The window takes pointer events (scroll wheel, the close pill) ONLY while a
+   revealed step is open. Same gate, same reasoning. */
+.frame-text-block.revealed.is-expanded .step-above { pointer-events: auto; }
+/* The headline min-height exists only to hold the shared axis in the collapsed
+   teaser. Inside the window it is pure dead air, so it is dropped. */
+.text-step.is-expanded .headline { min-height: 0; }
+.text-step.is-expanded .step-above::-webkit-scrollbar { width: 8px; }
+.text-step.is-expanded .step-above::-webkit-scrollbar-track { background: transparent; }
+.text-step.is-expanded .step-above::-webkit-scrollbar-thumb {
+  background: rgba(229,166,48,0.42);
+  border-radius: 999px;
+}
+@keyframes stepWinIn {
+  from { opacity: 0; transform: translateY(-50%) scale(0.975); }
+  to   { opacity: 1; transform: translateY(-50%) scale(1); }
+}
+
+/* ---- 6. WHAT HAPPENS TO THE SHELF WHILE THE WINDOW IS OPEN --------------
+   DECISION: the capability strip, the Common Solutions strip and the service
+   buttons STAY WHERE THEY ARE (below the line, in .step-below) and are HIDDEN
+   while the window is open. They are not moved into the window.
+   Why: they are destinations, not part of the argument being read; moving them
+   in would mean a third DOM copy of 17 labels. And a window that half-covers
+   three service buttons reads as broken, which is the one thing this treatment
+   cannot afford.
+   visibility (not just opacity) is doing real work here: it takes the strip and
+   all three chips out of the TAB ORDER and out of pointer-events in one
+   declaration, so a keyboard user inside the window can never tab onto a link
+   they cannot see. The 0s-delay-on-open / 0.2s-delay-on-close pairing keeps the
+   fade visible in both directions. */
+.text-step .step-below {
+  transition: opacity 0.26s ease 0.06s, visibility 0s linear 0s;
+}
+.text-step.is-expanded .step-below {
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.2s ease, visibility 0s linear 0.2s;
+}
+
+/* ============================================================
+   [V8 VERTICAL STRADDLE] NARROW DESKTOP, 901-1239px (spec §4)
+   ETHAN'S RULING (2026-08-27) — this band KEEPS the desktop arrow interaction.
+   Cole's spec DEFAULTED this band to the stacked mobile stepper (§4.2) because
+   the clean band between the chaos tangle (41vw) and the amber ramp (72.66vw) is
+   a FIXED 31.66vw and therefore shrinks with the window. Ethan ruled the
+   opposite, was told the column gets narrow, and accepted it. So the framework
+   stack breakpoint STAYS at 900px and this is Cole's own written switch-back:
+   a hard 300px floor under --col-w, which is the only dial available (41.5vw is
+   a geometric floor set by the chaos tangle and cannot move left).
+   HONEST NUMBER: the floor holds ~37 effective characters per line at 901px
+   against a 45-character legibility floor. Cole would not pretend that is good
+   and neither will I — it is what the ruling costs.
+   Right-edge check: the 300px floor only engages below 984px viewport, where the
+   column's right edge creeps from 72vw to a worst case of 74.8vw at 901px. The
+   amber ramp at 74.8vw stands only ~2% of the stage above the line, and the 36px
+   straddle holds every line further off it than that, so the ramp still clears.
+   The old `@media (max-width:1259px)` two-column fallback block is DELETED —
+   it is the direct cause of the right-edge overflow in Ethan's screenshots.
+   ============================================================ */
+@media (max-width: 1239px) {
+  .frame-wrapper { --col-w: max(300px, min(600px, 30.5vw)); }
+}
+/* Below 1038px the shelf rail is narrower than 3 x 188 + 2 x 6 = 576px, so the
+   min() in .step-svc-btn's width would shrink the boxes below their own nowrap
+   labels and the text would burst the borders. Hold the shipped 188px box and
+   let the row WRAP to 2 + 1 instead — this protects a value already on the live
+   site rather than introducing a new one. Threshold is exact: --shelf-w is
+   55.5vw once clamp(24px,3vw,56px) is in its fluid range, and 576/0.555 = 1038. */
+@media (max-width: 1037px) {
+  .text-step .step-svc-btn { width: 188px; }
+}
+
 /* Panels: live HTML overlay containers (kept as visual gutter zones for
    pointer-events; text now lives in .frame-text-layer above) */
 .frame-panels {
   position: absolute; left: 0; top: 0;
-  width: 400vw; height: 100vh;
+  width: 400vw; height: var(--stage-h);
   display: flex;
   z-index: 3;
   pointer-events: none;
 }
 .frame-panel {
-  width: 100vw; height: 100vh; flex-shrink: 0;
+  width: 100vw; height: var(--stage-h); flex-shrink: 0;
   position: relative;
   display: flex; align-items: center;
   pointer-events: auto;
@@ -1911,12 +2809,107 @@ html { scrollbar-gutter: stable; }
     margin: 0;
     display: block;
   }
-  /* Secondary teaching paragraph: smaller + muted (secondary hierarchy). */
-  .mobile-text-block .step-body-2 {
+  /* Secondary teaching paragraph: smaller + muted (secondary hierarchy).
+     [V8 spec §6.2] .step-body-3 and .step-body-4 join this EXISTING selector list
+     rather than getting new rules of their own — they are the same register. */
+  .mobile-text-block .step-body-2,
+  .mobile-text-block .step-body-3,
+  .mobile-text-block .step-body-4 {
     font-size: 0.9rem;
     line-height: 1.55;
     color: rgba(197, 205, 216, 0.72);
     margin-top: 0.7rem;
+  }
+
+  /* ---- [V8 PANEL ACCOMMODATION] NEW STEP ELEMENTS — MOBILE STEPPER ----
+     The stepper is a purpose-built vertical stack and long copy is what it is
+     good at, so it gets NO grid, NO shelf, NO columns: .ms-card stays a flat
+     list of siblings. These rules are the mobile twins of the .text-step rules
+     far above; the two sets never meet. This block also serves REDUCED-MOTION
+     DESKTOP, which falls back to this same vertical stack at any width. ---- */
+  /* [V8 §5.3 / B1] The bridge now FOLLOWS the headline instead of leading the
+     card, so it gets a small top margin (0 -> 0.2rem) now that it follows text
+     rather than opening the block. */
+  .mobile-text-block .step-bridge {
+    display: block;
+    font-size: 0.9rem;
+    line-height: 1.6;
+    font-weight: 400;
+    color: rgba(197, 205, 216, 0.70);
+    margin: 0.2rem 0 0.85rem;
+    padding-left: 0.75rem;
+    border-left: 2px solid rgba(229, 166, 48, 0.32);
+  }
+  /* .subhead's -0.4rem top margin exists to pull it up against the HEADLINE's
+     0.85rem bottom margin. On Unify the bridge now sits between them, so that
+     pull would eat into the bridge instead — neutralise it there. */
+  .mobile-text-block .step-bridge + .subhead { margin-top: 0; }
+  .mobile-text-block .subhead {
+    display: block;
+    font-size: 1rem;
+    line-height: 1.4;
+    font-weight: 700;
+    color: var(--white);
+    /* pulls up against the headline's existing 0.85rem bottom margin */
+    margin: -0.4rem 0 0.7rem;
+  }
+  .mobile-text-block .step-principle {
+    display: block;
+    font-size: 1.05rem;
+    line-height: 1.4;
+    font-weight: 700;
+    color: var(--white);
+    margin: 1rem 0 0.5rem;
+    padding-top: 0.9rem;
+    border-top: 1px solid rgba(229, 166, 48, 0.22);
+  }
+  /* RESERVED — no element currently uses .step-label (Bryan's "Simple Steps
+     Forward" fills the .step-principle slot instead, per Ethan's ruling). */
+  .mobile-text-block .step-label {
+    display: block;
+    font-size: 0.7rem;
+    line-height: 1.2;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin: 0.9rem 0 0.35rem;
+  }
+  /* Unlinked descriptive strips. NO border, NO background, NO hover, and no
+     interactive semantics in the markup. On touch there is no hover at all, so
+     the decisive signal here is that a tap-and-hold raises the OS text-selection
+     handles — which the real buttons will never do. */
+  .mobile-text-block .step-capabilities,
+  .mobile-text-block .step-solutions {
+    display: block;
+    font-size: 0.85rem;
+    line-height: 1.55;
+    font-weight: 400;
+    color: rgba(197, 205, 216, 0.82);
+    cursor: default;
+    -webkit-user-select: text;
+    user-select: text;
+    background: none;
+    border: 0;
+    border-radius: 0;
+    padding: 0;
+  }
+  .mobile-text-block .step-capabilities strong,
+  .mobile-text-block .step-solutions strong {
+    font-weight: 700;
+    color: rgba(255, 255, 255, 0.92);
+  }
+  .mobile-text-block .step-capabilities { margin-top: 0.9rem; }
+  .mobile-text-block .step-solutions { margin-top: 0.4rem; }
+  /* Footnote to the strip above it — keeps the AI conditional glued to the
+     claim it qualifies. */
+  .mobile-text-block .step-ai-note {
+    display: block;
+    font-size: 0.78rem;
+    line-height: 1.5;
+    font-weight: 400;
+    color: rgba(197, 205, 216, 0.72);
+    margin-top: 0.45rem;
   }
   /* Service buttons: FULL-WIDTH STACKED, >=44px tap targets. Scoped to the
      mobile block only — desktop .text-step buttons are untouched. */
@@ -1925,7 +2918,13 @@ html { scrollbar-gutter: stable; }
     flex-direction: column;
     gap: 8px;
     max-width: none;
-    margin-top: 1rem;
+    /* [V8 §6.2] The mobile equivalent of the desktop shelf hairline: a visible
+       line between the descriptive strips and the real buttons. Everything else
+       about the mobile buttons (full-width, >=44px, no tabindex="-1") is
+       unchanged. */
+    margin-top: 1.15rem;
+    padding-top: 0.9rem;
+    border-top: 1px solid rgba(229, 166, 48, 0.22);
   }
   .mobile-text-block .step-svc-btn {
     display: flex;
@@ -2086,8 +3085,18 @@ html { scrollbar-gutter: stable; }
 /* ============================================================
    SOCIAL PROOF (preserved from v2)
    ============================================================ */
+/* [V8 §7.2] REBALANCED for a band that no longer carries the stat row.
+   Removing the stats took ~174px out of an ~461px band; the failure mode is
+   that heading-plus-logos reads TRUNCATED. The fix is not to add anything, it
+   is to make the whitespace correct for the new content and promote the logo
+   wall from supporting element to SUBJECT. Result: a ~287px band — heading,
+   air, wall, air. Everything else stays: the gold hairline ::before, the
+   grayscale filter + hover reveal, the dgs optical nudge, the fade-up reveal,
+   the auto-fit/minmax(140px,1fr) grid. Section rhythm is unaffected — no
+   background tone changes and no divider moves. */
 .social-proof {
-  padding: 5rem 0; background: var(--white);
+  /* slightly more bottom than top so the band settles rather than floats */
+  padding: 4.5rem 0 4.75rem; background: var(--white);
   position: relative;
 }
 .social-proof::before {
@@ -2098,16 +3107,22 @@ html { scrollbar-gutter: stable; }
 .proof-heading {
   text-align: center; font-size: 0.7rem; font-weight: 700;
   letter-spacing: 0.18em; text-transform: uppercase; color: var(--gold);
-  margin-bottom: 2.5rem;
+  margin-bottom: 2.25rem;    /* tightens the eyebrow to the wall it labels */
 }
 /* Frameless grayscale logo strip — unified with who-we-serve.html (Route A-color) */
 .proof-logos {
   display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-  gap: 2.5rem 2rem; align-items: center; justify-items: center;
-  max-width: 1080px; margin: 0 auto 3.5rem;
+  gap: 2.75rem 2.5rem;       /* more air now that the marks are the subject */
+  align-items: center; justify-items: center;
+  max-width: 1000px;         /* a tighter wall reads deliberate, not leftover */
+  /* CRITICAL: the old 3.5rem bottom margin existed ONLY to separate the wall
+     from the stat row. Left in place it becomes a dead tail and the whole band
+     reads truncated. */
+  margin: 0 auto;
 }
 .proof-logo {
-  width: 100%; max-width: 160px; height: 72px;
+  /* +16.7% presence — the wall becomes the section's content, not its footnote */
+  width: 100%; max-width: 184px; height: 84px;
   display: flex; align-items: center; justify-content: center;
   padding: 0 0.5rem;
 }
@@ -2859,6 +3874,164 @@ html { scrollbar-gutter: stable; }
   #nav .nav-has-mega.is-open:not(.nav-has-mega--compact) .mega { display: none; }
   #nav .nav-has-mega--compact.is-open .mega.mega--compact { max-height: none; }
 }
+
+/* ============================================================
+   [V8.4 MOBILE PASS — 2026-08-27] PHONE + TOUCH CORRECTIONS
+   ------------------------------------------------------------
+   APPENDED LAST ON PURPOSE. Several rules below rely on source order to beat
+   an equal-specificity rule earlier in this file (the .proof-logos grid, the
+   .cb-detail-card padding), so this block must stay at the bottom of the
+   stylesheet. Nothing here uses !important.
+
+   SCOPE GUARANTEE. Every rule is either WIDTH-gated at <=900 / <=600 / <=519,
+   or TOUCH-gated with the exact complement `(hover:none),(pointer:coarse)`.
+   Nothing can reach:
+     - the 901-1239px narrow-desktop arrow band (Ethan ruled it twice),
+     - the >=1240px desktop straddle composition,
+     - the fade + "See more" window on the framework panels,
+     - any shared-CSS rule (assets/css/sytech-shared.css is untouched).
+   The touch-gated rules DO apply to a touchscreen laptop at any width. That is
+   correct behaviour (a finger is a finger), not a desktop regression: they only
+   ever GROW a hit target, never move or restyle a composition.
+
+   The two standing breakpoints are untouched: hamburger stays at <=800px, the
+   framework mobile stepper cutoff stays at 900px.
+   ============================================================ */
+
+/* ---- [HIGH] CHALLENGE BAND: chip 5 was being SLICED on a phone ----------
+   .cb-frag-inner is a NON-wrapping inline-flex. Chip 5 carries a fixed,
+   unshrinkable payload before its label even starts:
+     7px status dot (+2px margin) + 20px icon + ~106px illustrative money
+     meter (the "ILLUSTRATIVE" cue at 0.5rem/0.14em tracking is the widest
+     part of it, not the dollar figure) + ~12px chevron + 4 x 9.6px flex gaps
+     + 43px of chip padding  =  ~231px.
+   Add the label's own min-content ("subscriptions", ~105px at 0.95rem bold)
+   and the chip's min-content width is ~321px. .container gives 256px inside a
+   320px phone and 296px inside a 360px phone, so the chip was wider than its
+   grid track at BOTH — and .challenge-band's overflow:hidden (load-bearing for
+   the +/-62vw slide-in entrance, so it cannot be removed) cut the left status
+   bar and the right chevron clean off.
+   Letting the inner row wrap drops min-content to the widest SINGLE item
+   (~106px), so the chip always fits and simply gets one line taller. Chips 1-4
+   never reach the wrap point at any phone width, so this is inert for them; it
+   is applied to all five as insurance against a future copy change, and it is
+   inert at 768px tablet and above. */
+@media (max-width: 900px) {
+  .challenge-band .cb-frag-inner {
+    flex-wrap: wrap;
+    /* the shorthand `gap: 0.6rem` would otherwise apply 9.6px to the NEW axis */
+    row-gap: 0.35rem;
+  }
+  .challenge-band .cb-frag:nth-child(5) .cb-cost { margin-left: 0; }
+}
+
+/* ---- [MED] SOCIAL PROOF: the logo wall collapsed to one column -----------
+   repeat(auto-fit, minmax(140px, 1fr)) needs 140+16+140 = 296px to hold two
+   columns, which is exactly the content width of a 360px phone and MORE than
+   the 256px of a 320px phone. So the six marks stacked into a single 470px-tall
+   ribbon — the opposite of the "wall as subject" the band was rebalanced for
+   after the four stat counters came out.
+   Deterministic column counts instead of auto-fit guessing: 3-up from 601-900px
+   (a clean 3 x 2 block instead of 4 + 2 orphans at tablet) and 2-up on every
+   phone (2 x 3). >=901px keeps the shipped auto-fit rule exactly as it is. */
+@media (max-width: 900px) {
+  .social-proof .proof-logos { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+@media (max-width: 600px) {
+  .social-proof .proof-logos { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+/* ---- [MED] CHIP DISCLOSURE PANEL: 3rem of right padding on a 256px card ---
+   The card reserves 48px on the right to clear the 32px close button. On a
+   320px phone that is 19% of the card spent on one button, leaving a ~182px
+   measure (~24 characters) for a three-sentence description.
+   Fix: pull the padding in and move the button-clearance onto the TITLE only,
+   which is the only element that sits beside the button. The body then runs the
+   full card width (~218px, ~29 characters). The close button grows to 44px in
+   the touch block below, and the clearance here is sized for that larger
+   button, not the 32px one: 2.75rem title padding + 1.1rem card padding =
+   61.6px against the button's 49.6px right extent. */
+@media (max-width: 600px) {
+  .challenge-band .cb-detail-card { padding: 1.2rem 1.1rem 1.25rem 1.15rem; }
+  .challenge-band .cb-detail-title { padding-right: 2.75rem; }
+}
+
+/* ---- [MED] TOUCH TAP TARGETS -------------------------------------------
+   Measured against the 44px floor. What already passed and is NOT touched:
+   the chips (.cb-frag min-height:44px), the mobile service buttons
+   (min-height:44px), the hero CTAs (44px exactly), the nav rows (~47px), the
+   phone service tiles (~78px).
+   What failed and is fixed here:
+     - the bridge "See more" pill: its font-size clamp floors at 12px on a
+       phone, so the real box was 0.42rem*2 + 1px*2 + 12*1.1 = ~28.6px tall.
+       It is display:flex/align-items:center already, so a min-height simply
+       centres the existing label in a legal box — nothing moves.
+     - the disclosure close button: 32px.
+   The framework's own .step-more-btn / .step-less-btn are NOT in this list on
+   purpose: .frame-text-layer is display:none below 901px, so they never render
+   on a phone at all. */
+@media (hover: none), (pointer: coarse) {
+  .challenge-band .cb-bridge-more-btn {
+    min-height: 44px;
+    padding: 0.42rem 1.1rem;
+  }
+  .challenge-band .cb-detail-close {
+    width: 44px; height: 44px;
+    top: 0.35rem; right: 0.35rem;
+  }
+}
+
+/* ---- [MED] HERO VIDEO MINI-PLAYER ON TOUCH ------------------------------
+   The .hvs-* bar was built for a mouse: 34px buttons on a 2px gap, and a 5px
+   seek bar. On a 320px phone the card is 256px wide, so the bar cannot simply
+   be scaled to 44px buttons (4 x 44 + the time readout + gaps overflows it).
+   What ships instead:
+     - buttons to 40px on a 6px gap, with a 2-3px invisible ::after hit
+       expansion taking the real target to ~44px WITHOUT overlapping its
+       neighbour (the 6px gap absorbs the 3px each side exactly);
+     - the seek bar keeps its 5px look but gains a 13px transparent hit band
+       above and below via ::before — the pseudo-element is a child, so taps
+       land on .hvs-progress itself and the existing drag JS is untouched;
+     - the duration readout is dropped below 400px, which is what buys the
+       room: 4x40 + 4x6 gaps + 20px padding = 204px inside a 256px card.
+   Nothing here changes the desktop bar. */
+@media (hover: none), (pointer: coarse) {
+  .hero .hero-video-side .hvs-bar { gap: 6px; padding: 6px 10px 10px; }
+  .hero .hero-video-side .hvs-btn {
+    position: relative;          /* anchor for the hit-expansion pseudo */
+    width: 40px; height: 40px;
+  }
+  .hero .hero-video-side .hvs-btn::after {
+    content: '';
+    position: absolute;
+    inset: -2px -3px;            /* -> ~44 x 46 hit box, no neighbour overlap */
+  }
+  .hero .hero-video-side .hvs-progress { margin: 0 10px 4px; }
+  .hero .hero-video-side .hvs-progress::before {
+    content: '';
+    position: absolute;
+    left: 0; right: 0; top: -13px; bottom: -13px;   /* 5px bar -> 31px hit band */
+  }
+}
+@media (max-width: 400px) and (hover: none),
+       (max-width: 400px) and (pointer: coarse) {
+  .hero .hero-video-side .hvs-time { display: none; }
+}
+
+/* ---- [LOW] SERVICE TILES IN A NARROW *MOUSE* WINDOW ---------------------
+   Pre-existing, and touch phones are NOT affected: at <=519px a real phone
+   matches the short-bar block above (front face only, no flip). A narrow
+   DESKTOP window at the same width deliberately keeps the hover flip, and
+   there the back face is a 5/2 box ~102px tall trying to hold a ~95-character
+   description at 0.84rem plus the "Learn more" rule — it overflowed the card.
+   Give that one case a slightly taller card and tighter back-face type. Gated
+   on (hover:hover) and (pointer:fine) so no touch device can see it. */
+@media (max-width: 519px) and (hover: hover) and (pointer: fine) {
+  .svc-tiles-section { --tile-ratio: 2 / 1; }
+  .svc-tiles-section .tile-back { padding: 12px 16px; }
+  .svc-tiles-section .tile-desc { font-size: 0.78rem; line-height: 1.35; margin-bottom: 6px; }
+  .svc-tiles-section .tile-more { font-size: 0.78rem; padding-top: 0.35rem; }
+}
 </style>
 </head>
 <body>
@@ -2983,8 +4156,22 @@ html { scrollbar-gutter: stable; }
     <div class="hero-grid">
       <div class="hero-copy">
         <span class="hero-eyebrow">Records &amp; Data Modernization for Public Agencies</span>
-        <h1>Records Management<br/>Problems <span>Solved.</span></h1>
-        <p>More than forms. For 25+ years we've helped public agencies modernize records, workflows, and data inside the cloud they already own, without another standalone system to buy.</p>
+        <h1>Records Management<br/>Problems <span>Solved<span class="syt-tm" role="img" aria-label="trademark">™</span>.</span></h1>
+        <!-- [V8] Bryan's hero paragraph, verbatim. Both <strong> runs are his; the
+             first deliberately ends BEFORE its period, reproducing his formatting
+             literally. This is the home of the PROTECT line "Since 2000, SyTech has
+             helped more than 500 public agencies take practical steps forward."
+             OPEN (Reed's Open Question 1, unruled): this DROPS the shipped opener
+             "More than forms." — the site's shortest rebuttal to being categorised
+             as a forms vendor. Reed recommended restoring it as a three-word lead-in
+             ("More than forms. We solve records and data management problems. ..."),
+             but his own spliceable §2.3 text ships without it, so that is what is
+             built here. Restoring it is a three-word insert at the head of the <p>.
+             NOTE FOR COLE (his spec §8 flags this as NOT specified): the paragraph
+             grows 29 -> 48 words and gains two bold runs on the navy gradient at the
+             hero lead's rgba(255,255,255,0.8). No new CSS was written for the bold
+             runs — they render at the browser default 700 inheriting that colour. -->
+        <p><strong>We solve records and data management problems</strong>. Since 2000, SyTech has helped more than 500 public agencies <strong>take practical steps forward</strong>. We turn your paper, legacy systems, and disconnected information into modern capabilities built to improve and scale over time.</p>
         <div class="hero-ctas">
           <a href="contact.html" class="btn-primary">Request a Free Assessment</a>
           <a href="services.html" class="btn-secondary">See How It Works</a>
@@ -3273,40 +4460,55 @@ html { scrollbar-gutter: stable; }
     <div class="cb-header">
       <span class="cb-eyebrow">The Challenge Facing Public Agencies</span>
       <h2 class="cb-headline">Most agencies are working across a <span class="cb-headline-key">patchwork of systems</span>.</h2>
+      <p class="cb-intro">Most public agencies aren't starting with a blank slate. They're managing decades of legacy processes and disconnected systems. Over time, complexity compounds, making it difficult to know where to start.</p>
     </div>
     <ul class="cb-fragments" role="list">
-      <li class="cb-frag" tabindex="0" aria-describedby="cb-tip-1">
+      <!-- [V8] Chips are now click/tap DISCLOSURES on every device. tabindex="0"
+           and aria-describedby are removed from the <li>; role="tooltip" is removed
+           from .cb-tip, which stays in the DOM as the display:none COPY SOURCE the
+           JS reads into the one shared .cb-detail panel below the grid. The hit
+           target is an overlay <button> so chip 5's money meter keeps its own
+           accessible name. Everything else about every chip is byte-identical. -->
+      <li class="cb-frag">
         <span class="cb-frag-inner">
           <svg width="20" height="20" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><path d="M213.66,82.34l-56-56A8,8,0,0,0,152,24H56A16,16,0,0,0,40,40V216a16,16,0,0,0,16,16H200a16,16,0,0,0,16-16V88A8,8,0,0,0,213.66,82.34ZM160,51.31,188.69,80H160ZM200,216H56V40h88V88a8,8,0,0,0,8,8h48V216Z"/></svg>
-          <span>Paper processes</span>
+          <span>Paper records and processes</span>
+          <span class="cb-frag-chevron" aria-hidden="true"><svg width="10" height="10" viewBox="0 0 256 256" fill="currentColor"><path d="M213.66,101.66l-80,80a8,8,0,0,1-11.32,0l-80-80A8,8,0,0,1,53.66,90.34L128,164.69l74.34-74.35a8,8,0,0,1,11.32,11.32Z"/></svg></span>
         </span>
-        <span class="cb-tip" role="tooltip" id="cb-tip-1">Slow and manual</span>
+        <span class="cb-tip" id="cb-tip-1">Paper still carries real work in most agencies: signatures, approvals, and files that exist in exactly one drawer. Every request means someone walks to a cabinet, and nothing in that file can be searched, shared, or tracked. Digitizing the paper is usually the first practical step forward.</span>
+        <button class="cb-frag-hit" type="button" id="cb-btn-1" aria-expanded="false" aria-controls="cb-detail" aria-label="Paper records and processes"></button>
       </li>
-      <li class="cb-frag" tabindex="0" aria-describedby="cb-tip-2">
+      <li class="cb-frag">
         <span class="cb-frag-inner">
           <svg width="20" height="20" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><path d="M219.31,72,184,36.69A15.86,15.86,0,0,0,172.69,32H48A16,16,0,0,0,32,48V208a16,16,0,0,0,16,16H208a16,16,0,0,0,16-16V83.31A15.86,15.86,0,0,0,219.31,72ZM168,208H88V152h80Zm40,0H184V152a16,16,0,0,0-16-16H88a16,16,0,0,0-16,16v56H48V48H172.69L208,83.31ZM160,72a8,8,0,0,1-8,8H96a8,8,0,0,1,0-16h56A8,8,0,0,1,160,72Z"/></svg>
           <span>Legacy records software</span>
+          <span class="cb-frag-chevron" aria-hidden="true"><svg width="10" height="10" viewBox="0 0 256 256" fill="currentColor"><path d="M213.66,101.66l-80,80a8,8,0,0,1-11.32,0l-80-80A8,8,0,0,1,53.66,90.34L128,164.69l74.34-74.35a8,8,0,0,1,11.32,11.32Z"/></svg></span>
         </span>
-        <span class="cb-tip" role="tooltip" id="cb-tip-2">Constant errors</span>
+        <span class="cb-tip" id="cb-tip-2">Older records systems were built for a different era of technology, and they often depend on servers, licenses, and skills that get harder to maintain every year. They also tend to hold records in formats that do not move easily into modern platforms. Replacing one is less a software decision than a question of how to get the records out safely.</span>
+        <button class="cb-frag-hit" type="button" id="cb-btn-2" aria-expanded="false" aria-controls="cb-detail" aria-label="Legacy records software"></button>
       </li>
-      <li class="cb-frag" tabindex="0" aria-describedby="cb-tip-3">
+      <li class="cb-frag">
         <span class="cb-frag-inner">
           <svg width="20" height="20" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><path d="M229.66,98.34a8,8,0,0,1-11.32,0L208,88v40a16,16,0,0,1-16,16H128v40l10.34-10.34a8,8,0,0,1,11.32,11.32l-24,24a8,8,0,0,1-11.32,0l-24-24a8,8,0,0,1,11.32-11.32L112,208V144H48a16,16,0,0,1-16-16V88L21.66,98.34A8,8,0,0,1,10.34,87l24-24a8,8,0,0,1,11.32,0l24,24A8,8,0,0,1,58.34,98.34L48,88v40h64V72a8,8,0,0,1,16,0v56h64V88l-10.34,10.34A8,8,0,0,1,229.66,87l-24-24a8,8,0,0,1,0-11.32Z"/></svg>
           <span>Disconnected workflows</span>
+          <span class="cb-frag-chevron" aria-hidden="true"><svg width="10" height="10" viewBox="0 0 256 256" fill="currentColor"><path d="M213.66,101.66l-80,80a8,8,0,0,1-11.32,0l-80-80A8,8,0,0,1,53.66,90.34L128,164.69l74.34-74.35a8,8,0,0,1,11.32,11.32Z"/></svg></span>
         </span>
-        <span class="cb-tip" role="tooltip" id="cb-tip-3">Nothing connects</span>
+        <span class="cb-tip" id="cb-tip-3">A single process often crosses several systems that were never designed to talk to each other. Staff rekey the same information more than once, chase approvals by email, and reconstruct status by hand. The work still gets done, but nobody can see where any of it stands.</span>
+        <button class="cb-frag-hit" type="button" id="cb-btn-3" aria-expanded="false" aria-controls="cb-detail" aria-label="Disconnected workflows"></button>
       </li>
-      <li class="cb-frag" tabindex="0" aria-describedby="cb-tip-4">
+      <li class="cb-frag">
         <span class="cb-frag-inner">
           <svg width="20" height="20" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><path d="M232,224H216V120a8,8,0,0,0-8-8H144V40a8,8,0,0,0-11.58-7.16l-96,48A8,8,0,0,0,32,88V224H16a8,8,0,0,0,0,16H232a8,8,0,0,0,0-16ZM48,92.94l80-40v171H48ZM192,224H144V128h48ZM80,112v16a8,8,0,0,1-16,0V112a8,8,0,0,1,16,0Zm32,0v16a8,8,0,0,1-16,0V112a8,8,0,0,1,16,0Zm0,56v16a8,8,0,0,1-16,0V168a8,8,0,0,1,16,0Zm-32,0v16a8,8,0,0,1-16,0V168a8,8,0,0,1,16,0Z"/></svg>
           <span>Departmental data silos</span>
+          <span class="cb-frag-chevron" aria-hidden="true"><svg width="10" height="10" viewBox="0 0 256 256" fill="currentColor"><path d="M213.66,101.66l-80,80a8,8,0,0,1-11.32,0l-80-80A8,8,0,0,1,53.66,90.34L128,164.69l74.34-74.35a8,8,0,0,1,11.32,11.32Z"/></svg></span>
         </span>
-        <span class="cb-tip" role="tooltip" id="cb-tip-4">Records trapped here</span>
+        <span class="cb-tip" id="cb-tip-4">Departments adopt the tools that solve their own problem, and over time that leaves records spread across separate systems under separate rules. The same record can end up in more than one place with different retention outcomes. No one has a single view of what the agency actually holds.</span>
+        <button class="cb-frag-hit" type="button" id="cb-btn-4" aria-expanded="false" aria-controls="cb-detail" aria-label="Departmental data silos"></button>
       </li>
-      <li class="cb-frag" tabindex="0" aria-describedby="cb-tip-5">
+      <li class="cb-frag">
         <span class="cb-frag-inner">
           <svg width="20" height="20" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><path d="M216,40H40A16,16,0,0,0,24,56V208a8,8,0,0,0,11.58,7.15L64,200.94l28.42,14.21a8,8,0,0,0,7.16,0L128,200.94l28.42,14.21a8,8,0,0,0,7.16,0L192,200.94l28.42,14.21A8,8,0,0,0,232,208V56A16,16,0,0,0,216,40Zm0,155.06-20.42-10.22a8,8,0,0,0-7.16,0L160,199.06l-28.42-14.22a8,8,0,0,0-7.16,0L96,199.06,67.58,184.84a8,8,0,0,0-7.16,0L40,195.06V56H216ZM72,96a8,8,0,0,1,8-8h96a8,8,0,0,1,0,16H80A8,8,0,0,1,72,96Zm0,40a8,8,0,0,1,8-8h96a8,8,0,0,1,0,16H80A8,8,0,0,1,72,136Z"/></svg>
-          <span>A stack of separate subscriptions</span>
+          <span>Overlapping software and subscriptions</span>
           <!-- T3: recurring-charge signal + LIVE climbing "money meter". The
                counter (#cb-cost-counter) is ILLUSTRATIVE only — no real figure;
                JS climbs it (in-view-gated). The static markup value ($1,200) is
@@ -3321,14 +4523,85 @@ html { scrollbar-gutter: stable; }
               <span class="cb-cost-illus" aria-hidden="true">illustrative</span>
             </span>
           </span>
+          <span class="cb-frag-chevron" aria-hidden="true"><svg width="10" height="10" viewBox="0 0 256 256" fill="currentColor"><path d="M213.66,101.66l-80,80a8,8,0,0,1-11.32,0l-80-80A8,8,0,0,1,53.66,90.34L128,164.69l74.34-74.35a8,8,0,0,1,11.32,11.32Z"/></svg></span>
         </span>
-        <span class="cb-tip" role="tooltip" id="cb-tip-5">Costs keep stacking</span>
+        <span class="cb-tip" id="cb-tip-5">Agencies frequently pay for records, forms, storage, and workflow capabilities in more than one place, including capabilities already included in the cloud platform they license. Renewals arrive on different cycles from different vendors, so the overlap is genuinely hard to see. The cost is real, but it rarely shows up in one place where anyone can total it.</span>
+        <button class="cb-frag-hit" type="button" id="cb-btn-5" aria-expanded="false" aria-controls="cb-detail" aria-label="Overlapping software and subscriptions"></button>
       </li>
     </ul>
+
+    <!-- [V8 / spec A8] ONE SHARED disclosure panel for all five chips, in normal
+         flow BELOW the grid. Title and body are filled by JS from the clicked
+         chip's label and its display:none .cb-tip. aria-labelledby is rewritten
+         on each open to point at the active chip's button — the correct shared-
+         panel disclosure pattern. Default (no-JS) state is collapsed and empty,
+         so the band still reads as its finished poster with JS disabled. -->
+    <div class="cb-detail" id="cb-detail" role="region" aria-labelledby="cb-btn-1">
+      <div class="cb-detail-inner">
+        <div class="cb-detail-card">
+          <span class="cb-detail-caret" aria-hidden="true"></span>
+          <h3 class="cb-detail-title"></h3>
+          <p class="cb-detail-body"></p>
+          <button class="cb-detail-close" type="button" aria-label="Close description">
+            <svg width="14" height="14" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><path d="M205.66,194.34a8,8,0,0,1-11.32,11.32L128,139.31,61.66,205.66a8,8,0,0,1-11.32-11.32L116.69,128,50.34,61.66A8,8,0,0,1,61.66,50.34L128,116.69l66.34-66.35a8,8,0,0,1,11.32,11.32L139.31,128Z"/></svg>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- TRADEMARK PLACEMENT — ETHAN'S RULING (2026-08-27, SUPERSEDES the literal
+         Bryan-doc placement that shipped first). He reviewed the literal build in
+         the browser and confirmed Reed's Open Question 2: the mark sitting between
+         "The answer isn't..." and "It's..." severed the antecedent, so "It's" lost
+         what it referred to. NOW SHIPPING: the couplet is STACKED with nothing
+         between it (lead italic, turn bold), and the mark has moved OUT of
+         .cb-closing entirely to become the HEADING of the bridge paragraph. Copy
+         is verbatim in both places — this was a move + restyle, not a rewrite. -->
     <p class="cb-closing">
-      <span class="cb-closing-lead">The hard part isn't buying more software.</span>
-      <span class="cb-closing-turn">It's finding a practical path from where you are today to where the technology is going.</span>
+      <span class="cb-closing-lead">The answer isn't buying more software.</span>
+      <span class="cb-closing-turn">It's finding a practical path forward, from where you are today to where technology is going.</span>
     </p>
+    <!-- [V8 — ETHAN 2026-08-27, correction pass] BOTH trademark lines now ship
+         here, in BRYAN'S OWN ORDER (Clarity first, then Moving Records). The
+         Clarity mark had fallen through in the first v8 build — nobody decided to
+         drop it. They ship as ONE two-line lockup inside the single
+         .cb-bridge-head, NOT as two stacked <h3>s: the Clarity mark is a KICKER
+         (smaller, lighter, tight gap below) and "Moving Records..." keeps full
+         heading weight, because that is the line the bridge paragraph underneath
+         actually pays off ("...move your records and data forward, one practical
+         step at a time"). Equal weight on both would read as a stack of taglines
+         and would re-break the couplet above. Copy, casing, EM-DASH and ampersand
+         are VERBATIM Bryan — trademark lines are exempt from the house
+         em-dash/ampersand rules, because punctuation is part of a mark.
+
+         [V8.3 — ETHAN 2026-08-27, browser review] SUPERSEDED. THE WHOLE TWO-MARK
+         LOCKUP IS REMOVED at his instruction: both the "from Complexity to
+         Clarity™" kicker and the "Moving Records & Data Forward—One Practical
+         Step at a Time.™" line, plus the <h3 class="cb-bridge-head"> wrapper.
+         On the record, so nobody "rescues" this later as an accident: "Moving
+         Records & Data Forward" is now absent from this page entirely, and
+         "from complexity to clarity™" survives only in the FOOTER tagline,
+         which was not touched.
+
+         WHAT REPLACED IT — the bridge paragraph became a disclosure: two lines
+         visible, the third fading out, the rest revealed by a "See more" pill
+         that matches the framework's .step-more-btn. The copy is UNCHANGED and
+         complete in the DOM (no aria-hidden, no truncation, no second copy) —
+         only its visual height is clamped, and only while collapsed.
+         `is-clamped` ships in the markup so there is no flash of full copy
+         before JS runs; the <noscript> below removes it if scripting is off. -->
+    <div class="cb-bridge-block is-clamped" id="cbBridgeBlock">
+      <p class="cb-bridge" id="cbBridgeText">Modern cloud platforms have changed what's possible. Capabilities that once required separate software can now be built on the technology agencies already use. SyTech helps put those capabilities to work, connecting records, data, and processes while reducing dependence on disconnected systems. We leverage your modern cloud platforms to move your records and data forward, one practical step at a time.</p>
+      <div class="cb-bridge-more-row">
+        <button type="button" class="cb-bridge-more-btn" id="cbBridgeMore" aria-expanded="false" aria-controls="cbBridgeText">See more</button>
+      </div>
+    </div>
+    <!-- NO-JS ESCAPE HATCH. Selectors deliberately MIRROR the two stylesheet
+         rules they undo (`:not(.is-open)` included) so specificity ties and
+         source order — this block is later — decides. A shorter selector here
+         would lose to the (0,4,0) clamp rule and silently leave the copy
+         truncated with a dead button under it. -->
+    <noscript><style>.cb-bridge-block.is-clamped:not(.is-open) .cb-bridge{max-height:none;-webkit-mask-image:none;mask-image:none}.cb-bridge-block.is-clamped .cb-bridge-more-row{display:none}</style></noscript>
   </div>
 </section>
 
@@ -3347,7 +4620,9 @@ html { scrollbar-gutter: stable; }
       <div class="frame-bg-white" aria-hidden="true"></div>
       <div class="frame-bg-gradient" aria-hidden="true"></div>
 
-      <!-- Unified SVG canvas: viewBox 0 0 11885 1930 stretched to 400vw x 100vh -->
+      <!-- Unified SVG canvas: viewBox 0 0 11885 1930 stretched to 400vw x var(--stage-h).
+           preserveAspectRatio="none" means the amber line, at the viewBox's vertical
+           midpoint, always renders at 50% of the stage height whatever that resolves to. -->
       <div class="frame-svg-canvas" aria-hidden="true">
         <svg viewBox="0 0 11885 1930" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
           <defs>
@@ -3404,21 +4679,26 @@ html { scrollbar-gutter: stable; }
 
       <!-- Dots rendered as HTML divs -->
       <div class="dots-layer" aria-hidden="true">
-        <div class="dot-group" id="dot-organize" style="left: 170.434vw; top: 50vh;">
+        <!-- [V8 / spec A7] top: 50vh -> 50%. UNIT change, not a position change:
+             .dots-layer is height:var(--stage-h) and the amber line sits at the
+             SVG's vertical midpoint, so 50% puts the dot on the line at EVERY
+             stage height, and is identical to 50vh whenever --stage-h = 100vh.
+             No dot moves horizontally. -->
+        <div class="dot-group" id="dot-organize" style="left: 170.434vw; top: 50%;">
           <span class="dot-halo dot-halo-outer"></span>
           <span class="dot-halo dot-halo-mid"></span>
           <span class="dot-ring"></span>
           <span class="dot-pulse"></span>
           <span class="dot-core"></span>
         </div>
-        <div class="dot-group" id="dot-unify" style="left: 241.196vw; top: 50vh;">
+        <div class="dot-group" id="dot-unify" style="left: 241.196vw; top: 50%;">
           <span class="dot-halo dot-halo-outer"></span>
           <span class="dot-halo dot-halo-mid"></span>
           <span class="dot-ring"></span>
           <span class="dot-pulse"></span>
           <span class="dot-core"></span>
         </div>
-        <div class="dot-group" id="dot-scale" style="left: 311.953vw; top: 50vh;">
+        <div class="dot-group" id="dot-scale" style="left: 311.953vw; top: 50%;">
           <span class="dot-halo dot-halo-outer"></span>
           <span class="dot-halo dot-halo-mid"></span>
           <span class="dot-ring"></span>
@@ -3433,54 +4713,162 @@ html { scrollbar-gutter: stable; }
         <div class="frame-text-block text-hero" id="textHero">
           <span class="eyebrow">Organize. Unify. Scale.</span>
           <span class="headline">How we think about modernization.</span>
-          <span class="subline">Modernize one piece at a time, not all at once.</span>
+          <span class="subline">From Complexity to Capability<span class="syt-tm" role="img" aria-label="trademark">™</span>—one practical step at a time.</span>
         </div>
 
         <!-- Step 1 / Organize (Panel 2) -->
         <div class="frame-text-block text-step organize" id="textOrganize">
+          <!-- [V8.1 FADE + SEE MORE] ONE column, read straight down. The headline
+               is the HIGHEST element in the panel; nothing sits above it, and it
+               is top-anchored to --head-axis so it shares an exact horizontal
+               axis with Unify and Scale.
+               .step-above now holds ALL the prose (it fades out before the amber
+               line and expands into the reading window); .step-below holds only
+               the "See more" button and the shelf. The old per-panel above/below
+               COPY SPLIT is retired — there is nothing left to drift.
+               Organize keeps Bryan's principle-before-paragraph sequence, so the
+               desktop and mobile reading orders still match exactly. -->
           <div class="step-above">
             <span class="eyebrow">Step 1 / Organize</span>
             <span class="headline">See What You Actually Have</span>
-            <span class="body step-body-1">We scan, structure, and index your legacy records, paper and digital, so nothing stays buried and everything becomes visible.</span>
+            <span class="subhead">Bring structure to your records and data.</span>
+            <span class="body step-body-1">We digitize, migrate, classify, clean, and organize records and data. Our services turn paper, legacy systems, and unstructured electronic records into a trusted foundation for what comes next.</span>
+            <span class="body step-principle">Structure makes modernization possible.</span>
+            <!-- [V8.1] The old .step-above / .step-below BREAK used to fall here.
+                 It is gone: ALL the prose now reads straight down inside
+                 .step-above, fading out before the amber line, and .step-below
+                 holds only the "See more" button and the shelf. Not one word was
+                 cut — the copy below is the same copy, in the same order. -->
+            <span class="body step-body-2">Records and data can't create value if they are trapped in paper, outdated systems, or disorganized repositories. Structure makes effective governance, connection, automation, and AI possible.</span>
+            <!-- HARD RULE (Reed §5): "digital decluttering" may ONLY ever appear
+                 inside a "Think of it as..." construction. Never a service name,
+                 never a heading, never a nav label, never an alt text. -->
+            <span class="body step-body-3">Think of it as <strong>digital decluttering</strong>. Before you can build something better, you need to organize what you already have. SyTech provides the services and expertise to do the work, removing records and data clutter through practical, affordable steps that create value today while preparing your organization for what comes next.</span>
+            <button type="button" class="step-less-btn" tabindex="-1">See less</button>
+          </div>
+          <!-- [V8.2] "See more" moved ABOVE the amber line (Ethan, 2026-08-27) and
+               centred on the column. It is a SIBLING of .step-above, never a child
+               of it: .step-above carries the fade mask, and a mask applies to every
+               descendant with no way to opt out, so a button inside it would fade
+               away with the copy. Its DOM position relative to .step-below is
+               unchanged, so the tab order is still prose -> See more -> capability
+               strip -> service links. -->
+          <div class="step-more-row">
+            <button type="button" class="step-more-btn" tabindex="-1" aria-expanded="false" aria-label="See more of the Organize step">See more</button>
           </div>
           <div class="step-below">
-            <span class="body step-body-2">You can't modernize, share, or automate records you can't find, and most agencies don't fully know what they're holding, so we make everything visible first.</span>
-            <div class="step-services">
-              <a class="step-svc-btn" href="services-scanning.html" tabindex="-1">Archive Scanning<span class="arrow" aria-hidden="true">&rarr;</span></a>
-              <a class="step-svc-btn" href="services-data-migration.html" tabindex="-1">Data Migration<span class="arrow" aria-hidden="true">&rarr;</span></a>
-              <a class="step-svc-btn" href="services-compliance-setup.html" aria-label="Records Management and Compliance Setup" tabindex="-1">Compliance Setup<span class="arrow" aria-hidden="true">&rarr;</span></a>
+            <div class="step-shelf">
+              <span class="step-capabilities"><strong>Scanning &amp; Digitization</strong>&nbsp;&middot; <strong>Data &amp; Records Migration</strong>&nbsp;&middot; <strong>Records Organization &amp; Governance</strong></span>
+              <div class="step-services">
+                <a class="step-svc-btn" href="services-scanning.html" tabindex="-1">Archive Scanning<span class="arrow" aria-hidden="true">&rarr;</span></a>
+                <a class="step-svc-btn" href="services-data-migration.html" tabindex="-1">Data Migration<span class="arrow" aria-hidden="true">&rarr;</span></a>
+                <a class="step-svc-btn" href="services-compliance-setup.html" aria-label="Records Management and Compliance Setup" tabindex="-1">Compliance Setup<span class="arrow" aria-hidden="true">&rarr;</span></a>
+              </div>
             </div>
           </div>
         </div>
 
         <!-- Step 2 / Unify (Panel 3) -->
         <div class="frame-text-block text-step unify" id="textUnify">
+          <!-- [V8.1 FADE + SEE MORE] ONE column, read straight down. Unify is the
+               LONGEST panel of the three (~1,331 characters of prose) — if the
+               reading window holds Unify, it holds the other two. It is the
+               panel to test the expanded window against. -->
           <div class="step-above">
             <span class="eyebrow">Step 2 / Unify</span>
             <span class="headline">One Ecosystem. One Login.</span>
-            <span class="body step-body-1">Your organized records move into the cloud platform you already own. Forms, workflows, and data connect in a single place. No new software.</span>
+            <!-- [V8 / B1] Unify only. The bridge sits immediately AFTER the
+                 headline on BOTH layers now. The headline is the highest element
+                 in the panel and nothing is ever allowed above it — this retires
+                 the old spec's A4, which put the bridge above the eyebrow on
+                 mobile. Reed's rationale survives: the bridge is a transition INTO
+                 the step, so it still reads before the subhead and the argument. -->
+            <span class="step-bridge">Organize brings structure to what you have. Unify brings it together. We bring forms, workflows, records management, and business processes together within modern cloud environments.</span>
+            <span class="subhead">Connect your records, data, and processes.</span>
+            <span class="body step-body-1">Once records and data are organized, the next step is to connect them. We unify forms, workflows, records management, and business processes within modern cloud environments. Disconnected systems begin working together in a more centralized, manageable environment.</span>
+            <!-- [V8.1] Old .step-above / .step-below break removed — see the note
+                 in the Organize block. All prose is one continuous read now. -->
+            <span class="body step-body-2">Technology is at a fundamental inflection point. Capabilities that once required separate software can now be built within modern platforms agencies already use, like Microsoft 365 and Google Workspace. SyTech helps replace outdated software and costly workarounds while reducing data silos and software dependency.</span>
+            <span class="body step-principle">Connection makes modernization work.</span>
+            <span class="body step-body-3">SyTech turns complexity into connected automation that can scale. We partner with our clients to provide the services, expertise, and Connective Tools needed to make the transition practical and affordable.</span>
+            <span class="body step-body-4">The result is simpler operations, stronger compliance, lower costs, and a practical path to automation.</span>
+            <button type="button" class="step-less-btn" tabindex="-1">See less</button>
+          </div>
+          <!-- [V8.2] "See more" above the line, centred — see the note in the
+               Organize block for why it is a sibling of .step-above, not a child. -->
+          <div class="step-more-row">
+            <button type="button" class="step-more-btn" tabindex="-1" aria-expanded="false" aria-label="See more of the Unify step">See more</button>
           </div>
           <div class="step-below">
-            <span class="body step-body-2">Most agencies pay twice, once for Microsoft 365 and again for a separate records or forms platform that duplicates it, and Unify folds that work back into the tools you already fund.</span>
-            <div class="step-services">
-              <a class="step-svc-btn" href="services-oneform.html" tabindex="-1">OneForm<span class="arrow" aria-hidden="true">&rarr;</span></a>
-              <a class="step-svc-btn" href="services-sharepoint-erms.html" tabindex="-1">SharePoint ERMS<span class="arrow" aria-hidden="true">&rarr;</span></a>
-              <a class="step-svc-btn" href="services-1docstop.html" tabindex="-1">1DocStop<span class="arrow" aria-hidden="true">&rarr;</span></a>
+            <div class="step-shelf">
+              <span class="step-capabilities"><strong>Managed Services</strong>&nbsp;&middot; <strong>Connective Tools</strong>&nbsp;&middot; <strong>Cloud Records &amp; Workflow</strong></span>
+              <!-- HOLD (Reed §6): Bryan's 4th Common Solution "Google Workspace
+                   Records Management" is deliberately ABSENT pending his written
+                   confirmation that it is a real, delivered solution. Google as a
+                   PLATFORM is cleared and ships in .step-body-2 above. If Bryan
+                   confirms, append: " &middot; Google Workspace Records Management"
+                   to BOTH this strip and its mobile twin. Cole pre-sized it
+                   (spec A9): it goes to 2 lines and still fits with 29px of slack. -->
+              <span class="step-solutions"><strong>Common Solutions:</strong> Electronic Records Management&nbsp;&middot; Electronic Forms &amp; Workflow Automation&nbsp;&middot; SharePoint Records Management</span>
+              <div class="step-services">
+                <a class="step-svc-btn" href="services-oneform.html" tabindex="-1">OneForm<span class="arrow" aria-hidden="true">&rarr;</span></a>
+                <a class="step-svc-btn" href="services-sharepoint-erms.html" tabindex="-1">SharePoint ERMS<span class="arrow" aria-hidden="true">&rarr;</span></a>
+                <a class="step-svc-btn" href="services-1docstop.html" tabindex="-1">1DocStop<span class="arrow" aria-hidden="true">&rarr;</span></a>
+              </div>
             </div>
           </div>
         </div>
 
         <!-- Step 3 / Scale (Panel 4) -->
         <div class="frame-text-block text-step scale" id="textScale">
+          <!-- [V8.1 FADE + SEE MORE] ONE column, read straight down. Scale's
+               headline wraps to TWO lines where Unify's wraps to one — the
+               top-anchored --head-axis plus the 2-line min-height on
+               .text-step .headline is what keeps both headers on one axis. -->
           <div class="step-above">
             <span class="eyebrow">Step 3 / Scale</span>
             <span class="headline">Activate What You Already Fund</span>
-            <span class="body step-body-1">We turn on advanced automation, analytics, and AI using the licenses your agency already pays for. Your infrastructure grows with you.</span>
+            <span class="subhead">Continuous Automation</span>
+            <span class="body step-body-1">Once records, data, and processes are organized and connected, you can build on that foundation. Scale expands automation, governance, analytics, and business processes across departments without starting over.</span>
+            <span class="body step-body-2">Modern cloud platforms are changing how technology is built. Instead of waiting for the next software release, organizations can continuously add new capabilities using cloud services, automation tools, and emerging technologies. Think of these capabilities as building blocks. Each new automation builds on the same organized and connected foundation, allowing your environment to evolve as needs and technology change.</span>
+              <!-- [V8.1] Old .step-above / .step-below break removed — see the note
+                   in the Organize block. All prose is one continuous read now. -->
+              <!-- ETHAN'S RULING (2026-08-27): the Scale principle line below is BRYAN'S
+                   OWN. It occupies the same bold standalone slot in his Scale section
+                   that the Organize and Unify principle lines occupy in theirs — see
+                   source/ref-bryan-homepage-verbiage-revisions-2026-08-27.md. Reed
+                   believed Bryan never wrote a third line and drafted a replacement;
+                   that draft is NOT shipped anywhere on this page. Because Bryan's line
+                   now fills .step-principle, Reed's separate .step-label carrying the
+                   same words is DROPPED — shipping both would print the identical string
+                   twice in one panel. The .step-label CSS is retained, marked RESERVED,
+                   if it is ever wanted back.
+                   Set verbatim, WITHOUT a trailing period, exactly as Bryan wrote it.
+                   The two sibling principle lines DO end in periods, so adding one here
+                   is a one-character change if Ethan wants the punctuation to match. -->
+            <span class="body step-principle">Simple Steps Forward</span>
+            <span class="body step-body-3">We combine services, Connective Tools, code libraries, and expertise to help you build a better path forward. <strong>Every improvement makes the next one easier. Your organization becomes more capable with every step forward.</strong></span>
+            <button type="button" class="step-less-btn" tabindex="-1">See less</button>
+          </div>
+          <!-- [V8.2] "See more" above the line, centred — see the note in the
+               Organize block for why it is a sibling of .step-above, not a child. -->
+          <div class="step-more-row">
+            <button type="button" class="step-more-btn" tabindex="-1" aria-expanded="false" aria-label="See more of the Scale step">See more</button>
           </div>
           <div class="step-below">
-            <span class="body step-body-2">Scale isn't a new purchase; it switches on power already inside your licenses, like AI that reads, classifies, and indexes huge archives on its own so staff aren't filing by hand.</span>
-            <div class="step-services">
-              <a class="step-svc-btn" href="services-ai-ingestion.html" tabindex="-1">AI-Powered Ingestion<span class="arrow" aria-hidden="true">&rarr;</span></a>
+            <div class="step-shelf">
+              <span class="step-capabilities"><strong>Managed Modernization</strong>&nbsp;&middot; <strong>Automation &amp; Workflow</strong>&nbsp;&middot; <strong>Cloud Platform Services</strong></span>
+              <span class="step-solutions"><strong>Common Solutions:</strong> Continuous Process Improvement&nbsp;&middot; Department Automation&nbsp;&middot; Governance &amp; Analytics&nbsp;&middot; AI-Enabled Automation</span>
+              <!-- REQUIRED (Reed §7). The site-wide rule is that AI is always
+                   CONDITIONAL, never "we deliver AI today." Bryan's copy removed the
+                   conditional that used to live in .step-body-2, so this footnote
+                   restores it. Triple-hedged on purpose: licensing conditional, no new
+                   purchase, framework conditional. DO NOT ship the Scale Common
+                   Solutions strip without it. -->
+              <span class="body step-ai-note">AI-enabled automation is turned on where your licensing supports it, using capabilities your agency already pays for, once your records are organized enough to feed it.</span>
+              <div class="step-services">
+                <a class="step-svc-btn" href="services-ai-ingestion.html" tabindex="-1">AI-Powered Ingestion<span class="arrow" aria-hidden="true">&rarr;</span></a>
+              </div>
             </div>
           </div>
         </div>
@@ -3493,7 +4881,7 @@ html { scrollbar-gutter: stable; }
           <div class="mobile-text-block">
             <span class="eyebrow">Organize. Unify. Scale.</span>
             <span class="headline">How we think about modernization.</span>
-            <span class="subline">Modernize one piece at a time, not all at once.</span>
+            <span class="subline">From Complexity to Capability<span class="syt-tm" role="img" aria-label="trademark">™</span>—one practical step at a time.</span>
           </div>
         </div>
 
@@ -3507,8 +4895,18 @@ html { scrollbar-gutter: stable; }
             <div class="ms-card">
               <span class="eyebrow">Organize</span>
               <span class="headline">See What You Actually Have</span>
-              <span class="body">We scan, structure, and index your legacy records, paper and digital, so nothing stays buried and everything becomes visible.</span>
-              <span class="body step-body-2">You can't modernize, share, or automate records you can't find, and most agencies don't fully know what they're holding, so we make everything visible first.</span>
+              <span class="subhead">Bring structure to your records and data.</span>
+              <span class="body">We digitize, migrate, classify, clean, and organize records and data. Our services turn paper, legacy systems, and unstructured electronic records into a trusted foundation for what comes next.</span>
+              <!-- [V8 / B6] Organize is the ONE step where Bryan put his principle
+                   line BEFORE the paragraph that explains it. The old two-column
+                   desktop grid normalised that away and created a desktop/mobile
+                   divergence; the vertical straddle keeps Bryan's sequence, so
+                   BOTH layers now read principle -> body-2. The divergence is
+                   closed — do not "fix" one of these back. -->
+              <span class="body step-principle">Structure makes modernization possible.</span>
+              <span class="body step-body-2">Records and data can't create value if they are trapped in paper, outdated systems, or disorganized repositories. Structure makes effective governance, connection, automation, and AI possible.</span>
+              <span class="body step-body-3">Think of it as <strong>digital decluttering</strong>. Before you can build something better, you need to organize what you already have. SyTech provides the services and expertise to do the work, removing records and data clutter through practical, affordable steps that create value today while preparing your organization for what comes next.</span>
+              <span class="step-capabilities"><strong>Scanning &amp; Digitization</strong>&nbsp;&middot; <strong>Data &amp; Records Migration</strong>&nbsp;&middot; <strong>Records Organization &amp; Governance</strong></span>
               <div class="step-services">
                 <a class="step-svc-btn" href="services-scanning.html">Archive Scanning<span class="arrow" aria-hidden="true">&rarr;</span></a>
                 <a class="step-svc-btn" href="services-data-migration.html">Data Migration<span class="arrow" aria-hidden="true">&rarr;</span></a>
@@ -3528,8 +4926,25 @@ html { scrollbar-gutter: stable; }
             <div class="ms-card">
               <span class="eyebrow">Unify</span>
               <span class="headline">One Ecosystem. One Login.</span>
-              <span class="body">Your organized records move into the cloud platform you already own. Forms, workflows, and data connect in a single place. No new software.</span>
-              <span class="body step-body-2">Most agencies pay twice, once for Microsoft 365 and again for a separate records or forms platform that duplicates it, and Unify folds that work back into the tools you already fund.</span>
+              <!-- [V8 / B1 — Ethan's ruling 2026-08-27] BOTH layers now put the
+                   bridge immediately AFTER the headline. The headline is the
+                   highest element in the panel and nothing sits above it. This
+                   replaces the old spec's A4, which had the bridge leading the
+                   card above the "Unify" eyebrow on mobile only. Reed's rationale
+                   survives: the bridge is a transition INTO the step, so it still
+                   reads before the subhead and before the argument. -->
+              <span class="step-bridge">Organize brings structure to what you have. Unify brings it together. We bring forms, workflows, records management, and business processes together within modern cloud environments.</span>
+              <span class="subhead">Connect your records, data, and processes.</span>
+              <span class="body">Once records and data are organized, the next step is to connect them. We unify forms, workflows, records management, and business processes within modern cloud environments. Disconnected systems begin working together in a more centralized, manageable environment.</span>
+              <span class="body step-body-2">Technology is at a fundamental inflection point. Capabilities that once required separate software can now be built within modern platforms agencies already use, like Microsoft 365 and Google Workspace. SyTech helps replace outdated software and costly workarounds while reducing data silos and software dependency.</span>
+              <span class="body step-principle">Connection makes modernization work.</span>
+              <span class="body step-body-3">SyTech turns complexity into connected automation that can scale. We partner with our clients to provide the services, expertise, and Connective Tools needed to make the transition practical and affordable.</span>
+              <span class="body step-body-4">The result is simpler operations, stronger compliance, lower costs, and a practical path to automation.</span>
+              <span class="step-capabilities"><strong>Managed Services</strong>&nbsp;&middot; <strong>Connective Tools</strong>&nbsp;&middot; <strong>Cloud Records &amp; Workflow</strong></span>
+              <!-- HOLD: "Google Workspace Records Management" deliberately absent —
+                   see the matching comment in the desktop Unify shelf. If Bryan
+                   confirms it, append it HERE TOO or the layers desync. -->
+              <span class="step-solutions"><strong>Common Solutions:</strong> Electronic Records Management&nbsp;&middot; Electronic Forms &amp; Workflow Automation&nbsp;&middot; SharePoint Records Management</span>
               <div class="step-services">
                 <a class="step-svc-btn" href="services-oneform.html">OneForm<span class="arrow" aria-hidden="true">&rarr;</span></a>
                 <a class="step-svc-btn" href="services-sharepoint-erms.html">SharePoint ERMS<span class="arrow" aria-hidden="true">&rarr;</span></a>
@@ -3549,8 +4964,19 @@ html { scrollbar-gutter: stable; }
             <div class="ms-card">
               <span class="eyebrow">Scale</span>
               <span class="headline">Activate What You Already Fund</span>
-              <span class="body">We turn on advanced automation, analytics, and AI using the licenses your agency already pays for. Your infrastructure grows with you.</span>
-              <span class="body step-body-2">Scale isn't a new purchase; it switches on power already inside your licenses, like AI that reads, classifies, and indexes huge archives on its own so staff aren't filing by hand.</span>
+              <span class="subhead">Continuous Automation</span>
+              <span class="body">Once records, data, and processes are organized and connected, you can build on that foundation. Scale expands automation, governance, analytics, and business processes across departments without starting over.</span>
+              <span class="body step-body-2">Modern cloud platforms are changing how technology is built. Instead of waiting for the next software release, organizations can continuously add new capabilities using cloud services, automation tools, and emerging technologies. Think of these capabilities as building blocks. Each new automation builds on the same organized and connected foundation, allowing your environment to evolve as needs and technology change.</span>
+              <!-- ETHAN'S RULING: the Scale principle line below is Bryan's own.
+                   Reed's invented replacement is not shipped. See the fuller note in
+                   the desktop Scale block above. -->
+              <span class="body step-principle">Simple Steps Forward</span>
+              <span class="body step-body-3">We combine services, Connective Tools, code libraries, and expertise to help you build a better path forward. <strong>Every improvement makes the next one easier. Your organization becomes more capable with every step forward.</strong></span>
+              <span class="step-capabilities"><strong>Managed Modernization</strong>&nbsp;&middot; <strong>Automation &amp; Workflow</strong>&nbsp;&middot; <strong>Cloud Platform Services</strong></span>
+              <span class="step-solutions"><strong>Common Solutions:</strong> Continuous Process Improvement&nbsp;&middot; Department Automation&nbsp;&middot; Governance &amp; Analytics&nbsp;&middot; AI-Enabled Automation</span>
+              <!-- REQUIRED: keeps the AI claim conditional. Do not ship the Scale
+                   Common Solutions strip without it. -->
+              <span class="body step-ai-note">AI-enabled automation is turned on where your licensing supports it, using capabilities your agency already pays for, once your records are organized enough to feed it.</span>
               <div class="step-services">
                 <a class="step-svc-btn" href="services-ai-ingestion.html">AI-Powered Ingestion<span class="arrow" aria-hidden="true">&rarr;</span></a>
               </div>
@@ -3602,7 +5028,7 @@ html { scrollbar-gutter: stable; }
      SOCIAL PROOF SECTION
      ============================================================ -->
 <div id="about"></div>
-<section class="social-proof" id="who-we-serve" aria-label="Client logos and credibility statistics">
+<section class="social-proof" id="who-we-serve" aria-label="Client logos">
   <div class="container">
     <p class="proof-heading fade-up">Trusted by California public agencies</p>
     <div class="proof-logos fade-up">
@@ -3613,25 +5039,18 @@ html { scrollbar-gutter: stable; }
       <div class="proof-logo"><img src="assets/logos/losangelas_county.png" alt="Los Angeles County" loading="lazy"/></div>
       <div class="proof-logo"><img src="assets/logos/smud.png" alt="SMUD" loading="lazy"/></div>
     </div>
-
-    <div class="proof-stats fade-up">
-      <div class="stat-item">
-        <div class="stat-number">4,579</div>
-        <div class="stat-label">Active Cloud Clients</div>
-      </div>
-      <div class="stat-item">
-        <div class="stat-number">256</div>
-        <div class="stat-label">Cloud Solutions</div>
-      </div>
-      <div class="stat-item">
-        <div class="stat-number">600<span>+</span></div>
-        <div class="stat-label">CA Clients</div>
-      </div>
-      <div class="stat-item">
-        <div class="stat-number">10.7<span>M</span></div>
-        <div class="stat-label">Managed Records</div>
-      </div>
-    </div>
+    <!-- [V8] The four stat counters (4,579 / 256 / 600+ / 10.7M) are DELETED.
+         They were the unattributed-counter pattern already flagged as a
+         site-wide credibility risk, and "more than 500 public agencies" in the
+         hero is now the ONLY number on the homepage. The HEADING and the LOGO
+         WALL stay. Nothing replaces the stats — inventing a substitute figure
+         would break the same rule. The band's proportions are rebalanced in CSS
+         instead (spec §7.2) so it reads as a full band rather than a truncated
+         one. Verified: no counter-up JS was bound to .stat-number / .stat-item /
+         .proof-stats, so there is no orphaned script to remove. The now-dead
+         .proof-stats / .stat-* CSS rules are intentionally LEFT IN PLACE — this
+         is a fork, they are harmless, and a later sweep should take them out
+         together with their mobile overrides. -->
   </div>
 </section>
 
@@ -3643,7 +5062,12 @@ html { scrollbar-gutter: stable; }
 
     <!-- Section intro — v7 EGUSD "connective tools" repositioning -->
     <div class="svc-tiles-intro fade-up">
-      <span class="svc-tiles-eyebrow">Connective Tools, Not More Silos</span>
+      <!-- [V8] "Connective Tools" now takes Bryan's NARROWER meaning — one
+           capability inside Unify, not the whole portfolio. This eyebrow sat above
+           a grid of every service on the site and therefore claimed the phrase
+           portfolio-wide. Dropping the two words that made the claim resolves the
+           conflict while preserving the cadence and contrast structure exactly. -->
+      <span class="svc-tiles-eyebrow">Connected, Not More Silos</span>
       <h2 class="svc-tiles-heading">Everything we do connects what you already own.</h2>
       <p class="svc-tiles-subline">Grouped the way we work: Organize, Unify, Scale.</p>
     </div>
@@ -3926,7 +5350,7 @@ html { scrollbar-gutter: stable; }
       <h2>Let's Start With an Assessment.</h2>
       <p>Every engagement begins with a conversation. We learn where you are, what is working, and what is not, then map a clear path forward.</p>
       <a href="mailto:support@sytechsolutions.com?subject=Assessment%20Request" class="btn-primary">Request a Free Assessment</a>
-      <div class="cta-reassurance">No commitment required. We have been doing this for over 25 years.</div>
+      <div class="cta-reassurance">No commitment required. We have been doing this since 2000.</div>
     </div>
   </div>
 </section>
@@ -3962,7 +5386,7 @@ html { scrollbar-gutter: stable; }
             <path fill="#25426B" d="M300.1,12.2c9.4-3.5,19.8-1,28.5,3.1c15.9,7.5,29.2,19.2,41.7,31.3c22.9,22.8,42.6,48.5,61.1,75c30.4,44,56.7,90.6,80.6,138.3c3.7,7.6,7.3,15.2,11.1,22.8c5.6,11.9,10.7,24,16.5,35.8c15.3-4.5,32.2-2.6,46.3,4.7c14.5,7.3,26,20.4,31.4,35.7c3.8,10.2,4.4,21.4,2.9,32.2c-3.2,20.6-17.1,38.9-35.8,47.9c12.6,41.7,23.4,84.4,25.8,128.1c0.4,14.1,0,28.5-4,42.2c-2.4,7.6-6.1,15.4-13,20c-7.3,4.5-16.4,6.6-24.9,4.2c-15.4-3.8-28.3-13.7-40.2-23.6c-26-22.8-47.6-50.2-67.8-78.2c-15.1-21.1-28.9-43.1-42.3-65.2c1.4-2.6,2.9-5.1,4.4-7.7c25.5,43.3,53,85.7,86.6,123.2c12.9,13.8,26.4,27.5,42.7,37.3c8.3,4.8,18,9.1,27.8,7.3c5.9-1.8,9.9-7.1,12.5-12.4c4.4-9.4,5.7-19.9,6.2-30.1c0.6-16.7-1.2-33.5-3.8-50c-5-30.7-12.9-60.9-22.3-90.6c-12.9,3-26.7,2.3-39-2.6c-16-6.2-29.3-19.1-36-34.9c-7.1-16.6-6.8-36.3,1-52.6c5.9-12.8,16.3-23.3,28.7-30c-4.1-8.5-13-28.8-13.6-30.3c-5.3-11.1-10.6-22.1-16.1-33.1c-18.5-37-38.6-73.1-60.8-108c-15.9-24.8-32.7-48.9-51.5-71.6c-12.1-14.5-24.9-28.5-39.5-40.4c-8.9-7.1-18.4-13.9-29.4-17.3c-5-1.4-10.7-2.2-15.7-0.3c-7.2,3.5-11,11.1-13.4,18.3c-4.5,14.7-3.9,30.3-3.2,45.4c3.1,39,13,77.1,24.3,114.4c6.1,20.1,13.3,39.8,20.2,59.6c-2.7,0.1-5.4,0.2-8,0.1c-13.2-35.9-24.8-72.4-33.3-109.7c-6.2-27.3-10.8-55.2-10.9-83.3c0.5-13,1.4-26.4,6.9-38.4C286,21.2,291.9,14.3,300.1,12.2L300.1,12.2z"/>
           </svg>
         </div>
-        <p>Public sector records management services. From complexity to clarity.</p>
+        <p>Public sector records management services. From complexity to clarity<span class="syt-tm" role="img" aria-label="trademark">™</span>.</p>
       </div>
       <div class="footer-col">
         <h4>Navigation</h4>
@@ -4347,34 +5771,225 @@ html { scrollbar-gutter: stable; }
   })();
 
   /* -------------------------------------------------------
-     CHALLENGE BAND — fault tooltips: touch tap-to-toggle.
-     Desktop relies on CSS :hover / :focus / :focus-within (no JS needed).
-     On no-hover (touch) devices, tapping a chip toggles its tooltip and
-     closes the others; tapping outside closes all. Namespaced, additive —
-     does not touch slide-in / float / spinner / cost behavior.
+     [V8] CHALLENGE BAND — chip DISCLOSURE controller.
+     REPLACES the v7 touch-only tap-to-toggle tooltip block. Bryan asked for a
+     2-3 SENTENCE description per chip, delivered as a click/tap disclosure on
+     EVERY device (the old block early-returned on `!coarse.matches`, i.e. it ran
+     on touch only and let CSS :hover drive desktop; three sentences is far too
+     much content for a hover reveal, and on touch there is no hover at all).
+
+     One shared panel, one open at a time. The chips NEVER move, resize or
+     reflow when a panel opens — the panel is in normal flow beneath the grid
+     (spec A8), which is what protects the felt-patchwork composition and keeps
+     the band's load-bearing overflow:hidden intact.
+
+     Namespaced + additive: does not touch slide-in / grid / float keyframes /
+     status dot / spinner / money-meter behavior.
      ------------------------------------------------------- */
   (function () {
     var band = document.querySelector('.challenge-band');
     if (!band) return;
-    var frags = band.querySelectorAll('.cb-frag');
-    if (!frags.length) return;
-    var coarse = window.matchMedia('(hover: none)');
-    function closeAll(except) {
-      frags.forEach(function (f) { if (f !== except) f.classList.remove('is-open'); });
+    var panel = band.querySelector('#cb-detail');
+    var frags = Array.prototype.slice.call(band.querySelectorAll('.cb-frag'));
+    if (!panel || !frags.length) return;
+
+    var titleEl = panel.querySelector('.cb-detail-title');
+    var bodyEl  = panel.querySelector('.cb-detail-body');
+    var cardEl  = panel.querySelector('.cb-detail-card');
+    var closeEl = panel.querySelector('.cb-detail-close');
+    var reduced = window.matchMedia('(prefers-reduced-motion: reduce)');
+    var activeFrag = null;
+
+    function btnOf(frag)   { return frag.querySelector('.cb-frag-hit'); }
+    function innerOf(frag) { return frag.querySelector('.cb-frag-inner'); }
+
+    /* Named closePanel/openPanel, not close/open — bare close() and open() would
+       shadow window.close / window.open inside this IIFE. */
+    function closePanel(restoreFocus) {
+      if (!activeFrag) return;
+      var btn = btnOf(activeFrag);
+      var inner = innerOf(activeFrag);
+      activeFrag.classList.remove('is-open');
+      /* the chip rejoins the ambient drift exactly where it froze */
+      if (inner) inner.style.animationPlayState = '';
+      if (btn) {
+        btn.setAttribute('aria-expanded', 'false');
+        if (restoreFocus) btn.focus();
+      }
+      panel.classList.remove('is-open');
+      activeFrag = null;
     }
+
+    function openPanel(frag) {
+      var btn = btnOf(frag);
+      var tip = frag.querySelector('.cb-tip');
+      if (!btn) return;
+      closePanel(false);
+
+      /* .cb-tip stays in the DOM as the display:none COPY SOURCE (spec A8) —
+         Reed's splice target is unchanged; we only read it. */
+      titleEl.textContent = btn.getAttribute('aria-label') || '';
+      bodyEl.textContent  = tip ? tip.textContent.trim() : '';
+
+      /* the fault hue rides ONLY the panel's 3px left border, never the text */
+      var status = getComputedStyle(frag).getPropertyValue('--status').trim();
+      if (status) panel.style.setProperty('--cb-detail-status', status);
+      panel.setAttribute('aria-labelledby', btn.id);
+
+      frag.classList.add('is-open');
+      btn.setAttribute('aria-expanded', 'true');
+      panel.classList.add('is-open');
+      activeFrag = frag;
+
+      /* FEEL: the piece you picked up stops drifting. The OTHER FOUR keep
+         floating, so the band stays alive and unsettled around the one thing
+         you have in your hand. (No-op under reduced motion — the float is
+         already disabled there by the existing media query.) */
+      var inner = innerOf(frag);
+      if (inner) inner.style.animationPlayState = 'paused';
+
+      /* point the caret at the chip that was actually clicked */
+      requestAnimationFrame(function () {
+        if (!cardEl) return;
+        var cardRect = cardEl.getBoundingClientRect();
+        var fragRect = frag.getBoundingClientRect();
+        if (cardRect.width) {
+          var x = (fragRect.left + fragRect.width / 2) - cardRect.left;
+          x = Math.max(18, Math.min(cardRect.width - 18, x));
+          panel.style.setProperty('--cb-detail-arrow-x', x + 'px');
+        }
+        /* block:'nearest' is a no-op when the panel is already fully visible,
+           so this only fires when the disclosure opened below the fold. */
+        panel.scrollIntoView({
+          block: 'nearest',
+          behavior: reduced.matches ? 'auto' : 'smooth'
+        });
+      });
+    }
+
     frags.forEach(function (frag) {
-      frag.addEventListener('click', function (e) {
-        if (!coarse.matches) return;          // desktop: hover/focus handle it
+      var btn = btnOf(frag);
+      if (!btn) return;
+      /* native <button> semantics: Tab reaches it, Enter and Space activate it,
+         so no custom key handling is needed beyond Escape below. */
+      btn.addEventListener('click', function (e) {
         e.preventDefault();
-        var open = frag.classList.contains('is-open');
-        closeAll(frag);
-        frag.classList.toggle('is-open', !open);
+        e.stopPropagation();
+        if (activeFrag === frag) { closePanel(false); return; }
+        openPanel(frag);
       });
     });
+
+    if (closeEl) {
+      closeEl.addEventListener('click', function (e) {
+        e.preventDefault();
+        e.stopPropagation();
+        closePanel(true);
+      });
+    }
+
+    /* Click anywhere outside a chip or the panel closes it. Runs on ALL devices
+       — the v7 `if (!coarse.matches) return;` early-returns are deliberately
+       gone (Reed build note 3). */
     document.addEventListener('click', function (e) {
-      if (!coarse.matches) return;
-      if (!e.target.closest('.cb-frag')) closeAll(null);
+      if (!activeFrag) return;
+      if (e.target.closest('.cb-frag') || e.target.closest('.cb-detail')) return;
+      closePanel(false);
     });
+
+    document.addEventListener('keydown', function (e) {
+      if (e.key !== 'Escape' && e.key !== 'Esc') return;
+      if (!activeFrag) return;
+      closePanel(true);
+    });
+  })();
+
+
+  /* -------------------------------------------------------
+     [V8.3] CHALLENGE BAND — BRIDGE PARAGRAPH "SEE MORE" TOGGLE
+     Ethan, 2026-08-27: two lines visible, the third fades away, a "See more"
+     button below it.
+
+     ALL OF THE VISUAL STATE IS CSS (rule 4: JS may run late or fail). The
+     collapsed height and the fade mask are on `.cb-bridge-block.is-clamped`,
+     which ships in the markup; this script only flips `.is-open` and drives the
+     height tween. If it never runs, the page is a correct static teaser plus a
+     button that does nothing, and the <noscript> beside the markup un-clamps it
+     entirely when scripting is off.
+
+     WHY AN INLINE max-height IS SET AT ALL: `max-height` cannot transition to
+     `none`, so opening tweens to the measured scrollHeight and then hands
+     control back to CSS on transitionend (max-height:none), which is what lets
+     the paragraph re-wrap freely on resize while open. Closing does the reverse:
+     pin the current height, force a reflow, drop the inline value so the CSS
+     3-line clamp takes over and animates down.
+
+     Self-contained IIFE — nothing leaks into page scope.
+     ------------------------------------------------------- */
+  (function () {
+    'use strict';
+
+    var block = document.getElementById('cbBridgeBlock');
+    var btn   = document.getElementById('cbBridgeMore');
+    if (!block || !btn) return;
+
+    var para = document.getElementById('cbBridgeText');
+    if (!para) return;
+
+    /* Honoured for MOTION only. The disclosure itself stays for this cohort —
+       see the matching @media block in the stylesheet. */
+    var reduced = window.matchMedia
+      ? window.matchMedia('(prefers-reduced-motion: reduce)')
+      : { matches: false };
+
+    var open = false;
+    var settle = null;
+
+    function clearSettle() {
+      if (settle) { clearTimeout(settle); settle = null; }
+    }
+
+    function expand() {
+      clearSettle();
+      open = true;
+      block.classList.add('is-open');
+      btn.textContent = 'See less';
+      btn.setAttribute('aria-expanded', 'true');
+      if (reduced.matches) { para.style.maxHeight = ''; return; }
+      /* Tween from the clamped height to the measured full height, then release
+         to CSS so a later re-wrap is never trapped at a stale pixel value. */
+      para.style.maxHeight = para.scrollHeight + 'px';
+      settle = setTimeout(function () {
+        if (open) para.style.maxHeight = '';
+        settle = null;
+      }, 440);                       /* 0.42s transition + a 20ms cushion */
+    }
+
+    function collapse() {
+      clearSettle();
+      open = false;
+      btn.textContent = 'See more';
+      btn.setAttribute('aria-expanded', 'false');
+      if (reduced.matches) {
+        para.style.maxHeight = '';
+        block.classList.remove('is-open');
+        return;
+      }
+      /* Pin the live height first — otherwise the class flip jumps straight to
+         the clamp with nothing to animate FROM. */
+      para.style.maxHeight = para.scrollHeight + 'px';
+      void para.offsetHeight;        /* forced reflow: commits the pinned height */
+      block.classList.remove('is-open');
+      para.style.maxHeight = '';     /* CSS 3-line clamp takes over and tweens */
+    }
+
+    btn.addEventListener('click', function (e) {
+      e.preventDefault();
+      if (open) { collapse(); } else { expand(); }
+    });
+
+    /* Keyboard needs nothing extra — it is a real <button>, so Enter and Space
+       already fire the click handler and :focus-visible paints the gold ring. */
   })();
 
 
@@ -4461,7 +6076,7 @@ html { scrollbar-gutter: stable; }
     var CHAOS_READY_AT = 1500;
 
     /* ---- ELEMENT REFS (v7 ids) ---- */
-    var pinSection   = document.getElementById('services');     // .frame-wrapper section (now 100vh)
+    var pinSection   = document.getElementById('services');     // .frame-wrapper section (v8: height = var(--stage-h))
     var frameTrack   = document.getElementById('frameTrack');
     var amberGroup   = document.querySelector('.amber-group');
     var amberMaskRect= document.querySelector('#amberMask rect');
@@ -5016,7 +6631,13 @@ html { scrollbar-gutter: stable; }
     var ids = ['textOrganize', 'textUnify', 'textScale'];
     function syncChips(block) {
       var revealed = block.classList.contains('revealed');
-      var chips = block.querySelectorAll('.step-svc-btn');
+      /* [V8.1] The "See more" / "See less" buttons join the SAME gate as the
+         service chips: they live in the always-present .frame-text-layer, so
+         without this they would be tab-reachable on a step the visitor has not
+         reached yet. .step-less-btn is display:none until its window opens, so
+         it is unfocusable anyway — it is listed for symmetry, not because it
+         does work today. */
+      var chips = block.querySelectorAll('.step-svc-btn, .step-more-btn, .step-less-btn');
       for (var i = 0; i < chips.length; i++) {
         if (revealed) chips[i].removeAttribute('tabindex');
         else chips[i].setAttribute('tabindex', '-1');
@@ -5029,6 +6650,122 @@ html { scrollbar-gutter: stable; }
       new MutationObserver(function () { syncChips(block); })
         .observe(block, { attributes: true, attributeFilter: ['class'] });
     });
+  })();
+</script>
+
+<!-- ============================================================
+     [V8.1] "SEE MORE" / "SEE LESS" CONTROLLER  (Ethan's brief, 2026-08-27)
+     ------------------------------------------------------------
+     Opens ONE step's .step-above into a reading window centred on the amber
+     line. All the geometry is CSS (.text-step.is-expanded) — this script only
+     toggles a class and manages focus, so the layout is correct before a single
+     line of JS runs and stays correct if this script never runs at all. With JS
+     off the page is still the finished poster: the header sits on the axis, the
+     copy fades, and the button is simply inert.
+     Only one window can be open at a time. It closes on: the "See less" button,
+     Escape, a click anywhere outside it, either PREV/NEXT arrow, and any resize
+     down into the mobile stepper.
+     Namespaced + self-contained. Touches no engine state.
+     ============================================================ -->
+<script>
+  (function () {
+    var IDS = ['textOrganize', 'textUnify', 'textScale'];
+    var open = null;   // the currently expanded .text-step block, or null
+
+    function win(blk)  { return blk ? blk.querySelector('.step-above')    : null; }
+    function more(blk) { return blk ? blk.querySelector('.step-more-btn') : null; }
+
+    function collapse(returnFocus) {
+      if (!open) return;
+      var blk = open;
+      open = null;
+      blk.classList.remove('is-expanded');
+      var w = win(blk);
+      if (w) { w.removeAttribute('tabindex'); w.scrollTop = 0; }
+      var m = more(blk);
+      if (m) {
+        m.setAttribute('aria-expanded', 'false');
+        // Focus goes back to the control the visitor pressed, never to the top
+        // of the document. Only when the CLOSE was deliberate (button/Escape) —
+        // a click-outside leaves focus where the visitor put it.
+        if (returnFocus) { try { m.focus(); } catch (e) {} }
+      }
+    }
+
+    function expand(blk) {
+      if (open === blk) return;
+      collapse(false);
+      open = blk;
+      blk.classList.add('is-expanded');
+      var m = more(blk);
+      if (m) m.setAttribute('aria-expanded', 'true');
+      var w = win(blk);
+      if (w) {
+        // The window is not a dialog (the page behind it stays usable and the
+        // arrows still work), so no role="dialog" and no focus trap. It is a
+        // DISCLOSURE. Focus is moved into it so a keyboard/screen-reader user
+        // lands at the top of the copy they just asked to read, and so the
+        // arrow keys scroll the window rather than the page.
+        w.setAttribute('tabindex', '-1');
+        try { w.focus({ preventScroll: true }); } catch (e) { try { w.focus(); } catch (e2) {} }
+      }
+    }
+
+    function closestSel(node, sel) {
+      while (node && node.nodeType === 1) {
+        if (node.matches ? node.matches(sel) : false) return node;
+        node = node.parentNode;
+      }
+      return null;
+    }
+
+    document.addEventListener('click', function (e) {
+      var t = e.target;
+      if (!t || t.nodeType !== 1) t = t && t.parentNode;
+      if (!t) return;
+
+      var m = closestSel(t, '.step-more-btn');
+      if (m) {
+        var blk = closestSel(m, '.text-step');
+        // Never open a step the engine has not revealed — mirrors the CSS gate.
+        if (blk && blk.classList.contains('revealed')) expand(blk);
+        return;
+      }
+      if (closestSel(t, '.step-less-btn')) { collapse(true); return; }
+
+      // Click-outside. The window is the only thing that keeps a click open.
+      if (open) {
+        var w = win(open);
+        if (!w || !w.contains(t)) collapse(false);
+      }
+    }, false);
+
+    document.addEventListener('keydown', function (e) {
+      if (!open) return;
+      var k = e.key || e.keyCode;
+      if (k === 'Escape' || k === 'Esc' || k === 27) collapse(true);
+    }, false);
+
+    // Stepping to another framework panel closes the window — the copy it holds
+    // belongs to the panel you are leaving.
+    ['frameReviewPrev', 'frameReviewNext'].forEach(function (id) {
+      var b = document.getElementById(id);
+      if (b) b.addEventListener('click', function () { collapse(false); });
+    });
+
+    // Safety net: if the engine ever un-reveals the open step, or the window is
+    // resized down into the mobile stepper (where .frame-text-layer is
+    // display:none and an open window would be stranded), close it.
+    IDS.forEach(function (id) {
+      var blk = document.getElementById(id);
+      if (!blk) return;
+      new MutationObserver(function () {
+        if (open === blk && !blk.classList.contains('revealed')) collapse(false);
+      }).observe(blk, { attributes: true, attributeFilter: ['class'] });
+    });
+    window.addEventListener('resize', function () {
+      if (open && window.innerWidth <= 900) collapse(false);
+    }, { passive: true });
   })();
 </script>
 

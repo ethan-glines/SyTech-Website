@@ -717,6 +717,13 @@ html { scrollbar-gutter: stable; }
   border: 1px solid rgba(197, 205, 216, 0.16);   /* soft-white hairline, NOT gold */
   border-radius: 8px;
   transform: translate(var(--x0), var(--y0)) rotate(var(--r0));
+  /* [2026-09-03 / Bryan] Resting shadow is a REAL zero-size shadow, not `none`:
+     box-shadow does not interpolate reliably out of the `none` keyword, so the
+     hover elevation would snap instead of easing. See the hover block far below. */
+  box-shadow: 0 0 0 0 rgba(0, 0, 0, 0);
+  transition: background 220ms cubic-bezier(0.4, 0, 0.2, 1),
+              border-color 220ms cubic-bezier(0.4, 0, 0.2, 1),
+              box-shadow 220ms cubic-bezier(0.4, 0, 0.2, 1);
 }
 /* Left status bar — muted fault hue, consistent on every chip (only hue differs) */
 .cb-frag::before {
@@ -1196,17 +1203,42 @@ html { scrollbar-gutter: stable; }
   outline: 2px solid var(--soft-white);   /* gold stays withheld in this band */
   outline-offset: 4px;
 }
+/* [2026-09-03 / Bryan] "Right now, it's just a little down arrow." The chevron is
+   now SEATED IN A WELL — a 20px circular plate with its own fill and hairline —
+   so it reads as a control rather than as punctuation, and the glyph itself goes
+   from 10px to 12px and from 0.72 to 0.92 alpha (contrast goes UP, never down;
+   spec A11's "do NOT dim" floor is respected by exceeding it).
+   The well is 20px so it matches the chips' existing 20px leading icon EXACTLY —
+   no chip changes height, so the grid, the scatter transforms and the float
+   keyframes are all untouched. A circle is rotation-invariant, so the existing
+   .is-open rotate(180deg) still reads as a pure glyph flip. */
 .cb-frag-chevron {
   flex: 0 0 auto;
-  display: block;
-  margin-left: 0.15rem;
-  color: rgba(197, 205, 216, 0.72);   /* spec A11 — 3.69:1. Do NOT dim. */
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  /* was margin-left:0.15rem. Dropped to 0: .cb-frag-inner's own 0.6rem flex gap
+     already separates the well, and the chip-5 min-content budget documented in
+     the phone block at the bottom of this stylesheet is tight enough that 2.4px
+     is worth reclaiming. */
+  margin-left: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(197, 205, 216, 0.30);
+  color: rgba(197, 205, 216, 0.92);
   transform: rotate(0deg);
-  transition: transform 260ms cubic-bezier(0.4, 0, 0.2, 1);
+  transition: transform 260ms cubic-bezier(0.4, 0, 0.2, 1),
+              background 200ms cubic-bezier(0.4, 0, 0.2, 1),
+              border-color 200ms cubic-bezier(0.4, 0, 0.2, 1),
+              color 200ms cubic-bezier(0.4, 0, 0.2, 1);
 }
 /* .cb-frag svg sets color:var(--soft-white) at (0,1,1); this reclaims the
-   chevron's own 0.72 for its currentColor fill. */
-.cb-frag .cb-frag-chevron svg { color: inherit; }
+   chevron's own alpha for its currentColor fill, and overrides the inline
+   width/height="10" presentation attributes (CSS always beats those). */
+.cb-frag .cb-frag-chevron svg { color: inherit; width: 12px; height: 12px; }
 .cb-frag.is-open .cb-frag-chevron { transform: rotate(180deg); }
 .cb-frag.is-open { border-color: rgba(197, 205, 216, 0.42); }
 .cb-frag.is-open::before { opacity: 1; }   /* this chip's --status bar goes to full */
@@ -1214,6 +1246,41 @@ html { scrollbar-gutter: stable; }
 .challenge-band .cb-frag:focus-visible {
   outline: 2px solid var(--soft-white);
   outline-offset: 3px;
+}
+
+/* ---- [2026-09-03 / Bryan] DESKTOP HOVER AFFORDANCE ----
+   Bryan: "have it be more visible that they can see it's a feature. Right now,
+   it's just a little down arrow." The chips shipped with NO hover state at all.
+
+   NO TRANSFORM IS USED HERE, and that is a deliberate structural decision, not a
+   shortcut. Both transform slots on this component are already occupied:
+   .cb-frag carries the scatter transform (--x1/--y1/--r1) that the entrance
+   transitions, and .cb-frag-inner carries the ambient cbFloatA-E keyframes. A
+   hover translate on either element would overwrite a transform that is actively
+   running. So the "lift" is rendered as ELEVATION (box-shadow) plus a brighter
+   surface and a lit chevron well, which reads as raised without touching a
+   transform. Side benefit: none of this is motion, so the reduced-motion cohort
+   gets the identical affordance rather than a degraded one.
+
+   Gated on (hover:hover) and (pointer:fine) — TOUCH IS COMPLETELY UNAFFECTED and
+   still drives the same click path through the .cb-frag-hit overlay button.
+   .cb-frag-hit is position:absolute inset:0, so it covers the whole chip and
+   :hover on the <li> is exactly equivalent to :hover on the button — no :has()
+   needed, and support goes back to every browser we care about.
+   Specificity note: (0,4,1) so it beats both .challenge-band.is-revealed .cb-frag
+   (0,3,0) and the per-chip .cb-frag:nth-child(n) surface overrides (0,2,0),
+   including chips 2 and 4 which are background:transparent at rest. */
+@media (hover: hover) and (pointer: fine) {
+  .challenge-band .cb-fragments li.cb-frag:hover {
+    background: rgba(255, 255, 255, 0.13);
+    border-color: rgba(197, 205, 216, 0.52);
+    box-shadow: 0 12px 26px rgba(0, 0, 0, 0.42);
+  }
+  .challenge-band .cb-fragments li.cb-frag:hover .cb-frag-chevron {
+    background: rgba(255, 255, 255, 0.20);
+    border-color: rgba(197, 205, 216, 0.66);
+    color: var(--soft-white);
+  }
 }
 
 /* ---- The shared disclosure panel ----
@@ -1274,6 +1341,67 @@ html { scrollbar-gutter: stable; }
   max-width: 60ch;
   margin: 0;
 }
+
+/* ---- [2026-09-03 / Bryan] PER-CHIP SERVICE LINK ----
+   Bryan: "Have each patchwork funnel them to different pages." Ethan's decision:
+   KEEP the disclosure panel and put the link INSIDE it — the chip itself stays a
+   disclosure control, not a link.
+   The panel is a SINGLE SHARED node, so href + label are written per-chip by JS
+   from data-href / data-linklabel on the <li>. It is a real <a>, so it is
+   keyboard focusable, Cmd-clickable, and carries a :focus-visible ring.
+   DEFAULT STATE IS href-LESS, therefore display:none, therefore NOT focusable —
+   so if JS never runs the panel degrades to exactly what it was before (which is
+   already its no-JS state: empty and collapsed). Visual treatment is lifted
+   LITERALLY from .cb-bridge-more-btn, the in-band control this page already
+   ships: identical fill, border, radius, weight, font-size clamp, easing and
+   focus ring. Same band, same control language. */
+.cb-detail-link {
+  display: none;
+  box-sizing: border-box;
+  width: -moz-fit-content;
+  width: fit-content;
+  align-items: center;
+  gap: 0.4rem;
+  margin: 1.05rem 0 0;
+  padding: 0.42rem 0.9rem;
+  border: 1px solid rgba(229,166,48,0.55);
+  border-radius: 999px;
+  background: rgba(229,166,48,0.10);
+  color: var(--white);
+  font-family: inherit;
+  font-weight: 700;
+  font-size: clamp(0.75rem, 1.05vw, 0.85rem);
+  line-height: 1.1;
+  letter-spacing: 0.02em;
+  text-decoration: none;
+  transition: background 0.25s cubic-bezier(0.4, 0, 0.2, 1),
+              border-color 0.25s cubic-bezier(0.4, 0, 0.2, 1),
+              color 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+/* JS writing the href is what reveals it — one attribute drives both the
+   visibility and the tab order, so the two can never disagree. */
+.cb-detail-link[href] { display: inline-flex; }
+.cb-detail-link .cb-detail-link-arrow {
+  transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+@media (hover: hover) and (pointer: fine) {
+  .cb-detail-link:hover {
+    background: rgba(229,166,48,0.24);
+    border-color: var(--gold);
+    color: var(--white);
+  }
+  .cb-detail-link:hover .cb-detail-link-arrow { transform: translateX(3px); }
+}
+.cb-detail-link:focus-visible {
+  outline: none;
+  border-color: var(--gold);
+  box-shadow: 0 0 0 3px rgba(229,166,48,0.45);
+}
+@media (prefers-reduced-motion: reduce) {
+  .cb-detail-link,
+  .cb-detail-link .cb-detail-link-arrow { transition: none; }
+}
+
 .cb-detail-close {
   position: absolute; top: 0.7rem; right: 0.7rem;
   width: 32px; height: 32px;
@@ -1355,8 +1483,15 @@ html { scrollbar-gutter: stable; }
   .challenge-band.is-revealed .cb-frag {
     opacity: 1;
     transform: translate(var(--x1), var(--y1)) rotate(var(--r1));
+    /* [2026-09-03] The three hover properties are RE-DECLARED here. This rule is
+       (0,3,0) and the base .cb-frag rule is (0,1,0), so once .is-revealed lands
+       this `transition` shorthand replaces the base one wholesale — without these
+       three the hover affordance would apply instantly after the entrance. */
     transition: opacity 520ms ease-out,
-                transform 880ms cubic-bezier(0.22, 0.61, 0.36, 1);
+                transform 880ms cubic-bezier(0.22, 0.61, 0.36, 1),
+                background 220ms cubic-bezier(0.4, 0, 0.2, 1),
+                border-color 220ms cubic-bezier(0.4, 0, 0.2, 1),
+                box-shadow 220ms cubic-bezier(0.4, 0, 0.2, 1);
     will-change: transform;
   }
   .challenge-band.is-revealed .cb-frag:nth-child(1) { transition-delay: 0ms; }
@@ -1900,11 +2035,40 @@ html { scrollbar-gutter: stable; }
   display: block;
   /* [V8.1 SHARED AXIS, second half] Top-anchoring already puts every EYEBROW on
      one line. This reserves TWO headline lines on every panel so the copy
-     underneath also starts at an identical Y — "Activate What You Already Fund"
-     wraps to two lines where "One Ecosystem. One Login." does not, and without
-     this the two panels' body text would begin ~36px apart and the block would
-     visibly jump when you arrow between them. 2.15 * 1.12 * 2 = 4.816 units.
-     TO REMOVE: delete this one declaration; the eyebrow axis still holds. */
+     underneath also starts at an identical Y, and without it the panels' body
+     text would begin ~36px apart and the block would visibly jump when you arrow
+     between them. 2.15 * 1.12 * 2 = 4.816 units.
+     TO REMOVE: delete this one declaration; the eyebrow axis still holds.
+
+     [2026-09-03 / Bryan — HEADLINE COPY CHANGED, VALUE DELIBERATELY UNCHANGED]
+     The three headlines are now "Bring structure to your records and data." /
+     "Connect your records, data, and processes." / "Continuous Automation",
+     which is ~41 chars / ~42 chars / 21 chars against the old 26 / 25 / 30.
+     Arithmetic, Tahoma Bold at 2.15u (32.25px when --step-u is 15px, i.e. every
+     viewport <=909px tall), --col-w = min(600px, 30.5vw), greedy line-breaking:
+       - Organize is the binding case. Its 2-line break ("Bring structure to your"
+         / "records and data.") needs ~11.44em of column, i.e. --col-w >= ~369px,
+         i.e. viewport >= ~1210px.
+       - Unify needs ~11.14em ("Connect your records," / "data, and processes."),
+         i.e. viewport >= ~1178px. It NEVER reaches one line: one line would need
+         ~21.8em = ~704px and --col-w caps at 600px.
+       - Scale sets on ONE line above ~1256px and two below; either way the
+         reservation holds it on the axis.
+     So all three still occupy exactly two lines from ~1270px up (comfortable
+     margin at 1440 / 1512 / 1728: 19% / 25% / 43% over requirement).
+     BELOW ~1240px Organize and Unify DO take a third line and the axis breaks by
+     one line-height. Raising this to 3 lines (7.224u) was considered and REJECTED
+     on arithmetic: it costs a flat +36px at EVERY width, and on a 1366x768
+     government laptop .step-above only has ~161px of reading window to begin with
+     (~53px of it left for body copy after the eyebrow and a 2-line headline), so
+     a third reserved line would consume essentially the entire teaser on exactly
+     the viewports it was meant to protect. The 901-1239px band is already the
+     knowingly-degraded band documented at the --col-w 300px floor further down
+     ("it is what the ruling costs"); a 36px axis drift there is the cheaper
+     failure than a teaser with no copy in it.
+     IF a future session wants the axis held down there anyway, the dial is a
+     `@media (max-width: 1239px) { .text-step .headline { min-height: calc(var(--step-u) * 7.224); } }`
+     block — three lines is robust at the 300px floor for all three headlines. */
   min-height: calc(var(--step-u) * 4.816);
 }
 /* [V8 / spec A6] max-width:380px was a HARD CAP that would silently invalidate
@@ -1943,6 +2107,13 @@ html { scrollbar-gutter: stable; }
    so it CANNOT reach .mobile-text-block (which gets its own rules in the
    <=900px / reduced-motion block far below). Inline, namespaced, reversible.
    ============================================================ */
+/* RESERVED as of 2026-09-03 — NO ELEMENT USES .subhead ANY MORE. Bryan asked for
+   the three step subheadings to BECOME the headlines, so each .subhead's text was
+   moved into its sibling .headline and the .subhead element itself was deleted on
+   both layers (6 sites). These rules are kept, unused, exactly as .step-label is
+   kept: a rule that matches nothing contributes nothing, and keeping it makes the
+   change reversible without a respec. There is NO orphaned gap to remove — the gap
+   belonged to the deleted element, not to a survivor. */
 .text-step .subhead {
   font-size: calc(var(--step-u) * 1.15);
   line-height: 1.35;
@@ -1962,7 +2133,7 @@ html { scrollbar-gutter: stable; }
   font-weight: 400;
   color: rgba(197,205,216,0.70);
   display: block;
-  margin-bottom: calc(var(--step-u) * 0.80);   /* bridge -> subhead */
+  margin-bottom: calc(var(--step-u) * 0.80);   /* bridge -> body-1 (was bridge -> subhead until 2026-09-03) */
 }
 /* Bryan's short declarative line — the argument of the step. Real weight.
    margin-top collapses with the preceding .body's 0.70u to give the specified
@@ -2588,28 +2759,19 @@ html { scrollbar-gutter: stable; }
 .frame-review-prev { left: clamp(12px, 2.5vw, 40px); }
 .frame-review-next { right: clamp(12px, 2.5vw, 40px); }
 
-/* ---- LEFT/PREV arrow: HIDDEN until the framework has been played through once ----
-   While the user reveals the framework forward, only the RIGHT arrow shows as the
-   single clear CTA. The LEFT arrow is fully ABSENT (display:none removes it from
-   layout, tab order AND the a11y tree) until JS adds .frame-review-nav--completed
-   the first time currentStep reaches LAST_STEP (Scale). At that point it POPS IN
-   once (fade + scale) and then behaves normally (disabled at step 0). The auto-play
-   chaos draw-in only reaches step 1, so it never triggers this. No fill-mode on the
-   animation so it releases cleanly back to base styles (hover scale keeps working). */
-.frame-review-prev { display: none; }
-.frame-review-nav--completed .frame-review-prev {
-  display: flex;
-  animation: framePrevPopIn 0.42s cubic-bezier(0.34, 1.56, 0.64, 1);
-}
-@keyframes framePrevPopIn {
-  0%   { opacity: 0; transform: translateY(-50%) scale(0.55); }
-  100% { opacity: 1; transform: translateY(-50%) scale(1);    }
-}
-/* Reduced motion: appear instantly, no pop (the whole nav is display:none under the
-   mobile/reduced media query anyway — this is just belt-and-suspenders). */
-@media (prefers-reduced-motion: reduce) {
-  .frame-review-nav--completed .frame-review-prev { animation: none; }
-}
+/* ---- LEFT/PREV arrow: ALWAYS PRESENT ----
+   [2026-09-03 / Bryan] "the back button is not there till you get to the third
+   frame. Have it be there the whole time."
+   RETIRED: this used to be `.frame-review-prev { display: none }` plus a
+   `.frame-review-nav--completed .frame-review-prev` reveal (and a framePrevPopIn
+   keyframe) that JS only added the first time currentStep reached LAST_STEP.
+   That whole gate is gone — CSS, the --completed class, the keyframe, and the
+   hasCompleted / markCompleted() machinery in the engine.
+   The arrow now inherits .frame-review-arrow's display:flex and is visible from
+   the resting stage on. It is still `disabled` at step 0, so it greys out via the
+   existing .frame-review-arrow:disabled rule (opacity 0.3, muted ring, no hover)
+   rather than disappearing — present but obviously not yet usable, which is the
+   affordance Bryan is actually asking for. */
 
 @media (hover: hover) and (pointer: fine) {
   .frame-review-arrow:hover:not(:disabled) {
@@ -2840,9 +3002,12 @@ html { scrollbar-gutter: stable; }
     padding-left: 0.75rem;
     border-left: 2px solid rgba(229, 166, 48, 0.32);
   }
-  /* .subhead's -0.4rem top margin exists to pull it up against the HEADLINE's
-     0.85rem bottom margin. On Unify the bridge now sits between them, so that
-     pull would eat into the bridge instead — neutralise it there. */
+  /* RESERVED as of 2026-09-03 — no element uses .subhead any more (see the note on
+     .text-step .subhead far above). Both of these rules now match nothing and are
+     kept only so the change is reversible. Nothing was left behind: on mobile the
+     headline's own 0.85rem bottom margin now runs straight into .body (Organize,
+     Scale) or into .step-bridge's 0.2rem top margin (Unify), which is the same
+     gap either of those elements already had. */
   .mobile-text-block .step-bridge + .subhead { margin-top: 0; }
   .mobile-text-block .subhead {
     display: block;
@@ -3903,8 +4068,15 @@ html { scrollbar-gutter: stable; }
    unshrinkable payload before its label even starts:
      7px status dot (+2px margin) + 20px icon + ~106px illustrative money
      meter (the "ILLUSTRATIVE" cue at 0.5rem/0.14em tracking is the widest
-     part of it, not the dollar figure) + ~12px chevron + 4 x 9.6px flex gaps
-     + 43px of chip padding  =  ~231px.
+     part of it, not the dollar figure) + 20px chevron + 4 x 9.6px flex gaps
+     + 43px of chip padding  =  ~239px.
+   [2026-09-03] The chevron term was ~12px until Bryan asked for a stronger
+   affordance and it became a 20px circular well (margin-left dropped 0.15rem->0
+   to give 2.4px of that back, so the net cost is ~8px). This does NOT reopen the
+   slicing bug: below 900px the flex-wrap rule immediately below drops
+   min-content to the widest SINGLE item (~106px money meter), and a 20px
+   chevron is nowhere near that. The budget is restated here only so the
+   arithmetic in this comment stays true.
    Add the label's own min-content ("subscriptions", ~105px at 0.95rem bold)
    and the chip's min-content width is ~321px. .container gives 256px inside a
    320px phone and 296px inside a 360px phone, so the chip was wider than its
@@ -3972,6 +4144,16 @@ html { scrollbar-gutter: stable; }
    on a phone at all. */
 @media (hover: none), (pointer: coarse) {
   .challenge-band .cb-bridge-more-btn {
+    min-height: 44px;
+    padding: 0.42rem 1.1rem;
+  }
+  /* [2026-09-03 / Bryan] The new in-panel service link is a copy of
+     .cb-bridge-more-btn's box, so it fails the 44px floor for the identical
+     reason: its font-size clamp bottoms out at 12px, giving a real box of
+     0.42rem*2 + 1px*2 + 12*1.1 = ~28.6px. Same fix, same numbers. It is
+     align-items:center already, so this only centres the existing label in a
+     legal box — nothing moves. */
+  .challenge-band .cb-detail-link {
     min-height: 44px;
     padding: 0.42rem 1.1rem;
   }
@@ -4469,7 +4651,10 @@ html { scrollbar-gutter: stable; }
            JS reads into the one shared .cb-detail panel below the grid. The hit
            target is an overlay <button> so chip 5's money meter keeps its own
            accessible name. Everything else about every chip is byte-identical. -->
-      <li class="cb-frag">
+      <!-- [2026-09-03 / Bryan] data-href + data-linklabel drive the per-chip
+           service link inside the ONE shared #cb-detail panel. Mapping locked by
+           Ethan; chips 4 and 5 share SharePoint ERMS on purpose. -->
+      <li class="cb-frag" data-href="services-scanning.html" data-linklabel="See Archive Scanning">
         <span class="cb-frag-inner">
           <svg width="20" height="20" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><path d="M213.66,82.34l-56-56A8,8,0,0,0,152,24H56A16,16,0,0,0,40,40V216a16,16,0,0,0,16,16H200a16,16,0,0,0,16-16V88A8,8,0,0,0,213.66,82.34ZM160,51.31,188.69,80H160ZM200,216H56V40h88V88a8,8,0,0,0,8,8h48V216Z"/></svg>
           <span>Paper records and processes</span>
@@ -4478,7 +4663,7 @@ html { scrollbar-gutter: stable; }
         <span class="cb-tip" id="cb-tip-1">Paper still carries real work in most agencies: signatures, approvals, and files that exist in exactly one drawer. Every request means someone walks to a cabinet, and nothing in that file can be searched, shared, or tracked. Digitizing the paper is usually the first practical step forward.</span>
         <button class="cb-frag-hit" type="button" id="cb-btn-1" aria-expanded="false" aria-controls="cb-detail" aria-label="Paper records and processes"></button>
       </li>
-      <li class="cb-frag">
+      <li class="cb-frag" data-href="services-data-migration.html" data-linklabel="See Data Migration">
         <span class="cb-frag-inner">
           <svg width="20" height="20" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><path d="M219.31,72,184,36.69A15.86,15.86,0,0,0,172.69,32H48A16,16,0,0,0,32,48V208a16,16,0,0,0,16,16H208a16,16,0,0,0,16-16V83.31A15.86,15.86,0,0,0,219.31,72ZM168,208H88V152h80Zm40,0H184V152a16,16,0,0,0-16-16H88a16,16,0,0,0-16,16v56H48V48H172.69L208,83.31ZM160,72a8,8,0,0,1-8,8H96a8,8,0,0,1,0-16h56A8,8,0,0,1,160,72Z"/></svg>
           <span>Legacy records software</span>
@@ -4487,7 +4672,7 @@ html { scrollbar-gutter: stable; }
         <span class="cb-tip" id="cb-tip-2">Older records systems were built for a different era of technology, and they often depend on servers, licenses, and skills that get harder to maintain every year. They also tend to hold records in formats that do not move easily into modern platforms. Replacing one is less a software decision than a question of how to get the records out safely.</span>
         <button class="cb-frag-hit" type="button" id="cb-btn-2" aria-expanded="false" aria-controls="cb-detail" aria-label="Legacy records software"></button>
       </li>
-      <li class="cb-frag">
+      <li class="cb-frag" data-href="services-oneform.html" data-linklabel="See OneForm">
         <span class="cb-frag-inner">
           <svg width="20" height="20" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><path d="M229.66,98.34a8,8,0,0,1-11.32,0L208,88v40a16,16,0,0,1-16,16H128v40l10.34-10.34a8,8,0,0,1,11.32,11.32l-24,24a8,8,0,0,1-11.32,0l-24-24a8,8,0,0,1,11.32-11.32L112,208V144H48a16,16,0,0,1-16-16V88L21.66,98.34A8,8,0,0,1,10.34,87l24-24a8,8,0,0,1,11.32,0l24,24A8,8,0,0,1,58.34,98.34L48,88v40h64V72a8,8,0,0,1,16,0v56h64V88l-10.34,10.34A8,8,0,0,1,229.66,87l-24-24a8,8,0,0,1,0-11.32Z"/></svg>
           <span>Disconnected workflows</span>
@@ -4496,7 +4681,7 @@ html { scrollbar-gutter: stable; }
         <span class="cb-tip" id="cb-tip-3">A single process often crosses several systems that were never designed to talk to each other. Staff rekey the same information more than once, chase approvals by email, and reconstruct status by hand. The work still gets done, but nobody can see where any of it stands.</span>
         <button class="cb-frag-hit" type="button" id="cb-btn-3" aria-expanded="false" aria-controls="cb-detail" aria-label="Disconnected workflows"></button>
       </li>
-      <li class="cb-frag">
+      <li class="cb-frag" data-href="services-sharepoint-erms.html" data-linklabel="See SharePoint ERMS">
         <span class="cb-frag-inner">
           <svg width="20" height="20" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><path d="M232,224H216V120a8,8,0,0,0-8-8H144V40a8,8,0,0,0-11.58-7.16l-96,48A8,8,0,0,0,32,88V224H16a8,8,0,0,0,0,16H232a8,8,0,0,0,0-16ZM48,92.94l80-40v171H48ZM192,224H144V128h48ZM80,112v16a8,8,0,0,1-16,0V112a8,8,0,0,1,16,0Zm32,0v16a8,8,0,0,1-16,0V112a8,8,0,0,1,16,0Zm0,56v16a8,8,0,0,1-16,0V168a8,8,0,0,1,16,0Zm-32,0v16a8,8,0,0,1-16,0V168a8,8,0,0,1,16,0Z"/></svg>
           <span>Departmental data silos</span>
@@ -4505,7 +4690,7 @@ html { scrollbar-gutter: stable; }
         <span class="cb-tip" id="cb-tip-4">Departments adopt the tools that solve their own problem, and over time that leaves records spread across separate systems under separate rules. The same record can end up in more than one place with different retention outcomes. No one has a single view of what the agency actually holds.</span>
         <button class="cb-frag-hit" type="button" id="cb-btn-4" aria-expanded="false" aria-controls="cb-detail" aria-label="Departmental data silos"></button>
       </li>
-      <li class="cb-frag">
+      <li class="cb-frag" data-href="services-sharepoint-erms.html" data-linklabel="See SharePoint ERMS">
         <span class="cb-frag-inner">
           <svg width="20" height="20" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><path d="M216,40H40A16,16,0,0,0,24,56V208a8,8,0,0,0,11.58,7.15L64,200.94l28.42,14.21a8,8,0,0,0,7.16,0L128,200.94l28.42,14.21a8,8,0,0,0,7.16,0L192,200.94l28.42,14.21A8,8,0,0,0,232,208V56A16,16,0,0,0,216,40Zm0,155.06-20.42-10.22a8,8,0,0,0-7.16,0L160,199.06l-28.42-14.22a8,8,0,0,0-7.16,0L96,199.06,67.58,184.84a8,8,0,0,0-7.16,0L40,195.06V56H216ZM72,96a8,8,0,0,1,8-8h96a8,8,0,0,1,0,16H80A8,8,0,0,1,72,96Zm0,40a8,8,0,0,1,8-8h96a8,8,0,0,1,0,16H80A8,8,0,0,1,72,136Z"/></svg>
           <span>Overlapping software and subscriptions</span>
@@ -4542,6 +4727,11 @@ html { scrollbar-gutter: stable; }
           <span class="cb-detail-caret" aria-hidden="true"></span>
           <h3 class="cb-detail-title"></h3>
           <p class="cb-detail-body"></p>
+          <!-- [2026-09-03 / Bryan] Per-chip service link. Ships with NO href and
+               no label: CSS hides an href-less <a> and an href-less <a> is not
+               focusable, so with JS off this is inert and invisible, exactly like
+               the empty title and body above it. openPanel() writes both. -->
+          <a class="cb-detail-link"><span class="cb-detail-link-label"></span><span class="cb-detail-link-arrow" aria-hidden="true">&rarr;</span></a>
           <button class="cb-detail-close" type="button" aria-label="Close description">
             <svg width="14" height="14" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><path d="M205.66,194.34a8,8,0,0,1-11.32,11.32L128,139.31,61.66,205.66a8,8,0,0,1-11.32-11.32L116.69,128,50.34,61.66A8,8,0,0,1,61.66,50.34L128,116.69l66.34-66.35a8,8,0,0,1,11.32,11.32L139.31,128Z"/></svg>
           </button>
@@ -4730,8 +4920,14 @@ html { scrollbar-gutter: stable; }
                desktop and mobile reading orders still match exactly. -->
           <div class="step-above">
             <span class="eyebrow">Step 1 / Organize</span>
-            <span class="headline">See What You Actually Have</span>
-            <span class="subhead">Bring structure to your records and data.</span>
+            <!-- [2026-09-03 / Bryan] "Remove the headlines in the Organize, Unify,
+                 and Scale chaos lines sections and replace them with the sub
+                 heading." Method (Ethan): the HEADLINE'S TEXT was replaced with
+                 the subhead's text and the now-duplicate <span class="subhead">
+                 was deleted. Nothing was MOVED — DOM order is otherwise identical,
+                 so nothing has risen above the headline and Unify's .step-bridge
+                 still sits exactly where it sat. -->
+            <span class="headline">Bring structure to your records and data.</span>
             <span class="body step-body-1">We digitize, migrate, classify, clean, and organize records and data. Our services turn paper, legacy systems, and unstructured electronic records into a trusted foundation for what comes next.</span>
             <span class="body step-principle">Structure makes modernization possible.</span>
             <!-- [V8.1] The old .step-above / .step-below BREAK used to fall here.
@@ -4776,7 +4972,9 @@ html { scrollbar-gutter: stable; }
                panel to test the expanded window against. -->
           <div class="step-above">
             <span class="eyebrow">Step 2 / Unify</span>
-            <span class="headline">One Ecosystem. One Login.</span>
+            <!-- [2026-09-03 / Bryan] Headline text replaced by the subhead's text;
+                 the duplicate .subhead below was deleted. See the note in Organize. -->
+            <span class="headline">Connect your records, data, and processes.</span>
             <!-- [V8 / B1] Unify only. The bridge sits immediately AFTER the
                  headline on BOTH layers now. The headline is the highest element
                  in the panel and nothing is ever allowed above it — this retires
@@ -4784,7 +4982,6 @@ html { scrollbar-gutter: stable; }
                  mobile. Reed's rationale survives: the bridge is a transition INTO
                  the step, so it still reads before the subhead and the argument. -->
             <span class="step-bridge">Organize brings structure to what you have. Unify brings it together. We bring forms, workflows, records management, and business processes together within modern cloud environments.</span>
-            <span class="subhead">Connect your records, data, and processes.</span>
             <span class="body step-body-1">Once records and data are organized, the next step is to connect them. We unify forms, workflows, records management, and business processes within modern cloud environments. Disconnected systems begin working together in a more centralized, manageable environment.</span>
             <!-- [V8.1] Old .step-above / .step-below break removed — see the note
                  in the Organize block. All prose is one continuous read now. -->
@@ -4821,14 +5018,20 @@ html { scrollbar-gutter: stable; }
 
         <!-- Step 3 / Scale (Panel 4) -->
         <div class="frame-text-block text-step scale" id="textScale">
-          <!-- [V8.1 FADE + SEE MORE] ONE column, read straight down. Scale's
-               headline wraps to TWO lines where Unify's wraps to one — the
-               top-anchored --head-axis plus the 2-line min-height on
-               .text-step .headline is what keeps both headers on one axis. -->
+          <!-- [V8.1 FADE + SEE MORE] ONE column, read straight down. [Updated
+               2026-09-03] Since Bryan's headline swap the relationship is the
+               other way round: Scale's headline sets on ONE line above ~1256px
+               where Organize's and Unify's take two — the top-anchored
+               --head-axis plus the 2-line min-height on .text-step .headline is
+               what keeps all three headers on one axis. -->
           <div class="step-above">
             <span class="eyebrow">Step 3 / Scale</span>
-            <span class="headline">Activate What You Already Fund</span>
-            <span class="subhead">Continuous Automation</span>
+            <!-- [2026-09-03 / Bryan] Headline text replaced by the subhead's text;
+                 the duplicate .subhead below was deleted. See the note in Organize.
+                 This is the SHORT one — it sets on ONE line at desktop sizes and
+                 the 2-line min-height on .text-step .headline is what still holds
+                 it on the shared axis with Organize and Unify. -->
+            <span class="headline">Continuous Automation</span>
             <span class="body step-body-1">Once records, data, and processes are organized and connected, you can build on that foundation. Scale expands automation, governance, analytics, and business processes across departments without starting over.</span>
             <span class="body step-body-2">Modern cloud platforms are changing how technology is built. Instead of waiting for the next software release, organizations can continuously add new capabilities using cloud services, automation tools, and emerging technologies. Think of these capabilities as building blocks. Each new automation builds on the same organized and connected foundation, allowing your environment to evolve as needs and technology change.</span>
               <!-- [V8.1] Old .step-above / .step-below break removed — see the note
@@ -4894,8 +5097,9 @@ html { scrollbar-gutter: stable; }
             </div>
             <div class="ms-card">
               <span class="eyebrow">Organize</span>
-              <span class="headline">See What You Actually Have</span>
-              <span class="subhead">Bring structure to your records and data.</span>
+              <!-- [2026-09-03 / Bryan] Mobile twin of the desktop change: headline
+                   text replaced by the subhead's text, duplicate .subhead deleted. -->
+              <span class="headline">Bring structure to your records and data.</span>
               <span class="body">We digitize, migrate, classify, clean, and organize records and data. Our services turn paper, legacy systems, and unstructured electronic records into a trusted foundation for what comes next.</span>
               <!-- [V8 / B6] Organize is the ONE step where Bryan put his principle
                    line BEFORE the paragraph that explains it. The old two-column
@@ -4925,7 +5129,9 @@ html { scrollbar-gutter: stable; }
             </div>
             <div class="ms-card">
               <span class="eyebrow">Unify</span>
-              <span class="headline">One Ecosystem. One Login.</span>
+              <!-- [2026-09-03 / Bryan] Mobile twin: headline text replaced by the
+                   subhead's text, duplicate .subhead deleted. -->
+              <span class="headline">Connect your records, data, and processes.</span>
               <!-- [V8 / B1 — Ethan's ruling 2026-08-27] BOTH layers now put the
                    bridge immediately AFTER the headline. The headline is the
                    highest element in the panel and nothing sits above it. This
@@ -4934,7 +5140,6 @@ html { scrollbar-gutter: stable; }
                    survives: the bridge is a transition INTO the step, so it still
                    reads before the subhead and before the argument. -->
               <span class="step-bridge">Organize brings structure to what you have. Unify brings it together. We bring forms, workflows, records management, and business processes together within modern cloud environments.</span>
-              <span class="subhead">Connect your records, data, and processes.</span>
               <span class="body">Once records and data are organized, the next step is to connect them. We unify forms, workflows, records management, and business processes within modern cloud environments. Disconnected systems begin working together in a more centralized, manageable environment.</span>
               <span class="body step-body-2">Technology is at a fundamental inflection point. Capabilities that once required separate software can now be built within modern platforms agencies already use, like Microsoft 365 and Google Workspace. SyTech helps replace outdated software and costly workarounds while reducing data silos and software dependency.</span>
               <span class="body step-principle">Connection makes modernization work.</span>
@@ -4963,8 +5168,9 @@ html { scrollbar-gutter: stable; }
             </div>
             <div class="ms-card">
               <span class="eyebrow">Scale</span>
-              <span class="headline">Activate What You Already Fund</span>
-              <span class="subhead">Continuous Automation</span>
+              <!-- [2026-09-03 / Bryan] Mobile twin: headline text replaced by the
+                   subhead's text, duplicate .subhead deleted. -->
+              <span class="headline">Continuous Automation</span>
               <span class="body">Once records, data, and processes are organized and connected, you can build on that foundation. Scale expands automation, governance, analytics, and business processes across departments without starting over.</span>
               <span class="body step-body-2">Modern cloud platforms are changing how technology is built. Instead of waiting for the next software release, organizations can continuously add new capabilities using cloud services, automation tools, and emerging technologies. Think of these capabilities as building blocks. Each new automation builds on the same organized and connected foundation, allowing your environment to evolve as needs and technology change.</span>
               <!-- ETHAN'S RULING: the Scale principle line below is Bryan's own.
@@ -4999,7 +5205,11 @@ html { scrollbar-gutter: stable; }
            arrow on the first run only. pointer-events:none; z-index:1 (above the
            chaos SVG, below the z-index:2 arrows). Fades on .frame-review-nav--fr-active. -->
       <div class="frame-firstrun-wash" aria-hidden="true"></div>
-      <button type="button" class="frame-review-arrow frame-review-prev" id="frameReviewPrev" aria-label="Previous step" aria-hidden="true" tabindex="-1" disabled>
+      <!-- [2026-09-03 / Bryan] aria-hidden="true" and tabindex="-1" removed — the
+           arrow is present from the resting stage now, so it must be present in
+           the a11y tree and the tab order too, exactly like its NEXT sibling.
+           `disabled` STAYS: JS keeps it true at step 0. -->
+      <button type="button" class="frame-review-arrow frame-review-prev" id="frameReviewPrev" aria-label="Previous step" disabled>
         <span class="frame-review-chev" aria-hidden="true"></span>
       </button>
       <button type="button" class="frame-review-arrow frame-review-next" id="frameReviewNext" aria-label="Next step" aria-describedby="frameReviewTip" disabled>
@@ -5797,6 +6007,9 @@ html { scrollbar-gutter: stable; }
     var bodyEl  = panel.querySelector('.cb-detail-body');
     var cardEl  = panel.querySelector('.cb-detail-card');
     var closeEl = panel.querySelector('.cb-detail-close');
+    /* [2026-09-03 / Bryan] the per-chip service link inside the shared panel */
+    var linkEl      = panel.querySelector('.cb-detail-link');
+    var linkLabelEl = panel.querySelector('.cb-detail-link-label');
     var reduced = window.matchMedia('(prefers-reduced-motion: reduce)');
     var activeFrag = null;
 
@@ -5830,6 +6043,24 @@ html { scrollbar-gutter: stable; }
          Reed's splice target is unchanged; we only read it. */
       titleEl.textContent = btn.getAttribute('aria-label') || '';
       bodyEl.textContent  = tip ? tip.textContent.trim() : '';
+
+      /* [2026-09-03 / Bryan] "Have each patchwork funnel them to different pages."
+         The panel is SHARED, so the destination is a property of the CHIP and is
+         rewritten on every open. Setting the href is what makes the link visible
+         (CSS: .cb-detail-link[href]) AND focusable, so the two can never drift
+         apart; a chip with no data-href gets no link at all rather than a dead
+         one pointing at the previous chip's page. */
+      if (linkEl) {
+        var svcHref  = frag.getAttribute('data-href');
+        var svcLabel = frag.getAttribute('data-linklabel');
+        if (svcHref) {
+          linkEl.setAttribute('href', svcHref);
+          if (linkLabelEl) linkLabelEl.textContent = svcLabel || 'Learn more';
+        } else {
+          linkEl.removeAttribute('href');
+          if (linkLabelEl) linkLabelEl.textContent = '';
+        }
+      }
 
       /* the fault hue rides ONLY the panel's 3px left border, never the text */
       var status = getComputedStyle(frag).getPropertyValue('--status').trim();
@@ -6128,9 +6359,11 @@ html { scrollbar-gutter: stable; }
     var anim        = { trackX: 0, amberW: 0 };
     var reduced     = false;
     var inView      = false;         // IntersectionObserver: section on screen -> arrows available
-    var hasCompleted = false;        // flips true the FIRST time currentStep reaches LAST_STEP (Scale);
-                                     // gates the LEFT/PREV arrow (hidden until then). Persists for the
-                                     // page session — once true the PREV arrow stays available even at step 0.
+    /* [2026-09-03 / Bryan] `hasCompleted` REMOVED. It existed only to gate the
+       LEFT/PREV arrow until the framework had been played through once; Bryan
+       asked for that arrow to be there the whole time, so the flag, markCompleted(),
+       its call site in syncReviewDisabled(), the init() reset and the
+       .frame-review-nav--completed CSS all went with it. Nothing else read it. */
     var frHelperDone = false;        // ONE-WAY session flag: once true, the first-run helper (white wash +
                                      // auto-label + pulse) is gone for good and never returns this session.
 
@@ -6307,16 +6540,9 @@ html { scrollbar-gutter: stable; }
       if (textScale)    textScale.classList.toggle('revealed',   n >= 4);
     }
 
-    /* Reveal the LEFT/PREV arrow permanently the first time the framework fully
-       resolves (currentStep === LAST_STEP). Idempotent — safe to call every step.
-       Adds .frame-review-nav--completed (CSS pops the arrow in) and puts the button
-       back into the tab order + a11y tree. */
-    function markCompleted() {
-      if (hasCompleted) return;
-      hasCompleted = true;
-      if (reviewNav)  reviewNav.classList.add('frame-review-nav--completed');
-      if (reviewPrev) { reviewPrev.removeAttribute('aria-hidden'); reviewPrev.removeAttribute('tabindex'); }
-    }
+    /* [2026-09-03 / Bryan] markCompleted() REMOVED — the PREV arrow is no longer
+       gated on a first full play-through; it ships visible and simply disables at
+       step 0. See the note where hasCompleted used to be declared. */
 
     /* Turn the FIRST-RUN helper OFF permanently the FIRST time currentStep passes
        the initial chaos page — i.e. as soon as currentStep > 1 (the user has
@@ -6338,7 +6564,7 @@ html { scrollbar-gutter: stable; }
     }
 
     function syncReviewDisabled() {
-      if (currentStep >= LAST_STEP) markCompleted();   // first full resolve -> unlock the PREV arrow (auto-play only hits step 1)
+      // [2026-09-03] The markCompleted() call that used to open this function is gone.
       if (reviewPrev) reviewPrev.disabled = (currentStep <= 0);
       if (reviewNext) reviewNext.disabled = (currentStep >= LAST_STEP);
       maybeEndFirstRunHelper();                         // one-way: retire the first-run helper the first time currentStep > 1 (past the initial chaos page)
@@ -6464,11 +6690,14 @@ html { scrollbar-gutter: stable; }
 
       // Reset per-run SESSION flags so an upgrade lands EXACTLY like a fresh wide load.
       autoPlayed   = false;          // auto-play (chaos draw-in) can fire again once ~50% in view
-      hasCompleted = false;          // PREV arrow hidden again until the first full resolve
       frHelperDone = false;          // first-run helper active again for the fresh cycle
       bypassActive = false;          // any pending #service-tiles jump is irrelevant after a resize
-      if (reviewNav)  reviewNav.classList.remove('frame-review-nav--completed');
-      if (reviewPrev) { reviewPrev.setAttribute('aria-hidden', 'true'); reviewPrev.setAttribute('tabindex', '-1'); }
+      // [2026-09-03 / Bryan] The three PREV-arrow reset lines that lived here
+      // (hasCompleted = false, removing .frame-review-nav--completed, and
+      // re-applying aria-hidden/tabindex="-1") are gone. The arrow is always
+      // present now, so a narrow->wide crossing has nothing to re-hide;
+      // applyStepStatic(START_STEP) below still re-disables it via
+      // syncReviewDisabled(), which is the only state it has left.
 
       applyStepStatic(START_STEP);   // render the default resting stage (no autoplay)
       // FIRST-RUN onboarding helper for the RIGHT arrow (white wash + auto-label + pulse).

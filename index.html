@@ -893,21 +893,28 @@ html { scrollbar-gutter: stable; }
    CONSEQUENCE, on the record: "Moving Records & Data Forward" no longer appears
    anywhere on this page, and "from complexity to clarity™" now survives ONLY in
    the footer tagline, which is untouched.
-   .cb-bridge keeps its own ratified 2.25rem top margin, which is what the
-   deleted adjacency rule used to suppress — so the paragraph now sits on the
-   same air it had before the header was ever introduced. */
+   .cb-bridge kept its own ratified 2.25rem top margin, which is what the
+   deleted adjacency rule used to suppress — so the paragraph sat on the same
+   air it had before the header was ever introduced.
+   [V9 2026-09-04] That 2.25rem is now 1.25rem: the paragraph is no longer the
+   first element under the closing line, it is the SECOND paragraph inside the
+   disclosure panel. See the margin's own note below. */
 .cb-bridge {
-  /* ONE source of truth for the line grid. Both the collapsed height and the
-     mask stops below are expressed in these two numbers, so the "two visible
-     lines" rule is defined in LINE BOXES, never in pixels. */
+  /* [V9 2026-09-04] --cb-bridge-lines is DELETED, not commented out. It only
+     ever existed to express the V8.3 collapsed height and mask stops in line
+     boxes; there is no teaser and no mask any more, so nothing consumes it.
+     --cb-bridge-lh stays — line-height below still reads it. */
   --cb-bridge-lh: 1.65;                        /* was 1.7 */
-  --cb-bridge-lines: 3;                        /* 2 fully visible + 1 that fades out */
   font-size: clamp(0.95rem, 1.4vw, 1.05rem);  /* ratified */
   font-weight: 400;                            /* ratified */
   line-height: var(--cb-bridge-lh);
   color: rgba(255, 255, 255, 0.78);            /* ratified — 8.23:1, AAA */
   max-width: 64ch;                             /* was 68ch */
-  margin: 2.25rem auto 0;                      /* was 2.5rem */
+  /* [V9 — ETHAN 2026-09-04] was 2.25rem. This paragraph is no longer the first
+     thing under the closing line: it now sits INSIDE the disclosure panel,
+     directly beneath the .cb-bridge-turn line, so it takes PARAGRAPH spacing
+     rather than the section spacing it needed when it stood alone. */
+  margin: 1.25rem auto 0;
   /* Stays CENTRED on purpose: every other element in this band is centred on one
      axis, and breaking that axis for one paragraph would read as a mistake. The
      measure is tightened instead. */
@@ -915,69 +922,88 @@ html { scrollbar-gutter: stable; }
   text-wrap: pretty;
 }
 
-/* ---- [V8.3] BRIDGE PARAGRAPH: FADE + "SEE MORE" -------------------------
-   ETHAN, 2026-08-27: "Have the first two lines be visible, then the third line
-   fades away, and add a 'see more' button below it."
+/* ---- [V9] BRIDGE DISCLOSURE: "See More" ---------------------------------
+   ETHAN, 2026-09-04. SUPERSEDES the V8.3 "two lines visible, third line fades,
+   button underneath" teaser below the bridge paragraph.
 
-   This is DELIBERATELY the same control the framework steps ship one section
-   below (.step-more-btn): same gold pill, same border/fill/radius/weight/
-   tracking, same gold caret, same 0.25s cubic-bezier(0.4,0,0.2,1) transitions,
-   same "See more" / "See less" label pair. Two differences, both intentional:
-     1. It expands IN PLACE. The framework's floating window exists only to
-        clear the amber line; there is no line here, so a window would be an
-        invention rather than a sibling.
-     2. Everything is CENTRED, because every element in this band is centred on
-        one axis and the paragraph itself is centred text.
+   WHAT CHANGED, and why it is a restructure rather than a second control:
+     1. The button MOVES UP. It now sits directly under the closing line
+        ("The answer isn't buying more software."), which is the sentence Ethan
+        named as the anchor.
+     2. BOTH payoff paragraphs now sit BEHIND it. The "It's finding a practical
+        path forward..." line used to be the always-visible .cb-closing-turn
+        inside .cb-closing; it is now the FIRST paragraph of the panel, and the
+        "Modern cloud platforms..." paragraph follows it. Copy is VERBATIM and
+        was MOVED, not rewritten — there is no second copy of either sentence
+        anywhere on the page.
+     3. There is now NO TEASER. Collapsed, the panel shows nothing at all.
 
-   HOW "TWO VISIBLE LINES" HOLDS AT EVERY WIDTH — no pixel heights anywhere.
-   The collapsed box is `--cb-bridge-lines x --cb-bridge-lh x 1em` and the mask
-   stops sit on the SAME em grid. font-size is a clamp() and line-height is
-   unitless, so `em` tracks both: at 1440px the paragraph is 6 lines and at
-   360px it is ~14, and in both cases the box is exactly three line boxes tall
-   with the fade starting exactly at the top of line 3. A px max-height would
-   have silently shown 1.5 lines or 4 lines the moment the copy rewrapped.
+   *** NO FADE ON THE TEXT — this is a hard constraint, not a preference. ***
+   Ethan: "Don't add any slowly fading text." So the V8.3 mask-image gradient is
+   DELETED rather than retuned, and there is deliberately NO opacity transition,
+   NO staggered reveal and NO fade-up anywhere in this disclosure. The text
+   either isn't there or it is. The ONLY thing that animates is the CONTAINER'S
+   HEIGHT. (Consequence, on the record so nobody "rescues" it later: the
+   --cb-bridge-lines variable and the whole em-grid mask that used to keep
+   "exactly two visible lines" are gone, because there are no visible lines to
+   hold any more.)
 
-   THE FADE IS NEVER A CUT. Opaque through 2.04 lines (line 2's descenders are
-   safely inside the solid zone), fully transparent by 2.90 lines — i.e. the
-   last ~0.10 of a line is guaranteed empty, so the box bottom edge can never
-   clip a glyph. Line 3 therefore starts at ~87% and dissolves to 0 across its
-   own height.
+   MECHANISM — grid-template-rows 0fr -> 1fr, NOT max-height. It tweens to the
+   copy's TRUE auto height, so nothing has to be measured in JS and no stale
+   pixel value can be stranded when the paragraphs re-wrap on resize (the exact
+   failure the old scrollHeight/transitionend dance existed to work around).
+   .cb-bridge-panel-inner carries overflow:hidden + min-height:0 — min-height is
+   load-bearing, a grid item refuses to shrink below its content without it and
+   the row would never actually collapse. That clip is LOCAL to this wrapper;
+   .challenge-band's own overflow:hidden is untouched.
 
-   FALLBACKS. The clamp lives on `.is-clamped`, which ships in the HTML so there
-   is no flash of full copy on load, and a <noscript> block beside the markup
-   un-clamps it — if JS never runs, the whole paragraph is simply visible and
-   the button is hidden. The copy is ALWAYS in the DOM and never aria-hidden,
-   exactly the call made on the framework panels: a mask and an overflow clip
-   are visual only, screen readers get the full paragraph either way. */
-.cb-bridge-block.is-clamped .cb-bridge {
+   The pill itself is UNCHANGED from V8.3 — same gold border/fill/radius/weight/
+   tracking, same gold caret that flips on open, same 0.25s cubic-bezier
+   transitions. It is still deliberately the same control the framework steps
+   ship one section below (.step-more-btn), and it still expands IN PLACE and
+   stays CENTRED on the band's single axis.
+
+   FALLBACKS. `.is-collapsed` ships in the HTML so there is no flash of the full
+   copy before JS runs, and the <noscript> block beside the markup forces the
+   panel open and strips the button — scripting off means both paragraphs are
+   simply visible, exactly as they render today. The copy is ALWAYS in the DOM
+   and never aria-hidden (the same call the framework panels made); the panel
+   contains no focusable elements, so a clipped 0fr row can never trap a Tab. */
+.cb-bridge-panel {
+  display: grid;
+  grid-template-rows: 1fr;        /* default / no-JS / noscript: OPEN */
+  transition: grid-template-rows 0.42s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.cb-bridge-block.is-collapsed:not(.is-open) .cb-bridge-panel {
+  grid-template-rows: 0fr;
+}
+.cb-bridge-panel-inner {
   overflow: hidden;
-  transition: max-height 0.42s cubic-bezier(0.4, 0, 0.2, 1);
+  min-height: 0;                  /* required, or 0fr will not collapse */
 }
-.cb-bridge-block.is-clamped:not(.is-open) .cb-bridge {
-  max-height: calc(var(--cb-bridge-lines) * var(--cb-bridge-lh) * 1em);
-  -webkit-mask-image: linear-gradient(to bottom,
-      #000 0,
-      #000 calc(2.04 * var(--cb-bridge-lh) * 1em),
-      transparent calc(2.90 * var(--cb-bridge-lh) * 1em),
-      transparent 100%);
-          mask-image: linear-gradient(to bottom,
-      #000 0,
-      #000 calc(2.04 * var(--cb-bridge-lh) * 1em),
-      transparent calc(2.90 * var(--cb-bridge-lh) * 1em),
-      transparent 100%);
+/* The moved "turn" line. It KEEPS its .cb-closing-turn class so its typography
+   (and the <=600px font-size override) carry over literally; this rule only
+   restates the LAYOUT it used to inherit from .cb-closing — 680px measure and
+   centring — plus the spacing it now needs under the button. Single-class
+   selector, same specificity as .cb-closing-turn, and it is later in source
+   order, so its margin wins. */
+.cb-bridge-turn {
+  max-width: 680px;
+  margin: 1.4rem auto 0;
+  text-align: center;
 }
-/* The rail. flex + justify-content:center keeps the pill on the paragraph's own
-   centred axis at every width; the pill keeps its fit-content width. */
+/* The rail. flex + justify-content:center keeps the pill on the band's centred
+   axis at every width; the pill keeps its fit-content width. */
 .cb-bridge-more-row {
-  /* Hidden unless the clamp is actually in force, so the button can never sit
-     under an already-complete paragraph promising more. `.is-clamped` ships in
-     the markup, and the <noscript> block strips this row when JS is off. */
+  /* Hidden unless the disclosure is actually in force, so the button can never
+     sit above already-visible copy promising more. `.is-collapsed` ships in the
+     markup, and the <noscript> block strips this row when JS is off. */
   display: none;
-  margin: 1.05rem auto 0;
-  max-width: 64ch;               /* same measure as the paragraph it belongs to */
+  margin: 1.35rem auto 0;
+  max-width: 64ch;
   justify-content: center;
 }
-.cb-bridge-block.is-clamped .cb-bridge-more-row { display: flex; }
+.cb-bridge-block.is-collapsed .cb-bridge-more-row { display: flex; }
 /* Styled AT REST (real border + real fill) — never hover-only, so it is an
    obvious control on a touch screen and to anyone who never hovers. */
 .cb-bridge-more-btn {
@@ -1033,14 +1059,15 @@ html { scrollbar-gutter: stable; }
   border-color: var(--gold);
   box-shadow: 0 0 0 3px rgba(229,166,48,0.45);
 }
-/* REDUCED MOTION — Ethan's call was left to me, so: the DISCLOSURE STAYS (it is
-   content structure, not motion) and only the movement goes. Expand/collapse is
-   instantaneous, the caret does not swing, and the static mask gradient remains
-   — a gradient is not an animation, and dropping it would hand this cohort a
-   hard clipped edge, which is the one thing the fade exists to avoid. Everyone
-   sees the same layout and reaches the same copy; nothing moves. */
+/* REDUCED MOTION — the DISCLOSURE STAYS (it is content structure, not motion)
+   and only the movement goes: the panel snaps open and shut with no height
+   tween, the caret does not swing, and the pill's colour transitions are cut.
+   Everyone sees the same layout and reaches the same copy; nothing moves.
+   [V9] There is no longer a mask gradient to reason about here — the whole
+   fade was deleted, so this cohort and everyone else now get the identical
+   treatment, which is the simplest honest outcome. */
 @media (prefers-reduced-motion: reduce) {
-  .cb-bridge-block.is-clamped .cb-bridge,
+  .cb-bridge-panel,
   .cb-bridge-more-btn,
   .cb-bridge-more-btn::after {
     transition: none;
@@ -4747,9 +4774,22 @@ html { scrollbar-gutter: stable; }
          between it (lead italic, turn bold), and the mark has moved OUT of
          .cb-closing entirely to become the HEADING of the bridge paragraph. Copy
          is verbatim in both places — this was a move + restyle, not a rewrite. -->
+    <!-- [V9 — ETHAN 2026-09-04] The couplet is SPLIT. The italic lead stays here
+         as the always-visible anchor sentence; the bold "turn" line has MOVED
+         into the disclosure panel below (see .cb-bridge-turn), because Ethan
+         asked for the See More button to sit immediately after this sentence
+         with the payoff copy behind it. The turn line's copy is VERBATIM and
+         unmoved in wording — only its position changed.
+
+         KNOWN CONSEQUENCE, flagged rather than silently accepted: the 2026-08-27
+         ruling above stacked this couplet precisely so "It's" kept its
+         antecedent. Collapsed, "It's" is no longer on screen under "The answer
+         isn't buying more software." — it reads correctly the moment the panel
+         is opened, but a visitor who never clicks now sees only the lead. This
+         is Ethan's explicit instruction, so it ships; it is written down here so
+         nobody later "fixes" it back as an accident. -->
     <p class="cb-closing">
       <span class="cb-closing-lead">The answer isn't buying more software.</span>
-      <span class="cb-closing-turn">It's finding a practical path forward, from where you are today to where technology is going.</span>
     </p>
     <!-- [V8 — ETHAN 2026-08-27, correction pass] BOTH trademark lines now ship
          here, in BRYAN'S OWN ORDER (Clarity first, then Moving Records). The
@@ -4773,25 +4813,47 @@ html { scrollbar-gutter: stable; }
          "from complexity to clarity™" survives only in the FOOTER tagline,
          which was not touched.
 
-         WHAT REPLACED IT — the bridge paragraph became a disclosure: two lines
-         visible, the third fading out, the rest revealed by a "See more" pill
-         that matches the framework's .step-more-btn. The copy is UNCHANGED and
-         complete in the DOM (no aria-hidden, no truncation, no second copy) —
-         only its visual height is clamped, and only while collapsed.
-         `is-clamped` ships in the markup so there is no flash of full copy
-         before JS runs; the <noscript> below removes it if scripting is off. -->
-    <div class="cb-bridge-block is-clamped" id="cbBridgeBlock">
-      <p class="cb-bridge" id="cbBridgeText">Modern cloud platforms have changed what's possible. Capabilities that once required separate software can now be built on the technology agencies already use. SyTech helps put those capabilities to work, connecting records, data, and processes while reducing dependence on disconnected systems. We leverage your modern cloud platforms to move your records and data forward, one practical step at a time.</p>
+         WHAT REPLACED IT — the bridge paragraph became a disclosure behind a
+         "See more" pill matching the framework's .step-more-btn.
+
+         [V9 — ETHAN 2026-09-04] THAT DISCLOSURE IS RESTRUCTURED, NOT REPLACED.
+         There is still exactly ONE "more" control in this band. What changed:
+         the pill moved ABOVE the copy (directly under "The answer isn't buying
+         more software."), the "It's finding a practical path forward..." line
+         moved DOWN into the panel to join it, and the two-visible-lines teaser
+         with its fading third line is GONE — Ethan asked for no slowly fading
+         text, so collapsed now means nothing is showing at all. The copy is
+         still UNCHANGED and complete in the DOM (no aria-hidden, no truncation,
+         no second copy of either sentence). `is-collapsed` ships in the markup
+         so there is no flash of full copy before JS runs; the <noscript> below
+         forces the panel open if scripting is off. -->
+    <div class="cb-bridge-block is-collapsed" id="cbBridgeBlock">
+      <!-- Button FIRST, panel second — the control sits immediately under the
+           closing sentence and the copy opens beneath it. -->
       <div class="cb-bridge-more-row">
-        <button type="button" class="cb-bridge-more-btn" id="cbBridgeMore" aria-expanded="false" aria-controls="cbBridgeText">See more</button>
+        <button type="button" class="cb-bridge-more-btn" id="cbBridgeMore" aria-expanded="false" aria-controls="cbBridgePanel">See More</button>
+      </div>
+      <!-- Two-element wrapper is required by the grid-template-rows 0fr->1fr
+           technique: the outer element is the grid whose single row is animated,
+           the inner one carries overflow:hidden + min-height:0. Do not flatten
+           these into one div — the row will not collapse. -->
+      <div class="cb-bridge-panel" id="cbBridgePanel">
+        <div class="cb-bridge-panel-inner">
+          <!-- VERBATIM, moved from .cb-closing. Keeps .cb-closing-turn for its
+               typography; .cb-bridge-turn supplies the layout it used to inherit
+               from .cb-closing. Straight apostrophes, matching this block. -->
+          <p class="cb-closing-turn cb-bridge-turn">It's finding a practical path forward, from where you are today to where technology is going.</p>
+          <p class="cb-bridge" id="cbBridgeText">Modern cloud platforms have changed what's possible. Capabilities that once required separate software can now be built on the technology agencies already use. SyTech helps put those capabilities to work, connecting records, data, and processes while reducing dependence on disconnected systems. We leverage your modern cloud platforms to move your records and data forward, one practical step at a time.</p>
+        </div>
       </div>
     </div>
     <!-- NO-JS ESCAPE HATCH. Selectors deliberately MIRROR the two stylesheet
          rules they undo (`:not(.is-open)` included) so specificity ties and
          source order — this block is later — decides. A shorter selector here
-         would lose to the (0,4,0) clamp rule and silently leave the copy
-         truncated with a dead button under it. -->
-    <noscript><style>.cb-bridge-block.is-clamped:not(.is-open) .cb-bridge{max-height:none;-webkit-mask-image:none;mask-image:none}.cb-bridge-block.is-clamped .cb-bridge-more-row{display:none}</style></noscript>
+         would lose to the (0,4,0) collapse rule and silently leave the copy
+         hidden behind a dead button. Result with scripting off: the panel is
+         fully open and the button is not rendered at all. -->
+    <noscript><style>.cb-bridge-block.is-collapsed:not(.is-open) .cb-bridge-panel{grid-template-rows:1fr}.cb-bridge-block.is-collapsed .cb-bridge-more-row{display:none}</style></noscript>
   </div>
 </section>
 
@@ -6137,23 +6199,26 @@ html { scrollbar-gutter: stable; }
 
 
   /* -------------------------------------------------------
-     [V8.3] CHALLENGE BAND — BRIDGE PARAGRAPH "SEE MORE" TOGGLE
-     Ethan, 2026-08-27: two lines visible, the third fades away, a "See more"
-     button below it.
+     [V9] CHALLENGE BAND — "SEE MORE" DISCLOSURE TOGGLE
+     Ethan, 2026-09-04: See More sits under "The answer isn't buying more
+     software.", and both payoff paragraphs open beneath it.
 
-     ALL OF THE VISUAL STATE IS CSS (rule 4: JS may run late or fail). The
-     collapsed height and the fade mask are on `.cb-bridge-block.is-clamped`,
-     which ships in the markup; this script only flips `.is-open` and drives the
-     height tween. If it never runs, the page is a correct static teaser plus a
-     button that does nothing, and the <noscript> beside the markup un-clamps it
-     entirely when scripting is off.
+     SUPERSEDES the V8.3 controller. That version had to measure scrollHeight
+     and hand control back to CSS on a timer, because `max-height` cannot
+     transition to `none` and a stale pixel height would trap the paragraph at
+     the wrong size after a resize. The CSS is now a grid-template-rows
+     0fr -> 1fr tween, which animates to the true auto height on its own, so ALL
+     of that measurement machinery is deleted: this script flips one class and
+     updates the button. Nothing here reads or writes a height.
 
-     WHY AN INLINE max-height IS SET AT ALL: `max-height` cannot transition to
-     `none`, so opening tweens to the measured scrollHeight and then hands
-     control back to CSS on transitionend (max-height:none), which is what lets
-     the paragraph re-wrap freely on resize while open. Closing does the reverse:
-     pin the current height, force a reflow, drop the inline value so the CSS
-     3-line clamp takes over and animates down.
+     ALL OF THE VISUAL STATE IS CSS (rule 4: JS may run late or fail).
+     `.is-collapsed` ships in the markup so there is no flash of the full copy
+     before this runs, and the <noscript> beside the markup forces the panel
+     open and strips the button when scripting is off.
+
+     NOTE THE ABSENCE: there is no opacity, no fade, no stagger and no per-
+     element reveal anywhere in this function, deliberately — Ethan asked for no
+     slowly fading text. The height tween is the entire animation.
 
      Self-contained IIFE — nothing leaks into page scope.
      ------------------------------------------------------- */
@@ -6162,65 +6227,29 @@ html { scrollbar-gutter: stable; }
 
     var block = document.getElementById('cbBridgeBlock');
     var btn   = document.getElementById('cbBridgeMore');
-    if (!block || !btn) return;
-
-    var para = document.getElementById('cbBridgeText');
-    if (!para) return;
-
-    /* Honoured for MOTION only. The disclosure itself stays for this cohort —
-       see the matching @media block in the stylesheet. */
-    var reduced = window.matchMedia
-      ? window.matchMedia('(prefers-reduced-motion: reduce)')
-      : { matches: false };
+    var panel = document.getElementById('cbBridgePanel');
+    if (!block || !btn || !panel) return;
 
     var open = false;
-    var settle = null;
-
-    function clearSettle() {
-      if (settle) { clearTimeout(settle); settle = null; }
-    }
-
-    function expand() {
-      clearSettle();
-      open = true;
-      block.classList.add('is-open');
-      btn.textContent = 'See less';
-      btn.setAttribute('aria-expanded', 'true');
-      if (reduced.matches) { para.style.maxHeight = ''; return; }
-      /* Tween from the clamped height to the measured full height, then release
-         to CSS so a later re-wrap is never trapped at a stale pixel value. */
-      para.style.maxHeight = para.scrollHeight + 'px';
-      settle = setTimeout(function () {
-        if (open) para.style.maxHeight = '';
-        settle = null;
-      }, 440);                       /* 0.42s transition + a 20ms cushion */
-    }
-
-    function collapse() {
-      clearSettle();
-      open = false;
-      btn.textContent = 'See more';
-      btn.setAttribute('aria-expanded', 'false');
-      if (reduced.matches) {
-        para.style.maxHeight = '';
-        block.classList.remove('is-open');
-        return;
-      }
-      /* Pin the live height first — otherwise the class flip jumps straight to
-         the clamp with nothing to animate FROM. */
-      para.style.maxHeight = para.scrollHeight + 'px';
-      void para.offsetHeight;        /* forced reflow: commits the pinned height */
-      block.classList.remove('is-open');
-      para.style.maxHeight = '';     /* CSS 3-line clamp takes over and tweens */
-    }
 
     btn.addEventListener('click', function (e) {
       e.preventDefault();
-      if (open) { collapse(); } else { expand(); }
+      open = !open;
+      if (open) {
+        block.classList.add('is-open');
+      } else {
+        block.classList.remove('is-open');
+      }
+      btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+      /* textContent only swaps the LABEL; the gold caret is a ::after
+         pseudo-element and is untouched by this. */
+      btn.textContent = open ? 'See Less' : 'See More';
     });
 
     /* Keyboard needs nothing extra — it is a real <button>, so Enter and Space
-       already fire the click handler and :focus-visible paints the gold ring. */
+       already fire the click handler and :focus-visible paints the gold ring.
+       Reduced motion is handled entirely in CSS (transition:none on the panel),
+       so there is no matchMedia branch here to drift out of sync with it. */
   })();
 
 

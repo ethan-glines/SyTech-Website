@@ -552,6 +552,47 @@
   .compare-col, .archive-quote, .hero-story, .reveal { opacity: 1 !important; transform: none !important; }
   .step, .trust-tile { opacity: 1 !important; transform: none !important; }
 }
+
+/* ============================================================
+   SCENARIO FAQ — page-local, fully namespaced under .scenario-faq.
+   Accordion values lifted verbatim from about.html (.faq-section,
+   ~L96-139). 16:9 frame lifted verbatim from media.html
+   (.media-frame, ~L40). Nothing here touches shared CSS.
+   Centered section header per design principles §11; hairline
+   border-bottom matches this page's own .section rule.
+   Band tone: white, between the light .section.alt comparison band
+   above and the light .cross-link band below (§19).
+   Family accent (§9.5): Organize/copper, so the component accent maps
+   to --accent / --accent-ink. Geometry and timing are unchanged.
+   ============================================================ */
+.scenario-faq { padding: 5rem 0; background: var(--white); border-bottom: 1px solid rgba(37,66,107,0.08); }
+.scenario-faq .scenario-faq-head { text-align: center; max-width: 760px; margin: 0 auto; }
+.scenario-faq .section-eyebrow { display: block; font-size: 0.7rem; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; color: var(--accent-ink); margin-bottom: 0.75rem; }
+.scenario-faq h2 { font-size: clamp(1.6rem, 2.6vw, 2.2rem); font-weight: 700; line-height: 1.2; margin: 0; letter-spacing: -0.01em; color: var(--navy); }
+.scenario-faq .faq-list { margin: 2.5rem auto 0; max-width: 920px; }
+.scenario-faq .faq-item { background: var(--white); border: 1px solid #E3E9EF; border-radius: 8px; margin-bottom: 0.85rem; overflow: hidden; transition: box-shadow 0.25s ease, border-color 0.25s ease; }
+.scenario-faq .faq-item:hover { border-color: rgba(194,104,58,0.45); box-shadow: 0 4px 16px rgba(37,66,107,0.06); }
+.scenario-faq .faq-item[open] { border-color: var(--accent); box-shadow: 0 4px 16px rgba(37,66,107,0.08); }
+.scenario-faq .faq-question { display: flex; justify-content: space-between; align-items: center; padding: 1.25rem 1.5rem; cursor: pointer; font-weight: 700; font-size: 1.02rem; color: var(--navy); list-style: none; text-align: left; transition: background 0.2s ease; }
+.scenario-faq .faq-question::-webkit-details-marker { display: none; }
+.scenario-faq .faq-question:focus-visible { outline: 2px solid var(--accent-ink); outline-offset: -2px; }
+.scenario-faq .faq-question:hover { background: rgba(194,104,58,0.04); }
+.scenario-faq .faq-icon { flex-shrink: 0; margin-left: 1rem; width: 22px; height: 22px; position: relative; transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+.scenario-faq .faq-icon::before, .scenario-faq .faq-icon::after { content: ''; position: absolute; background: var(--accent); border-radius: 1px; transition: opacity 0.25s ease; }
+.scenario-faq .faq-icon::before { left: 50%; top: 4px; bottom: 4px; width: 2px; transform: translateX(-50%); }
+.scenario-faq .faq-icon::after { top: 50%; left: 4px; right: 4px; height: 2px; transform: translateY(-50%); }
+.scenario-faq .faq-item[open] .faq-icon { transform: rotate(180deg); }
+.scenario-faq .faq-item[open] .faq-icon::before { opacity: 0; }
+.scenario-faq .faq-answer { padding: 0 1.5rem 1.5rem; font-size: 0.97rem; line-height: 1.75; color: var(--text-body); text-align: left; }
+.scenario-faq .faq-answer p { margin: 0; font-size: 0.97rem; line-height: 1.75; color: var(--text-body); }
+.scenario-faq .faq-video { position: relative; width: 100%; padding-top: 56.25%; background: var(--deep-navy); margin-top: 1.25rem; }
+.scenario-faq .faq-video video { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; display: block; }
+@media (prefers-reduced-motion: reduce) {
+  .scenario-faq .faq-item, .scenario-faq .faq-icon, .scenario-faq .faq-icon::before, .scenario-faq .faq-icon::after { transition: none !important; }
+}
+@media (max-width: 900px) {
+  .scenario-faq { padding: 3.5rem 0; }
+}
 </style>
 </head>
 <body>
@@ -1215,6 +1256,82 @@
   </div>
 </section>
 
+
+<!-- ============================================================
+     SCENARIO FAQ — copy: scenario-videos/copy-scenario-faq-mapping.md §3.7
+     After "The Day a Records Request Arrives.", before the Trust & Security
+     cross-link. White band between two light bands (§19).
+     ============================================================ -->
+<section class="scenario-faq" aria-label="Scenarios: when the question gets asked">
+  <div class="container">
+    <div class="scenario-faq-head">
+      <span class="section-eyebrow">Scenarios</span>
+      <h2>When the Question Gets Asked.</h2>
+    </div>
+    <div class="faq-list">
+
+      <details class="faq-item">
+        <summary class="faq-question">
+          <span>If someone asks who approved a payment, can we actually show it?</span>
+          <span class="faq-icon" aria-hidden="true"></span>
+        </summary>
+        <div class="faq-answer">
+          <p>In this agency's case, yes &mdash; because approval became a required step rather than a habit. Before, physical purchase orders moved by hand and payments to local contractors and businesses slipped through the cracks. Now department heads receive a notification when an invoice is received, and a department head has to approve that invoice digitally before Accounts Payable generates a payment. The approvals, documents, and signatures are organized in one secure, cloud-based place. Watch the agency describe the process they run today.</p>
+          <div class="faq-video">
+            <video controls preload="none" playsinline
+                   poster="assets/video/scenario-4-public-agencies-poster.jpg"
+                   aria-label="Video: a public agency describes its purchase order and invoice approval process">
+              <source src="assets/video/scenario-4-public-agencies.mp4" type="video/mp4">
+              Your browser does not support the video tag. You can
+              <a href="assets/video/scenario-4-public-agencies.mp4">download the video</a> instead.
+            </video>
+          </div>
+        </div>
+      </details>
+
+      <details class="faq-item">
+        <summary class="faq-question">
+          <span>We have to retain payroll records for years. Does going digital change that?</span>
+          <span class="faq-icon" aria-hidden="true"></span>
+        </summary>
+        <div class="faq-answer">
+          <p>It does not change what you have to keep. It changes what keeping it costs you. A district told us its paper time cards had to be stored for extended periods for payroll calculation, and that hundreds of cards had turned into thousands, with individual cards regularly misplaced. We converted their paper time cards and records into digital files and built digital time cards inside the Microsoft apps they already owned. Watch the district describe the administrative burden that lifted.</p>
+          <div class="faq-video">
+            <video controls preload="none" playsinline
+                   poster="assets/video/scenario-6-time-cards-poster.jpg"
+                   aria-label="Video: a school district describes replacing paper time cards">
+              <source src="assets/video/scenario-6-time-cards.mp4" type="video/mp4">
+              Your browser does not support the video tag. You can
+              <a href="assets/video/scenario-6-time-cards.mp4">download the video</a> instead.
+            </video>
+          </div>
+        </div>
+      </details>
+
+    </div>
+  </div>
+</section>
+
+<script>
+/* Scenario FAQ — page-local, namespaced. Closing an item pauses its video;
+   playing one scenario video pauses any other on this page. Nothing else. */
+(function () {
+  var items = document.querySelectorAll('.scenario-faq details.faq-item');
+  if (!items.length) return;
+  var vids = [];
+  Array.prototype.forEach.call(items, function (item) {
+    var v = item.querySelector('video');
+    if (!v) return;
+    vids.push(v);
+    item.addEventListener('toggle', function () { if (!item.open) { v.pause(); } });
+  });
+  Array.prototype.forEach.call(vids, function (v) {
+    v.addEventListener('play', function () {
+      Array.prototype.forEach.call(vids, function (o) { if (o !== v && !o.paused) { o.pause(); } });
+    });
+  });
+})();
+</script>
 
 <!-- ============================================================
      SECTION 3 — OPERATIONAL INFRASTRUCTURE CROSS-LINK

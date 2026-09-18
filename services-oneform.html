@@ -1611,6 +1611,53 @@ body {
   .of-video-dark .ofvid-yt-play,
   .of-video-dark .ofvid-yt-facade:hover .ofvid-yt-play { transition: none; }
 }
+
+/* ============================================================
+   SCENARIO FAQ — page-local, fully namespaced under .scenario-faq.
+   OneForm is the deliberate design exception (design principles §15):
+   the DOM is the same accordion about.html ships, but it is SKINNED in
+   OneForm's own register — azure accent, --canvas band, OneForm's 16px
+   card radius and --field-gray hairline, OneForm's centered
+   .section-header + .section-divider treatment — rather than SyTech
+   navy/gold. It sits at the bottom edge, below the CTA, where the
+   handoff to the SyTech footer already happens.
+   16:9 frame lifted verbatim from media.html (.media-frame, ~L40).
+   CONTRAST NOTE: --azure (#29b7ea) measures 2.3:1 on white, so it is
+   used for FILLS and BORDERS only. Eyebrow text uses --navy (9.4:1);
+   the disclosure icon uses OneForm's own darker hero-gradient azure
+   #1a9de0 (3.0:1) so the affordance clears the 3:1 non-text minimum.
+   ============================================================ */
+.scenario-faq { padding: 6rem 0; background: var(--canvas); }
+.scenario-faq .scenario-faq-head { text-align: center; max-width: 760px; margin: 0 auto 3rem; }
+.scenario-faq .scenario-faq-eyebrow { display: block; font-size: 0.7rem; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; color: var(--navy); margin-bottom: 0.75rem; }
+.scenario-faq h2 { font-size: clamp(1.75rem, 3vw, 2.5rem); font-weight: 700; color: var(--navy); margin-bottom: 0.75rem; line-height: 1.2; }
+.scenario-faq .section-divider { width: 60px; height: 4px; border-radius: 2px; background: linear-gradient(90deg, var(--azure), var(--teal)); margin: 0 auto; }
+.scenario-faq .faq-list { margin: 0 auto; max-width: 920px; }
+.scenario-faq .faq-item { background: var(--white); border: 1px solid var(--field-gray); border-radius: 16px; margin-bottom: 1rem; overflow: hidden; transition: box-shadow 0.25s ease, border-color 0.25s ease; }
+.scenario-faq .faq-item:hover { border-color: rgba(41,183,234,0.55); box-shadow: 0 4px 16px rgba(37,66,107,0.06); }
+.scenario-faq .faq-item[open] { border-color: var(--azure); box-shadow: 0 4px 16px rgba(37,66,107,0.08); }
+.scenario-faq .faq-question { display: flex; justify-content: space-between; align-items: center; padding: 1.25rem 1.75rem; cursor: pointer; font-weight: 700; font-size: 1.02rem; color: var(--navy); list-style: none; text-align: left; transition: background 0.2s ease; }
+.scenario-faq .faq-question::-webkit-details-marker { display: none; }
+.scenario-faq .faq-question:focus-visible { outline: 2px solid var(--navy); outline-offset: -2px; }
+.scenario-faq .faq-question:hover { background: rgba(41,183,234,0.06); }
+.scenario-faq .faq-icon { flex-shrink: 0; margin-left: 1rem; width: 22px; height: 22px; position: relative; transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+.scenario-faq .faq-icon::before, .scenario-faq .faq-icon::after { content: ''; position: absolute; background: #1a9de0; border-radius: 1px; transition: opacity 0.25s ease; }
+.scenario-faq .faq-icon::before { left: 50%; top: 4px; bottom: 4px; width: 2px; transform: translateX(-50%); }
+.scenario-faq .faq-icon::after { top: 50%; left: 4px; right: 4px; height: 2px; transform: translateY(-50%); }
+.scenario-faq .faq-item[open] .faq-icon { transform: rotate(180deg); }
+.scenario-faq .faq-item[open] .faq-icon::before { opacity: 0; }
+.scenario-faq .faq-answer { padding: 0 1.75rem 1.75rem; font-size: 0.97rem; line-height: 1.75; color: var(--text-body); text-align: left; }
+.scenario-faq .faq-answer p { margin: 0; font-size: 0.97rem; line-height: 1.75; color: var(--text-body); }
+.scenario-faq .faq-video { position: relative; width: 100%; padding-top: 56.25%; background: var(--deep-navy); margin-top: 1.25rem; border-radius: 12px; overflow: hidden; }
+.scenario-faq .faq-video video { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; display: block; }
+@media (prefers-reduced-motion: reduce) {
+  .scenario-faq .faq-item, .scenario-faq .faq-icon, .scenario-faq .faq-icon::before, .scenario-faq .faq-icon::after { transition: none !important; }
+}
+@media (max-width: 900px) {
+  .scenario-faq { padding: 4rem 0; }
+  .scenario-faq .faq-question { padding: 1.15rem 1.25rem; }
+  .scenario-faq .faq-answer { padding: 0 1.25rem 1.25rem; }
+}
 </style>
 </head>
 <body>
@@ -2594,6 +2641,85 @@ Need help with records migration, legacy digitization, or broader modernization?
 </div>
 </div>
 </section>
+
+<!-- ============================================================
+     SCENARIO FAQ — copy: scenario-videos/copy-scenario-faq-mapping.md §3.3
+     Bottom edge, below the CTA and immediately above the SyTech footer,
+     where the OneForm-to-SyTech register handoff already happens.
+     Skinned in OneForm's azure register per the mapping doc's register note
+     and design principles §15.
+     ============================================================ -->
+<section class="scenario-faq" aria-label="Scenarios: forms problems, solved">
+  <div class="container">
+    <div class="scenario-faq-head">
+      <span class="scenario-faq-eyebrow">Scenarios</span>
+      <h2>Forms Problems, Solved.</h2>
+      <div class="section-divider" aria-hidden="true"></div>
+    </div>
+    <div class="faq-list">
+
+      <details class="faq-item">
+        <summary class="faq-question">
+          <span>Can new-hire onboarding run entirely on forms like these, signatures and all?</span>
+          <span class="faq-icon" aria-hidden="true"></span>
+        </summary>
+        <div class="faq-answer">
+          <p>That is exactly what one HR team asked for. Their onboarding across school campuses and the district office was outdated and error prone, confusing for the HR team and the new hires both, and gathering every signature and every piece of information was the part that never went smoothly. We built the process into the Microsoft apps the district already owned. The district says it now secures legally binding electronic signatures, and the rest of what it needs, quicker than ever. Watch the HR team describe it.</p>
+          <div class="faq-video">
+            <video controls preload="none" playsinline
+                   poster="assets/video/scenario-2-hr-poster.jpg"
+                   aria-label="Video: a school district HR team describes its new employee onboarding process">
+              <source src="assets/video/scenario-2-hr.mp4" type="video/mp4">
+              Your browser does not support the video tag. You can
+              <a href="assets/video/scenario-2-hr.mp4">download the video</a> instead.
+            </video>
+          </div>
+        </div>
+      </details>
+
+      <details class="faq-item">
+        <summary class="faq-question">
+          <span>Can volunteers apply and sign online without our office chasing paperwork?</span>
+          <span class="faq-icon" aria-hidden="true"></span>
+        </summary>
+        <div class="faq-answer">
+          <p>Yes. A school district came to us with volunteer applications spread across forms and electronic attachments, and links that often did not work by the time a volunteer clicked them. We built the whole application, attachments and electronic signatures included, into the Microsoft apps the district already owned, and every file, document, and signature lands in one secure, cloud-based place. The district says the easier process brought more volunteers in. Watch them explain what changed.</p>
+          <div class="faq-video">
+            <video controls preload="none" playsinline
+                   poster="assets/video/scenario-1-new-branding-poster.jpg"
+                   aria-label="Video: a school district describes onboarding volunteers">
+              <source src="assets/video/scenario-1-new-branding.mp4" type="video/mp4">
+              Your browser does not support the video tag. You can
+              <a href="assets/video/scenario-1-new-branding.mp4">download the video</a> instead.
+            </video>
+          </div>
+        </div>
+      </details>
+
+    </div>
+  </div>
+</section>
+
+<script>
+/* Scenario FAQ — page-local, namespaced. Closing an item pauses its video;
+   playing one scenario video pauses any other on this page. Nothing else. */
+(function () {
+  var items = document.querySelectorAll('.scenario-faq details.faq-item');
+  if (!items.length) return;
+  var vids = [];
+  Array.prototype.forEach.call(items, function (item) {
+    var v = item.querySelector('video');
+    if (!v) return;
+    vids.push(v);
+    item.addEventListener('toggle', function () { if (!item.open) { v.pause(); } });
+  });
+  Array.prototype.forEach.call(vids, function (v) {
+    v.addEventListener('play', function () {
+      Array.prototype.forEach.call(vids, function (o) { if (o !== v && !o.paused) { o.pause(); } });
+    });
+  });
+})();
+</script>
 
 </main>
 

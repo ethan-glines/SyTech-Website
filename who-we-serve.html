@@ -41,17 +41,21 @@
 .logo-strip h3 { text-align: center; font-size: 0.7rem; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; color: var(--gold); margin-bottom: 2.5rem; }
 .logo-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 2.5rem 2rem; align-items: center; justify-items: center; max-width: 1080px; margin: 0 auto; }
 .logo-cell { width: 100%; max-width: 160px; height: 72px; display: flex; align-items: center; justify-content: center; padding: 0 0.5rem; }
-.logo-cell img { max-width: 100%; max-height: 100%; width: auto; height: auto; object-fit: contain; filter: grayscale(100%); opacity: 0.55; transition: filter 0.3s ease, opacity 0.3s ease; }
-@media (hover: hover) and (pointer: fine) {
-  .logo-cell:hover img { filter: grayscale(0%); opacity: 1; }
-}
-/* Per-logo optical nudges — equalize footprint across mixed aspect ratios + tune washed-out marks */
+/* [C81] Client logos display in FULL COLOUR at rest, per client request (Jon),
+   owner-approved. The former grayscale(100%) + opacity 0.55 treatment and the
+   hover-to-reveal-colour rule are REMOVED: with the marks already at full
+   colour and full opacity there is nothing left for a hover to restore, and
+   inventing a new hover effect (lift/scale/brightness) on third-party agency
+   marks is not ours to decide. The wall is now static. The per-logo max-height
+   nudges below are SIZING, not colour, and stay. Mirrored on index.html
+   (.proof-logo img) so both strips match. */
+.logo-cell img { max-width: 100%; max-height: 100%; width: auto; height: auto; object-fit: contain; }
+/* Per-logo optical nudges — equalize footprint across mixed aspect ratios */
 .logo-cell img[src*="yolo_logo"] { max-height: 64%; }   /* near-square + heavy — shrink to sit uniformly */
 .logo-cell img[src*="cnra"]      { max-height: 78%; }   /* tall seal-style mark — size down */
-.logo-cell img[src*="dgs"]       { opacity: 0.72; }     /* light-gray wordmark — opacity bump for legibility (per spec §7.1) */
-@media (hover: hover) and (pointer: fine) {
-  .logo-cell:hover img[src*="dgs"] { opacity: 1; }
-}
+/* NOTE: the former .logo-cell img[src*="dgs"] { opacity: 0.72 } nudge is GONE.
+   It existed only to claw legibility back from the 0.55 grayscale wash; at full
+   colour it would leave DGS dimmer than every other mark on the wall. */
 
 /* ===== Case Study Cards — ROOMY 2-column layout ===== */
 .case-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 2rem; margin-top: 2rem; }

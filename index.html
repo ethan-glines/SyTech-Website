@@ -3285,7 +3285,10 @@ html { scrollbar-gutter: stable; }
    air, wall, air. Everything else stays: the gold hairline ::before, the
    grayscale filter + hover reveal, the dgs optical nudge, the fade-up reveal,
    the auto-fit/minmax(140px,1fr) grid. Section rhythm is unaffected — no
-   background tone changes and no divider moves. */
+   background tone changes and no divider moves.
+   [C81 UPDATE] The "grayscale filter + hover reveal" named above is SUPERSEDED:
+   the logo wall now renders in full colour at rest with no hover. Everything
+   else in this note still holds. */
 .social-proof {
   /* slightly more bottom than top so the band settles rather than floats */
   padding: 4.5rem 0 4.75rem; background: var(--white);
@@ -3301,35 +3304,70 @@ html { scrollbar-gutter: stable; }
   letter-spacing: 0.18em; text-transform: uppercase; color: var(--gold);
   margin-bottom: 2.25rem;    /* tightens the eyebrow to the wall it labels */
 }
-/* Frameless grayscale logo strip — unified with who-we-serve.html (Route A-color) */
+/* Frameless full-colour logo strip, unified with who-we-serve.html (C81) */
+/* [C82 2026-09-25] ONE CENTERED ROW. Ethan, verbatim: "I want it to be one
+   row, center-aligned."
+   WHAT WAS WRONG. The wall was
+     display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr))
+   inside a 1000px cap with a 40px column gap. auto-fit resolved to FIVE tracks
+   (5*140 + 4*40 = 860 fits in 1000; six would have needed 6*140 + 5*40 = 1040),
+   so the sixth mark, SMUD, dropped to a second row and sat LEFT-PACKED under
+   CNRA. justify-items: center only centers a mark INSIDE its own track; the
+   track itself stays at the start of the row, so a grid with fixed column
+   counts can never center an orphan. That is the actual defect.
+   THE FIX. Flexbox: flex-wrap: wrap + justify-content: center centers EVERY
+   row, full or not, so no future roster count can orphan-left again. Column
+   count is deterministic per breakpoint through the flex-basis below instead of
+   being guessed by auto-fit.
+   WIDTH ARITHMETIC, so no mark gets smaller. .container caps inner content at
+   1160 - 2*32 = 1096px and the wall now uses all of it. Six cells at a 32px
+   column gap resolve to (1096 - 5*32)/6 = 156px of usable image width each,
+   with the old 0 0.5rem cell padding removed. The old 5-track grid gave
+   (1000 - 4*40)/5 = 168px tracks minus 16px padding = 152px. So desktop marks
+   gain 4px of width, they do not shrink.
+   The column gap is FLUID (clamp) so 6-up still fits at a 901px narrow desktop
+   without adding a breakpoint inside the protected 901-1239px band. */
 .proof-logos {
-  display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-  gap: 2.75rem 2.5rem;       /* more air now that the marks are the subject */
-  align-items: center; justify-items: center;
-  max-width: 1000px;         /* a tighter wall reads deliberate, not leftover */
+  /* SINGLE SOURCE OF TRUTH for the column gap: the flex-basis arithmetic below
+     is derived from this token, so the gap must always be changed here and
+     never through the `gap` shorthand at a breakpoint. */
+  --proof-gap: clamp(1.25rem, 2.2vw, 2rem);
+  display: flex; flex-wrap: wrap;
+  justify-content: center;   /* centers a full row and an orphan row alike */
+  align-items: center;
+  gap: 2.75rem var(--proof-gap);   /* the row gap only shows once wrapped */
+  max-width: 1096px;         /* exactly .container's inner width */
   /* CRITICAL: the old 3.5rem bottom margin existed ONLY to separate the wall
      from the stat row. Left in place it becomes a dead tail and the whole band
      reads truncated. */
   margin: 0 auto;
 }
 .proof-logo {
-  /* +16.7% presence — the wall becomes the section's content, not its footnote */
-  width: 100%; max-width: 184px; height: 84px;
+  /* 6-up. basis + gaps sums to exactly 100%, so the row cannot wrap. The -1px
+     is rounding slack, 6px across the row, so a fractional container width
+     (zoom, a scrollbar, a 1439.5px viewport) cannot bump cell six onto a
+     second line. max-width caps a mark if the wall is ever widened; height is
+     the real bound for tall marks. flex-grow stays 0 so a short final row
+     keeps its cell size and is centered rather than stretched. */
+  flex: 0 1 calc((100% - 5 * var(--proof-gap)) / 6 - 1px);
+  max-width: 184px; height: 84px;
   display: flex; align-items: center; justify-content: center;
-  padding: 0 0.5rem;
+  /* the former `padding: 0 0.5rem` is GONE. The flex gap is the only separator
+     now, so that padding was just 16px taken off every mark's usable width. */
 }
+/* [C81] Client logos display in FULL COLOUR at rest, per client request (Jon),
+   owner-approved, on BOTH pages so the two strips match. The former
+   grayscale(100%) + opacity 0.55 treatment and the hover-to-reveal-colour rule
+   are REMOVED: at full colour and full opacity a hover has nothing left to
+   restore, and inventing a replacement effect on third-party agency marks is
+   not ours to decide. The wall is now static. Mirrored on who-we-serve.html
+   (.logo-cell img). */
 .proof-logo img {
   max-width: 100%; max-height: 100%; width: auto; height: auto; object-fit: contain;
-  filter: grayscale(100%); opacity: 0.55; transition: filter 0.3s ease, opacity 0.3s ease;
 }
-@media (hover: hover) and (pointer: fine) {
-  .proof-logo:hover img { filter: grayscale(0%); opacity: 1; }
-}
-/* Per-logo optical nudges — match who-we-serve tuning */
-.proof-logo img[src*="dgs"]       { opacity: 0.72; }   /* light-gray wordmark — legibility bump */
-@media (hover: hover) and (pointer: fine) {
-  .proof-logo:hover img[src*="dgs"] { opacity: 1; }
-}
+/* NOTE: the former .proof-logo img[src*="dgs"] { opacity: 0.72 } nudge is GONE.
+   It existed only to claw legibility back from the 0.55 grayscale wash; at full
+   colour it would leave DGS dimmer than every other mark on the wall. */
 
 .proof-stats {
   display: grid; grid-template-columns: repeat(4, 1fr); gap: 2rem;
@@ -3395,7 +3433,12 @@ html { scrollbar-gutter: stable; }
 
 @media (max-width: 600px) {
   .hero { padding: 8rem 0 3rem; min-height: auto; }
-  .proof-logos { gap: 1.75rem 1rem; }
+  /* [C82] row gap ONLY. The column gap moved to the --proof-gap token in the
+     phone block at the bottom of this stylesheet, because the flex-basis is
+     computed from that token: a `gap` shorthand here would set a 1rem real gap
+     while the basis still assumed the desktop clamp, and the row would wrap one
+     cell early. */
+  .proof-logos { row-gap: 1.75rem; }
   .proof-logo { height: 56px; }
   .proof-stats { grid-template-columns: 1fr 1fr; gap: 1rem; }
   .stat-item { padding: 1rem 0.5rem; }
@@ -4132,12 +4175,29 @@ html { scrollbar-gutter: stable; }
    after the four stat counters came out.
    Deterministic column counts instead of auto-fit guessing: 3-up from 601-900px
    (a clean 3 x 2 block instead of 4 + 2 orphans at tablet) and 2-up on every
-   phone (2 x 3). >=901px keeps the shipped auto-fit rule exactly as it is. */
+   phone (2 x 3). >=901px keeps the shipped auto-fit rule exactly as it is.
+   [C82 2026-09-25] The column counts and the breakpoints are UNCHANGED, 3-up
+   and 2-up exactly as above. Only the mechanism changed: the wall is now a
+   centered flex row (see .proof-logos), so a column count is expressed as a
+   flex-basis on the CELL, and grid-template-columns on the container would be
+   inert. Both overrides set the gap through the --proof-gap token and both live
+   in THIS block on purpose: the token also appears in the 600px block earlier
+   in this stylesheet, and a `.social-proof .proof-logos` rule (0,2,0) up here
+   would otherwise outrank a `.proof-logos` rule (0,1,0) down there and leave a
+   phone using the tablet gap. Same selector, same block, later source wins, so
+   the 600px value below reliably beats the 900px value above.
+   The desktop wall is 6 cells at 156px; these caps hold the tablet and phone
+   mark sizes at exactly what shipped before (184px capped at tablet, 140px at a
+   360px phone), so nothing on a small screen changes size. */
 @media (max-width: 900px) {
-  .social-proof .proof-logos { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  /* 3-up. 2.5rem restores the 40px column gap the grid used at tablet. */
+  .social-proof .proof-logos { --proof-gap: 2.5rem; }
+  .social-proof .proof-logo { flex: 0 1 calc((100% - 2 * var(--proof-gap)) / 3 - 1px); }
 }
 @media (max-width: 600px) {
-  .social-proof .proof-logos { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  /* 2-up. 1rem is the column value the old `gap: 1.75rem 1rem` shorthand set. */
+  .social-proof .proof-logos { --proof-gap: 1rem; }
+  .social-proof .proof-logo { flex: 0 1 calc((100% - 1 * var(--proof-gap)) / 2 - 1px); }
 }
 
 /* ---- [MED] CHIP DISCLOSURE PANEL: 3rem of right padding on a 256px card ---

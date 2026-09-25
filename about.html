@@ -139,16 +139,24 @@
 }
 
 /* ===== Trust doorway link row ===== */
+/* [C25 CLIENT AUDIT 2026-09-24] Casey moved this out of its own band and under
+   "How We Are Built", as the label only with no paragraph. The .trust-doorway
+   section rules below are now unused and are left in place so a revert is a
+   one-block paste. The link selectors were widened from
+   `.trust-doorway a.doorway-link` to `a.doorway-link` — the class is used exactly
+   once in this file and nowhere in assets/css/sytech-shared.css, so the widening
+   is rendered-identical. margin-top moved 0.5rem -> 2rem to match the 2rem
+   .feature-grid rhythm it now sits under. */
 .trust-doorway { padding: 3rem 0; background: var(--light); }
 .trust-doorway .doorway-inner { max-width: 820px; }
 .trust-doorway p { font-size: 1.05rem; line-height: 1.75; color: var(--text-body); margin: 0; }
-.trust-doorway a.doorway-link {
-  display: inline-block; margin-top: 0.5rem;
+a.doorway-link {
+  display: inline-block; margin-top: 2rem;
   font-size: 1.02rem; font-weight: 700; color: var(--navy);
   border-bottom: 2px solid var(--gold); padding-bottom: 2px;
   transition: color 0.2s ease;
 }
-.trust-doorway a.doorway-link:hover { color: var(--gold); }
+a.doorway-link:hover { color: var(--gold); }
 
 /* ===== Our Story — feature grid + stats ===== */
 .feature-grid {
@@ -1065,7 +1073,7 @@
   <div class="container">
     <span class="eyebrow">About SyTech</span>
     <h1>A Different Kind of Records Partner. <span>Since 2000.</span></h1>
-    <p class="lead">Most vendors sell public agencies another platform to license and maintain. Since 2000, SyTech has done the opposite. We build records management inside the cloud you already own, so you pay for the work, not someone else's software. Below is what makes that approach different, and how we got here.</p>
+    <p class="lead">Most vendors sell public agencies another platform to license and maintain. Since 2000, SyTech has taken the opposite approach. We build records management within the cloud environment you already own, so you pay for the work, not someone else's software. Here's what makes that approach different and how we got here.</p>
 
     <!-- HISTORY TIMELINE GRAPHIC (htl-) relocated INTO the hero (navy gradient) — structure tones
          flipped light (spine/stems/dots/date-chips/era wash/rail); white cards + all gold kept.
@@ -1096,7 +1104,7 @@
             <span class="htl-date htl-plate htl-mat-navy"><span class="htl-plate-body"></span><span class="htl-bevel"></span><span class="htl-date-num">2000</span></span>
             <div class="htl-card htl-plate htl-mat-surface">
               <span class="htl-card-body htl-plate-body"></span><span class="htl-bevel"></span>
-              <h3 class="htl-title">Founded in a garage.</h3>
+              <h3 class="htl-title">Bryan Golden and two co-founders start SyTech with $20,000 in his garage.</h3>
               <p class="htl-detail">Bryan Golden and two co-founders start SyTech with $20,000, a document-scanning service, building agile from day one.</p>
             </div>
           </div>
@@ -1146,7 +1154,7 @@
             <span class="htl-date htl-plate htl-mat-navy"><span class="htl-plate-body"></span><span class="htl-bevel"></span><span class="htl-date-num">2019</span></span>
             <div class="htl-card htl-plate htl-mat-surface">
               <span class="htl-card-body htl-plate-body"></span><span class="htl-bevel"></span>
-              <h3 class="htl-title">Connective tools ship.</h3>
+              <h3 class="htl-title">Connective tools arrive.</h3>
               <p class="htl-detail">ExpressLink releases, a lightweight watch-folder tool that feeds documents straight into the cloud. Connective tools, not more silos.</p>
             </div>
           </div>
@@ -1200,7 +1208,7 @@
               <span class="htl-card-body htl-plate-body"></span><span class="htl-bevel"></span>
               <span class="htl-draft-flag">Placeholder &middot; Confirm</span>
               <h3 class="htl-title">First county goes live.</h3>
-              <p class="htl-detail">A county records office moves onto SyTech's cloud, beyond the school districts.</p>
+              <p class="htl-detail">A county records office moves onto SyTech's cloud.</p>
             </div>
           </div>
         </div>
@@ -1213,7 +1221,7 @@
               <span class="htl-card-body htl-plate-body"></span><span class="htl-bevel"></span>
               <span class="htl-draft-flag">Placeholder &middot; Confirm</span>
               <h3 class="htl-title">1DocStop launches.</h3>
-              <p class="htl-detail">SyTech's cloud document-management platform ships, giving agencies one place to store and find every record.</p>
+              <p class="htl-detail">SyTech's cloud document-management platform is released, giving agencies one place to store and access records.</p>
             </div>
           </div>
         </div>
@@ -1346,7 +1354,7 @@
       <div class="diff-card">
         <span class="num">01 — PLATFORM APPROACH</span>
         <h3>No New Software Required</h3>
-        <p>SyTech builds inside Microsoft 365 and Google Workspace — platforms your agency already owns and funds. There is no new app to procure, license, or maintain.</p>
+        <p>SyTech builds inside Microsoft 365 and Google Workspace — platforms your agency already owns. There is no new app to procure, license, or maintain.</p>
       </div>
       <div class="diff-card">
         <span class="num">02 — DATA SOVEREIGNTY</span>
@@ -1366,7 +1374,7 @@
       <div class="diff-card">
         <span class="num">05 — PROVEN AT SCALE</span>
         <h3>25+ Years of Experience</h3>
-        <p>Twenty-five years of public sector records work, at every scale, from single districts to statewide departments. Thousands of active cloud clients and millions of records under management. We have not just done this before. We have done it bigger.</p>
+        <p>Over twenty-five years of public sector records work, at every scale, from single districts to statewide departments. Thousands of active cloud clients and millions of records under management. We have not just done this before. We have done it bigger.</p>
       </div>
     </div>
   </div>
@@ -1380,7 +1388,7 @@
     <div class="pov-inner">
       <span class="section-eyebrow">Our Point of View</span>
       <h2 class="pov-headline">Your records shouldn't be locked behind someone else's license.</h2>
-      <p class="pov-body">For 25 years, we have watched agencies spend budget on annual software fees only to find their records buried inside platforms they don't control. Our approach is the opposite. We build records management inside the cloud platforms your agency already owns and funds — Microsoft 365, Google Workspace. The software vendor changes. The contract ends. Your records stay where they belong: in your tenant, under your governance, accessible on your terms.</p>
+      <p class="pov-body">For over 25 years, we have watched agencies spend budget on annual software fees only to find their records buried inside platforms they don't control. Our approach is the opposite. We build records management inside the cloud platforms your agency already owns and funds — Microsoft 365, Google Workspace. The software vendor changes. The contract ends. Your records stay where they belong: in your tenant, under your governance, accessible on your terms.</p>
     </div>
   </div>
 </section>
@@ -1426,7 +1434,7 @@
           <span class="faq-icon" aria-hidden="true"></span>
         </summary>
         <div class="faq-answer">
-          <p>Move information into open, extensible cloud platforms. Avoid closed, hierarchical software that forces your processes to match its structure. Build retention, security, and workflow around your agency — not around a vendor's product roadmap. The cloud you already own can do all of this. Most agencies just need a partner who has done it across 4,579 cloud clients.</p>
+          <p>Move information into open, extensible cloud platforms. Avoid closed, hierarchical software that forces your processes to match its structure. Build retention, security, and workflow around your agency — not around a vendor's product roadmap. The cloud you already own can do all of this. Most agencies just need a partner who has done it across thousands of cloud clients.</p>
         </div>
       </details>
     </div>
@@ -1435,15 +1443,13 @@
 
 <!-- ============================================================
      TRUST DOORWAY (Reed item #2) — link to Trust & Security
+     [C25 CLIENT AUDIT 2026-09-24] This section was REMOVED from here. Casey asked
+     for it to sit under "How We Are Built" as the label only, so the explanatory
+     sentence "Security and compliance get their own page, with the cameras,
+     agreements, and certificates spelled out." is GONE and the link now lives at
+     the foot of the "Two Teams, One Mission." section below, relabelled
+     "See our Trust & Security Posture". Nothing else moved.
      ============================================================ -->
-<section class="trust-doorway" aria-label="Trust and security">
-  <div class="container">
-    <div class="doorway-inner">
-      <p>Security and compliance get their own page, with the cameras, agreements, and certificates spelled out.</p>
-      <a href="trust-security.html" class="doorway-link">See our Trust &amp; Security posture &rarr;</a>
-    </div>
-  </div>
-</section>
 
 <!-- ============================================================
      OUR STORY — existing About narrative (kept intact, moved below the why case)
@@ -1454,7 +1460,7 @@
       <span class="section-eyebrow">Our Story</span>
       <h2>From Paper to Cloud, One Agency at a Time.</h2>
       <p>Since 2000, SyTech has provided digital transformation services for hundreds of public agencies across California — school districts, county offices, statewide departments. We have never been in the business of reselling proprietary software. From the start, our work has been to help agencies move their records and data into open, extensible cloud platforms — and to spend their budgets on outcomes instead of licenses.</p>
-      <p>Twenty-five years later, that approach has produced 4,579 active cloud clients, 10.7 million records under management, and a client roster that includes some of the largest public agencies in the state.</p>
+      <p>Over twenty-five years later, that approach has produced 4,579 active cloud clients, 10.7 million managed records, and a client roster that includes some of the largest public agencies in the state.</p>
     </div>
 
     <div class="stats-row">
@@ -1472,7 +1478,7 @@
       <span class="section-eyebrow">A Cloud-First Practice — Since 2002</span>
       <h2>We Built Our First Cloud Deployment Before "Cloud" Was the Word for It.</h2>
       <p>In 2002, we built our first native cloud records management solution for Stockton Unified School District — years before the rest of the industry moved off on-premise servers. That early bet shaped everything that followed.</p>
-      <p>Since then, we have built thousands of cloud-based records and data services for public agencies across California, including Los Angeles County, the California Department of Child Support Services, the California Department of Natural Resources, and Yolo County District Attorney's Office. Open cloud was the right path then. It is the only path now.</p>
+      <p>Since then, we have built thousands of cloud-based records and data services for public agencies across California, including Los Angeles County, the California Department of Child Support Services, the California Department of Natural Resources, and Yolo County District Attorney's Office. Open cloud was the right path then. It is the right path now.</p>
     </div>
   </div>
 </section>
@@ -1494,6 +1500,10 @@
         <p>Our Development Team builds scalable tools that replace outdated software, using the cloud platforms our clients already own. Forms, workflows, and automation that live inside Microsoft 365 or Google Workspace, not on a vendor server.</p>
       </div>
     </div>
+    <!-- [C25 CLIENT AUDIT 2026-09-24] Relocated here from the standalone
+         .trust-doorway band that used to sit between the FAQ and Our Story.
+         Label per Casey: "See our Trust & Security Posture". -->
+    <a href="trust-security.html" class="doorway-link">See our Trust &amp; Security Posture &rarr;</a>
   </div>
 </section>
 
@@ -1501,7 +1511,7 @@
   <div class="container">
     <span class="section-eyebrow">Our Mission</span>
     <h2>From Complexity to Clarity.</h2>
-    <p class="lead-row">SyTech delivers practical, future-ready services that reduce complexity, lower costs, and help public agencies work smarter. Through our proven approach, Organize. Unify. Scale., we help organizations move confidently toward the future of open cloud, automation, and AI.</p>
+    <p class="lead-row">SyTech delivers practical, future-ready services that reduce complexity, lower costs, and help public agencies work smarter. Through our proven approach: Organize, Unify, Scale, we help organizations move confidently toward the future of open cloud, automation, and AI.</p>
   </div>
 </section>
 

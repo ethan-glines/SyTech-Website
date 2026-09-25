@@ -1176,7 +1176,7 @@
     <div class="section-header">
       <span class="section-eyebrow">The Setup</span>
       <h2>Five Steps. One Records Environment.</h2>
-      <p class="section-intro">What it takes to get an agency's records environment set up properly &mdash; from the audit of what exists today to the audit-ready posture your team operates from tomorrow.</p>
+      <p class="section-intro">What it takes to set up an agency's records environment the right way, from auditing what exists today to achieving the audit-ready posture your team needs tomorrow.</p>
     </div>
 
     <ol class="steps" id="processSteps" aria-label="Five-step records management and compliance setup process">
@@ -1250,9 +1250,13 @@
       </div>
     </div>
 
-    <div class="compare-closer">
-      <p>Same request. Different morning.</p>
-    </div>
+    <!-- [C50/C51 CLIENT AUDIT 2026-09-24] The .compare-closer block is removed.
+         C50 removed "Same request. Different morning." and C51 removed
+         "Compliance is a posture, not a panic." Per the owner instruction on C50,
+         nothing is moved in to fill either slot, so the wrapper goes too rather
+         than shipping an empty bordered container. The .compare-closer CSS rule
+         is left in place, matching how .pain and .archive-trust were handled,
+         so restoring the block is a one-block revert. -->
   </div>
 </section>
 
@@ -1343,7 +1347,7 @@
   <div class="container">
     <div class="section-header">
       <span class="section-eyebrow">The Physical Half</span>
-      <h2>Documented in Full on Trust &amp; Security.</h2>
+      <h2>Trust &amp; Security.</h2>
       <p class="section-intro">The physical side of compliance, including a secure facility, vetted staff, certified destruction, and tracked transport, is documented in full on our Trust &amp; Security page.</p>
     </div>
     <a href="trust-security.html" class="cross-link-framework">See our Trust &amp; Security posture <i class="ph ph-arrow-right" aria-hidden="true"></i></a>
@@ -1353,14 +1357,13 @@
 
 <!-- ============================================================
      SECTION 4 — EDITORIAL PULL-QUOTE
+     [C50/C51 CLIENT AUDIT 2026-09-24] Section removed. Its only content,
+     "Compliance is a posture, not a panic.", is deleted from the page per C51
+     and is not relocated, per the owner instruction on C50.
+     The .archive-quote CSS and the #archiveQuote IntersectionObserver call
+     are left in place: observe() is null-guarded, so the missing element
+     is a no-op, and this stays a one-block revert.
      ============================================================ -->
-<section class="section breathe">
-  <div class="container">
-    <blockquote class="archive-quote" id="archiveQuote">
-      <p>Compliance is a posture, not a panic.</p>
-    </blockquote>
-  </div>
-</section>
 
 
 <!-- ============================================================

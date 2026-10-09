@@ -4,7 +4,7 @@
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>SyTech Solutions — Media</title>
-<meta name="description" content="Videos and media from SyTech Solutions. A placeholder library of overviews and product walkthroughs — final media to come."/>
+<meta name="description" content="Videos and media from SyTech. Overviews, product walkthroughs, and real client scenarios."/>
 <link rel="stylesheet" href="assets/css/sytech-shared.css">
 <style>
 /* ===== Page hero (matches the standard page-hero band used site-wide) ===== */
@@ -15,26 +15,22 @@
 .page-hero h1 span { color: var(--gold); }
 .page-hero p.lead { font-size: 1.15rem; line-height: 1.7; color: rgba(255,255,255,0.82); max-width: 720px; }
 
-/* ===== Media library (two placeholder video blocks) ===== */
+/* ===== Media library: category rows, three videos across ===== */
 .media-section { padding: 5rem 0; background: var(--light); }
-.media-list { display: grid; grid-template-columns: 1fr; gap: 3.5rem; max-width: 880px; margin: 0 auto; }
-.media-block { background: var(--white); border: 1px solid #E3E9EF; border-radius: 10px; overflow: hidden; box-shadow: 0 4px 20px rgba(37,66,107,0.08); }
-.media-block-head { padding: 1.75rem 2rem 1.25rem; }
-.media-block-head .media-eyebrow { display: inline-block; font-size: 0.7rem; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; color: var(--gold); margin-bottom: 0.6rem; }
-.media-block-head h2 { font-size: clamp(1.3rem, 2.2vw, 1.7rem); font-weight: 700; color: var(--navy); margin: 0 0 0.5rem; line-height: 1.2; }
-.media-block-head p { font-size: 0.95rem; line-height: 1.6; color: var(--text-body); margin: 0; }
+.media-row { margin: 0 0 4rem; }
+.media-row:last-child { margin-bottom: 0; }
+.media-row-head { display: flex; align-items: baseline; flex-wrap: wrap; gap: 0.4rem 1rem; padding-bottom: 0.9rem; margin-bottom: 1.5rem; border-bottom: 2px solid #E3E9EF; }
+.media-row-head h2 { font-size: clamp(1.4rem, 2.4vw, 1.85rem); font-weight: 700; color: var(--navy); margin: 0; line-height: 1.2; }
+.media-row-head .media-row-num { color: var(--gold); margin-right: 0.5rem; }
+.media-row-head p { font-size: 0.95rem; color: var(--text-body); margin: 0; }
+.media-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1.75rem; }
+.media-empty { font-size: 0.95rem; color: var(--text-body); font-style: italic; margin: 0; padding: 1.5rem; background: var(--white); border: 1px dashed #CBD5E0; border-radius: 10px; text-align: center; }
 
-/* Placeholder flag — small, clear, non-decorative */
-.placeholder-note {
-  display: inline-flex; align-items: center; gap: 0.5rem;
-  margin-top: 0.9rem; padding: 0.4rem 0.85rem;
-  background: rgba(229,166,48,0.12); border: 1px solid rgba(229,166,48,0.4); border-radius: 6px;
-  font-size: 0.75rem; font-weight: 700; letter-spacing: 0.04em; color: #8a6414;
-}
-.placeholder-note::before {
-  content: ''; width: 8px; height: 8px; border-radius: 50%;
-  background: var(--gold); flex-shrink: 0;
-}
+.media-block { display: flex; flex-direction: column; background: var(--white); border: 1px solid #E3E9EF; border-radius: 10px; overflow: hidden; box-shadow: 0 4px 20px rgba(37,66,107,0.08); }
+.media-block-head { padding: 1.1rem 1.25rem 1.3rem; }
+.media-block-head .media-eyebrow { display: inline-block; font-size: 0.65rem; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; color: var(--gold); margin-bottom: 0.45rem; }
+.media-block-head h3 { font-size: 1.1rem; font-weight: 700; color: var(--navy); margin: 0 0 0.45rem; line-height: 1.3; }
+.media-block-head p { font-size: 0.88rem; line-height: 1.55; color: var(--text-body); margin: 0; }
 
 /* Responsive 16:9 media frame — works for both <video> and <iframe> */
 .media-frame { position: relative; width: 100%; padding-top: 56.25%; background: var(--deep-navy); }
@@ -43,11 +39,16 @@
   position: absolute; inset: 0; width: 100%; height: 100%; border: 0; display: block;
 }
 
+@media (max-width: 1024px) {
+  .media-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
 @media (max-width: 900px) {
   .page-hero { padding: 9rem 0 4rem; }
   .media-section { padding: 3.5rem 0; }
-  .media-list { gap: 2.5rem; }
-  .media-block-head { padding: 1.5rem 1.25rem 1.1rem; }
+  .media-row { margin-bottom: 3rem; }
+}
+@media (max-width: 640px) {
+  .media-grid { grid-template-columns: 1fr; gap: 1.5rem; }
 }
 </style>
 </head>
@@ -143,6 +144,7 @@
           <div class="mega-inner">
             <ul class="mega-simple-list" role="list">
               <li><a href="white-papers.html">White Papers</a></li>
+              <li><a href="case-studies.html">Case Studies</a></li>
               <li><a href="it-deep-dive.html">IT Deep Dive</a></li>
               <li><a href="media.html" aria-current="page">Media</a></li>
               <li><a href="downloads.html">Downloads</a></li>
@@ -169,176 +171,192 @@
 
 <section class="media-section" aria-label="Video library">
   <div class="container">
-    <div class="media-list">
 
-      <!-- Block 1 — SyTech overview video (self-hosted MP4, native controls) -->
-      <article class="media-block">
-        <div class="media-block-head">
-          <span class="media-eyebrow">SyTech</span>
-          <h2>SyTech Overview</h2>
-          <p>A short look at who SyTech is and how we help public sector teams get their records in order.</p>
-          <span class="placeholder-note">Placeholder — final media to come</span>
-        </div>
-        <div class="media-frame">
-          <video controls preload="metadata" playsinline
-                 aria-label="SyTech overview video">
-            <source src="assets/video/sytech-overview-hero.mp4" type="video/mp4">
-            Your browser does not support the video tag. You can
-            <a href="assets/video/sytech-overview-hero.mp4">download the video</a> instead.
-          </video>
-        </div>
-      </article>
+    <section class="media-row" id="overview" aria-labelledby="overview-title">
+      <div class="media-row-head">
+        <h2 id="overview-title">SyTech Overview</h2>
+      </div>
+      <div class="media-grid">
+        <article class="media-block">
+                <div class="media-frame">
+            <video controls preload="metadata" playsinline
+                   aria-label="SyTech overview video">
+              <source src="assets/video/sytech-overview-hero.mp4" type="video/mp4">
+              Your browser does not support the video tag. You can
+              <a href="assets/video/sytech-overview-hero.mp4">download the video</a> instead.
+            </video>
+          </div>
+          <div class="media-block-head">
+            <span class="media-eyebrow">SyTech</span>
+            <h3>SyTech Overview</h3>
+            <p>A short look at who SyTech is and how we help public sector teams get their records in order.</p>
+          </div>
+  </article>
+      </div>
+    </section>
 
-      <!-- Block 2 — OneForm video (reused Vimeo embed from services-oneform.html) -->
-      <article class="media-block">
-        <div class="media-block-head">
-          <span class="media-eyebrow">OneForm</span>
-          <h2>OneForm in Action</h2>
-          <p>Watch the short overview of OneForm, our eForms platform built inside the cloud you already own.</p>
-          <span class="placeholder-note">Placeholder — final media to come</span>
-        </div>
-        <div class="media-frame">
-          <iframe src="https://player.vimeo.com/video/1200851826?badge=0&amp;autopause=0&amp;player_id=0&amp;app_id=58479" frameborder="0" allow="autoplay; fullscreen; picture-in-picture; clipboard-write; encrypted-media; web-share" referrerpolicy="strict-origin-when-cross-origin" title="OneForm 2.0"></iframe>
-        </div>
-      </article>
+    <section class="media-row" id="organize" aria-labelledby="organize-title">
+      <div class="media-row-head">
+        <h2 id="organize-title"><span class="media-row-num">01</span>Organize</h2>
+        <p>See what you actually have.</p>
+      </div>
+      <p class="media-empty">More videos coming soon.</p>
+    </section>
 
-      <!-- ============================================================
-           CLIENT SCENARIOS — seven self-hosted MP4s, same .media-block
-           pattern as above. Titles and captions come from
-           scenario-videos/copy-scenario-faq-mapping.md §2 (core message +
-           claim ceiling). Internal file slugs are never surfaced: scenario 1
-           is volunteer onboarding, not "new branding," and scenario 7 is a
-           Microsoft Access rebuild — Power Apps and Power BI are never named
-           because no transcript says them. Agencies stay anonymous.
-           ============================================================ -->
+    <section class="media-row" id="unify" aria-labelledby="unify-title">
+      <div class="media-row-head">
+        <h2 id="unify-title"><span class="media-row-num">02</span>Unify</h2>
+        <p>One ecosystem. One login.</p>
+      </div>
+      <div class="media-grid">
+        <article class="media-block">
+                <div class="media-frame">
+            <iframe src="https://player.vimeo.com/video/1200851826?badge=0&amp;autopause=0&amp;player_id=0&amp;app_id=58479" frameborder="0" allow="autoplay; fullscreen; picture-in-picture; clipboard-write; encrypted-media; web-share" referrerpolicy="strict-origin-when-cross-origin" title="OneForm 2.0"></iframe>
+          </div>
+          <div class="media-block-head">
+            <span class="media-eyebrow">OneForm</span>
+            <h3>OneForm in Action</h3>
+            <p>Watch the short overview of OneForm, our eForms platform built inside the cloud you already own.</p>
+          </div>
+  </article>
+      </div>
+    </section>
 
-      <!-- Scenario 1 -->
-      <article class="media-block media-scenario">
-        <div class="media-block-head">
-          <span class="media-eyebrow">Client Scenario</span>
-          <h2>Volunteer Onboarding at a School District</h2>
-          <p>A district's volunteer applications were spread across disorganized forms and attachments, with links that often did not work. The district describes what replaced them.</p>
-        </div>
-        <div class="media-frame">
-          <video controls preload="metadata" playsinline
-                 poster="assets/video/scenario-1-new-branding-poster.jpg"
-                 aria-label="Video: a school district describes onboarding volunteers">
-            <source src="assets/video/scenario-1-new-branding.mp4" type="video/mp4">
-            Your browser does not support the video tag. You can
-            <a href="assets/video/scenario-1-new-branding.mp4">download the video</a> instead.
-          </video>
-        </div>
-      </article>
+    <section class="media-row" id="scale" aria-labelledby="scale-title">
+      <div class="media-row-head">
+        <h2 id="scale-title"><span class="media-row-num">03</span>Scale</h2>
+        <p>Activate what you already fund.</p>
+      </div>
+      <p class="media-empty">More videos coming soon.</p>
+    </section>
 
-      <!-- Scenario 2 -->
-      <article class="media-block media-scenario">
-        <div class="media-block-head">
-          <span class="media-eyebrow">Client Scenario</span>
-          <h2>HR Onboarding of New Employees</h2>
-          <p>An HR team's onboarding was outdated, error prone, and confusing for staff and new hires alike. The district describes how it gathers signatures and information now.</p>
-        </div>
-        <div class="media-frame">
-          <video controls preload="metadata" playsinline
-                 poster="assets/video/scenario-2-hr-poster.jpg"
-                 aria-label="Video: a school district HR team describes its new employee onboarding process">
-            <source src="assets/video/scenario-2-hr.mp4" type="video/mp4">
-            Your browser does not support the video tag. You can
-            <a href="assets/video/scenario-2-hr.mp4">download the video</a> instead.
-          </video>
-        </div>
-      </article>
+    <section class="media-row" id="scenarios" aria-labelledby="scenarios-title">
+      <div class="media-row-head">
+        <h2 id="scenarios-title">Scenarios</h2>
+      </div>
+      <div class="media-grid">
+        <article class="media-block media-scenario">
+                <div class="media-frame">
+            <video controls preload="metadata" playsinline
+                   poster="assets/video/scenario-1-new-branding-poster.jpg"
+                   aria-label="Video: a school district describes onboarding volunteers">
+              <source src="assets/video/scenario-1-new-branding.mp4" type="video/mp4">
+              Your browser does not support the video tag. You can
+              <a href="assets/video/scenario-1-new-branding.mp4">download the video</a> instead.
+            </video>
+          </div>
+          <div class="media-block-head">
+            <span class="media-eyebrow">Client Scenario</span>
+            <h3>Volunteer Onboarding at a School District</h3>
+            <p>A district's volunteer applications were spread across disorganized forms and attachments, with links that often did not work. The district describes what replaced them.</p>
+          </div>
+  </article>
+        <article class="media-block media-scenario">
+                <div class="media-frame">
+            <video controls preload="metadata" playsinline
+                   poster="assets/video/scenario-2-hr-poster.jpg"
+                   aria-label="Video: a school district HR team describes its new employee onboarding process">
+              <source src="assets/video/scenario-2-hr.mp4" type="video/mp4">
+              Your browser does not support the video tag. You can
+              <a href="assets/video/scenario-2-hr.mp4">download the video</a> instead.
+            </video>
+          </div>
+          <div class="media-block-head">
+            <span class="media-eyebrow">Client Scenario</span>
+            <h3>HR Onboarding of New Employees</h3>
+            <p>An HR team's onboarding was outdated, error prone, and confusing for staff and new hires alike. The district describes how it gathers signatures and information now.</p>
+          </div>
+  </article>
+        <article class="media-block media-scenario">
+                <div class="media-frame">
+            <video controls preload="metadata" playsinline
+                   poster="assets/video/scenario-3-gold-county-poster.jpg"
+                   aria-label="Video: a county describes modernizing during budget cuts">
+              <source src="assets/video/scenario-3-gold-county.mp4" type="video/mp4">
+              Your browser does not support the video tag. You can
+              <a href="assets/video/scenario-3-gold-county.mp4">download the video</a> instead.
+            </video>
+          </div>
+          <div class="media-block-head">
+            <span class="media-eyebrow">Client Scenario</span>
+            <h3>Doing More With Less Budget</h3>
+            <p>Facing budget cuts, a county needed to modernize without funding new software on top of its existing licenses. The county describes the path it took.</p>
+          </div>
+  </article>
+        <article class="media-block media-scenario">
+                <div class="media-frame">
+            <video controls preload="metadata" playsinline
+                   poster="assets/video/scenario-4-public-agencies-poster.jpg"
+                   aria-label="Video: a public agency describes its purchase order and invoice approval process">
+              <source src="assets/video/scenario-4-public-agencies.mp4" type="video/mp4">
+              Your browser does not support the video tag. You can
+              <a href="assets/video/scenario-4-public-agencies.mp4">download the video</a> instead.
+            </video>
+          </div>
+          <div class="media-block-head">
+            <span class="media-eyebrow">Client Scenario</span>
+            <h3>Purchase Orders, Invoices, and Payments</h3>
+            <p>A surge in demand left a public agency managing purchase orders by hand, with payments slipping through the cracks. The agency describes its approval process today.</p>
+          </div>
+  </article>
+        <article class="media-block media-scenario">
+                <div class="media-frame">
+            <video controls preload="metadata" playsinline
+                   poster="assets/video/scenario-5-pal-poster.jpg"
+                   aria-label="Video: a county describes tracking IT projects against PAL, its Project Application Life Cycle">
+              <source src="assets/video/scenario-5-pal.mp4" type="video/mp4">
+              Your browser does not support the video tag. You can
+              <a href="assets/video/scenario-5-pal.mp4">download the video</a> instead.
+            </video>
+          </div>
+          <div class="media-block-head">
+            <span class="media-eyebrow">Client Scenario</span>
+            <h3>PAL, the Project Application Life Cycle</h3>
+            <p>A county with numerous IT projects needed to track each project's funding requirements across the life cycle. The county describes the standardized approach it adopted.</p>
+          </div>
+  </article>
+        <article class="media-block media-scenario">
+                <div class="media-frame">
+            <video controls preload="metadata" playsinline
+                   poster="assets/video/scenario-6-time-cards-poster.jpg"
+                   aria-label="Video: a school district describes replacing paper time cards">
+              <source src="assets/video/scenario-6-time-cards.mp4" type="video/mp4">
+              Your browser does not support the video tag. You can
+              <a href="assets/video/scenario-6-time-cards.mp4">download the video</a> instead.
+            </video>
+          </div>
+          <div class="media-block-head">
+            <span class="media-eyebrow">Client Scenario</span>
+            <h3>Paper Time Cards</h3>
+            <p>A district ran teacher and employee time cards on paper for decades, until hundreds of cards turned into thousands. The district describes what digital changed.</p>
+          </div>
+  </article>
+        <article class="media-block media-scenario">
+                <div class="media-frame">
+            <video controls preload="metadata" playsinline
+                   poster="assets/video/scenario-7-power-apps-bi-poster.jpg"
+                   aria-label="Video: a county describes replacing a legacy Microsoft Access application">
+              <source src="assets/video/scenario-7-power-apps-bi.mp4" type="video/mp4">
+              Your browser does not support the video tag. You can
+              <a href="assets/video/scenario-7-power-apps-bi.mp4">download the video</a> instead.
+            </video>
+          </div>
+          <div class="media-block-head">
+            <span class="media-eyebrow">Client Scenario</span>
+            <h3>A Legacy Microsoft Access Application</h3>
+            <p>A county depended on an aging Microsoft Access application that disrupted workflow and locked remote workers out of essential data. The county describes what replaced it.</p>
+          </div>
+  </article>
+      </div>
+    </section>
 
-      <!-- Scenario 3 -->
-      <article class="media-block media-scenario">
-        <div class="media-block-head">
-          <span class="media-eyebrow">Client Scenario</span>
-          <h2>Doing More With Less Budget</h2>
-          <p>Facing budget cuts, a county needed to modernize without funding new software on top of its existing licenses. The county describes the path it took.</p>
-        </div>
-        <div class="media-frame">
-          <video controls preload="metadata" playsinline
-                 poster="assets/video/scenario-3-gold-county-poster.jpg"
-                 aria-label="Video: a county describes modernizing during budget cuts">
-            <source src="assets/video/scenario-3-gold-county.mp4" type="video/mp4">
-            Your browser does not support the video tag. You can
-            <a href="assets/video/scenario-3-gold-county.mp4">download the video</a> instead.
-          </video>
-        </div>
-      </article>
+    <section class="media-row" id="other" aria-labelledby="other-title">
+      <div class="media-row-head">
+        <h2 id="other-title">Other</h2>
+      </div>
+      <p class="media-empty">More videos coming soon.</p>
+    </section>
 
-      <!-- Scenario 4 -->
-      <article class="media-block media-scenario">
-        <div class="media-block-head">
-          <span class="media-eyebrow">Client Scenario</span>
-          <h2>Purchase Orders, Invoices, and Payments</h2>
-          <p>A surge in demand left a public agency managing purchase orders by hand, with payments slipping through the cracks. The agency describes its approval process today.</p>
-        </div>
-        <div class="media-frame">
-          <video controls preload="metadata" playsinline
-                 poster="assets/video/scenario-4-public-agencies-poster.jpg"
-                 aria-label="Video: a public agency describes its purchase order and invoice approval process">
-            <source src="assets/video/scenario-4-public-agencies.mp4" type="video/mp4">
-            Your browser does not support the video tag. You can
-            <a href="assets/video/scenario-4-public-agencies.mp4">download the video</a> instead.
-          </video>
-        </div>
-      </article>
-
-      <!-- Scenario 5 -->
-      <article class="media-block media-scenario">
-        <div class="media-block-head">
-          <span class="media-eyebrow">Client Scenario</span>
-          <h2>PAL, the Project Application Life Cycle</h2>
-          <p>A county with numerous IT projects needed to track each project's funding requirements across the life cycle. The county describes the standardized approach it adopted.</p>
-        </div>
-        <div class="media-frame">
-          <video controls preload="metadata" playsinline
-                 poster="assets/video/scenario-5-pal-poster.jpg"
-                 aria-label="Video: a county describes tracking IT projects against PAL, its Project Application Life Cycle">
-            <source src="assets/video/scenario-5-pal.mp4" type="video/mp4">
-            Your browser does not support the video tag. You can
-            <a href="assets/video/scenario-5-pal.mp4">download the video</a> instead.
-          </video>
-        </div>
-      </article>
-
-      <!-- Scenario 6 -->
-      <article class="media-block media-scenario">
-        <div class="media-block-head">
-          <span class="media-eyebrow">Client Scenario</span>
-          <h2>Paper Time Cards</h2>
-          <p>A district ran teacher and employee time cards on paper for decades, until hundreds of cards turned into thousands. The district describes what digital changed.</p>
-        </div>
-        <div class="media-frame">
-          <video controls preload="metadata" playsinline
-                 poster="assets/video/scenario-6-time-cards-poster.jpg"
-                 aria-label="Video: a school district describes replacing paper time cards">
-            <source src="assets/video/scenario-6-time-cards.mp4" type="video/mp4">
-            Your browser does not support the video tag. You can
-            <a href="assets/video/scenario-6-time-cards.mp4">download the video</a> instead.
-          </video>
-        </div>
-      </article>
-
-      <!-- Scenario 7 -->
-      <article class="media-block media-scenario">
-        <div class="media-block-head">
-          <span class="media-eyebrow">Client Scenario</span>
-          <h2>A Legacy Microsoft Access Application</h2>
-          <p>A county depended on an aging Microsoft Access application that disrupted workflow and locked remote workers out of essential data. The county describes what replaced it.</p>
-        </div>
-        <div class="media-frame">
-          <video controls preload="metadata" playsinline
-                 poster="assets/video/scenario-7-power-apps-bi-poster.jpg"
-                 aria-label="Video: a county describes replacing a legacy Microsoft Access application">
-            <source src="assets/video/scenario-7-power-apps-bi.mp4" type="video/mp4">
-            Your browser does not support the video tag. You can
-            <a href="assets/video/scenario-7-power-apps-bi.mp4">download the video</a> instead.
-          </video>
-        </div>
-      </article>
-
-    </div>
   </div>
 </section>
 
@@ -380,6 +398,7 @@
           <li><a href="services.html">Services</a></li>
           <li><a href="who-we-serve.html">Who We Serve</a></li>
           <li><a href="white-papers.html">White Papers</a></li>
+          <li><a href="case-studies.html">Case Studies</a></li>
           <li><a href="downloads.html">Downloads</a></li>
           <li><a href="contact.html">Contact</a></li>
         </ul>
@@ -480,11 +499,9 @@
 </script>
 
 <script>
-/* Scenario videos — page-local, scoped to .media-scenario only. Playing one
-   scenario video pauses any other scenario video on this page. The SyTech
-   overview block and the OneForm Vimeo embed are untouched. Nothing else. */
+/* Playing one video pauses any other self-hosted video on this page. */
 (function () {
-  var vids = document.querySelectorAll('.media-scenario video');
+  var vids = document.querySelectorAll('.media-section video');
   if (vids.length < 2) return;
   Array.prototype.forEach.call(vids, function (v) {
     v.addEventListener('play', function () {
